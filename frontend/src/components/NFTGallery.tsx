@@ -15,9 +15,7 @@ import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 const PRIMOS_COLLECTION_MINT = new Set([
-    // Add actual Primos mint addresses here
-    'PRIMOS_EXAMPLE_MINT_1',
-    'PRIMOS_EXAMPLE_MINT_2'
+    '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'
 ]);
 
 const NFTGallery = () => {
