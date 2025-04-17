@@ -14,10 +14,8 @@ import { clusterApiUrl, PublicKey, AccountInfo, ParsedAccountData } from '@solan
 import '../App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-// Replace with actual Primos collection address or mint list if needed
 const PRIMOS_COLLECTION_MINT = new Set<string>([
-    'PRIMOS_EXAMPLE_MINT_1',
-    'PRIMOS_EXAMPLE_MINT_2'
+    '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'
 ]);
 
 interface NFTInfo {
