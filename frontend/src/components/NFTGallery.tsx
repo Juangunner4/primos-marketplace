@@ -9,19 +9,26 @@ import {
     PhantomWalletAdapter,
     SolflareWalletAdapter
 } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl, PublicKey } from '@solana/web3.js';
+import { clusterApiUrl, PublicKey, AccountInfo, ParsedAccountData } from '@solana/web3.js';
 
-import './App.css';
+import '../App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-const PRIMOS_COLLECTION_MINT = new Set([
-    '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'
+// Replace with actual Primos collection address or mint list if needed
+const PRIMOS_COLLECTION_MINT = new Set<string>([
+    'PRIMOS_EXAMPLE_MINT_1',
+    'PRIMOS_EXAMPLE_MINT_2'
 ]);
 
-const NFTGallery = () => {
+interface NFTInfo {
+    pubkey: PublicKey;
+    account: AccountInfo<ParsedAccountData>;
+}
+
+const NFTGallery: React.FC = () => {
     const { connection } = useConnection();
     const { publicKey } = useWallet();
-    const [nfts, setNfts] = useState([]);
+    const [nfts, setNfts] = useState<NFTInfo[]>([]);
 
     useEffect(() => {
         if (!publicKey) return;
@@ -38,7 +45,8 @@ const NFTGallery = () => {
                     return amount > 0 && PRIMOS_COLLECTION_MINT.has(mint);
                 });
 
-                setNfts(filtered);
+                const nftData = filtered.map(({ pubkey, account }) => ({ pubkey, account }));
+                setNfts(nftData);
             } catch (err) {
                 console.error('Error fetching NFTs:', err);
             }
@@ -63,15 +71,13 @@ const NFTGallery = () => {
     );
 };
 
-const App = () => {
-    const [walletConnected, setWalletConnected] = useState(false);
-
+const App: React.FC = () => {
     const endpoint = useMemo(() => clusterApiUrl('devnet'), []);
-
     const wallets = useMemo(
         () => [
             new PhantomWalletAdapter(),
-            new SolflareWalletAdapter()],
+            new SolflareWalletAdapter()
+        ],
         []
     );
 
