@@ -1,18 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ConnectionProvider, WalletProvider, useWallet, useConnection } from '@solana/wallet-adapter-react';
-import {
-    WalletModalProvider,
-    WalletDisconnectButton,
-    WalletMultiButton
-} from '@solana/wallet-adapter-react-ui';
-import {
-    PhantomWalletAdapter,
-    SolflareWalletAdapter
-} from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl, PublicKey, AccountInfo, ParsedAccountData } from '@solana/web3.js';
+import React, { useEffect, useState } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { PublicKey, AccountInfo, ParsedAccountData } from '@solana/web3.js';
 
 import '../App.css';
-import '@solana/wallet-adapter-react-ui/styles.css';
 
 const PRIMOS_COLLECTION_MINT = new Set<string>([
     '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'
@@ -69,33 +59,4 @@ const NFTGallery: React.FC = () => {
     );
 };
 
-const App: React.FC = () => {
-    const endpoint = useMemo(() => clusterApiUrl('devnet'), []);
-    const wallets = useMemo(
-        () => [
-            new PhantomWalletAdapter(),
-            new SolflareWalletAdapter()
-        ],
-        []
-    );
-
-    return (
-        <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect>
-                <WalletModalProvider>
-                    <div className="App">
-                        <header className="header">
-                            <h1>Primos Marketplace</h1>
-                            <WalletMultiButton />
-                            <WalletDisconnectButton />
-                        </header>
-
-                        <NFTGallery />
-                    </div>
-                </WalletModalProvider>
-            </WalletProvider>
-        </ConnectionProvider>
-    );
-};
-
-export default App;
+export default NFTGallery;
