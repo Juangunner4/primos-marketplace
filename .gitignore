@@ -40,6 +40,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+**/node_modules/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
@@ -47,6 +48,7 @@ web_modules/
 
 # TypeScript cache
 *.tsbuildinfo
+**/*.tsbuildinfo
 
 # Optional npm cache directory
 .npm
@@ -74,10 +76,8 @@ web_modules/
 
 # dotenv environment variable files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
+!.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -134,3 +134,20 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# IDE/workspace
+.vscode/
+.idea/
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Monorepo specific
+packages/*/dist/
+packages/*/build/
+apps/*/dist/
+apps/*/build/
+**/build/
+**/dist/
