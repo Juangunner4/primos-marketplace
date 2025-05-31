@@ -1,9 +1,11 @@
 const webpack = require("webpack");
+const path = require("path");
 
 module.exports = {
   webpack: {
     configure: (config) => {
       config.resolve.fallback = {
+        ...config.resolve.fallback,
         crypto: require.resolve("crypto-browserify"),
         stream: require.resolve("stream-browserify"),
         assert: require.resolve("assert/"),
@@ -12,11 +14,15 @@ module.exports = {
         os: require.resolve("os-browserify/browser"),
         url: require.resolve("url/"),
         buffer: require.resolve("buffer/"),
-        process: require.resolve("process/browser")
+        process: require.resolve("process/browser.js"),
+      };
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "@solana/spl-token-metadata": path.resolve(__dirname, "empty.js"),
       };
       config.plugins.push(
         new webpack.ProvidePlugin({
-          process: "process/browser",
+          process: "process/browser.js",
           Buffer: ["buffer", "Buffer"],
         })
       );
