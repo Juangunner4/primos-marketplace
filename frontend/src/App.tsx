@@ -5,7 +5,6 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
-import primos from './images/primoslogo.png';
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './components/NFTGallery';
 import WalletLogin from './components/WalletLogin';
@@ -23,11 +22,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="header">
-      <img src={primos} alt="Left Logo" className="logo logo-left" />
-
-      <div className="logo-center-container">
-        <img src={logo} alt="Center Logo" className="logo logo-center" />
-      </div>
+      <img src={logo} alt="Left Logo" className="logo logo-left" />
 
       <div className="wallet-buttons">
         {publicKey && (
@@ -45,7 +40,8 @@ const Header: React.FC = () => {
 };
 
 const App = () => {
-  const endpoint = useMemo(() => clusterApiUrl('devnet'), []);
+  // Switch to mainnet
+  const endpoint = useMemo(() => clusterApiUrl('mainnet-beta'), []);
   const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], []);
 
   return (

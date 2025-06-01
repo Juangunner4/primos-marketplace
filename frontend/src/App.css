@@ -32,7 +32,12 @@ body {
 }
 
 .logo-left {
-    flex: 1;
+    margin-right: 16px;
+    margin-left: 0;
+    padding-left: 8px;
+    /* standard logo padding */
+    height: 48px;
+    width: auto;
 }
 
 .logo-center-container {
@@ -126,6 +131,7 @@ body {
     }
 
     .logo-center-container {
-        order: 3; /* pushes center logo to bottom if needed */
+        order: 3;
+        /* pushes center logo to bottom if needed */
     }
 }

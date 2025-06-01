@@ -32,6 +32,10 @@ const NFTGallery: React.FC = () => {
                 const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
                     programId: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
                 });
+                console.log(
+                    'Wallet token mints:',
+                    tokenAccounts.value.map(({ account }) => account.data.parsed.info.mint)
+                );
 
                 const filtered = tokenAccounts.value.filter(({ account }) => {
                     const amount = account.data.parsed.info.tokenAmount.uiAmount;
