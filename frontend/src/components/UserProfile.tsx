@@ -96,7 +96,7 @@ const UserProfile: React.FC = () => {
             />
 
             <p>
-                <strong>Marketplace Balance:</strong> {currencyBalance} $PRIMO
+                <strong>Marketplace Balance:</strong> {currencyBalance} Pesos
             </p>
             <p>
                 <strong>Status:</strong> {status}
