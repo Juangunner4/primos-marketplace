@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
 
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './components/NFTGallery';
@@ -41,8 +40,11 @@ const Header: React.FC = () => {
 
 const App = () => {
   // Switch to mainnet
-  const endpoint = useMemo(() => clusterApiUrl('mainnet-beta'), []);
-  const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], []);
+  const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY || process.env.HELIUS_API_KEY;
+  const endpoint = useMemo(
+    () => `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
+    [heliusApiKey]
+  ); const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>

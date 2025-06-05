@@ -4,6 +4,7 @@ import { AccountInfo, ParsedAccountData, PublicKey } from '@solana/web3.js';
 import { motion } from 'framer-motion';
 import * as Dialog from '@radix-ui/react-dialog';
 import { fetchNftMetadata } from '../utils/getNftMetadata';
+import { getAssetsByCollection } from '../utils/helius';
 
 const PRIMOS_COLLECTION_MINT = new Set<string>([
     '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb' // Add more mints if needed
@@ -26,6 +27,18 @@ const NFTGallery: React.FC = () => {
 
     useEffect(() => {
         if (!publicKey) return;
+        const pub = publicKey.toBase58();
+
+        const fetchCollectionAssets = async (mint: string) => {
+            try {
+                const asset = await getAssetsByCollection(mint, pub);
+                console.log('Fetched Asset:', asset);
+            } catch (err) {
+                console.error('Error fetching By Collection:', err);
+            }
+        };
+
+        fetchCollectionAssets('2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb');
 
         const fetchNFTs = async () => {
             try {
@@ -48,7 +61,7 @@ const NFTGallery: React.FC = () => {
                 for (const { pubkey, account } of filtered) {
                     const mint = account.data.parsed.info.mint;
                     const metadata = await fetchNftMetadata(connection, mint);
-                    if (metadata !== null) {
+                    if (metadata !== null && metadata !== undefined) {
                         enriched.push({ pubkey, account, metadata });
                     }
                 }
