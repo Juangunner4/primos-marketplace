@@ -12,5 +12,8 @@
   "connect_wallet_modal": "Connect Your Wallet",
   "logout_confirm": "Are you sure you want to log out?",
   "yes_logout": "Yes, Log out",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "floor_price": "Floor Price",
+  "owners": "Owners",
+  "total_value": "Total Value"
 }

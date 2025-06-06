@@ -12,5 +12,8 @@
   "connect_wallet_modal": "Conecta tu billetera",
   "logout_confirm": "¿Estás seguro de que deseas cerrar sesión?",
   "yes_logout": "Sí, cerrar sesión",
-  "cancel": "Cancelar"
+  "cancel": "Cancelar",
+  "floor_price": "Precio mínimo",
+  "owners": "Propietarios",
+  "total_value": "Valor total"
 }

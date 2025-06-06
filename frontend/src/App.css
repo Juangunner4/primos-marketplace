@@ -110,6 +110,27 @@ body {
 .lang-buttons {
   z-index: 10;
 }
+.lang-buttons button {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  min-width: 32px;
+  height: 28px;
+}
+
+.beta-text {
+  position: absolute;
+  right: 1.5rem;
+  top: 1.2rem;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: #fff;
+  opacity: 0.25;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 5;
+}
+
 @media (max-width: 600px) {
   .lang-buttons {
     position: absolute;

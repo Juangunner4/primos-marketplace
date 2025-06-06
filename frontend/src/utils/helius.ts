@@ -42,7 +42,9 @@ export const getAssetsByCollection = async (
         page++;
 
         if (hasMore) {
-            await new Promise(res => setTimeout(res, 300));
+            // Remove or reduce delay for faster loading
+            // await new Promise(res => setTimeout(res, 300));
+            await new Promise(res => setTimeout(res, 50));
         }
     }
 
@@ -55,4 +57,24 @@ export const getAssetsByCollection = async (
             name: item.content?.metadata?.name || item.id,
             listed: !!item.listing || !!item.marketplace, 
         }));
+};
+
+export const getCollectionStats = async (collectionAddress: string) => {
+    const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+    try {
+        const response = await fetch(
+            `https://api.helius.xyz/v0/collections/stats?api-key=${apiKey}&collection=${collectionAddress}`
+        );
+        if (!response.ok) {
+            // 404 or other error
+            return { floorPrice: null, owners: null };
+        }
+        const data = await response.json();
+        return {
+            floorPrice: data.floorPrice ?? null,
+            owners: data.ownerCount ?? null,
+        };
+    } catch {
+        return { floorPrice: null, owners: null };
+    }
 };

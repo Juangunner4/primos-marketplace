@@ -65,6 +65,7 @@ const Header: React.FC = () => {
         </button>
       </div>
       <img src={logo} alt="Left Logo" className="logo logo-left" style={{ marginLeft: '60px' }} />
+      <span className="beta-text">BETA</span>
 
       <div className="wallet-buttons">
         {publicKey && (
