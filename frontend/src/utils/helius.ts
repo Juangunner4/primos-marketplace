@@ -58,23 +58,3 @@ export const getAssetsByCollection = async (
             listed: !!item.listing || !!item.marketplace, 
         }));
 };
-
-export const getCollectionStats = async (collectionAddress: string) => {
-    const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
-    try {
-        const response = await fetch(
-            `https://api.helius.xyz/v0/collections/stats?api-key=${apiKey}&collection=${collectionAddress}`
-        );
-        if (!response.ok) {
-            // 404 or other error
-            return { floorPrice: null, owners: null };
-        }
-        const data = await response.json();
-        return {
-            floorPrice: data.floorPrice ?? null,
-            owners: data.ownerCount ?? null,
-        };
-    } catch {
-        return { floorPrice: null, owners: null };
-    }
-};

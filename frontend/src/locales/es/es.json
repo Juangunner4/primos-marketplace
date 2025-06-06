@@ -14,6 +14,7 @@
   "yes_logout": "Sí, cerrar sesión",
   "cancel": "Cancelar",
   "floor_price": "Precio mínimo",
-  "owners": "Propietarios",
-  "total_value": "Valor total"
+  "owned": "En posesión",
+  "total_value": "Valor total",
+  "sol_price": "Precio SOL"
 }

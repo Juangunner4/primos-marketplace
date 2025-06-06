@@ -1,52 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getAssetsByCollection, getCollectionStats, HeliusNFT } from '../utils/helius';
-import logo from '../images/primoslogo.png'; 
+import { getAssetsByCollection, HeliusNFT } from '../utils/helius';
+import { getMagicEdenStats } from '../utils/magiceden';
+import { getPythSolPrice } from '../utils/pyth';
+import logo from '../images/primoslogo.png';
 import './NFTGallery.css';
 import { useTranslation } from 'react-i18next';
 
 const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
+const MAGICEDEN_SYMBOL = 'primos';
+
+type GalleryNFT = HeliusNFT & { variant: string };
 
 const NFTGallery: React.FC = () => {
     const { publicKey } = useWallet();
-    const [nfts, setNfts] = useState<HeliusNFT[]>([]);
+    const [nfts, setNfts] = useState<GalleryNFT[]>([]);
     const [loading, setLoading] = useState(false);
-    const [floorPrice, setFloorPrice] = useState<number | null>(null);
-    const [owners, setOwners] = useState<number | null>(null);
     const [solPrice, setSolPrice] = useState<number | null>(null);
+    const [floorPrice, setFloorPrice] = useState<number | null>(null);
     const { t } = useTranslation();
-
-    // Fetch SOL price in USD
-    const fetchSolPrice = async () => {
-        try {
-            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-            if (!res.ok) {
-                setSolPrice(null);
-                return;
-            }
-            const data = await res.json();
-            setSolPrice(data?.solana?.usd ?? null);
-        } catch {
-            setSolPrice(null);
-        }
-    };
-
-    // Fetch floor price and owners (replace with real API if available)
-    const fetchCollectionStats = async () => {
-        try {
-            const stats = await getCollectionStats(PRIMOS_COLLECTION_MINT);
-            setFloorPrice(stats.floorPrice);
-            setOwners(stats.owners);
-        } catch {
-            setFloorPrice(null);
-            setOwners(null);
-        }
-    };
 
     useEffect(() => {
         if (!publicKey) {
             setNfts([]);
             setLoading(false);
+            setFloorPrice(null);
+            setSolPrice(null);
             return;
         }
         const pub = publicKey.toBase58();
@@ -54,13 +33,20 @@ const NFTGallery: React.FC = () => {
         setLoading(true);
         Promise.all([
             getAssetsByCollection(PRIMOS_COLLECTION_MINT, pub),
-            fetchCollectionStats(),
-            fetchSolPrice()
-        ]).then(([assets]) => {
-            setNfts(assets);
+            getMagicEdenStats(MAGICEDEN_SYMBOL),
+            getPythSolPrice()
+        ]).then(([assets, stats, solPrice]) => {
+            // Assign a random variant to each NFT ONCE
+            const assetsWithVariants = assets.map(nft => ({
+                ...nft,
+                variant: CARD_VARIANTS[Math.floor(Math.random() * CARD_VARIANTS.length)]
+            }));
+            setNfts(assetsWithVariants);
+            setFloorPrice(stats?.floorPrice ?? null);
+            setSolPrice(solPrice ?? null);
             setLoading(false);
         });
-    // eslint-disable-next-line
+        // eslint-disable-next-line
     }, [publicKey]);
 
     if (!publicKey) {
@@ -102,10 +88,10 @@ const NFTGallery: React.FC = () => {
     // Cards are now straight (no rotation/translation)
     const getCardStyle = () => ({});
 
-    // Calculate total value in USD
+    // Calculate total value in USD (if you have solPrice)
     const totalValueUSD =
         floorPrice && solPrice
-            ? (nfts.length * floorPrice * solPrice).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })
+            ? (nfts.length * (floorPrice / 1e9) * solPrice).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })
             : '--';
 
     return (
@@ -113,8 +99,9 @@ const NFTGallery: React.FC = () => {
             <div className="nft-gallery-header">
                 <span className="nft-gallery-title">{t('your_primos_nfts')}</span>
                 <div className="nft-gallery-stats">
-                    <span>{t('floor_price')}: {floorPrice !== null ? `${floorPrice} ◎` : '--'}</span>
-                    <span>{t('owners')}: {owners !== null ? owners : '--'}</span>
+                    <span>{t('floor_price')}: {floorPrice !== null ? `${floorPrice / 1e9} ◎` : '--'}</span>
+                    <span>{t('owned')}: {nfts.length}</span>
+                    <span>{t('sol_price')}: {solPrice !== null ? `$${solPrice}` : '--'}</span>
                     <span>{t('total_value')}: {totalValueUSD}</span>
                 </div>
             </div>
@@ -127,30 +114,26 @@ const NFTGallery: React.FC = () => {
                 <p className="text-gray-600">{t('no_nfts')}</p>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {nfts.map((nft, i) => {
-                        const variant = CARD_VARIANTS[Math.floor(Math.random() * CARD_VARIANTS.length)];
-                        return (
-                            <div
-                                key={i}
-                                className={`nft-card nft-card--${variant}`}
-                                style={getCardStyle()}
-                            >
-                                <span className="nft-prefix">
-                                    {nft.id.slice(0, 4)}
-                                </span>
-                                <img
-                                    src={nft.image}
-                                    alt={nft.name}
-                                />
-                                <div className="nft-title">{nft.name}</div>
-                                <div className="nft-token">
-                                </div>
-                                <span className="nft-status">
-                                    {nft.listed ? t('listed') : t('not_listed')}
-                                </span>
-                            </div>
-                        );
-                    })}
+                    {nfts.map((nft, i) => (
+                        <div
+                            key={i}
+                            className={`nft-card nft-card--${nft.variant}`}
+                            style={getCardStyle()}
+                        >
+                            <span className="nft-prefix">
+                                {nft.id.slice(0, 4)}
+                            </span>
+                            <img
+                                src={nft.image}
+                                alt={nft.name}
+                            />
+                            <div className="nft-title">{nft.name}</div>
+                            <div className="nft-token"></div>
+                            <span className="nft-status">
+                                {nft.listed ? t('listed') : t('not_listed')}
+                            </span>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

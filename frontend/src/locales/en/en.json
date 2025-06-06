@@ -14,6 +14,7 @@
   "yes_logout": "Yes, Log out",
   "cancel": "Cancel",
   "floor_price": "Floor Price",
-  "owners": "Owners",
-  "total_value": "Total Value"
+  "owned": "Owned",
+  "total_value": "Total Value",
+  "sol_price": "SOL Price"
 }
