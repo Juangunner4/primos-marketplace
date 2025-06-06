@@ -1,4 +1,6 @@
-package com.primos.model;
+package com.primos.resource;
+
+import com.primos.model.User;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
