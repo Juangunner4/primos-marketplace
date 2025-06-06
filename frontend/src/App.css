@@ -107,8 +107,18 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.lang-buttons {
+  z-index: 10;
+}
 @media (max-width: 600px) {
-    .header {
+  .lang-buttons {
+    position: absolute;
+    left: 0;
+    top: 0;
+    flex-direction: row;
+    padding: 0.5rem 0.5rem 0 0.5rem;
+  }
+  .header {
         flex-direction: column;
         align-items: stretch;
         gap: 1rem;

@@ -1,0 +1,16 @@
+{
+  "connect_wallet": "Connect your wallet to view your Primos NFTs",
+  "your_primos_nfts": "Your Primos NFTs",
+  "loading_nfts": "Loading your NFTs...",
+  "no_nfts": "No Primos NFTs found in your wallet.",
+  "listed": "Listed",
+  "not_listed": "Not Listed",
+  "login": "Login",
+  "logout": "Logout",
+  "profile": "Profile",
+  "home": "Home",
+  "connect_wallet_modal": "Connect Your Wallet",
+  "logout_confirm": "Are you sure you want to log out?",
+  "yes_logout": "Yes, Log out",
+  "cancel": "Cancel"
+}

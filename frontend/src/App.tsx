@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { useTranslation } from 'react-i18next';
 
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './components/NFTGallery';
@@ -18,10 +19,52 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === '/profile';
+  const { i18n, t } = useTranslation();
 
   return (
-    <header className="header">
-      <img src={logo} alt="Left Logo" className="logo logo-left" />
+    <header className="header" style={{ position: 'relative' }}>
+      {/* Language buttons */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          display: 'flex',
+          gap: '0.5rem',
+          padding: '0.5rem',
+        }}
+        className="lang-buttons"
+      >
+        <button
+          onClick={() => i18n.changeLanguage('en')}
+          style={{
+            background: i18n.language === 'en' ? '#1a202c' : '#fff',
+            color: i18n.language === 'en' ? '#fff' : '#1a202c',
+            border: '1px solid #1a202c',
+            borderRadius: '4px',
+            padding: '0.25rem 0.75rem',
+            cursor: 'pointer',
+            fontWeight: 600,
+          }}
+        >
+          EN
+        </button>
+        <button
+          onClick={() => i18n.changeLanguage('es')}
+          style={{
+            background: i18n.language === 'es' ? '#1a202c' : '#fff',
+            color: i18n.language === 'es' ? '#fff' : '#1a202c',
+            border: '1px solid #1a202c',
+            borderRadius: '4px',
+            padding: '0.25rem 0.75rem',
+            cursor: 'pointer',
+            fontWeight: 600,
+          }}
+        >
+          ES
+        </button>
+      </div>
+      <img src={logo} alt="Left Logo" className="logo logo-left" style={{ marginLeft: '60px' }} />
 
       <div className="wallet-buttons">
         {publicKey && (
@@ -29,7 +72,7 @@ const Header: React.FC = () => {
             onClick={() => navigate(isProfilePage ? '/' : '/profile')}
             className="wallet-adapter-button"
           >
-            {isProfilePage ? 'Home' : 'Profile'}
+            {isProfilePage ? t('home') : t('profile')}
           </button>
         )}
         <WalletLogin />

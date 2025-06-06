@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './WalletLogin.css';
 
 const WalletLogin: React.FC = () => {
   const { connected, disconnect } = useWallet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const navigate = useNavigate(); 
+  const { t } = useTranslation();
 
   const handleLoginClick = () => {
     if (!connected) {
@@ -16,10 +20,12 @@ const WalletLogin: React.FC = () => {
     }
   };
 
-  const confirmLogout = () => {
-    disconnect();
+  const confirmLogout = async () => {
+    await disconnect();
     setShowLogoutConfirm(false);
     setIsModalOpen(false);
+    navigate('/');
+    setTimeout( () => window.location.reload(), 1000);
   };
 
   const cancelLogout = () => {
@@ -29,14 +35,14 @@ const WalletLogin: React.FC = () => {
   return (
     <div>
       <button className="login-button" onClick={handleLoginClick}>
-        {connected ? 'Logout' : 'Login'}
+        {connected ? t('logout') : t('login')}
       </button>
 
       {/* Login modal */}
       {isModalOpen && !connected && !showLogoutConfirm && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Connect Your Wallet</h2>
+            <h2>{t('connect_wallet_modal')}</h2>
             <WalletMultiButton />
           </div>
         </div>
@@ -46,9 +52,9 @@ const WalletLogin: React.FC = () => {
       {showLogoutConfirm && (
         <div className="modal-overlay" onClick={cancelLogout}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Are you sure you want to log out?</h2>
-            <button className="login-button" onClick={confirmLogout}>Yes, Log out</button>
-            <button className="login-button" onClick={cancelLogout}>Cancel</button>
+            <h2>{t('logout_confirm')}</h2>
+            <button className="login-button" onClick={confirmLogout}>{t('yes_logout')}</button>
+            <button className="login-button" onClick={cancelLogout}>{t('cancel')}</button>
           </div>
         </div>
       )}
