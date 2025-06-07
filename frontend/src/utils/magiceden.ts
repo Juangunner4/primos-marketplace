@@ -31,7 +31,7 @@ export interface MagicEdenHolderStats {
     totalSupply: number;
     uniqueHolders: number;
     tokenHistogram: {
-        bars: { l_val: number; hight: number }[];
+        bars: { l_val: number; height: number }[];
     };
     topHolders: {
         owner: string;
