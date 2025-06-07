@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import { useTranslation } from 'react-i18next';
 import './Activity.css';
 
 type ActivityItem = {
@@ -12,75 +13,63 @@ type ActivityItem = {
   price?: number;
   from?: string;
   to?: string;
-  time: string; // ISO string or formatted
+  time: string;
 };
 
-const mockActivity: ActivityItem[] = [
-  {
-    id: '1',
-    type: 'sale',
-    nftName: 'Primo #123',
-    price: 2.5,
-    from: 'Alice',
-    to: 'Bob',
-    time: '2025-06-07T14:00:00Z',
-  },
-  {
-    id: '2',
-    type: 'listing',
-    nftName: 'Primo #456',
-    price: 3.1,
-    from: 'Carol',
-    time: '2025-06-07T13:50:00Z',
-  },
-  {
-    id: '3',
-    type: 'delist',
-    nftName: 'Primo #789',
-    from: 'Dave',
-    time: '2025-06-07T13:40:00Z',
-  },
-  {
-    id: '4',
-    type: 'mint',
-    nftName: 'Primo #101',
-    to: 'Eve',
-    time: '2025-06-07T13:30:00Z',
-  },
-];
+const MAGICEDEN_SYMBOL = 'primos';
 
-const typeLabels: Record<ActivityItem['type'], string> = {
-  sale: 'Sale',
-  listing: 'Listed',
-  delist: 'Delisted',
-  mint: 'Minted',
+const fetchMagicEdenActivity = async (): Promise<ActivityItem[]> => {
+  try {
+    const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${MAGICEDEN_SYMBOL}/activities?offset=0&limit=20`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    // Map Magic Eden activity to your ActivityItem type
+    return data.map((item: any) => ({
+      id: item.signature || item.txId || Math.random().toString(),
+      type: item.type,
+      nftName: item.tokenMint || item.name || 'NFT',
+      price: item.price,
+      from: item.seller || item.source || '',
+      to: item.buyer || item.destination || '',
+      time: item.blockTime ? new Date(item.blockTime * 1000).toISOString() : new Date().toISOString(),
+    }));
+  } catch {
+    return [];
+  }
 };
 
 const Activity: React.FC = () => {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    // TODO: Replace with real API call
-    setActivity(mockActivity);
+    fetchMagicEdenActivity().then(setActivity);
   }, []);
+
+  const typeLabels: Record<ActivityItem['type'], string> = {
+    sale: t('activity_sale'),
+    listing: t('activity_listing'),
+    delist: t('activity_delist'),
+    mint: t('activity_mint'),
+  };
 
   return (
     <Box component="aside" className="activity-panel">
       <Typography variant="h6" component="h3" className="activity-title">
-        Activity
+        {t('activity')}
       </Typography>
       <List className="activity-list">
         {activity.map((item) => (
           <ListItem key={item.id} className={`activity-row activity-${item.type}`} disableGutters>
-            <span className="activity-type">{typeLabels[item.type]}</span>
+            <span className="activity-type">{typeLabels[item.type] || item.type}</span>
             <span className="activity-nft">{item.nftName}</span>
             {item.price && (
               <span className="activity-price">
                 {item.price} <span className="activity-sol">◎</span>
               </span>
             )}
-            {item.from && <span className="activity-from">From: {item.from}</span>}
-            {item.to && <span className="activity-to">To: {item.to}</span>}
+            {item.from && <span className="activity-from">{t('activity_from')}: {item.from}</span>}
+            {item.to && <span className="activity-to">{t('activity_to')}: {item.to}</span>}
             <span className="activity-time">
               {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>

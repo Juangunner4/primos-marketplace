@@ -43,5 +43,12 @@
   "market_no_nfts": "No NFTs listed.",
   "market_holders": "Holders",
   "prev": "Prev",
-  "next": "Next"
+  "next": "Next",
+  "activity": "Activity",
+  "activity_sale": "Sale",
+  "activity_listing": "Listed",
+  "activity_delist": "Delisted",
+  "activity_mint": "Minted",
+  "activity_from": "From",
+  "activity_to": "To"
 }

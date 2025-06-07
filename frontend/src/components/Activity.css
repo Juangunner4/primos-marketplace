@@ -1,7 +1,6 @@
 .activity-panel {
   width: 340px;
-  background: #fffdfa;
-  border-left: 2px solid #e2c275;
+  border-left: 1px solid #bbb; /* thinner and lighter */
   box-shadow: -4px 0 24px rgba(226, 194, 117, 0.08);
   padding: 1.5rem 1rem 1rem 1.5rem;
   overflow-y: auto;
@@ -20,7 +19,7 @@
   font-family: 'Loteria', 'Segoe UI', sans-serif;
   font-size: 1.35rem;
   font-weight: bold;
-  color: #b8860b;
+  color: #000;
   margin-bottom: 1.2rem;
   letter-spacing: 0.04em;
 }
@@ -37,7 +36,7 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.7rem 0.2rem;
-  border-bottom: 1px solid #f3e7c2;
+  border-bottom: 1px solid #000;
   font-size: 1rem;
   color: #222;
   font-family: 'Segoe UI', sans-serif;
@@ -49,7 +48,7 @@
 
 .activity-type {
   font-weight: bold;
-  color: #e2c275;
+  color: #000;
   min-width: 60px;
 }
 
@@ -60,9 +59,9 @@
 }
 
 .activity-price {
-  color: #1a202c;
+  color: #fff;
   font-weight: bold;
-  background: #ffe066;
+  background: #000;
   border-radius: 0.5rem;
   padding: 0.1rem 0.6rem;
   margin-left: 0.2rem;
@@ -70,7 +69,7 @@
 }
 
 .activity-sol {
-  color: #b8860b;
+  color: #000;
   font-size: 1.1em;
 }
 
@@ -82,7 +81,7 @@
 
 .activity-time {
   margin-left: auto;
-  color: #b8860b;
+  color: #000;
   font-size: 0.93em;
   font-family: monospace;
 }
