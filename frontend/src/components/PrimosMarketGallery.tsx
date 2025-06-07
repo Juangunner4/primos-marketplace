@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getPythSolPrice } from '../utils/pyth';
 import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
-import { getNFTByTokenAddress } from '../utils/helius'; // Ensure this import exists
+import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import './PrimosMarketGallery.css';
 import '../App.css';
