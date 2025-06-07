@@ -25,10 +25,10 @@ public class UserResource {
     @Path("/login")
     public User login(LoginRequest req) {
         if (req == null || req.publicKey == null || req.publicKey.isEmpty()) {
-            System.out.println("[UserResource] Login attempt with missing publicKey");
+            LOGGER.info("[UserResource] Login attempt with missing publicKey");
             throw new jakarta.ws.rs.BadRequestException("publicKey is required");
         }
-        System.out.println("[UserResource] Login attempt for publicKey: " + req.publicKey);
+        LOGGER.info("[UserResource] Login attempt for publicKey: " + req.publicKey);
         User user = User.find("publicKey", req.publicKey).firstResult();
         if (user == null) {
             user = new User();
@@ -40,9 +40,9 @@ public class UserResource {
             user.setPesos(1000);
             user.setCreatedAt(System.currentTimeMillis());
             user.persist();
-            System.out.println("[UserResource] Created new user for publicKey: " + req.publicKey);
+            LOGGER.info("[UserResource] Created new user for publicKey: " + req.publicKey);
         } else {
-            System.out.println("[UserResource] User already exists for publicKey: " + req.publicKey);
+            LOGGER.info("[UserResource] User already exists for publicKey: " + req.publicKey);
         }
         return user;
     }
