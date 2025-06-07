@@ -6,7 +6,6 @@ import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
 import Drawer from '@mui/material/Drawer';
 import HistoryIcon from '@mui/icons-material/History';
-import BackHandIcon from '@mui/icons-material/BackHand';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +32,11 @@ const Activity: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -173,15 +177,18 @@ const Activity: React.FC = () => {
           >
             <HistoryIcon />
           </IconButton>
-          <Drawer
-            anchor="right"
-            open={open}
-            onClose={() => setOpen(false)}
-            ModalProps={{ keepMounted: true }}
-            sx={{ [`& .MuiDrawer-paper`]: { width: 340, boxSizing: 'border-box' } }}
-          >
-            {panelContent}
-          </Drawer>
+          {/* Only render Drawer after mount */}
+          {mounted && (
+            <Drawer
+              anchor="right"
+              open={open}
+              onClose={() => setOpen(false)}
+              ModalProps={{ keepMounted: true }}
+              sx={{ [`& .MuiDrawer-paper`]: { width: 340, boxSizing: 'border-box' } }}
+            >
+              {panelContent}
+            </Drawer>
+          )}
         </>
       ) : (
         panelContent
