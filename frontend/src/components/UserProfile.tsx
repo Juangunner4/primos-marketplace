@@ -40,6 +40,8 @@ const UserProfile: React.FC = () => {
   const [pendingPfp, setPendingPfp] = useState<string | null>(null);
   const [pfpDialogOpen, setPfpDialogOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
 
   // Fetch user info
@@ -96,9 +98,19 @@ const UserProfile: React.FC = () => {
     setPfpDialogOpen(true);
   };
 
+  const confirmEditProfile = () => {
+    setIsEditing(true);
+    setEditDialogOpen(false);
+  };
+
   const handleSaveProfile = () => {
     setSaveDialogOpen(false);
-    // TODO: implement profile update endpoint
+    if (publicKey && user) {
+      axios
+        .put(`${backendUrl}/api/user/${publicKey.toBase58()}`, user)
+        .then((res) => setUser(res.data))
+        .finally(() => setIsEditing(false));
+    }
   };
 
   if (!publicKey || !user) return null;
@@ -111,9 +123,24 @@ const UserProfile: React.FC = () => {
             <Avatar src={pfpImage} sx={{ width: 120, height: 120, border: '2px solid #000' }} />
           </Box>
         )}
-        <Typography className="wallet-info">
-          <strong>{t('wallet')}</strong> {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-3)}
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+          <Typography className="wallet-info" sx={{ mb: 0 }}>
+            <strong>{t('wallet')}</strong> {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-3)}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => setEditDialogOpen(true)}
+            sx={{
+              background: '#111',
+              color: '#fff',
+              border: '1px solid #111',
+              ml: 1,
+              '&:hover': { background: '#222' },
+            }}
+          >
+            {t('edit')}
+          </Button>
+        </Box>
         <Button
           variant="outlined"
           className="select-nft-pfp-btn"
@@ -151,6 +178,7 @@ const UserProfile: React.FC = () => {
           }
           fullWidth
           margin="normal"
+          disabled={!isEditing}
         />
         <TextField
           label={t('discord')}
@@ -160,6 +188,7 @@ const UserProfile: React.FC = () => {
           }
           fullWidth
           margin="normal"
+          disabled={!isEditing}
         />
         <TextField
           label={t('website')}
@@ -169,6 +198,7 @@ const UserProfile: React.FC = () => {
           }
           fullWidth
           margin="normal"
+          disabled={!isEditing}
         />
         <Typography mt={2}>
           <strong>{t('status')}</strong> {t(getStatus(nfts.length))}
@@ -176,9 +206,21 @@ const UserProfile: React.FC = () => {
         <Typography>
           <strong>{t('marketplace_balance')}</strong> {user.pesos} {t('pesos')}
         </Typography>
-        <Button variant="contained" sx={{ mt: 2 }} onClick={() => setSaveDialogOpen(true)}>
-          {t('save')}
-        </Button>
+        {isEditing && (
+          <Button
+            variant="contained"
+            sx={{
+              mt: 2,
+              background: '#111',
+              color: '#fff',
+              border: '1px solid #111',
+              '&:hover': { background: '#222' },
+            }}
+            onClick={() => setSaveDialogOpen(true)}
+          >
+            {t('save')}
+          </Button>
+        )}
       </Box>
       <Dialog.Root open={pfpDialogOpen} onOpenChange={setPfpDialogOpen}>
         <Dialog.Overlay className="dialog-overlay" />
@@ -189,6 +231,20 @@ const UserProfile: React.FC = () => {
               {t('yes_save')}
             </Button>
             <Button variant="outlined" onClick={() => setPfpDialogOpen(false)}>
+              {t('cancel')}
+            </Button>
+          </Box>
+        </Dialog.Content>
+      </Dialog.Root>
+      <Dialog.Root open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <Dialog.Overlay className="dialog-overlay" />
+        <Dialog.Content className="dialog-content">
+          <Dialog.Title>{t('confirm_edit_profile')}</Dialog.Title>
+          <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
+            <Button variant="contained" onClick={confirmEditProfile}>
+              {t('yes_edit')}
+            </Button>
+            <Button variant="outlined" onClick={() => setEditDialogOpen(false)}>
               {t('cancel')}
             </Button>
           </Box>
