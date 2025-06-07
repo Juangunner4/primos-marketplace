@@ -5,9 +5,8 @@ import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-// Use the Unstable_Grid2 component to avoid type errors in MUI v7
-import Grid from '@mui/material/Unstable_Grid2';
-import { Card } from '@radix-ui/themes';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
