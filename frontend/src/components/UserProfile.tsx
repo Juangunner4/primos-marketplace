@@ -129,7 +129,14 @@ const UserProfile: React.FC = () => {
           </Typography>
           <Button
             variant="contained"
-            onClick={() => setEditDialogOpen(true)}
+            onClick={() => {
+              if (isEditing) {
+                setIsEditing(false);
+                setShowNFTs(false);
+              } else {
+                setEditDialogOpen(true);
+              }
+            }}
             sx={{
               background: '#111',
               color: '#fff',
@@ -138,16 +145,18 @@ const UserProfile: React.FC = () => {
               '&:hover': { background: '#222' },
             }}
           >
-            {t('edit')}
+            {isEditing ? t('cancel') : t('edit')}
           </Button>
         </Box>
-        <Button
-          variant="outlined"
-          className="select-nft-pfp-btn"
-          onClick={() => setShowNFTs((v) => !v)}
-        >
-          {showNFTs ? t('hide_nft_selection') : t('select_nft_as_pfp')}
-        </Button>
+        {isEditing && (
+          <Button
+            variant="outlined"
+            className="select-nft-pfp-btn"
+            onClick={() => setShowNFTs((v) => !v)}
+          >
+            {showNFTs ? t('hide_nft_selection') : t('select_nft_as_pfp')}
+          </Button>
+        )}
         {showNFTs && (
           <Box className="profile-nft-grid">
             {nfts.map((nft, i) => {
