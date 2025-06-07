@@ -107,7 +107,7 @@ const NFTGallery: React.FC = () => {
       <div className="market-header-row">
         <h2 className="market-title">{t('your_primos_nfts')}</h2>
         <div className="nft-gallery-stats market-stats-pills">
-          <span className="market-pill">{t('floor_price')}: {floorPrice !== null ? `${floorPrice / 1e9} ◎` : '--'}</span>
+          <span className="market-pill">{t('floor_price')}: {floorPrice !== null ? `${floorPrice / 1e9}` : '--'}</span>
           <span className="market-pill">{t('owned')}: {nfts.length}</span>
           <span className="market-pill">{t('sol_price')}: {solPrice !== null ? `$${solPrice}` : '--'}</span>
           <span className="market-pill">{t('total_value')}: {totalValueUSD}</span>

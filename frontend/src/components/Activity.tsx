@@ -99,7 +99,7 @@ const Activity: React.FC = () => {
             <span className="activity-nft">{item.nftName}</span>
             {item.price && (
               <span className="activity-price">
-                {item.price} <span className="activity-sol">◎</span>
+                {item.price} <span className="activity-sol"></span>
               </span>
             )}
             {item.from && <span className="activity-from">{t('activity_from')}: {item.from}</span>}
