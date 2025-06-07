@@ -67,13 +67,16 @@ const SidebarNav: React.FC = () => {
             onClick={() => setOpen(true)}
             sx={{
               position: 'fixed',
-              top: 16,
-              left: 16,
+              bottom: 24, // Move to bottom
+              left: 24,   // Move to left
               zIndex: 1301,
-              background: '#181818',
-              color: '#ffe066',
-              border: '1px solid #ffe066',
+              background: '#000', // Black background
+              color: '#fff',      // White icon
+              border: '1.5px solid #fff',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
               '&:hover': { background: '#222' },
+              width: 56,
+              height: 56,
             }}
           >
             <MenuIcon />
@@ -87,9 +90,9 @@ const SidebarNav: React.FC = () => {
               [`& .MuiDrawer-paper`]: {
                 width: 72,
                 boxSizing: 'border-box',
-                backgroundColor: '#181818',
-                color: '#ffe066',
-                borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+                backgroundColor: '#000', // Black drawer
+                color: '#fff',           // White icons
+                borderRight: '1px solid #fff',
               },
             }}
           >
