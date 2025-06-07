@@ -1,363 +1,89 @@
-/* ================================
-   Lotería‐Style User Profile CSS
-   (Without Random Color Variants)
-   ================================ */
-
-/* --------------------------------
-   1. Overall Container (“Card Frame”)
----------------------------------- */
 .user-profile {
-    /* Light cream background reminiscent of Lotería cards */
-    background-color: #fffbe6;
-
-    /* Thick, golden‐yellow border to mimic the card outline */
-    border: 4px solid #e2c275;
-
-    /* Rounded corners similar to traditional Lotería cards */
-    border-radius: 1rem;
-
-    /* Subtle drop shadow to give a lifted paper‐card effect */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-
-    /* Center the profile form and limit its width */
-    margin: 2rem auto;
-    padding: 2rem;
-    max-width: 600px;
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 1rem;
+  margin: 2rem auto;
+  padding: 2rem;
+  max-width: 650px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
 
-/* --------------------------------
-   2. Heading Styling (“Card Title”)
----------------------------------- */
-.user-profile h2 {
-    /* Use a slab‐serif or Lotería‐inspired font if available */
-    font-family: 'Loteria', 'Segoe UI', sans-serif;
-    font-size: 1.75rem;
-    font-weight: bold;
-    text-align: center;
-
-    /* Golden‐brown text color */
-    color: #b8860b;
-
-    /* Slight letter spacing for a vintage feel */
-    letter-spacing: 0.1em;
-
-    margin-bottom: 1rem;
-}
-
-/* --------------------------------
-   3. Label Styling (“Field Titles”)
----------------------------------- */
-.user-profile label {
-    /* Darker golden tone for labels */
-    color: #8b5e00;
-    font-weight: 600;
-    font-size: 1rem;
-    text-transform: uppercase;
-
-    /* Add a bit of spacing above each label */
-    margin-top: 1.25rem;
-    display: block;
-
-    /* Slight letter spacing to echo Lotería typography */
-    letter-spacing: 0.05em;
-}
-
-/* --------------------------------
-   4. Input & Textarea Styling
----------------------------------- */
-.user-profile input,
-.user-profile textarea {
-    /* Make inputs fill full width */
-    width: 100%;
-
-    /* Padding for comfortable typing */
-    padding: 0.75rem;
-
-    /* Solid golden‐yellow border, medium thickness */
-    border: 2px solid #e2c275;
-    border-radius: 0.5rem;
-
-    /* Slightly off‐white background inside inputs */
-    background-color: #fffdfa;
-
-    font-size: 1rem;
-    font-family: 'Segoe UI', sans-serif;
-    color: #333;
-
-    /* Space between field label and input */
-    margin-top: 0.5rem;
-
-    /* Transition on focus to highlight the field */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* On focus, highlight the border and add glow */
-.user-profile input:focus,
-.user-profile textarea:focus {
-    outline: none;
-    border-color: #b8860b;
-    box-shadow: 0 0 8px rgba(184, 134, 11, 0.4);
-}
-
-/* --------------------------------
-   5. NFT Preview Thumbnails
----------------------------------- */
-.user-profile .nft-preview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 0.5rem;
-    justify-content: center;
-}
-
-/* Each NFT thumbnail looks like a mini Lotería image */
-.user-profile .nft-preview img {
-    width: 48px;
-    height: 48px;
-    object-fit: cover;
-    border-radius: 0.5rem;
-    border: 2px solid #e2c275;
-    cursor: pointer;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    transition: border-color 0.2s, transform 0.2s;
-}
-
-/* Selected NFT thumbnail: darker golden border and slight scale */
-.user-profile .nft-preview img.selected {
-    border-color: #b8860b;
-    transform: scale(1.08);
-}
-
-/* --------------------------------
-   6. Paragraph Text
----------------------------------- */
-.user-profile p {
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    color: #555;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* --------------------------------
-   7. Wallet Info Block
----------------------------------- */
 .wallet-info {
-    /* Slightly tinted background to set it apart */
-    background-color: #e6ffe6;
-
-    /* Thin forest‐green border to match the tint */
-    border: 2px solid #2e8b57;
-
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-
-    font-size: 0.9rem;
-    color: #2e3a2f;
-    margin-bottom: 1rem;
-    font-family: 'Segoe UI', sans-serif;
+  background: #f0f0f0;
+  border: 1px solid #000;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
-/* --------------------------------
-   8. Optional Button Styling (“Submit” / “Save”)
----------------------------------- */
-.user-profile button {
-    /* Bold, golden button with white text */
-    background-color: #e2c275;
-    color: #fff;
-    font-family: 'Segoe UI', sans-serif;
-    font-weight: 600;
-    font-size: 1rem;
-
-    /* Cushioning and rounding */
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 0.5rem;
-
-    /* Subtle shadow for a raised‐button look */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    cursor: pointer;
-    margin-top: 1.5rem;
-    display: block;
-    width: 100%;
-    text-align: center;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.user-profile button:hover {
-    background-color: #b8860b;
-    transform: translateY(-1px);
-}
-
-/* --------------------------------
-   9. Responsive Adjustments
----------------------------------- */
-@media (max-width: 480px) {
-    .user-profile {
-        padding: 1rem;
-        margin: 1rem;
-    }
-
-    .user-profile h2 {
-        font-size: 1.5rem;
-    }
-
-    .user-profile label {
-        font-size: 0.95rem;
-    }
-
-    .user-profile input,
-    .user-profile textarea {
-        font-size: 0.95rem;
-        padding: 0.5rem;
-    }
-
-    .user-profile button {
-        font-size: 0.95rem;
-        padding: 0.6rem 1rem;
-    }
-}
-
-/* --------------------------------
-   10. Profile Image Styling
----------------------------------- */
-.user-profile .pfp-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #e2c275;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-}
-
-.pfp-image-top {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-.pfp-img-top {
-    width: 120px;
-    height: 120px;
-    border-radius: 1rem;
-    border: 5px solid #e2c275;
-    box-shadow: 0 4px 16px rgba(184,134,11,0.15);
-    background: #fffbe6;
-    object-fit: cover;
-}
-.pfp-token-address {
-    text-align: center;
-    font-family: 'Loteria', 'Segoe UI', monospace;
-    font-size: 1.1rem;
-    color: #b8860b;
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.04em;
-    word-break: break-all;
-}
-
-/* --------------------------------
-   11. Profile NFT Grid
----------------------------------- */
 .profile-nft-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 18px;
-  margin: 0.5rem 0 1.5rem 0;
-  justify-items: center;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-/* NFT Card Button - Only Image, No Background or Border */
 .profile-nft-thumb {
   position: relative;
   background: transparent;
   border: none;
   padding: 0;
-  margin: 0;
-  display: inline-block;
   cursor: pointer;
-  transition: transform 0.13s;
 }
 
 .profile-nft-thumb img {
-  width: 120px;
-  height: 120px;
-  border-radius: 1rem;
-  border: none;
-  box-shadow: none;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
-  background: transparent;
+  border-radius: 0.75rem;
+  border: 2px solid #000;
   display: block;
-  transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s;
+  transition: transform 0.18s;
 }
 
 .profile-nft-thumb:not(.selected):hover img,
 .profile-nft-thumb:not(.selected):focus img {
-  transform: scale(1.12) translateY(-8px);
-  box-shadow: 0 12px 32px 0 rgba(184,134,11,0.18), 0 2px 8px rgba(0,0,0,0.10);
-  z-index: 2;
-}
-
-.profile-nft-thumb.selected {
-  pointer-events: none;
+  transform: scale(1.1);
 }
 
 .profile-nft-thumb.selected img {
-  filter: grayscale(0.7) brightness(0.85);
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
-.profile-nft-thumb .selected-overlay {
+.selected-overlay {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(220, 220, 220, 0.55);
-  border-radius: 1rem;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Segoe UI', sans-serif;
   font-weight: bold;
-  color: #b8860b;
-  font-size: 1.1rem;
-  letter-spacing: 0.04em;
-  z-index: 3;
+  border-radius: 0.75rem;
   pointer-events: none;
-  text-shadow: 0 2px 8px #fffbe6, 0 1px 2px #fff;
 }
 
-@media (max-width: 600px) {
-  .profile-nft-grid {
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-    gap: 10px;
-    padding: 0 4px;
-  }
-  .profile-nft-thumb img {
-    width: 70px;
-    height: 70px;
-    border-radius: 0.6rem;
-  }
-}
-
-/* --------------------------------
-   12. Select NFT PFP Button
----------------------------------- */
 .select-nft-pfp-btn {
-  background: #e2c275;
-  color: #fff;
-  font-weight: 700;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.7rem 1.2rem;
-  margin: 1rem auto 0.5rem auto;
+  margin: 0.5rem auto 1rem auto;
   display: block;
-  box-shadow: 0 2px 8px rgba(184,134,11,0.13);
-  cursor: pointer;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 1.05rem;
-  transition: background 0.18s;
 }
 
-.select-nft-pfp-btn:hover {
-  background: #b8860b;
+.dialog-overlay {
+  background: rgba(0,0,0,0.6);
+  position: fixed;
+  inset: 0;
+}
+
+.dialog-content {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 360px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
