@@ -3,6 +3,12 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import IconButton from '@mui/material/IconButton';
+import Drawer from '@mui/material/Drawer';
+import HistoryIcon from '@mui/icons-material/History';
+import BackHandIcon from '@mui/icons-material/BackHand';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import './Activity.css';
 import { fetchMagicEdenActivity } from '../utils/magiceden';
@@ -24,6 +30,9 @@ const MAGICEDEN_SYMBOL = 'primos';
 const Activity: React.FC = () => {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -84,8 +93,8 @@ const Activity: React.FC = () => {
     mint: t('activity_mint'),
   };
 
-  return (
-    <Box component="aside" className="activity-panel">
+  const panelContent = (
+    <Box component="aside" className={`activity-panel${isMobile ? '' : ' activity-desktop'}`}> 
       <Typography variant="h6" component="h3" className="activity-title">
         {t('activity')}
       </Typography>
@@ -93,17 +102,36 @@ const Activity: React.FC = () => {
         {activity.map((item) => (
           <ListItem key={item.id} className={`activity-row activity-${item.type}`} disableGutters>
             {item.image && (
-              <img src={item.image} alt={item.nftName} style={{ width: 32, height: 32, borderRadius: 6, marginRight: 8, objectFit: 'cover' }} />
+              <img
+                src={item.image}
+                alt={item.nftName}
+                style={{ width: 32, height: 32, borderRadius: 6, marginRight: 8, objectFit: 'cover' }}
+              />
             )}
-            <span className="activity-type">{typeLabels[item.type] || item.type}</span>
+            {item.type === 'listing' ? (
+              <span className="activity-pill listing-pill">
+                <BackHandIcon className="paper-hand" fontSize="inherit" />
+                {typeLabels[item.type]}
+              </span>
+            ) : (
+              <span className="activity-type">{typeLabels[item.type] || item.type}</span>
+            )}
             <span className="activity-nft">{item.nftName}</span>
             {item.price && (
               <span className="activity-price">
-                {item.price} <span className="activity-sol"></span>
+                {item.price.toFixed(3)} <span className="activity-sol"></span>
               </span>
             )}
-            {item.from && <span className="activity-from">{t('activity_from')}: {item.from}</span>}
-            {item.to && <span className="activity-to">{t('activity_to')}: {item.to}</span>}
+            {item.from && (
+              <span className="activity-from">
+                {t('activity_from')}: {item.from.slice(0, 4)}...
+              </span>
+            )}
+            {item.to && (
+              <span className="activity-to">
+                {t('activity_to')}: {item.to.slice(0, 4)}...
+              </span>
+            )}
             <span className="activity-time">
               {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
@@ -111,6 +139,44 @@ const Activity: React.FC = () => {
         ))}
       </List>
     </Box>
+  );
+
+  return (
+    <>
+      {isMobile ? (
+        <>
+          <IconButton
+            aria-label="open activity"
+            onClick={() => setOpen(true)}
+            className="activity-mobile-btn"
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              zIndex: 1301,
+              background: '#000',
+              color: '#fff',
+              border: '1.5px solid #fff',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+              '&:hover': { background: '#222' },
+            }}
+          >
+            <HistoryIcon />
+          </IconButton>
+          <Drawer
+            anchor="right"
+            open={open}
+            onClose={() => setOpen(false)}
+            ModalProps={{ keepMounted: true }}
+            sx={{ [`& .MuiDrawer-paper`]: { width: 340, boxSizing: 'border-box' } }}
+          >
+            {panelContent}
+          </Drawer>
+        </>
+      ) : (
+        panelContent
+      )}
+    </>
   );
 };
 

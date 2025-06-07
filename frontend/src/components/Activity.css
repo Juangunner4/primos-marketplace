@@ -8,6 +8,9 @@
   flex-direction: column;
   min-height: 100%;
   max-height: 100vh;
+}
+
+.activity-desktop {
   position: fixed;
   top: 80px;
   right: 0;
@@ -52,6 +55,25 @@
   min-width: 60px;
 }
 
+.activity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #fff;
+  font-weight: bold;
+  background: #000;
+  border-radius: 0.5rem;
+  padding: 0.1rem 0.6rem;
+}
+
+.listing-pill {
+  background: #e44;
+}
+
+.paper-hand {
+  font-size: 1rem;
+}
+
 .activity-nft {
   font-weight: 500;
   color: #333;
@@ -87,7 +109,7 @@
 }
 
 @media (max-width: 1100px) {
-  .activity-panel {
+  .activity-desktop {
     display: none;
   }
 }
