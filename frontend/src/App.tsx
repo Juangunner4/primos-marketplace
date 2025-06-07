@@ -48,6 +48,11 @@ const Header: React.FC = () => {
               size="small"
               onClick={() => i18n.changeLanguage('en')}
               sx={{
+                minWidth: 28,
+                height: 26,
+                fontSize: '0.75rem',
+                px: 1,
+                py: 0,
                 background: i18n.language === 'en' ? '#111' : '#fff',
                 color: i18n.language === 'en' ? '#fff' : '#111',
                 borderColor: '#111',
@@ -64,6 +69,11 @@ const Header: React.FC = () => {
               size="small"
               onClick={() => i18n.changeLanguage('es')}
               sx={{
+                minWidth: 28,
+                height: 26,
+                fontSize: '0.75rem',
+                px: 1,
+                py: 0,
                 background: i18n.language === 'es' ? '#111' : '#fff',
                 color: i18n.language === 'es' ? '#fff' : '#111',
                 borderColor: '#111',
@@ -134,7 +144,7 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY || process.env.HELIUS_API_KEY;
+  const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
   const endpoint = useMemo(
     () => `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
     [heliusApiKey]

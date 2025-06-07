@@ -117,7 +117,7 @@ const PrimosMarketGallery: React.FC = () => {
               </div>
               <div className="market-card-footer">
                 <span className="market-nft-owner">
-                  Owner: {nft.owner.slice(0, 4)}
+                  {t('market_owner')}: {nft.owner.slice(0, 4)}
                 </span>
                 {priceSol ? (
                   <span className="market-nft-price-pill">

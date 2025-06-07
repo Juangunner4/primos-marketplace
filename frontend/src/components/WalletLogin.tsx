@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import './WalletLogin.css';
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
 
 async function ensureUser(publicKey: string) {
   await axios.post(`${backendUrl}/api/user/login`, { publicKey });
