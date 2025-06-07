@@ -105,34 +105,27 @@
 .user-profile .nft-preview {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 6px;
     margin-top: 0.5rem;
+    justify-content: center;
 }
 
 /* Each NFT thumbnail looks like a mini Lotería image */
 .user-profile .nft-preview img {
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
     object-fit: cover;
-
-    /* Slight rounding on corners, similar to image corners on Lotería cards */
-    border-radius: 0.75rem;
-
-    /* Thin golden border around each thumbnail */
+    border-radius: 0.5rem;
     border: 2px solid #e2c275;
     cursor: pointer;
-
-    /* Subtle drop shadow to lift thumbnails off the page */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-    /* Transition for selection effect */
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: border-color 0.2s, transform 0.2s;
 }
 
 /* Selected NFT thumbnail: darker golden border and slight scale */
 .user-profile .nft-preview img.selected {
     border-color: #b8860b;
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 /* --------------------------------
@@ -223,4 +216,146 @@
         font-size: 0.95rem;
         padding: 0.6rem 1rem;
     }
+}
+
+/* --------------------------------
+   10. Profile Image Styling
+---------------------------------- */
+.user-profile .pfp-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e2c275;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+.pfp-image-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.pfp-img-top {
+    width: 120px;
+    height: 120px;
+    border-radius: 1rem;
+    border: 5px solid #e2c275;
+    box-shadow: 0 4px 16px rgba(184,134,11,0.15);
+    background: #fffbe6;
+    object-fit: cover;
+}
+.pfp-token-address {
+    text-align: center;
+    font-family: 'Loteria', 'Segoe UI', monospace;
+    font-size: 1.1rem;
+    color: #b8860b;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.04em;
+    word-break: break-all;
+}
+
+/* --------------------------------
+   11. Profile NFT Grid
+---------------------------------- */
+.profile-nft-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 18px;
+  margin: 0.5rem 0 1.5rem 0;
+  justify-items: center;
+  align-items: center;
+}
+
+/* NFT Card Button - Only Image, No Background or Border */
+.profile-nft-thumb {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.13s;
+}
+
+.profile-nft-thumb img {
+  width: 120px;
+  height: 120px;
+  border-radius: 1rem;
+  border: none;
+  box-shadow: none;
+  object-fit: cover;
+  background: transparent;
+  display: block;
+  transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s;
+}
+
+.profile-nft-thumb:not(.selected):hover img,
+.profile-nft-thumb:not(.selected):focus img {
+  transform: scale(1.12) translateY(-8px);
+  box-shadow: 0 12px 32px 0 rgba(184,134,11,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  z-index: 2;
+}
+
+.profile-nft-thumb.selected {
+  pointer-events: none;
+}
+
+.profile-nft-thumb.selected img {
+  filter: grayscale(0.7) brightness(0.85);
+  opacity: 0.7;
+}
+
+.profile-nft-thumb .selected-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(220, 220, 220, 0.55);
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: bold;
+  color: #b8860b;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  z-index: 3;
+  pointer-events: none;
+  text-shadow: 0 2px 8px #fffbe6, 0 1px 2px #fff;
+}
+
+@media (max-width: 600px) {
+  .profile-nft-thumb img {
+    width: 80px;
+    height: 80px;
+    border-radius: 0.7rem;
+  }
+  .profile-nft-thumb .selected-overlay {
+    font-size: 0.95rem;
+  }
+}
+
+/* --------------------------------
+   12. Select NFT PFP Button
+---------------------------------- */
+.select-nft-pfp-btn {
+  background: #e2c275;
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  margin: 1rem auto 0.5rem auto;
+  display: block;
+  box-shadow: 0 2px 8px rgba(184,134,11,0.13);
+  cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 1.05rem;
+  transition: background 0.18s;
+}
+
+.select-nft-pfp-btn:hover {
+  background: #b8860b;
 }

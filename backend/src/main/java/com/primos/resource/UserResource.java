@@ -10,7 +10,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/api/user")
@@ -20,7 +19,12 @@ public class UserResource {
 
     @POST
     @Path("/login")
-    public User login(User req) {
+    public User login(LoginRequest req) {
+        if (req == null || req.publicKey == null || req.publicKey.isEmpty()) {
+            System.out.println("[UserResource] Login attempt with missing publicKey");
+            throw new jakarta.ws.rs.BadRequestException("publicKey is required");
+        }
+        System.out.println("[UserResource] Login attempt for publicKey: " + req.publicKey);
         User user = User.find("publicKey", req.publicKey).firstResult();
         if (user == null) {
             user = new User();
@@ -32,29 +36,10 @@ public class UserResource {
             user.pesos = 1000;
             user.createdAt = System.currentTimeMillis();
             user.persist();
+            System.out.println("[UserResource] Created new user for publicKey: " + req.publicKey);
+        } else {
+            System.out.println("[UserResource] User already exists for publicKey: " + req.publicKey);
         }
-        return user;
-    }
-
-    @PUT
-    @Path("/profile")
-    public User updateProfile(User req) {
-        User user = User.find("publicKey", req.publicKey).firstResult();
-        if (user == null) throw new NotFoundException();
-        user.bio = req.bio;
-        user.socials = req.socials;
-        user.pfp = req.pfp;
-        user.update();
-        return user;
-    }
-
-    @POST
-    @Path("/points")
-    public User addPoints(@QueryParam("publicKey") String publicKey, @QueryParam("points") int points) {
-        User user = User.find("publicKey", publicKey).firstResult();
-        if (user == null) throw new NotFoundException();
-        user.points += points;
-        user.update();
         return user;
     }
 
@@ -63,6 +48,18 @@ public class UserResource {
     public User getUser(@PathParam("publicKey") String publicKey) {
         User user = User.find("publicKey", publicKey).firstResult();
         if (user == null) throw new NotFoundException();
+        return user;
+    }
+
+    @PUT
+    @Path("/{publicKey}/pfp")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public User updatePfp(@PathParam("publicKey") String publicKey, String pfpUrl) {
+        User user = User.find("publicKey", publicKey).firstResult();
+        if (user == null) throw new NotFoundException();
+        user.pfp = pfpUrl;
+        user.update();
+        System.out.println("[UserResource] Updated PFP for publicKey: " + publicKey + " to " + pfpUrl);
         return user;
     }
 }

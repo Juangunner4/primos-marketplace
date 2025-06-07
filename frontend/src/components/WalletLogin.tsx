@@ -1,16 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 import './WalletLogin.css';
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+
+async function ensureUser(publicKey: string) {
+  await axios.post(`${backendUrl}/api/user/login`, { publicKey });
+}
+
 const WalletLogin: React.FC = () => {
-  const { connected, disconnect } = useWallet();
+  const { connected, disconnect, publicKey } = useWallet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate(); 
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (connected && publicKey) {
+      ensureUser(publicKey.toString());
+    }
+  }, [connected, publicKey]);
 
   const handleLoginClick = () => {
     if (!connected) {

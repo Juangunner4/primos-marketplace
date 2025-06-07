@@ -48,13 +48,43 @@ export const getAssetsByCollection = async (
         }
     }
 
+    console.log('First NFT raw item:', allItems[0]);
+
     // Map to HeliusNFT structure
     return allItems
         .filter((item: any) => item.ownership?.owner === ownerPubkey)
         .map((item: any) => ({
             id: item.id,
-            image: item.content?.links?.image || '/fallback.png',
+            image: item.content?.links?.image || item.content?.files?.[0]?.uri || '/fallback.png',
             name: item.content?.metadata?.name || item.id,
             listed: !!item.listing || !!item.marketplace, 
         }));
+};
+
+export const getNFTByTokenAddress = async (tokenAddress: string): Promise<HeliusNFT | null> => {
+    const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${apiKey}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "1",
+            method: "getAsset",
+            params: {
+                id: tokenAddress,
+            },
+        }),
+    });
+
+    const data = await response.json();
+    const item = data.result;
+    if (!item) return null;
+    return {
+        id: item.id,
+        image: item.content?.links?.image || '/fallback.png',
+        name: item.content?.metadata?.name || item.id,
+        listed: !!item.listing || !!item.marketplace,
+    };
 };

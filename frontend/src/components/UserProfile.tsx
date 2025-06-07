@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
+import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
 import './UserProfile.css';
 
 type SocialLinks = {
@@ -13,7 +14,7 @@ type UserDoc = {
   publicKey: string;
   bio: string;
   socials: SocialLinks;
-  pfp: string;
+  pfp: string; // token address
   points: number;
   pesos: number;
 };
@@ -24,63 +25,104 @@ const getStatus = (count: number) => {
   return 'Shrimp 🦐';
 };
 
+const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
+
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
   const [user, setUser] = useState<UserDoc | null>(null);
-  const [nfts, setNfts] = useState<string[]>([]);
-  const [selectedPFP, setSelectedPFP] = useState('');
+  const [nfts, setNfts] = useState<HeliusNFT[]>([]);
+  const [pfpImage, setPfpImage] = useState<string | null>(null);
+  const [showNFTs, setShowNFTs] = useState(false);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
 
+  // Fetch user info
   useEffect(() => {
     if (publicKey) {
-      // 1. Login or fetch user
-      axios.post('/api/user/login', { publicKey: publicKey.toBase58() })
+      axios.get(`${backendUrl}/api/user/${publicKey.toBase58()}`)
         .then(res => setUser(res.data));
-      // 2. Fetch NFTs (replace with real fetch)
-      setNfts([
-        'https://placekitten.com/100/100',
-        'https://placekitten.com/101/101',
-        'https://placekitten.com/102/102',
-      ]);
     }
   }, [publicKey]);
 
-  // Update PFP in DB
-  const handleSetPFP = (nft: string) => {
-    setSelectedPFP(nft);
+  // Fetch Primos NFTs
+  useEffect(() => {
+    if (publicKey) {
+      getAssetsByCollection(PRIMOS_COLLECTION_MINT, publicKey.toBase58())
+        .then(setNfts);
+    }
+  }, [publicKey]);
+
+  // Fetch PFP image from token address in DB
+  useEffect(() => {
+    async function fetchPFP() {
+      if (user?.pfp) {
+        const nft = await getNFTByTokenAddress(user.pfp.replace(/"/g, '')); // Remove any accidental quotes
+        setPfpImage(nft?.image || null);
+      } else {
+        setPfpImage(null);
+      }
+    }
+    fetchPFP();
+  }, [user?.pfp]);
+
+  // Update PFP in DB (store token address)
+  const handleSetPFP = (tokenAddress: string) => {
     if (user && publicKey) {
-      axios.put('/api/user/profile', {
-        publicKey: publicKey.toBase58(),
-        pfp: nft
-      }).then(res => setUser(res.data));
+      axios.put(
+        `${backendUrl}/api/user/${publicKey.toBase58()}/pfp`,
+        tokenAddress, // plain string, not JSON
+        { headers: { 'Content-Type': 'text/plain' } }
+      ).then(res => setUser(res.data));
     }
   };
 
   if (!publicKey || !user) return null;
 
-  const status = getStatus(nfts.length);
-
   return (
     <div className="user-profile">
-      <h2>Your Profile</h2>
+      {/* PFP image fetched from Helius using token address from DB */}
+      {pfpImage && (
+        <div className="pfp-image-top">
+          <img src={pfpImage} alt="Profile NFT" className="pfp-img-top" />
+        </div>
+      )}
+      {/* Token address below the image */}
+      {/* {user.pfp && (
+        <div className="pfp-token-address">
+          <span>{user.pfp.replace(/"/g, '')}</span>
+        </div>
+      )} */}
       <div className="wallet-info">
         <strong>Wallet:</strong> {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-3)}
       </div>
-      <div>
-        <strong>PFP:</strong>
-        {user.pfp && <img src={user.pfp} alt="pfp" style={{ width: 60, borderRadius: '50%' }} />}
-      </div>
-      <label>Select NFT as PFP</label>
-      <div className="nft-preview">
-        {nfts.map((nft, i) => (
-          <img
-            key={i}
-            src={nft}
-            alt={`nft-${i}`}
-            onClick={() => handleSetPFP(nft)}
-            className={selectedPFP === nft || user.pfp === nft ? 'selected' : ''}
-          />
-        ))}
-      </div>
+      <button
+        type="button"
+        className="select-nft-pfp-btn"
+        onClick={() => setShowNFTs(v => !v)}
+      >
+        {showNFTs ? "Hide NFT Selection" : "Select NFT as PFP"}
+      </button>
+      {showNFTs && (
+        <div className="profile-nft-grid">
+          {nfts.map((nft, i) => {
+            const isSelected = user.pfp.replace(/"/g, '') === nft.id;
+            return (
+              <button
+                key={i}
+                type="button"
+                className={`profile-nft-thumb${isSelected ? ' selected' : ''}`}
+                onClick={() => !isSelected && handleSetPFP(nft.id)}
+                tabIndex={isSelected ? -1 : 0}
+                aria-disabled={isSelected}
+              >
+                <img src={nft.image} alt={nft.name} />
+                {isSelected && (
+                  <span className="selected-overlay">Selected</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <label>Twitter</label>
       <input
         value={user.socials.twitter}
@@ -100,13 +142,10 @@ const UserProfile: React.FC = () => {
         placeholder="https://yourdomain.xyz"
       />
       <p>
+        <strong>Status:</strong> {getStatus(nfts.length)}
+      </p>
+      <p>
         <strong>Marketplace Balance:</strong> {user.pesos} Pesos
-      </p>
-      <p>
-        <strong>Points:</strong> {user.points}
-      </p>
-      <p>
-        <strong>Status:</strong> {status}
       </p>
     </div>
   );

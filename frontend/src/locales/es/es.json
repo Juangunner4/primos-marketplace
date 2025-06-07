@@ -16,5 +16,20 @@
   "floor_price": "Precio mínimo",
   "owned": "En posesión",
   "total_value": "Valor total",
-  "sol_price": "Precio SOL"
+  "sol_price": "Precio SOL",
+  "wallet": "Billetera:",
+  "twitter": "Twitter",
+  "discord": "Discord",
+  "website": "Sitio web",
+  "status": "Estado:",
+  "marketplace_balance": "Saldo en el Marketplace:",
+  "pesos": "Pesos",
+  "selected": "Seleccionado",
+  "select_nft_as_pfp": "Seleccionar NFT como PFP",
+  "hide_nft_selection": "Ocultar selección de NFT",
+  "profile_nft_alt": "NFT de perfil",
+  "whale": "Ballena 🐋",
+  "fish": "Pez 🐠",
+  "shrimp": "Camarón 🦐",
+  "beta": "Beta"
 }
