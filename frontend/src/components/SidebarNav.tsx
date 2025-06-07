@@ -24,7 +24,7 @@ const SidebarNav: React.FC = () => {
           boxSizing: 'border-box',
           backgroundColor: '#181818',
           color: '#ffe066',
-          borderRight: '1px solid #222',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)', // subtle thin border
         },
         display: { xs: 'none', md: 'block' },
       }}
@@ -37,8 +37,9 @@ const SidebarNav: React.FC = () => {
               to="/"
               color={location.pathname === '/' ? 'primary' : 'default'}
               sx={{
-                color: location.pathname === '/' ? '#ff5ca7' : '#ffe066',
-                '&:hover': { color: '#ff5ca7', background: '#222' },
+                color: location.pathname === '/' ? '#fff' : '#b0b0b0',
+                textShadow: '0 0 6px #fff, 0 0 2px #fff',
+                '&:hover': { color: '#fff', background: '#222' },
               }}
             >
               <HomeIcon />
@@ -52,8 +53,9 @@ const SidebarNav: React.FC = () => {
               to="/collected"
               color={location.pathname === '/collected' ? 'primary' : 'default'}
               sx={{
-                color: location.pathname === '/collected' ? '#ff5ca7' : '#ffe066',
-                '&:hover': { color: '#ff5ca7', background: '#222' },
+                color: location.pathname === '/collected' ? '#fff' : '#b0b0b0', // white if active, grey otherwise
+                textShadow: '0 0 6px #fff, 0 0 2px #fff', // white shadow
+                '&:hover': { color: '#fff', background: '#222' },
               }}
             >
               <WorkIcon />
