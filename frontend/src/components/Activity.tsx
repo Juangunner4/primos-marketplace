@@ -99,19 +99,29 @@ const Activity: React.FC = () => {
         {t('activity')}
       </Typography>
       <List className="activity-list">
-        {activity.map((item) => (
-          <ListItem key={item.id} className={`activity-row activity-${item.type}`} disableGutters>
+        {activity.map((item, idx) => (
+          <ListItem
+            key={item.id + '-' + idx}
+            className={`activity-row activity-${item.type}`}
+            disableGutters
+          >
             {item.image && (
               <img
                 src={item.image}
                 alt={item.nftName}
-                style={{ width: 32, height: 32, borderRadius: 6, marginRight: 8, objectFit: 'cover' }}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 6,
+                  marginRight: 8,
+                  objectFit: 'cover',
+                }}
               />
             )}
             {item.type === 'listing' ? (
               <span className="activity-pill listing-pill">
-                <BackHandIcon className="paper-hand" fontSize="inherit" />
-                {typeLabels[item.type]}
+                <span className="paper-hand" style={{ marginRight: 4 }}>🫲</span>{' '}
+                List
               </span>
             ) : (
               <span className="activity-type">{typeLabels[item.type] || item.type}</span>

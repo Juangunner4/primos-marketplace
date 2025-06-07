@@ -90,6 +90,12 @@
   margin-right: 0.2rem;
 }
 
+/* Make price pill red for listings */
+.activity-listing .activity-price {
+  background: #e44;
+  color: #fff;
+}
+
 .activity-sol {
   color: #000;
   font-size: 1.1em;
