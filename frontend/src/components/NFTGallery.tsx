@@ -9,8 +9,7 @@ import { useTranslation } from 'react-i18next';
 // Material UI imports
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-// Use the Unstable_Grid2 component which matches the MUI v7 typings
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';

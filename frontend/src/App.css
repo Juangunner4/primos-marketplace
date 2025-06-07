@@ -118,17 +118,6 @@ body {
   height: 28px;
 }
 
-@keyframes float-bounce {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-5px); }
-  100% { transform: translateY(0); }
-}
-
-.logo-float {
-  animation: float-bounce 5.5s ease-in-out infinite;
-  will-change: transform;
-}
-
 .beta-text {
   position: absolute;
   right: 1.5rem;
