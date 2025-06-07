@@ -22,6 +22,7 @@ const WalletLogin: React.FC = () => {
   useEffect(() => {
     if (connected && publicKey) {
       ensureUser(publicKey.toString());
+      setIsModalOpen(false);
     }
   }, [connected, publicKey]);
 
