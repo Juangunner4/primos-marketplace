@@ -51,8 +51,8 @@ export const getMagicEdenHolderStats = async (symbol: string): Promise<MagicEden
     }
 };
 
-export const fetchMagicEdenListings = async (symbol: string) => {
-  const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${symbol}/listings?offset=0&limit=100`);
+export const fetchMagicEdenListings = async (symbol: string, offset = 0, limit = 10) => {
+  const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${symbol}/listings?offset=${offset}&limit=${limit}`);
   if (!res.ok) return [];
   return await res.json();
 };

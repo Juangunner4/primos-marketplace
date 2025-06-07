@@ -41,5 +41,7 @@
   "market_price": "Precio",
   "market_loading": "Cargando NFTs...",
   "market_no_nfts": "No hay NFTs listados.",
-  "market_holders": "Poseedores"
+  "market_holders": "Poseedores",
+  "prev": "Anterior",
+  "next": "Siguiente"
 }

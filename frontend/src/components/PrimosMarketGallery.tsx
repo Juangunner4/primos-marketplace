@@ -3,17 +3,11 @@ import { getPythSolPrice } from '../utils/pyth';
 import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
-import { Slot } from '@radix-ui/react-slot';
+import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
 
-const CARD_VARIANTS = [
-  { name: 'pink', bg: '#ffe4e6', border: '#ff69b4' },
-  { name: 'yellow', bg: '#fffbe6', border: '#e2c275' },
-  { name: 'green', bg: '#e6ffe6', border: '#2e8b57' },
-  { name: 'blue', bg: '#e6f0ff', border: '#4169e1' },
-  { name: 'orange', bg: '#fff0e6', border: '#ff7f50' },
-];
 const MAGICEDEN_SYMBOL = 'primos';
+const PAGE_SIZE = 10;
 
 type MarketNFT = {
   id: string;
@@ -31,37 +25,65 @@ const PrimosMarketGallery: React.FC = () => {
   const [listedCount, setListedCount] = useState<number | null>(null);
   const [uniqueHolders, setUniqueHolders] = useState<number | null>(null);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { t } = useTranslation();
 
+  // Fetch stats and SOL price once
   useEffect(() => {
     let isMounted = true;
-
-    async function fetchAll() {
-      setLoading(true);
+    async function fetchStats() {
       try {
-        const [listings, stats, solPriceVal, holderStats] = await Promise.all([
-          fetchMagicEdenListings(MAGICEDEN_SYMBOL),
+        const [stats, solPriceVal, holderStats] = await Promise.all([
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
           getMagicEdenHolderStats(MAGICEDEN_SYMBOL),
         ]);
-        setListedCount(stats?.listedCount ?? null);
-        setFloorPrice(stats?.floorPrice ? stats.floorPrice / 1e9 : null);
-        setSolPrice(solPriceVal ?? null);
-        setUniqueHolders(holderStats?.uniqueHolders ?? null);
+        if (isMounted) {
+          setListedCount(stats?.listedCount ?? null);
+          setFloorPrice(stats?.floorPrice ? stats.floorPrice / 1e9 : null);
+          setSolPrice(solPriceVal ?? null);
+          setUniqueHolders(holderStats?.uniqueHolders ?? null);
+        }
+      } catch (e) {
+        // handle error
+      }
+    }
+    fetchStats();
+    return () => { isMounted = false; };
+  }, []);
 
-        const uniqueTokenMints = Array.from(
-          new Set(listings.map((l: any) => l.tokenMint))
-        ) as string[];
+  // Fetch listings for current page
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
+    async function fetchPage() {
+      try {
+        // Fetch only the listings for the current page
+        const offset = (page - 1) * PAGE_SIZE;
+        const listings = await fetchMagicEdenListings(MAGICEDEN_SYMBOL, offset, PAGE_SIZE);
+
+        // If this is the first page, also get the total count for pagination
+        if (page === 1) {
+          const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
+          if (stats?.listedCount) {
+            setTotalPages(Math.ceil(stats.listedCount / PAGE_SIZE));
+          }
+        }
+
+        // Fetch metadata for these NFTs only
         const metaMap: Record<string, any> = {};
         await Promise.all(
-          uniqueTokenMints.map(async (mint: string) => {
-            const meta = await getNFTByTokenAddress(mint);
-            if (meta) metaMap[mint] = meta;
+          listings.map(async (listing: any) => {
+            const meta = await getNFTByTokenAddress(listing.tokenMint);
+            if (meta) metaMap[listing.tokenMint] = meta;
           })
         );
 
-        const allNFTs: MarketNFT[] = listings
+        // Only 10 per page, assign variant using util
+        const pageNFTs: MarketNFT[] = listings
+          .slice(0, PAGE_SIZE)
           .map((listing: any) => {
             const meta = metaMap[listing.tokenMint];
             return {
@@ -70,26 +92,21 @@ const PrimosMarketGallery: React.FC = () => {
               name: meta?.name || listing.tokenMint,
               price: listing.price,
               owner: listing.seller,
-              variant:
-                CARD_VARIANTS[
-                  Math.floor(Math.random() * CARD_VARIANTS.length)
-                ].name,
+              variant: getRandomCardVariantName(),
             };
           })
           .filter((nft: MarketNFT) => nft.image);
 
-        if (isMounted) {
-          setNfts(allNFTs);
-        }
+        if (isMounted) setNfts(pageNFTs);
       } catch (e) {
-        console.error('Failed to load market data', e);
+        if (isMounted) setNfts([]);
       } finally {
         if (isMounted) setLoading(false);
       }
     }
-    fetchAll();
+    fetchPage();
     return () => { isMounted = false; };
-  }, []);
+  }, [page]);
 
   let content;
   if (loading) {
@@ -149,6 +166,25 @@ const PrimosMarketGallery: React.FC = () => {
         </div>
       </div>
       {content}
+      <div className="market-pagination" style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0' }}>
+        <button
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+          style={{ marginRight: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
+        >
+          {t('prev') || 'Prev'}
+        </button>
+        <span style={{ alignSelf: 'center', fontWeight: 500 }}>
+          {page} / {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+          style={{ marginLeft: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
+        >
+          {t('next') || 'Next'}
+        </button>
+      </div>
     </div>
   );
 };
