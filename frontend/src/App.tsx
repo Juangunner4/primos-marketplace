@@ -8,7 +8,6 @@ import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './components/NFTGallery';
@@ -20,7 +19,6 @@ import PrimosMarketGallery from './components/PrimosMarketGallery';
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-// Move Header inside App so it's in Router context
 const Header: React.FC = () => {
   const { publicKey } = useWallet();
   const { i18n, t } = useTranslation();
@@ -32,12 +30,32 @@ const Header: React.FC = () => {
     <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar sx={{ minHeight: 64, display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
         {/* Language buttons */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-start', position: 'absolute', left: 0, top: 0, zIndex: 10 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+            alignItems: 'flex-start',
+            position: 'absolute',
+            left: 5,
+            top: 10,
+            zIndex: 10,
+          }}
+        >
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
               variant={i18n.language === 'en' ? 'contained' : 'outlined'}
               size="small"
               onClick={() => i18n.changeLanguage('en')}
+              sx={{
+                background: i18n.language === 'en' ? '#111' : '#fff',
+                color: i18n.language === 'en' ? '#fff' : '#111',
+                borderColor: '#111',
+                '&:hover': {
+                  background: i18n.language === 'en' ? '#222' : '#f0f0f0',
+                  color: i18n.language === 'en' ? '#fff' : '#111',
+                },
+              }}
             >
               EN
             </Button>
@@ -45,15 +63,19 @@ const Header: React.FC = () => {
               variant={i18n.language === 'es' ? 'contained' : 'outlined'}
               size="small"
               onClick={() => i18n.changeLanguage('es')}
+              sx={{
+                background: i18n.language === 'es' ? '#111' : '#fff',
+                color: i18n.language === 'es' ? '#fff' : '#111',
+                borderColor: '#111',
+                '&:hover': {
+                  background: i18n.language === 'es' ? '#222' : '#f0f0f0',
+                  color: i18n.language === 'es' ? '#fff' : '#111',
+                },
+              }}
             >
               ES
             </Button>
           </Box>
-          {publicKey && (
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-              {publicKey.toBase58()}
-            </Typography>
-          )}
         </Box>
         {/* BETA */}
         <span className="beta-text">BETA</span>
@@ -63,10 +85,18 @@ const Header: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
           {publicKey && (
             <Button
-              variant="outlined"
-              color="primary"
+              variant="contained"
               onClick={() => navigate(isProfilePage ? '/' : '/profile')}
-              sx={{ ml: 1 }}
+              sx={{
+                background: isProfilePage ? '#111' : '#fff',
+                color: isProfilePage ? '#fff' : '#111',
+                border: '1px solid #111',
+                '&:hover': {
+                  background: isProfilePage ? '#222' : '#f0f0f0',
+                  color: isProfilePage ? '#fff' : '#111',
+                },
+                ml: 1,
+              }}
             >
               {isProfilePage ? t('home') : t('profile')}
             </Button>
