@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
 import './Activity.css';
 
 type ActivityItem = {
@@ -61,27 +65,29 @@ const Activity: React.FC = () => {
   }, []);
 
   return (
-    <aside className="activity-panel">
-      <h3 className="activity-title">Activity</h3>
-      <ul className="activity-list">
+    <Box component="aside" className="activity-panel">
+      <Typography variant="h6" component="h3" className="activity-title">
+        Activity
+      </Typography>
+      <List className="activity-list">
         {activity.map((item) => (
-          <li key={item.id} className={`activity-row activity-${item.type}`}>
+          <ListItem key={item.id} className={`activity-row activity-${item.type}`} disableGutters>
             <span className="activity-type">{typeLabels[item.type]}</span>
             <span className="activity-nft">{item.nftName}</span>
             {item.price && (
-              <span className="activity-price">{item.price} <span className="activity-sol">◎</span></span>
+              <span className="activity-price">
+                {item.price} <span className="activity-sol">◎</span>
+              </span>
             )}
-            {item.from && (
-              <span className="activity-from">From: {item.from}</span>
-            )}
-            {item.to && (
-              <span className="activity-to">To: {item.to}</span>
-            )}
-            <span className="activity-time">{new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          </li>
+            {item.from && <span className="activity-from">From: {item.from}</span>}
+            {item.to && <span className="activity-to">To: {item.to}</span>}
+            <span className="activity-time">
+              {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </ListItem>
         ))}
-      </ul>
-    </aside>
+      </List>
+    </Box>
   );
 };
 

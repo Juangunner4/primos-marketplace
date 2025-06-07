@@ -188,6 +188,7 @@ const PrimosMarketGallery: React.FC = () => {
           </button>
         </div>
       </div>
+      <Activity />
     </div>
   );
 };
