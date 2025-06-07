@@ -64,6 +64,10 @@ const Header: React.FC = () => {
           ES
         </button>
       </div>
+      {/* BETA */}
+      <span className="beta-text">
+        BETA
+      </span>
       <img src={logo} alt="Left Logo" className="logo logo-left" style={{ marginLeft: '60px' }} />
 
       <div className="wallet-buttons">
@@ -94,7 +98,6 @@ const App = () => {
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <Router>
-            {/* Header must be inside Router context */}
             <Header />
             <Routes>
               <Route path="/" element={<NFTGallery />} />

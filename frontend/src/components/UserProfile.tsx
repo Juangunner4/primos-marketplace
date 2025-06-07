@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
 import './UserProfile.css';
+import { useTranslation } from 'react-i18next';
 
 type SocialLinks = {
   twitter: string;
@@ -20,15 +21,16 @@ type UserDoc = {
 };
 
 const getStatus = (count: number) => {
-  if (count >= 15) return 'Whale 🐋';
-  if (count >= 3) return 'Fish 🐠';
-  return 'Shrimp 🦐';
+  if (count >= 15) return 'whale';
+  if (count >= 3) return 'fish';
+  return 'shrimp';
 };
 
 const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
 
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
+  const { t } = useTranslation();
   const [user, setUser] = useState<UserDoc | null>(null);
   const [nfts, setNfts] = useState<HeliusNFT[]>([]);
   const [pfpImage, setPfpImage] = useState<string | null>(null);
@@ -92,14 +94,14 @@ const UserProfile: React.FC = () => {
         </div>
       )} */}
       <div className="wallet-info">
-        <strong>Wallet:</strong> {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-3)}
+        <strong>{t('wallet')}</strong> {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-3)}
       </div>
       <button
         type="button"
         className="select-nft-pfp-btn"
         onClick={() => setShowNFTs(v => !v)}
       >
-        {showNFTs ? "Hide NFT Selection" : "Select NFT as PFP"}
+        {showNFTs ? t('hide_nft_selection') : t('select_nft_as_pfp')}
       </button>
       {showNFTs && (
         <div className="profile-nft-grid">
@@ -116,36 +118,36 @@ const UserProfile: React.FC = () => {
               >
                 <img src={nft.image} alt={nft.name} />
                 {isSelected && (
-                  <span className="selected-overlay">Selected</span>
+                  <span className="selected-overlay">{t('selected')}</span>
                 )}
               </button>
             );
           })}
         </div>
       )}
-      <label>Twitter</label>
+      <label>{t('twitter')}</label>
       <input
         value={user.socials.twitter}
         onChange={e => setUser({ ...user, socials: { ...user.socials, twitter: e.target.value } })}
         placeholder="@yourhandle"
       />
-      <label>Discord</label>
+      <label>{t('discord')}</label>
       <input
         value={user.socials.discord}
         onChange={e => setUser({ ...user, socials: { ...user.socials, discord: e.target.value } })}
         placeholder="User#1234"
       />
-      <label>Website</label>
+      <label>{t('website')}</label>
       <input
         value={user.socials.website}
         onChange={e => setUser({ ...user, socials: { ...user.socials, website: e.target.value } })}
         placeholder="https://yourdomain.xyz"
       />
       <p>
-        <strong>Status:</strong> {getStatus(nfts.length)}
+        <strong>{t('status')}</strong> {t(getStatus(nfts.length))}
       </p>
       <p>
-        <strong>Marketplace Balance:</strong> {user.pesos} Pesos
+        <strong>{t('marketplace_balance')}</strong> {user.pesos} {t('pesos')}
       </p>
     </div>
   );
