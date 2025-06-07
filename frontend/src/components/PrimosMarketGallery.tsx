@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 // Use the Unstable_Grid2 component to avoid type errors in MUI v7
 import Grid from '@mui/material/Unstable_Grid2';
-import Card from '@mui/material/Card';
+import { Card } from '@radix-ui/themes';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
@@ -120,22 +120,17 @@ const PrimosMarketGallery: React.FC = () => {
           return (
             <Grid item xs={12} sm={6} md={4} key={nft.id}>
               <Card
-                sx={{
+                style={{
                   background: variant.bg,
                   border: `5px solid ${variant.border}`,
-                  borderRadius: 3,
-                  boxShadow: 3,
+                  borderRadius: 12,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   minHeight: 340,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   position: 'relative',
                   transition: 'transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s',
-                  '&:hover': {
-                    transform: 'scale(1.07) rotate(-2deg) translateY(-8px)',
-                    boxShadow: 8,
-                    zIndex: 10,
-                  },
                 }}
               >
                 <Chip

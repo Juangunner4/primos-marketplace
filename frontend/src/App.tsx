@@ -35,16 +35,32 @@ const Header: React.FC = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-start', position: 'absolute', left: 0, top: 0, zIndex: 10 }}>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
-              variant={i18n.language === 'en' ? 'contained' : 'outlined'}
               size="small"
               onClick={() => i18n.changeLanguage('en')}
+              sx={{
+                bgcolor: i18n.language === 'en' ? '#000' : '#fff',
+                color: i18n.language === 'en' ? '#fff' : '#000',
+                border: '1px solid #000',
+                '&:hover': {
+                  bgcolor: i18n.language === 'en' ? '#111' : '#f0f0f0',
+                },
+              }}
+              variant="contained"
             >
               EN
             </Button>
             <Button
-              variant={i18n.language === 'es' ? 'contained' : 'outlined'}
               size="small"
               onClick={() => i18n.changeLanguage('es')}
+              sx={{
+                bgcolor: i18n.language === 'es' ? '#000' : '#fff',
+                color: i18n.language === 'es' ? '#fff' : '#000',
+                border: '1px solid #000',
+                '&:hover': {
+                  bgcolor: i18n.language === 'es' ? '#111' : '#f0f0f0',
+                },
+              }}
+              variant="contained"
             >
               ES
             </Button>
