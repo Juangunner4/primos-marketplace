@@ -107,7 +107,7 @@ const PrimosMarketGallery: React.FC = () => {
         {nfts.map((nft) => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
           return (
-            <Slot asChild key={nft.id} className={`market-card market-card--${variant.name}`}> 
+            <Slot asChild key={nft.id} className={`market-card market-card--${variant.name}`}>
               <li>
                 <span className="market-prefix">{nft.id.slice(0, 4)}</span>
                 <img src={nft.image} alt={nft.name} className="market-nft-img" />
