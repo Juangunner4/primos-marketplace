@@ -1,6 +1,6 @@
 .market-gallery {
   padding: 2rem 0;
-  background: #000; /* Match App black background */
+  background: #fff;
   min-height: 100vh;
   margin-left: 80px;
 }
@@ -14,7 +14,7 @@
 .market-title {
   font-size: 2.2rem;
   font-weight: bold;
-  color: #b8860b;
+  color: #000;
   letter-spacing: 0.04em;
   font-family: 'Loteria', 'Segoe UI', sans-serif;
   text-align: right;
@@ -38,19 +38,19 @@
   gap: 1.2rem;
   font-size: 1.1rem;
   font-weight: 500;
-  color: #444;
+  color: #000;
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 0.5rem;
 }
 .market-stats-pills .market-pill {
-  background: #fffbe6;
+  background: #fff;
   border-radius: 0.7rem;
   padding: 0.5rem 1.2rem;
-  border: 2px solid #e2c275;
-  box-shadow: 0 2px 8px rgba(226, 194, 117, 0.08);
+  border: 2px solid #000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   font-size: 1rem;
-  color: #b8860b;
+  color: #000;
   font-weight: bold;
   margin-left: 0;
 }
@@ -60,6 +60,28 @@
   gap: 1.5rem;
   padding: 0;
   margin: 0;
+}
+
+.loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #000;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 .market-card {
   background: var(--bg-color, #fffbe6);
@@ -113,7 +135,7 @@
   font-family: 'Loteria', 'Segoe UI', sans-serif;
   font-size: 1.25rem;
   font-weight: bold;
-  color: #b8860b;
+  color: #000;
   margin: 0.7rem 0 0.3rem 0;
   text-align: center;
   letter-spacing: 0.13em;
