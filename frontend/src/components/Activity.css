@@ -1,0 +1,92 @@
+.activity-panel {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  width: 340px;
+  height: calc(100vh - 80px);
+  background: #fffdfa;
+  border-left: 2px solid #e2c275;
+  box-shadow: -4px 0 24px rgba(226, 194, 117, 0.08);
+  padding: 1.5rem 1rem 1rem 1.5rem;
+  overflow-y: auto;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-title {
+  font-family: 'Loteria', 'Segoe UI', sans-serif;
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: #b8860b;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.04em;
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.2rem;
+  border-bottom: 1px solid #f3e7c2;
+  font-size: 1rem;
+  color: #222;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-type {
+  font-weight: bold;
+  color: #e2c275;
+  min-width: 60px;
+}
+
+.activity-nft {
+  font-weight: 500;
+  color: #333;
+  min-width: 90px;
+}
+
+.activity-price {
+  color: #1a202c;
+  font-weight: bold;
+  background: #ffe066;
+  border-radius: 0.5rem;
+  padding: 0.1rem 0.6rem;
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
+}
+
+.activity-sol {
+  color: #b8860b;
+  font-size: 1.1em;
+}
+
+.activity-from,
+.activity-to {
+  color: #888;
+  font-size: 0.96em;
+}
+
+.activity-time {
+  margin-left: auto;
+  color: #b8860b;
+  font-size: 0.93em;
+  font-family: monospace;
+}
+
+@media (max-width: 1100px) {
+  .activity-panel {
+    display: none;
+  }
+}
