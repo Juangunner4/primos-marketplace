@@ -67,4 +67,17 @@ public class UserResource {
         }
         return user;
     }
+
+    @PUT
+    @Path("/{publicKey}")
+    public User updateProfile(@PathParam("publicKey") String publicKey, User updated) {
+        User user = User.find("publicKey", publicKey).firstResult();
+        if (user != null && updated != null) {
+            user.setBio(updated.getBio());
+            user.setSocials(updated.getSocials());
+            user.persistOrUpdate();
+            LOGGER.info(String.format("[UserResource] Updated profile for %s", publicKey));
+        }
+        return user;
+    }
 }
