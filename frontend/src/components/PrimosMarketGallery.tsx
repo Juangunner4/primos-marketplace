@@ -5,6 +5,7 @@ import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
+import Activity from './Activity';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -155,35 +156,37 @@ const PrimosMarketGallery: React.FC = () => {
   }
 
   return (
-    <div className="market-gallery">
-      <div className="market-header-row">
-        <h2 className="market-title">{t('market_title')}</h2>
-        <div className="market-stats-pills">
-          <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
-          <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
-          <span className="market-pill">{t('market_holders')}: {uniqueHolders ?? '--'}</span>
-          <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice}` : '--'}</span>
+    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+      <div className="market-gallery" style={{ flex: 1 }}>
+        <div className="market-header-row">
+          <h2 className="market-title">{t('market_title')}</h2>
+          <div className="market-stats-pills">
+            <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
+            <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
+            <span className="market-pill">{t('market_holders')}: {uniqueHolders ?? '--'}</span>
+            <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice}` : '--'}</span>
+          </div>
         </div>
-      </div>
-      {content}
-      <div className="market-pagination" style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0' }}>
-        <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-          style={{ marginRight: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
-        >
-          {t('prev') || 'Prev'}
-        </button>
-        <span style={{ alignSelf: 'center', fontWeight: 500 }}>
-          {page} / {totalPages}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={page === totalPages}
-          style={{ marginLeft: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
-        >
-          {t('next') || 'Next'}
-        </button>
+        {content}
+        <div className="market-pagination" style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0' }}>
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            style={{ marginRight: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
+          >
+            {t('prev') || 'Prev'}
+          </button>
+          <span style={{ alignSelf: 'center', fontWeight: 500 }}>
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            style={{ marginLeft: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
+          >
+            {t('next') || 'Next'}
+          </button>
+        </div>
       </div>
     </div>
   );
