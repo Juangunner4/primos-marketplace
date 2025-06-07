@@ -5,6 +5,8 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { useTranslation } from 'react-i18next';
 import './Activity.css';
+import { fetchMagicEdenActivity } from '../utils/magiceden';
+import { getNFTByTokenAddress } from '../utils/helius';
 
 type ActivityItem = {
   id: string;
@@ -14,36 +16,44 @@ type ActivityItem = {
   from?: string;
   to?: string;
   time: string;
+  image?: string;
 };
 
 const MAGICEDEN_SYMBOL = 'primos';
-
-const fetchMagicEdenActivity = async (): Promise<ActivityItem[]> => {
-  try {
-    const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${MAGICEDEN_SYMBOL}/activities?offset=0&limit=20`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    // Map Magic Eden activity to your ActivityItem type
-    return data.map((item: any) => ({
-      id: item.signature || item.txId || Math.random().toString(),
-      type: item.type,
-      nftName: item.tokenMint || item.name || 'NFT',
-      price: item.price,
-      from: item.seller || item.source || '',
-      to: item.buyer || item.destination || '',
-      time: item.blockTime ? new Date(item.blockTime * 1000).toISOString() : new Date().toISOString(),
-    }));
-  } catch {
-    return [];
-  }
-};
 
 const Activity: React.FC = () => {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const { t } = useTranslation();
 
   useEffect(() => {
-    fetchMagicEdenActivity().then(setActivity);
+    const fetchActivityWithImages = async () => {
+      const rawActivity = await fetchMagicEdenActivity(MAGICEDEN_SYMBOL, 0, 20);
+      const activityWithImages = await Promise.all(
+        rawActivity.map(async (item: any) => {
+          let nftName = item.tokenMint ?? item.name ?? 'NFT';
+          let image: string | undefined = undefined;
+          if (item.tokenMint) {
+            const nft = await getNFTByTokenAddress(item.tokenMint);
+            if (nft) {
+              nftName = nft.name;
+              image = nft.image;
+            }
+          }
+          return {
+            id: item.signature ?? item.txId ?? Math.random().toString(),
+            type: item.type,
+            nftName,
+            price: item.price,
+            from: item.seller ?? item.source ?? '',
+            to: item.buyer ?? item.destination ?? '',
+            time: item.blockTime ? new Date(item.blockTime * 1000).toISOString() : new Date().toISOString(),
+            image,
+          };
+        })
+      );
+      setActivity(activityWithImages);
+    };
+    fetchActivityWithImages();
   }, []);
 
   const typeLabels: Record<ActivityItem['type'], string> = {
@@ -61,6 +71,9 @@ const Activity: React.FC = () => {
       <List className="activity-list">
         {activity.map((item) => (
           <ListItem key={item.id} className={`activity-row activity-${item.type}`} disableGutters>
+            {item.image && (
+              <img src={item.image} alt={item.nftName} style={{ width: 32, height: 32, borderRadius: 6, marginRight: 8, objectFit: 'cover' }} />
+            )}
             <span className="activity-type">{typeLabels[item.type] || item.type}</span>
             <span className="activity-nft">{item.nftName}</span>
             {item.price && (

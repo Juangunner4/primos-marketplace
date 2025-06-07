@@ -56,3 +56,9 @@ export const fetchMagicEdenListings = async (symbol: string, offset = 0, limit =
   if (!res.ok) return [];
   return await res.json();
 };
+
+export const fetchMagicEdenActivity = async (symbol: string, offset = 0, limit = 10) => {
+    const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`);
+    if (!res.ok) return [];
+    return await res.json();
+}
