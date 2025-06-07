@@ -51,14 +51,37 @@ export const getMagicEdenHolderStats = async (symbol: string): Promise<MagicEden
     }
 };
 
-export const fetchMagicEdenListings = async (symbol: string, offset = 0, limit = 10) => {
-  const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${symbol}/listings?offset=${offset}&limit=${limit}`);
-  if (!res.ok) return [];
-  return await res.json();
+export const fetchMagicEdenListings = async (
+  symbol: string,
+  offset = 0,
+  limit = 10
+) => {
+  try {
+    const res = await fetch(
+      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/listings?offset=${offset}&limit=${limit}`
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data || []).sort((a: any, b: any) => (a.price ?? 0) - (b.price ?? 0));
+  } catch (e) {
+    console.error('Failed to fetch Magic Eden listings', e);
+    return [];
+  }
 };
 
-export const fetchMagicEdenActivity = async (symbol: string, offset = 0, limit = 10) => {
-    const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`);
+export const fetchMagicEdenActivity = async (
+  symbol: string,
+  offset = 0,
+  limit = 10
+) => {
+  try {
+    const res = await fetch(
+      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`
+    );
     if (!res.ok) return [];
     return await res.json();
-}
+  } catch (e) {
+    console.error('Failed to fetch Magic Eden activity', e);
+    return [];
+  }
+};

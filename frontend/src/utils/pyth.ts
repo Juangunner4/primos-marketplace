@@ -6,6 +6,7 @@ export const getPythSolPrice = async (): Promise<number | null> => {
     try {
         const url = `https://hermes.pyth.network/api/latest_price_feeds?ids[]=${SOL_PRICE_FEED_ID}`;
         const res = await fetch(url);
+        if (!res.ok) return null;
         const data = await res.json();
 
         if (

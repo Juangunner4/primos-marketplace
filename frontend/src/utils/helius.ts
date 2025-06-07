@@ -6,86 +6,110 @@ export interface HeliusNFT {
 }
 
 export const getAssetsByCollection = async (
-    collectionAddress: string,
-    ownerPubkey: string
+  collectionAddress: string,
+  ownerPubkey: string
 ): Promise<HeliusNFT[]> => {
-    const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
-    let page = 1;
-    const limit = 100;
-    let allItems: any[] = [];
-    let hasMore = true;
+  let page = 1;
+  const limit = 100;
+  const allItems: any[] = [];
+  let hasMore = true;
 
-    while (hasMore) {
-        const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${apiKey}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
+  while (hasMore) {
+    try {
+      const response = await fetch(
+        `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: '1',
+            method: 'getAssetsByGroup',
+            params: {
+              groupKey: 'collection',
+              groupValue: collectionAddress,
+              page,
+              limit,
             },
-            body: JSON.stringify({
-                jsonrpc: "2.0",
-                id: "1",
-                method: "getAssetsByGroup",
-                params: {
-                    groupKey: "collection",
-                    groupValue: collectionAddress,
-                    page,
-                    limit,
-                },
-            }),
-        });
-
-        const data = await response.json();
-        const items = data.result?.items || [];
-        allItems = allItems.concat(items);
-        hasMore = items.length === limit;
-        page++;
-
-        if (hasMore) {
-            // Remove or reduce delay for faster loading
-            // await new Promise(res => setTimeout(res, 300));
-            await new Promise(res => setTimeout(res, 10));
+          }),
         }
+      );
+
+      if (!response.ok) break;
+
+      const data = await response.json();
+      const items = data.result?.items || [];
+      allItems.push(...items);
+      hasMore = items.length === limit;
+      page += 1;
+
+      if (hasMore) {
+        await new Promise((res) => setTimeout(res, 10));
+      }
+    } catch (e) {
+      console.error('Failed to fetch assets by collection', e);
+      break;
     }
+  }
 
-    console.log('First NFT raw item:', allItems[0]);
-
-    // Map to HeliusNFT structure
-    return allItems
-        .filter((item: any) => item.ownership?.owner === ownerPubkey)
-        .map((item: any) => ({
-            id: item.id,
-            image: item.content?.links?.image || item.content?.files?.[0]?.uri || '/fallback.png',
-            name: item.content?.metadata?.name || item.id,
-            listed: !!item.listing || !!item.marketplace, 
-        }));
+  return allItems
+    .filter((item: any) => item.ownership?.owner === ownerPubkey)
+    .map((item: any) => ({
+      id: item.id,
+      image:
+        item.content?.links?.image ||
+        item.content?.files?.[0]?.uri ||
+        '/fallback.png',
+      name: item.content?.metadata?.name || item.id,
+      listed: !!item.listing || !!item.marketplace,
+    }));
 };
 
+const nftCache: Record<string, HeliusNFT> = {};
 
-export const getNFTByTokenAddress = async (tokenAddress: string): Promise<HeliusNFT | null> => {
-    const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
-    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${apiKey}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+
+export const getNFTByTokenAddress = async (
+  tokenAddress: string
+): Promise<HeliusNFT | null> => {
+  if (nftCache[tokenAddress]) {
+    return nftCache[tokenAddress];
+  }
+
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+
+  try {
+    const response = await fetch(
+      `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: "1",
-            method: "getAsset",
-            params: {
-                id: tokenAddress,
-            },
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getAsset',
+          params: { id: tokenAddress },
         }),
-    });
+      }
+    );
+
+    if (!response.ok) return null;
 
     const data = await response.json();
     const item = data.result;
     if (!item) return null;
-    return {
-        id: item.id,
-        image: item.content?.links?.image || '/fallback.png',
-        name: item.content?.metadata?.name || item.id,
-        listed: !!item.listing || !!item.marketplace,
-    };
+    const nft = {
+      id: item.id,
+      image: item.content?.links?.image || '/fallback.png',
+      name: item.content?.metadata?.name || item.id,
+      listed: !!item.listing || !!item.marketplace,
+    } as HeliusNFT;
+    nftCache[tokenAddress] = nft;
+    return nft;
+  } catch (e) {
+    console.error('Failed to fetch NFT metadata', e);
+    return null;
+  }
 };
+

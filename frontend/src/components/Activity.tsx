@@ -26,12 +26,15 @@ const Activity: React.FC = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
+    let isMounted = true;
+    let interval: NodeJS.Timeout;
+
     const fetchActivityWithImages = async () => {
       const rawActivity = await fetchMagicEdenActivity(MAGICEDEN_SYMBOL, 0, 20);
       const activityWithImages = await Promise.all(
         rawActivity.map(async (item: any) => {
           let nftName = item.tokenMint ?? item.name ?? 'NFT';
-          let image: string | undefined = undefined;
+          let image: string | undefined;
           if (item.tokenMint) {
             const nft = await getNFTByTokenAddress(item.tokenMint);
             if (nft) {
@@ -46,14 +49,32 @@ const Activity: React.FC = () => {
             price: item.price,
             from: item.seller ?? item.source ?? '',
             to: item.buyer ?? item.destination ?? '',
-            time: item.blockTime ? new Date(item.blockTime * 1000).toISOString() : new Date().toISOString(),
+            time: item.blockTime
+              ? new Date(item.blockTime * 1000).toISOString()
+              : new Date().toISOString(),
             image,
-          };
+          } as ActivityItem;
         })
       );
-      setActivity(activityWithImages);
+
+      if (!isMounted) return;
+      setActivity((prev) => {
+        const existing = new Set(prev.map((p) => p.id));
+        const merged = [
+          ...activityWithImages.filter((a) => !existing.has(a.id)),
+          ...prev,
+        ];
+        return merged.slice(0, 50);
+      });
     };
+
     fetchActivityWithImages();
+    interval = setInterval(fetchActivityWithImages, 10000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const typeLabels: Record<ActivityItem['type'], string> = {
@@ -94,3 +115,4 @@ const Activity: React.FC = () => {
 };
 
 export default Activity;
+

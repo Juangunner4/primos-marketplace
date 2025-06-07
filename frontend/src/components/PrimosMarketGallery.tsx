@@ -83,9 +83,7 @@ const PrimosMarketGallery: React.FC = () => {
         );
 
         // Only 10 per page, assign variant using util
-        const pageNFTs: MarketNFT[] = listings
-          .slice(0, PAGE_SIZE)
-          .map((listing: any) => {
+        const pageNFTs: MarketNFT[] = listings.map((listing: any) => {
             const meta = metaMap[listing.tokenMint];
             return {
               id: listing.tokenMint,
@@ -95,8 +93,7 @@ const PrimosMarketGallery: React.FC = () => {
               owner: listing.seller,
               variant: getRandomCardVariantName(),
             };
-          })
-          .filter((nft: MarketNFT) => nft.image);
+          }).filter((nft: MarketNFT) => nft.image);
 
         if (isMounted) setNfts(pageNFTs);
       } catch (e) {
@@ -194,3 +191,4 @@ const PrimosMarketGallery: React.FC = () => {
 };
 
 export default PrimosMarketGallery;
+
