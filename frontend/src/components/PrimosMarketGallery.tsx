@@ -107,28 +107,26 @@ const PrimosMarketGallery: React.FC = () => {
         {nfts.map((nft) => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
           return (
-            <Slot asChild key={nft.id} className={`market-card market-card--${variant.name}`}>
-              <li>
-                <span className="market-prefix">{nft.id.slice(0, 4)}</span>
-                <img src={nft.image} alt={nft.name} className="market-nft-img" />
-                <div className="market-card-content">
-                  <h3 className="market-nft-name">{nft.name}</h3>
-                  {nft.price ? (
-                    <>
-                      <span className="market-nft-price">{nft.price} ◎</span>
-                      {solPrice && (
-                        <span className="market-nft-price-usd">(${(nft.price * solPrice).toFixed(2)})</span>
-                      )}
-                    </>
-                  ) : (
-                    <span className="market-no-price">{t('market_no_price')}</span>
-                  )}
-                  <span className="market-nft-owner">
-                    {t('market_owner')}: {nft.owner.slice(0, 4)}...{nft.owner.slice(-4)}
-                  </span>
-                </div>
-              </li>
-            </Slot>
+            <li key={nft.id} className={`market-card market-card--${variant.name}`}>
+              <span className="market-prefix">{nft.id.slice(0, 4)}</span>
+              <img src={nft.image} alt={nft.name} className="market-nft-img" />
+              <div className="market-card-content">
+                <h3 className="market-nft-name">{nft.name}</h3>
+                {nft.price ? (
+                  <>
+                    <span className="market-nft-price">{nft.price} ◎</span>
+                    {solPrice && (
+                      <span className="market-nft-price-usd">(${(nft.price * solPrice).toFixed(2)})</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="market-no-price">{t('market_no_price')}</span>
+                )}
+                <span className="market-nft-owner">
+                  {t('market_owner')}: {nft.owner.slice(0, 4)}...{nft.owner.slice(-4)}
+                </span>
+              </div>
+            </li>
           );
         })}
       </ul>
