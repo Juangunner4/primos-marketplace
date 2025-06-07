@@ -5,6 +5,37 @@ export interface HeliusNFT {
     listed: boolean;
 }
 
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+let heliusChain: Promise<unknown> = Promise.resolve();
+
+const heliusFetch = async (
+  url: string,
+  options: RequestInit,
+  retries = 3,
+  backoff = 500,
+  minDelay = 100
+): Promise<Response> => {
+  const doFetch = async (): Promise<Response> => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const res = await fetch(url, options);
+        if (res.status !== 429) return res;
+      } catch (e) {
+        if (i === retries - 1) throw e;
+      }
+      await sleep(backoff * (i + 1));
+    }
+    return fetch(url, options);
+  };
+
+  const result = heliusChain.then(doFetch);
+  heliusChain = result
+    .catch(() => null)
+    .then(() => sleep(minDelay));
+  return result;
+};
+
 export const getAssetsByCollection = async (
   collectionAddress: string,
   ownerPubkey: string
@@ -18,7 +49,7 @@ export const getAssetsByCollection = async (
 
   while (hasMore) {
     try {
-      const response = await fetch(
+      const response = await heliusFetch(
         `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
         {
           method: 'POST',
@@ -46,7 +77,7 @@ export const getAssetsByCollection = async (
       page += 1;
 
       if (hasMore) {
-        await new Promise((res) => setTimeout(res, 10));
+        await sleep(200);
       }
     } catch (e) {
       console.error('Failed to fetch assets by collection', e);
@@ -80,7 +111,7 @@ export const getNFTByTokenAddress = async (
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   try {
-    const response = await fetch(
+    const response = await heliusFetch(
       `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
       {
         method: 'POST',
