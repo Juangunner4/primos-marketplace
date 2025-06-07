@@ -9,6 +9,7 @@ import logo from './images/primosheadlogo.png';
 import NFTGallery from './components/NFTGallery';
 import WalletLogin from './components/WalletLogin';
 import UserProfile from './components/UserProfile';
+import SidebarNav from './components/SidebarNav';
 
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -31,39 +32,66 @@ const Header: React.FC = () => {
           left: 0,
           top: 0,
           display: 'flex',
+          flexDirection: 'column',
           gap: '0.5rem',
           padding: '0.5rem',
+          alignItems: 'flex-start',
+          zIndex: 10,
         }}
         className="lang-buttons"
       >
-        <button
-          onClick={() => i18n.changeLanguage('en')}
-          style={{
-            background: i18n.language === 'en' ? '#1a202c' : '#fff',
-            color: i18n.language === 'en' ? '#fff' : '#1a202c',
-            border: '1px solid #1a202c',
-            borderRadius: '4px',
-            padding: '0.25rem 0.75rem',
-            cursor: 'pointer',
-            fontWeight: 600,
-          }}
-        >
-          EN
-        </button>
-        <button
-          onClick={() => i18n.changeLanguage('es')}
-          style={{
-            background: i18n.language === 'es' ? '#1a202c' : '#fff',
-            color: i18n.language === 'es' ? '#fff' : '#1a202c',
-            border: '1px solid #1a202c',
-            borderRadius: '4px',
-            padding: '0.25rem 0.75rem',
-            cursor: 'pointer',
-            fontWeight: 600,
-          }}
-        >
-          ES
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={() => i18n.changeLanguage('en')}
+            style={{
+              background: i18n.language === 'en' ? '#1a202c' : '#fff',
+              color: i18n.language === 'en' ? '#fff' : '#1a202c',
+              border: '1px solid #1a202c',
+              borderRadius: '4px',
+              padding: '0.25rem 0.75rem',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => i18n.changeLanguage('es')}
+            style={{
+              background: i18n.language === 'es' ? '#1a202c' : '#fff',
+              color: i18n.language === 'es' ? '#fff' : '#1a202c',
+              border: '1px solid #1a202c',
+              borderRadius: '4px',
+              padding: '0.25rem 0.75rem',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            ES
+          </button>
+        </div>
+        {publicKey && (
+          <button
+            onClick={() => navigate('/')}
+            className="market-link-btn"
+            style={{
+              marginTop: '10px',
+              fontSize: '0.95rem',
+              background: '#fffbe6',
+              color: '#b8860b',
+              border: '1px solid #e2c275',
+              borderRadius: '6px',
+              padding: '0.18rem 0.9rem',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(226,194,117,0.08)',
+              transition: 'background 0.18s, color 0.18s',
+            }}
+          >
+            Market
+          </button>
+        )}
       </div>
       {/* BETA */}
       <span className="beta-text">
@@ -100,6 +128,7 @@ const AppRoutes = () => {
   return (
     <>
       <Header />
+      {publicKey && <SidebarNav />}
       <Routes>
         <Route path="/" element={<PrimosMarketGallery />} />
         <Route path="/collected" element={<NFTGallery />} />

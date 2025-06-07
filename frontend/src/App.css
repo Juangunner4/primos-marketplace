@@ -142,6 +142,15 @@ body {
   will-change: transform;
 }
 
+.market-gallery, .nft-gallery {
+  padding-left: 200px;
+}
+@media (max-width: 900px) {
+  .market-gallery, .nft-gallery {
+    padding-left: 0;
+  }
+}
+
 @media (max-width: 600px) {
   .lang-buttons {
     position: absolute;
