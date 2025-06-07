@@ -5,23 +5,15 @@ import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import logo from '../images/primoslogo.png';
 import { useTranslation } from 'react-i18next';
-import { Slot } from '@radix-ui/react-slot';
-import './NFTGallery.css';
-// Reuse the market styles so both galleries share the same look
-import './PrimosMarketGallery.css';
+import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
+import './PrimosMarketGallery.css'; // Use only the unified CSS
+
+interface GalleryNFT extends HeliusNFT {
+  variant: string;
+}
 
 const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
 const MAGICEDEN_SYMBOL = 'primos';
-
-const CARD_VARIANTS = [
-  { name: 'pink', bg: '#ffe4e6', border: '#ff69b4' },
-  { name: 'yellow', bg: '#fffbe6', border: '#e2c275' },
-  { name: 'green', bg: '#e6ffe6', border: '#2e8b57' },
-  { name: 'blue', bg: '#e6f0ff', border: '#4169e1' },
-  { name: 'orange', bg: '#fff0e6', border: '#ff7f50' },
-];
-
-type GalleryNFT = HeliusNFT & { variant: string };
 
 const NFTGallery: React.FC = () => {
   const { publicKey } = useWallet();
@@ -50,10 +42,7 @@ const NFTGallery: React.FC = () => {
         ]);
         const assetsWithVariants = assets.map((nft) => ({
           ...nft,
-          variant:
-            CARD_VARIANTS[
-              Math.floor(Math.random() * CARD_VARIANTS.length)
-            ].name,
+          variant: getRandomCardVariantName(),
         }));
         setNfts(assetsWithVariants);
         setFloorPrice(stats?.floorPrice ?? null);
@@ -99,16 +88,14 @@ const NFTGallery: React.FC = () => {
         {nfts.map((nft) => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
           return (
-            <Slot asChild key={nft.id} className={`nft-card market-card nft-card--${variant.name}`}>
-              <li>
-                <span className="nft-prefix market-prefix">{nft.id.slice(0, 4)}</span>
-                <img src={nft.image} alt={nft.name} />
-                <div className="nft-card-body market-card-content">
-                  <h3 className="nft-title market-nft-name">{nft.name}</h3>
-                  <span className="nft-status market-nft-price">{nft.listed ? t('listed') : t('not_listed')}</span>
-                </div>
-              </li>
-            </Slot>
+            <li key={nft.id} className={`market-card market-card--${variant.name}`}>
+              <span className="market-prefix">{nft.id.slice(0, 4)}</span>
+              <img src={nft.image} alt={nft.name} className="market-nft-img" />
+              <div className="market-card-content">
+                <h3 className="market-nft-name">{nft.name}</h3>
+                <span className="market-nft-price">{nft.listed ? t('listed') : t('not_listed')}</span>
+              </div>
+            </li>
           );
         })}
       </ul>
@@ -116,9 +103,9 @@ const NFTGallery: React.FC = () => {
   }
 
   return (
-    <div className="nft-gallery market-gallery">
-      <div className="nft-gallery-header market-header-row">
-        <h2 className="nft-gallery-title market-title">{t('your_primos_nfts')}</h2>
+    <div className=" market-gallery">
+      <div className="market-header-row">
+        <h2 className="market-title">{t('your_primos_nfts')}</h2>
         <div className="nft-gallery-stats market-stats-pills">
           <span className="market-pill">{t('floor_price')}: {floorPrice !== null ? `${floorPrice / 1e9} ◎` : '--'}</span>
           <span className="market-pill">{t('owned')}: {nfts.length}</span>

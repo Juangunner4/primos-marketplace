@@ -106,25 +106,29 @@ const PrimosMarketGallery: React.FC = () => {
       <ul className="market-nft-list nft-list">
         {nfts.map((nft) => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
+          const priceSol = nft.price ? nft.price.toFixed(3) : null;
+          const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
           return (
             <li key={nft.id} className={`market-card market-card--${variant.name}`}>
               <span className="market-prefix">{nft.id.slice(0, 4)}</span>
               <img src={nft.image} alt={nft.name} className="market-nft-img" />
               <div className="market-card-content">
                 <h3 className="market-nft-name">{nft.name}</h3>
-                {nft.price ? (
-                  <>
-                    <span className="market-nft-price">{nft.price} ◎</span>
-                    {solPrice && (
-                      <span className="market-nft-price-usd">(${(nft.price * solPrice).toFixed(2)})</span>
-                    )}
-                  </>
-                ) : (
-                  <span className="market-no-price">{t('market_no_price')}</span>
-                )}
+              </div>
+              <div className="market-card-footer">
                 <span className="market-nft-owner">
-                  {t('market_owner')}: {nft.owner.slice(0, 4)}...{nft.owner.slice(-4)}
+                  Owner: {nft.owner.slice(0, 4)}
                 </span>
+                {priceSol ? (
+                  <span className="market-nft-price-pill">
+                    {priceSol} SOL
+                    {priceUsd && (
+                      <span className="usd"> (${priceUsd})</span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="market-nft-price-pill">{t('market_no_price')}</span>
+                )}
               </div>
             </li>
           );
@@ -141,7 +145,7 @@ const PrimosMarketGallery: React.FC = () => {
           <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
           <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
           <span className="market-pill">{t('market_holders')}: {uniqueHolders ?? '--'}</span>
-          <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice} ◎` : '--'}</span>
+          <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice}` : '--'}</span>
         </div>
       </div>
       {content}
