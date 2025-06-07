@@ -40,31 +40,39 @@ const NFTGallery: React.FC = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (!publicKey) {
-      setNfts([]);
-      setLoading(false);
-      setFloorPrice(null);
-      setSolPrice(null);
-      return;
-    }
-    const pub = publicKey.toBase58();
-
-    setLoading(true);
-    Promise.all([
-      getAssetsByCollection(PRIMOS_COLLECTION_MINT, pub),
-      getMagicEdenStats(MAGICEDEN_SYMBOL),
-      getPythSolPrice()
-    ]).then(([assets, stats, solPrice]) => {
-      // Assign a random variant to each NFT ONCE
-      const assetsWithVariants = assets.map(nft => ({
-        ...nft,
-        variant: CARD_VARIANTS[Math.floor(Math.random() * CARD_VARIANTS.length)].name
-      }));
-      setNfts(assetsWithVariants);
-      setFloorPrice(stats?.floorPrice ?? null);
-      setSolPrice(solPrice ?? null);
-      setLoading(false);
-    });
+    const fetchData = async () => {
+      if (!publicKey) {
+        setNfts([]);
+        setLoading(false);
+        setFloorPrice(null);
+        setSolPrice(null);
+        return;
+      }
+      const pub = publicKey.toBase58();
+      setLoading(true);
+      try {
+        const [assets, stats, solPriceVal] = await Promise.all([
+          getAssetsByCollection(PRIMOS_COLLECTION_MINT, pub),
+          getMagicEdenStats(MAGICEDEN_SYMBOL),
+          getPythSolPrice(),
+        ]);
+        const assetsWithVariants = assets.map((nft) => ({
+          ...nft,
+          variant:
+            CARD_VARIANTS[
+              Math.floor(Math.random() * CARD_VARIANTS.length)
+            ].name,
+        }));
+        setNfts(assetsWithVariants);
+        setFloorPrice(stats?.floorPrice ?? null);
+        setSolPrice(solPriceVal ?? null);
+      } catch (e) {
+        console.error('Failed to load NFTs', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
     // eslint-disable-next-line
   }, [publicKey]);
 
@@ -76,7 +84,7 @@ const NFTGallery: React.FC = () => {
         alignItems="center"
         justifyContent="center"
         position="relative"
-        sx={{ background: '#000' }}
+        sx={{ background: '#ffffff' }}
       >
         <Box
           component="img"
