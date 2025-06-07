@@ -31,5 +31,15 @@
   "whale": "Ballena 🐋",
   "fish": "Pez 🐠",
   "shrimp": "Camarón 🦐",
-  "beta": "Beta"
+  "beta": "Beta",
+  "market_title": "Mercado PRIMOS",
+  "market_listed": "Listados",
+  "market_floor_price": "Precio mínimo",
+  "market_total_value": "Valor total",
+  "market_sol_price": "Precio SOL",
+  "market_owner": "Propietario",
+  "market_price": "Precio",
+  "market_loading": "Cargando NFTs...",
+  "market_no_nfts": "No hay NFTs listados.",
+  "market_holders": "Poseedores"
 }

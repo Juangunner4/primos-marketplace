@@ -44,7 +44,7 @@ export const getAssetsByCollection = async (
         if (hasMore) {
             // Remove or reduce delay for faster loading
             // await new Promise(res => setTimeout(res, 300));
-            await new Promise(res => setTimeout(res, 50));
+            await new Promise(res => setTimeout(res, 10));
         }
     }
 
@@ -60,6 +60,7 @@ export const getAssetsByCollection = async (
             listed: !!item.listing || !!item.marketplace, 
         }));
 };
+
 
 export const getNFTByTokenAddress = async (tokenAddress: string): Promise<HeliusNFT | null> => {
     const apiKey = process.env.REACT_APP_HELIUS_API_KEY;

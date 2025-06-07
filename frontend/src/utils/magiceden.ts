@@ -25,3 +25,34 @@ export const getMagicEdenStats = async (symbol: string): Promise<MagicEdenStats 
         return null;
     }
 };
+
+export interface MagicEdenHolderStats {
+    symbol: string;
+    totalSupply: number;
+    uniqueHolders: number;
+    tokenHistogram: {
+        bars: { l_val: number; hight: number }[];
+    };
+    topHolders: {
+        owner: string;
+        tokens: number;
+        ownerDisplay?: { sol?: string };
+    }[];
+}
+
+
+export const getMagicEdenHolderStats = async (symbol: string): Promise<MagicEdenHolderStats | null> => {
+    try {
+        const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${symbol}/holder_stats`);
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
+    }
+};
+
+export const fetchMagicEdenListings = async (symbol: string) => {
+  const res = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${symbol}/listings?offset=0&limit=100`);
+  if (!res.ok) return [];
+  return await res.json();
+};

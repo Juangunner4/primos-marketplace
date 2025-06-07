@@ -31,5 +31,15 @@
   "whale": "Whale 🐋",
   "fish": "Fish 🐠",
   "shrimp": "Shrimp 🦐",
-  "beta": "Beta"
+  "beta": "Beta",
+  "market_title": "PRIMOS Market",
+  "market_listed": "Listed",
+  "market_floor_price": "Floor Price",
+  "market_total_value": "Total Value",
+  "market_sol_price": "SOL Price",
+  "market_owner": "Owner",
+  "market_price": "Price",
+  "market_loading": "Loading NFTs...",
+  "market_no_nfts": "No NFTs listed.",
+  "market_holders": "Holders"
 }

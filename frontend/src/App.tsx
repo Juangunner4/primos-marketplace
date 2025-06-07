@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
@@ -12,6 +12,7 @@ import UserProfile from './components/UserProfile';
 
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
+import PrimosMarketGallery from './components/PrimosMarketGallery';
 
 // Move Header inside App so it's in Router context
 const Header: React.FC = () => {
@@ -85,24 +86,44 @@ const Header: React.FC = () => {
   );
 };
 
+const AppRoutes = () => {
+  const { publicKey } = useWallet();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (publicKey && location.pathname === '/') {
+      navigate('/collected', { replace: true });
+    }
+  }, [publicKey, location.pathname, navigate]);
+
+  return (
+    <>
+      <Header />
+      <Routes>
+        <Route path="/" element={<PrimosMarketGallery />} />
+        <Route path="/collected" element={<NFTGallery />} />
+        <Route path="/profile" element={<UserProfile />} />
+      </Routes>
+    </>
+  );
+};
+
 const App = () => {
   // Switch to mainnet
   const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY || process.env.HELIUS_API_KEY;
   const endpoint = useMemo(
     () => `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
     [heliusApiKey]
-  ); const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], []);
+  );
+  const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <Router>
-            <Header />
-            <Routes>
-              <Route path="/" element={<NFTGallery />} />
-              <Route path="/profile" element={<UserProfile />} />
-            </Routes>
+            <AppRoutes />
           </Router>
         </WalletModalProvider>
       </WalletProvider>

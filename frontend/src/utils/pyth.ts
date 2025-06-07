@@ -1,6 +1,3 @@
-import { HermesClient } from "@pythnetwork/hermes-client";
-import { parsePriceData } from "@pythnetwork/client";
-
 // The SOL/USD price feed ID from Pyth docs (double-check for latest)
 const SOL_PRICE_FEED_ID = "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d";
 
@@ -24,6 +21,7 @@ export const getPythSolPrice = async (): Promise<number | null> => {
         }
         return null;
     } catch (e) {
+        console.error("Failed to fetch SOL price from Pyth:", e);
         return null;
     }
 };

@@ -94,6 +94,46 @@ const NFTGallery: React.FC = () => {
             ? (nfts.length * (floorPrice / 1e9) * solPrice).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })
             : '--';
 
+    // Extract gallery content into a variable to avoid nested ternary in JSX
+    let galleryContent;
+    if (loading) {
+        galleryContent = (
+            <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-gray-300 mb-4 bg-white"></div>
+                <p className="text-gray-700 font-medium">{t('loading_nfts')}</p>
+            </div>
+        );
+    } else if (nfts.length === 0) {
+        galleryContent = (
+            <p className="text-gray-600">{t('no_nfts')}</p>
+        );
+    } else {
+        galleryContent = (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {nfts.map((nft) => (
+                    <div
+                        key={nft.id}
+                        className={`nft-card nft-card--${nft.variant}`}
+                        style={getCardStyle()}
+                    >
+                        <span className="nft-prefix">
+                            {nft.id.slice(0, 4)}
+                        </span>
+                        <img
+                            src={nft.image}
+                            alt={nft.name}
+                        />
+                        <div className="nft-title">{nft.name}</div>
+                        <div className="nft-token"></div>
+                        <span className="nft-status">
+                            {nft.listed ? t('listed') : t('not_listed')}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div className="nft-gallery">
             <div className="nft-gallery-header">
@@ -105,37 +145,7 @@ const NFTGallery: React.FC = () => {
                     <span>{t('total_value')}: {totalValueUSD}</span>
                 </div>
             </div>
-            {loading ? (
-                <div className="flex flex-col items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-gray-300 mb-4 bg-white"></div>
-                    <p className="text-gray-700 font-medium">{t('loading_nfts')}</p>
-                </div>
-            ) : nfts.length === 0 ? (
-                <p className="text-gray-600">{t('no_nfts')}</p>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {nfts.map((nft, i) => (
-                        <div
-                            key={i}
-                            className={`nft-card nft-card--${nft.variant}`}
-                            style={getCardStyle()}
-                        >
-                            <span className="nft-prefix">
-                                {nft.id.slice(0, 4)}
-                            </span>
-                            <img
-                                src={nft.image}
-                                alt={nft.name}
-                            />
-                            <div className="nft-title">{nft.name}</div>
-                            <div className="nft-token"></div>
-                            <span className="nft-status">
-                                {nft.listed ? t('listed') : t('not_listed')}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            )}
+            {galleryContent}
         </div>
     );
 };
