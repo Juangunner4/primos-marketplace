@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getPythSolPrice } from '../utils/pyth';
-import { fetchMagicEdenListings, getMagicEdenStats } from '../utils/magiceden';
+import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius'; // Ensure this import exists
 import { useTranslation } from 'react-i18next';
 import './PrimosMarketGallery.css';
@@ -43,10 +43,14 @@ const PrimosMarketGallery: React.FC = () => {
       // 3. Get SOL price from Pyth
       const solPriceVal = await getPythSolPrice();
 
-      // 4. Get unique token mints from listings
+      // 4. Get unique holders from Magic Eden holder stats
+      const holderStats = await getMagicEdenHolderStats(MAGICEDEN_SYMBOL);
+      setUniqueHolders(holderStats?.uniqueHolders ?? null);
+
+      // 5. Get unique token mints from listings
       const uniqueTokenMints = Array.from(new Set(listings.map((l: any) => l.tokenMint))) as string[];
 
-      // 5. Fetch metadata for each unique token mint
+      // 6. Fetch metadata for each unique token mint
       const metaMap: Record<string, any> = {};
       await Promise.all(
         uniqueTokenMints.map(async (mint: string) => {
@@ -55,7 +59,7 @@ const PrimosMarketGallery: React.FC = () => {
         })
       );
 
-      // 6. Merge listing info with metadata
+      // 7. Merge listing info with metadata
       const allNFTs: MarketNFT[] = listings.map((listing: any) => {
         const meta = metaMap[listing.tokenMint];
         return {
@@ -68,13 +72,8 @@ const PrimosMarketGallery: React.FC = () => {
         };
       }).filter((nft: MarketNFT) => nft.image);
 
-      // Unique holders from listings
-      const owners = new Set(allNFTs.map((nft: MarketNFT) => nft.owner));
-      setUniqueHolders(owners.size);
-
       // Debug logs
       console.log('Loaded listed NFTs:', allNFTs.length);
-      console.log('Unique owners:', owners.size);
 
       if (isMounted) {
         setNfts(allNFTs);
@@ -134,7 +133,6 @@ const PrimosMarketGallery: React.FC = () => {
   return (
     <div className="market-gallery">
       <div className="market-header-row">
-        <span className="market-title">{t('market_title')}</span>
         <div className="market-stats-pills">
           <span className="market-pill">
             {t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}
@@ -149,6 +147,9 @@ const PrimosMarketGallery: React.FC = () => {
             {t('market_floor_price')}: {floorPrice !== null ? `${floorPrice} ◎` : '--'}
           </span>
         </div>
+        <span className="market-title">
+          {t('market_title')}
+        </span>
       </div>
       {content}
     </div>
