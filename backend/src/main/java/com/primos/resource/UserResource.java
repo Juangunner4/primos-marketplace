@@ -11,6 +11,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.transaction.Transactional;
 
 @Path("/api/user")
 @Produces(MediaType.APPLICATION_JSON)
@@ -19,6 +20,7 @@ public class UserResource {
 
     @POST
     @Path("/login")
+    @Transactional
     public User login(LoginRequest req) {
         if (req == null || req.publicKey == null || req.publicKey.isEmpty()) {
             System.out.println("[UserResource] Login attempt with missing publicKey");
@@ -54,6 +56,7 @@ public class UserResource {
     @PUT
     @Path("/{publicKey}/pfp")
     @Consumes(MediaType.TEXT_PLAIN)
+    @Transactional
     public User updatePfp(@PathParam("publicKey") String publicKey, String pfpUrl) {
         User user = User.find("publicKey", publicKey).firstResult();
         if (user == null) throw new NotFoundException();
