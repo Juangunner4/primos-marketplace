@@ -175,7 +175,8 @@ export const getTraitFloorPrice = async (
     // Find the trait type and value
     const traitArr = data?.attributes?.[traitType] || [];
     const traitObj = traitArr.find((t: any) => t.value === traitValue);
-    const floor = traitObj && traitObj.floor ? Number(traitObj.floor) : null;
+    const floorValue = traitObj?.floorPrice ?? traitObj?.floor;
+    const floor = floorValue != null ? Number(floorValue) : null;
     setCached(key, floor);
     return floor;
   } catch {

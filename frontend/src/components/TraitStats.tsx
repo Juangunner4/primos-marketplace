@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { getTraitFloorPrice } from '../utils/magiceden';
@@ -15,6 +16,8 @@ import './TraitStats.css';
 interface Props {
   nftIds: string[];
 }
+
+const MAGICEDEN_SYMBOL = 'primos';
 
 type Attribute = { trait_type: string; value: string };
 
@@ -25,6 +28,7 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
   const [mounted, setMounted] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { t } = useTranslation();
 
   useEffect(() => {
     setMounted(true);
@@ -47,10 +51,9 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
       if (!cancelled) setTraits(counts);
 
       // Fetch floor prices for each trait
-      const collectionSymbol = "primos"; // <-- Set your collection symbol here
       const floorPromises = Object.keys(counts).map(async (key) => {
-        const [trait_type, value] = key.split(": ").map(s => s.trim());
-        const price = await getTraitFloorPrice(collectionSymbol, trait_type, value);
+        const [trait_type, value] = key.split(": ").map((s) => s.trim());
+        const price = await getTraitFloorPrice(MAGICEDEN_SYMBOL, trait_type, value);
         return [key, price] as [string, number | null];
       });
       const floorEntries = await Promise.all(floorPromises);
@@ -72,13 +75,13 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
   const panel = (
     <Box component="aside" className={`trait-panel${isMobile ? '' : ' trait-desktop'}`}>
       <Typography variant="h6" component="h3" className="trait-title">
-        Trait Stats
+        {t('trait_stats')}
       </Typography>
       <List className="trait-list">
         <ListItem className="trait-row" disableGutters style={{ fontWeight: 'bold', borderBottom: '2px solid #000' }}>
-          <span className="trait-pill">Trait</span>
-          <span className="trait-count">Count</span>
-          <span className="trait-floor">Floor</span>
+          <span className="trait-pill">{t('trait')}</span>
+          <span className="trait-count">{t('count')}</span>
+          <span className="trait-floor">{t('floor')}</span>
         </ListItem>
         {entries.map(([t, c]) => (
           <ListItem key={t} className="trait-row" disableGutters>
@@ -102,7 +105,7 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger asChild>
           <IconButton
-            aria-label="open traits"
+            aria-label={t('open_traits')}
             className="trait-mobile-btn"
             sx={{
               position: 'fixed',
