@@ -67,7 +67,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       const fp = stats?.floorPrice ? stats.floorPrice / 1e9 : null;
       setFloorPrice(fp);
       setSolPrice(sol ?? null);
-
       if (fp !== null) {
         setTotalValue(totalOwned * fp);
       }
