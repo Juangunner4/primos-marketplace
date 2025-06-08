@@ -45,7 +45,7 @@ body {
 }
 
 .market-gallery {
-  padding-left: 200px;
+  padding-left: 80px;
 }
 @media (max-width: 900px) {
   .market-gallery {
