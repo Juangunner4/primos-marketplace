@@ -30,6 +30,9 @@ const fetchWithRetry = async (
 
 const cache: Record<string, { ts: number; data: any }> = {};
 const CACHE_TTL = 60_000; // 1 minute
+const ATTR_CACHE_TTL = 300_000; // 5 minutes
+
+const attrCache: Record<string, { ts: number; data: any }> = {};
 
 const getCached = <T>(key: string): T | null => {
   const c = cache[key];
@@ -39,6 +42,16 @@ const getCached = <T>(key: string): T | null => {
 
 const setCached = (key: string, data: any) => {
   cache[key] = { ts: Date.now(), data };
+};
+
+const getAttrCached = <T>(key: string): T | null => {
+  const c = attrCache[key];
+  if (c && Date.now() - c.ts < ATTR_CACHE_TTL) return c.data as T;
+  return null;
+};
+
+const setAttrCached = (key: string, data: any) => {
+  attrCache[key] = { ts: Date.now(), data };
 };
 
 export const getMagicEdenStats = async (
@@ -149,6 +162,25 @@ export const fetchMagicEdenActivity = async (
   }
 };
 
+export const getCollectionAttributes = async (
+  symbol: string
+): Promise<any | null> => {
+  const key = `attrs-${symbol}`;
+  const cached = getAttrCached<any>(key);
+  if (cached) return cached;
+  try {
+    const res = await fetchWithRetry(
+      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/attributes`
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    setAttrCached(key, data);
+    return data;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Fetches the floor price for a specific trait from Magic Eden.
  * @param collectionSymbol The collection symbol (e.g., "primos")
@@ -165,13 +197,11 @@ export const getTraitFloorPrice = async (
   const cached = getCached<number | null>(key);
   if (cached !== null) return cached;
   try {
-    const url = `https://api-mainnet.magiceden.dev/v2/collections/${collectionSymbol}/attributes`;
-    const res = await fetchWithRetry(url);
-    if (!res.ok) {
+    const data = await getCollectionAttributes(collectionSymbol);
+    if (!data) {
       setCached(key, null);
       return null;
     }
-    const data = await res.json();
     // Find the trait type and value
     const traitArr = data?.attributes?.[traitType] || [];
     const traitObj = traitArr.find((t: any) => t.value === traitValue);

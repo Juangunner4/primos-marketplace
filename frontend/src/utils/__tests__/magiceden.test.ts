@@ -1,4 +1,4 @@
-import { getMagicEdenStats, getMagicEdenHolderStats, fetchMagicEdenListings, fetchMagicEdenActivity } from '../magiceden';
+import { getMagicEdenStats, getMagicEdenHolderStats, fetchMagicEdenListings, fetchMagicEdenActivity, getTraitFloorPrice } from '../magiceden';
 
 describe('magiceden utilities', () => {
   afterEach(() => {
@@ -35,5 +35,21 @@ describe('magiceden utilities', () => {
     (global as any).fetch = jest.fn().mockRejectedValue(new Error('fail'));
     const list = await fetchMagicEdenActivity('sym');
     expect(list).toEqual([]);
+  });
+
+  test('getTraitFloorPrice caches attributes', async () => {
+    const response = {
+      ok: true,
+      json: async () => ({
+        attributes: { Trait: [{ value: 'A', floorPrice: 1 }] },
+      }),
+    };
+    const mockFetch = jest.fn().mockResolvedValue(response);
+    (global as any).fetch = mockFetch;
+    const price1 = await getTraitFloorPrice('sym', 'Trait', 'A');
+    const price2 = await getTraitFloorPrice('sym', 'Trait', 'A');
+    expect(price1).toBe(1);
+    expect(price2).toBe(1);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 });
