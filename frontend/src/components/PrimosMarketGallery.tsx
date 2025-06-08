@@ -98,18 +98,28 @@ const PrimosMarketGallery: React.FC = () => {
         const pageNFTs: MarketNFT[] = listings
           .map((listing: any) => {
             const meta = metaMap[listing.tokenMint];
+            let rank: number | null = null;
+            if (typeof listing.rarityRank === 'number') {
+              rank = listing.rarityRank;
+            } else if (typeof listing.rank === 'number') {
+              rank = listing.rank;
+            } else {
+              const attr = meta?.attributes?.find(
+                (a: any) =>
+                  a.trait_type?.toLowerCase() === 'rank' ||
+                  a.trait_type?.toLowerCase() === 'rarity rank'
+              );
+              if (attr && !isNaN(Number(attr.value))) {
+                rank = Number(attr.value);
+              }
+            }
             return {
               id: listing.tokenMint,
               image: meta?.image || '',
               name: meta?.name || listing.tokenMint,
               price: listing.price,
               variant: getRandomCardVariantName(),
-              rank:
-                typeof listing.rarityRank === 'number'
-                  ? listing.rarityRank
-                  : typeof listing.rank === 'number'
-                  ? listing.rank
-                  : null,
+              rank,
             } as MarketNFT;
           })
           .filter((nft: MarketNFT) => nft.image);
