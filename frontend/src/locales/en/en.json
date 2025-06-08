@@ -88,5 +88,10 @@
   "primo_labs_floating_title": "The most dangerous primo in the world",
   "primo_labs_floating_body": "The most loyal ones? They keep showing up. No matter what. No fanfare, no promises—just presence. That’s Primos. Always there. Always holding it down.",
   "trait_stats": "Trait Stats",
-  "rarity_rank": "Rank"
+  "trait": "Trait",
+  "count": "Count",
+  "floor": "Floor",
+  "open_traits": "Open Traits",
+  "rarity_rank": "Rank",
+  "market_no_price": "No Price"
 }
