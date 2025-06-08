@@ -6,6 +6,7 @@ import { getPythSolPrice } from '../utils/pyth';
 import logo from '../images/primoslogo.png';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
+import TraitStats from './TraitStats';
 import './PrimosMarketGallery.css'; // Use only the unified CSS
 
 interface GalleryNFT extends HeliusNFT {
@@ -103,17 +104,20 @@ const NFTGallery: React.FC = () => {
   }
 
   return (
-    <div className=" market-gallery">
-      <div className="market-header-row">
-        <h2 className="market-title">{t('your_primos_nfts')}</h2>
-        <div className="nft-gallery-stats market-stats-pills">
-          <span className="market-pill">{t('floor_price')}: {floorPrice !== null ? `${(floorPrice / 1e9).toFixed(2)}` : '--'}</span>
-          <span className="market-pill">{t('owned')}: {nfts.length}</span>
-          <span className="market-pill">{t('sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
-          <span className="market-pill">{t('total_value')}: {totalValueUSD}</span>
+    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+      <div className="market-gallery" style={{ flex: 1 }}>
+        <div className="market-header-row">
+          <h2 className="market-title">{t('your_primos_nfts')}</h2>
+          <div className="nft-gallery-stats market-stats-pills">
+            <span className="market-pill">{t('floor_price')}: {floorPrice !== null ? `${(floorPrice / 1e9).toFixed(2)}` : '--'}</span>
+            <span className="market-pill">{t('owned')}: {nfts.length}</span>
+            <span className="market-pill">{t('sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
+            <span className="market-pill">{t('total_value')}: {totalValueUSD}</span>
+          </div>
         </div>
+        {galleryContent}
       </div>
-      {galleryContent}
+      <TraitStats nftIds={nfts.map((n) => n.id)} />
     </div>
   );
 };

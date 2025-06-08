@@ -3,6 +3,7 @@ export interface HeliusNFT {
     image: string;
     name: string;
     listed: boolean;
+    attributes?: { trait_type: string; value: string }[];
 }
 
 const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -146,6 +147,7 @@ export const getNFTByTokenAddress = async (
       image: item.content?.links?.image || '/fallback.png',
       name: item.content?.metadata?.name || item.id,
       listed: !!item.listing || !!item.marketplace,
+      attributes: item.content?.metadata?.attributes || [],
     } as HeliusNFT;
     nftCache[tokenAddress] = nft;
     return nft;
