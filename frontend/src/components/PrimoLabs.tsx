@@ -34,35 +34,39 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
     const fetchData = async () => {
       const res = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
 
-      const withImages = await Promise.all(
-        res.data.map(async (m) => {
-          if (m.pfp) {
-            try {
-              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-              return { publicKey: m.publicKey, image: nft?.image || null };
-            } catch {
-              return { publicKey: m.publicKey, image: null };
-            }
+      const imagePromises = res.data.map(async (m) => {
+        if (m.pfp) {
+          try {
+            const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+            return { publicKey: m.publicKey, image: nft?.image || null };
+          } catch {
+            return { publicKey: m.publicKey, image: null };
           }
-          return { publicKey: m.publicKey, image: null };
-        })
-      );
-      setMembers(withImages);
+        }
+        return { publicKey: m.publicKey, image: null };
+      });
 
-      const counts = await Promise.all(
-        res.data.map((m) =>
-          getAssetsByCollection(PRIMOS_COLLECTION_MINT, m.publicKey).then(
-            (assets) => assets.length
-          )
+      const countPromises = res.data.map((m) =>
+        getAssetsByCollection(PRIMOS_COLLECTION_MINT, m.publicKey).then(
+          (assets) => assets.length
         )
       );
+
+      const statsPromise = getMagicEdenStats(MAGICEDEN_SYMBOL);
+      const solPromise = getPythSolPrice();
+
+      const [withImages, counts, stats, sol] = await Promise.all([
+        Promise.all(imagePromises),
+        Promise.all(countPromises),
+        statsPromise,
+        solPromise,
+      ]);
+
+      setMembers(withImages);
+
       const totalOwned = counts.reduce((a, b) => a + b, 0);
       setOwnedCount(totalOwned);
 
-      const [stats, sol] = await Promise.all([
-        getMagicEdenStats(MAGICEDEN_SYMBOL),
-        getPythSolPrice(),
-      ]);
       const fp = stats?.floorPrice ? stats.floorPrice / 1e9 : null;
       setFloorPrice(fp);
       setSolPrice(sol ?? null);

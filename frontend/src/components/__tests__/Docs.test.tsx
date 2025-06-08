@@ -14,5 +14,6 @@ describe('Docs', () => {
     expect(screen.getByText(/Docs/i)).toBeTruthy();
     expect(screen.getByAltText(/Primos Community Visual/i)).toBeTruthy();
     expect(screen.getByText(/Overview/i)).toBeTruthy();
+    expect(screen.getByText(i18n.t('primo_labs_floating_body'))).toBeTruthy();
   });
 });
