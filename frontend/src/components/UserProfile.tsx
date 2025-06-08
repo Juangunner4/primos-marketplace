@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
 import './UserProfile.css';
@@ -32,6 +33,9 @@ const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
 
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
+  const params = useParams<{ publicKey?: string }>();
+  const profileKey = params.publicKey || publicKey?.toBase58();
+  const isOwner = publicKey && profileKey === publicKey.toBase58();
   const { t } = useTranslation();
   const [user, setUser] = useState<UserDoc | null>(null);
   const [nfts, setNfts] = useState<HeliusNFT[]>([]);
@@ -46,19 +50,21 @@ const UserProfile: React.FC = () => {
 
   // Fetch user info
   useEffect(() => {
-    if (publicKey) {
-      axios.get(`${backendUrl}/api/user/${publicKey.toBase58()}`)
-        .then(res => setUser(res.data));
+    if (profileKey) {
+      axios.get(`${backendUrl}/api/user/${profileKey}`)
+        .then(res => setUser(res.data))
+        .catch(() => setUser(null));
     }
-  }, [publicKey]);
+  }, [profileKey]);
 
   // Fetch Primos NFTs
   useEffect(() => {
-    if (publicKey) {
-      getAssetsByCollection(PRIMOS_COLLECTION_MINT, publicKey.toBase58())
-        .then(setNfts);
+    if (profileKey) {
+      getAssetsByCollection(PRIMOS_COLLECTION_MINT, profileKey)
+        .then(setNfts)
+        .catch(() => setNfts([]));
     }
-  }, [publicKey]);
+  }, [profileKey]);
 
   // Fetch PFP image from token address in DB
   useEffect(() => {
@@ -75,12 +81,12 @@ const UserProfile: React.FC = () => {
 
   // Update PFP in DB (store token address)
   const handleSetPFP = (tokenAddress: string) => {
-    if (user && publicKey) {
+    if (user && publicKey && isOwner) {
       axios
         .put(
           `${backendUrl}/api/user/${publicKey.toBase58()}/pfp`,
           tokenAddress,
-          { headers: { 'Content-Type': 'text/plain' } }
+          { headers: { 'Content-Type': 'text/plain', 'X-Public-Key': publicKey.toBase58() } }
         )
         .then((res) => setUser(res.data));
     }
@@ -105,9 +111,13 @@ const UserProfile: React.FC = () => {
 
   const handleSaveProfile = () => {
     setSaveDialogOpen(false);
-    if (publicKey && user) {
+    if (publicKey && user && isOwner) {
       axios
-        .put(`${backendUrl}/api/user/${publicKey.toBase58()}`, user)
+        .put(
+          `${backendUrl}/api/user/${publicKey.toBase58()}`,
+          user,
+          { headers: { 'X-Public-Key': publicKey.toBase58() } }
+        )
         .then((res) => setUser(res.data))
         .finally(() => {
           setIsEditing(false);
@@ -116,7 +126,7 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  if (!publicKey || !user) return null;
+  if (!user) return null;
 
   return (
     <>
@@ -128,30 +138,33 @@ const UserProfile: React.FC = () => {
         )}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
           <Typography className="wallet-info" sx={{ mb: 0 }}>
-            <strong>{t('wallet')}</strong> {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-3)}
+            <strong>{t('wallet')}</strong>{' '}
+            {profileKey ? `${profileKey.slice(0, 4)}...${profileKey.slice(-3)}` : ''}
           </Typography>
-          <Button
-            variant="contained"
-            onClick={() => {
-              if (isEditing) {
-                setIsEditing(false);
-                setShowNFTs(false);
-              } else {
-                setEditDialogOpen(true);
-              }
-            }}
-            sx={{
-              background: '#111',
-              color: '#fff',
-              border: '1px solid #111',
-              ml: 1,
-              '&:hover': { background: '#222' },
-            }}
-          >
-            {isEditing ? t('cancel') : t('edit')}
-          </Button>
+          {isOwner && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                if (isEditing) {
+                  setIsEditing(false);
+                  setShowNFTs(false);
+                } else {
+                  setEditDialogOpen(true);
+                }
+              }}
+              sx={{
+                background: '#111',
+                color: '#fff',
+                border: '1px solid #111',
+                ml: 1,
+                '&:hover': { background: '#222' },
+              }}
+            >
+              {isEditing ? t('cancel') : t('edit')}
+            </Button>
+          )}
         </Box>
-        {isEditing && (
+        {isOwner && isEditing && (
           <Button
             variant="outlined"
             className="select-nft-pfp-btn"
@@ -160,7 +173,7 @@ const UserProfile: React.FC = () => {
             {showNFTs ? t('hide_nft_selection') : t('select_nft_as_pfp')}
           </Button>
         )}
-        {showNFTs && (
+        {isOwner && showNFTs && (
           <Box className="profile-nft-grid">
             {nfts.map((nft, i) => {
               const isSelected = user.pfp.replace(/"/g, '') === nft.id;
@@ -190,7 +203,7 @@ const UserProfile: React.FC = () => {
           }
           fullWidth
           margin="normal"
-          disabled={!isEditing}
+          disabled={!isOwner || !isEditing}
         />
         <TextField
           label={t('discord')}
@@ -200,7 +213,7 @@ const UserProfile: React.FC = () => {
           }
           fullWidth
           margin="normal"
-          disabled={!isEditing}
+          disabled={!isOwner || !isEditing}
         />
         <TextField
           label={t('website')}
@@ -210,7 +223,7 @@ const UserProfile: React.FC = () => {
           }
           fullWidth
           margin="normal"
-          disabled={!isEditing}
+          disabled={!isOwner || !isEditing}
         />
         <Typography mt={2}>
           <strong>{t('status')}</strong> {t(getStatus(nfts.length))}
@@ -218,7 +231,7 @@ const UserProfile: React.FC = () => {
         <Typography>
           <strong>{t('marketplace_balance')}</strong> {user.pesos} {t('pesos')}
         </Typography>
-        {isEditing && (
+        {isOwner && isEditing && (
           <Button
             variant="contained"
             sx={{
@@ -234,6 +247,8 @@ const UserProfile: React.FC = () => {
           </Button>
         )}
       </Box>
+      {isOwner && (
+      <>
       <Dialog.Root open={pfpDialogOpen} onOpenChange={setPfpDialogOpen}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
@@ -276,6 +291,8 @@ const UserProfile: React.FC = () => {
           </Box>
         </Dialog.Content>
       </Dialog.Root>
+      </>
+      )}
     </>
   );
 };

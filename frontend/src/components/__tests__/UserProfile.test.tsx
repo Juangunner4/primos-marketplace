@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import UserProfile from '../UserProfile';
 import i18n from '../../i18n';
 
@@ -84,5 +85,19 @@ describe('UserProfile', () => {
     });
 
     expect(container.querySelector('.profile-nft-grid')).toBeNull();
+  });
+
+  test('does not allow editing another user profile', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'wallet123' } });
+    render(
+      <MemoryRouter initialEntries={['/user/other123']}>
+        <Routes>
+          <Route path="/user/:publicKey" element={<I18nextProvider i18n={i18n}><UserProfile /></I18nextProvider>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await screen.findByText(/Wallet/i);
+    expect(screen.queryByText(/Edit/i)).toBeNull();
   });
 });

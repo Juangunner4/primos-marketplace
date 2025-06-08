@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Link } from 'react-router-dom';
 import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -22,7 +23,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [members, setMembers] = useState<MemberWithImage[]>([]);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [solPrice, setSolPrice] = useState<number | null>(null);
-  const [totalValue, setTotalValue] = useState<number | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
   const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'; // Use your collection mint
 
@@ -131,15 +131,17 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       </Typography>
       <Box className="dao-members">
         {members.map((m) => (
-          <Box key={m.publicKey} className="member-card">
-            <Avatar src={m.image || undefined} sx={{ width: 40, height: 40 }} />
-            <Typography sx={{ ml: 1 }}>
-              {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
-            </Typography>
-            <Typography variant="caption" sx={{ ml: 1 }}>
-              NFTs: {m.count}
-            </Typography>
-          </Box>
+          <Link key={m.publicKey} to={`/user/${m.publicKey}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Box className="member-card">
+              <Avatar src={m.image || undefined} sx={{ width: 40, height: 40 }} />
+              <Typography sx={{ ml: 1 }}>
+                {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
+              </Typography>
+              <Typography variant="caption" sx={{ ml: 1 }}>
+                NFTs: {m.count}
+              </Typography>
+            </Box>
+          </Link>
         ))}
       </Box>
     </Box>
