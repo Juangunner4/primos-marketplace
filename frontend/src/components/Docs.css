@@ -53,12 +53,26 @@
   color: #fff;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   padding: 0 1rem;
+  animation: fadeOut 3s ease-out 4s forwards;
 }
 
 .overlay-title {
   font-weight: bold;
   font-size: 1.2rem;
   color: #000;
-  margin-bottom: 0.2rem;  
+  margin-bottom: 0.2rem;
   margin-bottom: 0.4rem;
+}
+
+.overlay-body {
+  font-size: 0.9rem;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
