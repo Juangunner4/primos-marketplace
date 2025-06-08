@@ -12,14 +12,13 @@ import { useTranslation } from 'react-i18next';
 import './Activity.css';
 import { fetchMagicEdenActivity } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
+import { getPythSolPrice } from '../utils/pyth';
 
 type ActivityItem = {
   id: string;
   type: 'sale' | 'listing' | 'delist' | 'mint';
   nftName: string;
   price?: number;
-  from?: string;
-  to?: string;
   time: string;
   image?: string;
 };
@@ -28,6 +27,7 @@ const MAGICEDEN_SYMBOL = 'primos';
 
 const Activity: React.FC = () => {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [solPrice, setSolPrice] = useState<number | null>(null);
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -36,6 +36,10 @@ const Activity: React.FC = () => {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    getPythSolPrice().then((p) => setSolPrice(p));
   }, []);
 
   useEffect(() => {
@@ -60,8 +64,6 @@ const Activity: React.FC = () => {
             type: item.type,
             nftName,
             price: item.price,
-            from: item.seller ?? item.source ?? '',
-            to: item.buyer ?? item.destination ?? '',
             time: item.blockTime
               ? new Date(item.blockTime * 1000).toISOString()
               : new Date().toISOString(),
@@ -133,22 +135,12 @@ const Activity: React.FC = () => {
             <span className="activity-nft">{item.nftName}</span>
             {item.price && (
               <span className="activity-price">
-                {item.price.toFixed(3)} <span className="activity-sol"></span>
+                {item.price.toFixed(3)} SOL
+                {solPrice && (
+                  <span className="usd"> ({(item.price * solPrice).toFixed(2)})</span>
+                )}
               </span>
             )}
-            {item.from && (
-              <span className="activity-from">
-                {t('activity_from')}: {item.from.slice(0, 4)}...
-              </span>
-            )}
-            {item.to && (
-              <span className="activity-to">
-                {t('activity_to')}: {item.to.slice(0, 4)}...
-              </span>
-            )}
-            <span className="activity-time">
-              {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
           </ListItem>
         ))}
       </List>

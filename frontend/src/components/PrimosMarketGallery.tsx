@@ -15,7 +15,6 @@ type MarketNFT = {
   image: string;
   name: string;
   price: number;
-  owner: string;
   variant: string;
 };
 
@@ -28,6 +27,7 @@ const PrimosMarketGallery: React.FC = () => {
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [pageInput, setPageInput] = useState('1');
   const { t } = useTranslation();
 
   // Fetch stats and SOL price once
@@ -90,7 +90,6 @@ const PrimosMarketGallery: React.FC = () => {
               image: meta?.image || '',
               name: meta?.name || listing.tokenMint,
               price: listing.price,
-              owner: listing.seller,
               variant: getRandomCardVariantName(),
             };
           }).filter((nft: MarketNFT) => nft.image);
@@ -104,6 +103,10 @@ const PrimosMarketGallery: React.FC = () => {
     }
     fetchPage();
     return () => { isMounted = false; };
+  }, [page]);
+
+  useEffect(() => {
+    setPageInput(String(page));
   }, [page]);
 
   let content;
@@ -131,18 +134,15 @@ const PrimosMarketGallery: React.FC = () => {
                 <h3 className="market-nft-name">{nft.name}</h3>
               </div>
               <div className="market-card-footer">
-                <span className="market-nft-owner">
-                  {t('market_owner')}: {nft.owner.slice(0, 4)}
-                </span>
                 {priceSol ? (
-                  <span className="market-nft-price-pill">
+                  <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>
                     {priceSol} SOL
                     {priceUsd && (
                       <span className="usd"> (${priceUsd})</span>
                     )}
                   </span>
                 ) : (
-                  <span className="market-nft-price-pill">{t('market_no_price')}</span>
+                  <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>{t('market_no_price')}</span>
                 )}
               </div>
             </li>
@@ -165,21 +165,36 @@ const PrimosMarketGallery: React.FC = () => {
           </div>
         </div>
         {content}
-        <div className="market-pagination" style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0' }}>
+        <div className="market-pagination" style={{ display: 'flex', justifyContent: 'center', gap: 12, margin: '2rem 0', alignItems: 'center' }}>
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            style={{ marginRight: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
+            style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
           >
             {t('prev') || 'Prev'}
           </button>
-          <span style={{ alignSelf: 'center', fontWeight: 500 }}>
-            {page} / {totalPages}
-          </span>
+          <span style={{ fontWeight: 500 }}>{page} / {totalPages}</span>
+          <input
+            type="number"
+            min={1}
+            max={totalPages}
+            value={pageInput}
+            onChange={(e) => setPageInput(e.target.value)}
+            style={{ width: 60, padding: '0.3rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc' }}
+          />
+          <button
+            onClick={() => {
+              const num = Math.max(1, Math.min(totalPages, parseInt(pageInput, 10) || 1));
+              setPage(num);
+            }}
+            style={{ padding: '0.4rem 0.8rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: '#fff' }}
+          >
+            Go
+          </button>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            style={{ marginLeft: 16, padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
+            style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
           >
             {t('next') || 'Next'}
           </button>
