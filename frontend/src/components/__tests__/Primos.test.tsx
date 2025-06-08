@@ -15,6 +15,7 @@ jest.mock('axios', () => ({
 
 jest.mock('../utils/helius', () => ({
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null)),
+  getAssetsByCollection: jest.fn(() => Promise.resolve([])),
 }));
 
 const renderPrimos = (connected: boolean) =>
@@ -39,5 +40,11 @@ describe('Primos component', () => {
     renderPrimos(true);
     const link = await screen.findByRole('link');
     expect(link).toHaveAttribute('href', '/user/abcdef123456');
+  });
+
+  test('displays nft count pill', async () => {
+    renderPrimos(true);
+    const pill = await screen.findByText(/NFTs: 0/i);
+    expect(pill).toBeTruthy();
   });
 });

@@ -24,6 +24,22 @@
   cursor: pointer;
 }
 
+.primos-pills {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.primos-pill {
+  background: #fff;
+  border-radius: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid #000;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
 .dialog-overlay {
   background: rgba(0,0,0,0.6);
   position: fixed;
