@@ -61,7 +61,7 @@
   "primo_labs": "Primo Labs",
   "primo_labs_desc": "Primo Labs will function as a launchpad and innovation hub for new features, NFT utilities, and community experiments. Stay tuned for exclusive tools and early access to upcoming projects.",
   "docs_title": "Docs",
-  "docs_welcome": "Welcome to the Primos Marketplace documentation.",
+  "docs_welcome": "In the sprawling landscape of guides and references that could easily lead you astray for ages, you will eventually discover by the final words that this is the official Primos Marketplace documentation.",
   "docs_treasury_title": "Decentralized Community Treasury",
   "docs_treasury_desc": "A permissioned Solana marketplace that levies ultra-low fees and routes 100% of proceeds into a shared on-chain treasury. This “fee → buyback” loop amplifies floor price and treasury growth—DeFi mechanics meet community ownership.",
   "docs_governance_title": "Exclusive Family Governance",
@@ -72,4 +72,17 @@
   "docs_open_source_desc": "Built atop Metaplex Auction House and Holaplex modules, Primos plugs into the broader Solana ecosystem—enabling cross-market swaps, DeFi integrations, and future DAO-driven expansions.",
   "docs_join_family": "Join the Family: Gain priority drops, governance voice, reward multipliers, and real-world perks. From NFT trading to sports events, Primos is chain + game + claim.",
   "docs_image_alt": "Primos Community Visual"
+  ,
+  "docs_nav_overview": "Overview",
+  "docs_nav_treasury": "Treasury",
+  "docs_nav_governance": "Governance",
+  "docs_nav_utility": "Utility",
+  "docs_nav_open_source": "Open Source",
+  "labs_nft_section": "Our Primos NFTs",
+  "labs_floor_price": "Floor Price",
+  "labs_owned": "Owned",
+  "labs_sol_price": "SOL Price",
+  "labs_total_value": "Total Value",
+  "primo_labs_stats_desc": "The DAO explores DeFi opportunities, real-world asset investments, DePIN incentives and even memecoin adventures.",
+  "labs_members_title": "DAO Members"
 }

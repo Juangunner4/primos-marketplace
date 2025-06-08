@@ -12,6 +12,7 @@ describe('PrimoLabs', () => {
 
   test('shows labs content when authenticated', () => {
     renderLabs(true);
-    expect(screen.getByText(/Welcome to Primo Labs/i)).toBeTruthy();
+    expect(screen.getByText(/Primo Labs/i)).toBeTruthy();
+    expect(screen.getByText(/Our Primos NFTs/i)).toBeTruthy();
   });
 });

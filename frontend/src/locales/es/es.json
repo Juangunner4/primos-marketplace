@@ -61,7 +61,7 @@
   "primo_labs": "Primo Labs",
   "primo_labs_desc": "Primo Labs funcionará como una plataforma de lanzamiento y centro de innovación para nuevas funciones, utilidades NFT y experimentos comunitarios. Próximamente: herramientas exclusivas y acceso anticipado a nuevos proyectos.",
   "docs_title": "Docs",
-  "docs_welcome": "Bienvenido a la documentación de Primos Marketplace.",
+  "docs_welcome": "En el extenso panorama de guías, referencias y tutoriales interminables que pueden rodear cualquier proyecto, finalmente has llegado al lugar donde, después de mucho leer y desplazarte, descubrirás que esta es la documentación oficial de Primos Marketplace.",
   "docs_treasury_title": "Tesorería Comunitaria Descentralizada",
   "docs_treasury_desc": "Un marketplace de Solana con permisos que aplica tarifas ultra bajas y dirige el 100% de los ingresos a una tesorería compartida en cadena. Este ciclo de “tarifa → recompra” amplifica el precio mínimo y el crecimiento de la tesorería: DeFi se une a la propiedad comunitaria.",
   "docs_governance_title": "Gobernanza Exclusiva de la Familia",
@@ -72,4 +72,17 @@
   "docs_open_source_desc": "Construido sobre Metaplex Auction House y módulos Holaplex, Primos se conecta con el ecosistema Solana, permitiendo intercambios entre mercados, integraciones DeFi y futuras expansiones impulsadas por DAO.",
   "docs_join_family": "Únete a la Familia: Obtén drops prioritarios, voz en la gobernanza, multiplicadores de recompensas y beneficios reales. Desde trading NFT hasta eventos deportivos, Primos es cadena + juego + reclama.",
   "docs_image_alt": "Visual de la Comunidad Primos"
+  ,
+  "docs_nav_overview": "Resumen",
+  "docs_nav_treasury": "Tesorería",
+  "docs_nav_governance": "Gobernanza",
+  "docs_nav_utility": "Utilidad",
+  "docs_nav_open_source": "Código Abierto",
+  "labs_nft_section": "Nuestros Primos NFTs",
+  "labs_floor_price": "Precio Piso",
+  "labs_owned": "En posesión",
+  "labs_sol_price": "Precio SOL",
+  "labs_total_value": "Valor Total",
+  "primo_labs_stats_desc": "La DAO explora oportunidades DeFi, inversiones en activos reales, incentivos DePIN e incluso aventuras con memecoins.",
+  "labs_members_title": "Miembros de la DAO"
 }

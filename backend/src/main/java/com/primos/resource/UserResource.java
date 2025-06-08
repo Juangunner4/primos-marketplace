@@ -40,6 +40,7 @@ public class UserResource {
             user.setPoints(0);
             user.setPesos(1000);
             user.setCreatedAt(System.currentTimeMillis());
+            user.setDaoMember(true);
             user.setPrimoHolder(holder);
             user.persist();
             LOGGER.info("[UserResource] Created new user for publicKey: " + req.publicKey);
@@ -83,6 +84,12 @@ public class UserResource {
             LOGGER.info(String.format("[UserResource] Updated profile for %s", publicKey));
         }
         return user;
+    }
+
+    @GET
+    @Path("/members")
+    public java.util.List<User> getDaoMembers() {
+        return User.list("daoMember", true);
     }
 
 }

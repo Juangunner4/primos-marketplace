@@ -5,12 +5,14 @@ import i18n from '../../i18n';
 import Docs from '../Docs';
 
 describe('Docs', () => {
-  test('renders docs heading', () => {
+  test('renders docs heading and image', () => {
     render(
       <I18nextProvider i18n={i18n}>
         <Docs />
       </I18nextProvider>
     );
     expect(screen.getByText(/Docs/i)).toBeTruthy();
+    expect(screen.getByAltText(/Primos Community Visual/i)).toBeTruthy();
+    expect(screen.getByText(/Overview/i)).toBeTruthy();
   });
 });
