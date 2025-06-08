@@ -93,5 +93,10 @@
   "floor": "Floor",
   "open_traits": "Open Traits",
   "rarity_rank": "Rank",
-  "market_no_price": "No Price"
+  "market_no_price": "No Price",
+  "primos_title": "Primos",
+  "primos_login_prompt": "Please login to access Primos",
+  "primos_search": "Search by public key...",
+  "primos_no_members": "No members found.",
+  "points": "Points"
 }
