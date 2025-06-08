@@ -8,6 +8,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
 import WorkIcon from '@mui/icons-material/Work';
+import ScienceIcon from '@mui/icons-material/Science';
 import MenuIcon from '@mui/icons-material/Menu';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -52,6 +53,23 @@ const SidebarNav: React.FC = () => {
             onClick={() => setOpen(false)}
           >
             <WorkIcon />
+          </IconButton>
+        </Tooltip>
+      </ListItem>
+      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
+        <Tooltip title={t('primo_labs')} placement="right">
+          <IconButton
+            component={NavLink}
+            to="/labs"
+            color={location.pathname === '/labs' ? 'primary' : 'default'}
+            sx={{
+              color: location.pathname === '/labs' ? '#fff' : '#b0b0b0',
+              textShadow: '0 0 6px #fff, 0 0 2px #fff',
+              '&:hover': { color: '#fff', background: '#222' },
+            }}
+            onClick={() => setOpen(false)}
+          >
+            <ScienceIcon />
           </IconButton>
         </Tooltip>
       </ListItem>
