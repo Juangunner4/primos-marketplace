@@ -9,6 +9,9 @@ const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 let heliusChain: Promise<unknown> = Promise.resolve();
 
+const collectionCache: Record<string, { ts: number; data: HeliusNFT[] }> = {};
+const COLLECTION_CACHE_TTL = 60_000; // 1 minute
+
 const heliusFetch = async (
   url: string,
   options: RequestInit,
@@ -34,13 +37,19 @@ const heliusFetch = async (
     .catch(() => null)
     .then(() => sleep(minDelay));
   return result;
-};
+}; 
 
 export const getAssetsByCollection = async (
   collectionAddress: string,
   ownerPubkey: string
 ): Promise<HeliusNFT[]> => {
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+
+  const cacheKey = `${collectionAddress}-${ownerPubkey}`;
+  const cached = collectionCache[cacheKey];
+  if (cached && Date.now() - cached.ts < COLLECTION_CACHE_TTL) {
+    return cached.data;
+  }
 
   let page = 1;
   const limit = 100;
@@ -85,7 +94,7 @@ export const getAssetsByCollection = async (
     }
   }
 
-  return allItems
+  const result = allItems
     .filter((item: any) => item.ownership?.owner === ownerPubkey)
     .map((item: any) => ({
       id: item.id,
@@ -96,6 +105,8 @@ export const getAssetsByCollection = async (
       name: item.content?.metadata?.name || item.id,
       listed: !!item.listing || !!item.marketplace,
     }));
+  collectionCache[cacheKey] = { ts: Date.now(), data: result };
+  return result;
 };
 
 const nftCache: Record<string, HeliusNFT> = {};
