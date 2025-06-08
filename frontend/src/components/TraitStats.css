@@ -83,6 +83,13 @@
   overflow: hidden;
 }
 
+.trait-floor {
+  min-width: 70px;
+  text-align: right;
+  margin-left: 1.2rem;
+  font-family: 'Segoe UI', monospace, sans-serif;
+}
+
 @media (max-width: 1100px) {
   .trait-desktop {
     display: none;

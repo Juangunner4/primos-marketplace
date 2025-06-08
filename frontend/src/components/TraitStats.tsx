@@ -9,6 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import * as Dialog from '@radix-ui/react-dialog';
 import { getNFTByTokenAddress } from '../utils/helius';
+import { getTraitFloorPrice } from '../utils/magiceden';
 import './TraitStats.css';
 
 interface Props {
@@ -19,6 +20,7 @@ type Attribute = { trait_type: string; value: string };
 
 const TraitStats: React.FC<Props> = ({ nftIds }) => {
   const [traits, setTraits] = useState<Record<string, number>>({});
+  const [traitFloors, setTraitFloors] = useState<Record<string, number | null>>({});
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const theme = useTheme();
@@ -43,11 +45,24 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
         }
       }
       if (!cancelled) setTraits(counts);
+
+      // Fetch floor prices for each trait
+      const collectionSymbol = "primos"; // <-- Set your collection symbol here
+      const floorPromises = Object.keys(counts).map(async (key) => {
+        const [trait_type, value] = key.split(": ").map(s => s.trim());
+        const price = await getTraitFloorPrice(collectionSymbol, trait_type, value);
+        return [key, price] as [string, number | null];
+      });
+      const floorEntries = await Promise.all(floorPromises);
+      if (!cancelled) {
+        setTraitFloors(Object.fromEntries(floorEntries));
+      }
     }
     if (nftIds.length) {
       load();
     } else {
       setTraits({});
+      setTraitFloors({});
     }
     return () => { cancelled = true; };
   }, [nftIds]);
@@ -60,10 +75,22 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
         Trait Stats
       </Typography>
       <List className="trait-list">
+        <ListItem className="trait-row" disableGutters style={{ fontWeight: 'bold', borderBottom: '2px solid #000' }}>
+          <span className="trait-pill">Trait</span>
+          <span className="trait-count">Count</span>
+          <span className="trait-floor">Floor</span>
+        </ListItem>
         {entries.map(([t, c]) => (
           <ListItem key={t} className="trait-row" disableGutters>
             <span className="trait-pill">{t}</span>
             <span className="trait-count">{c}</span>
+            <span className="trait-floor">
+              {(() => {
+                if (traitFloors[t] === undefined) return '...';
+                if (traitFloors[t] === null) return '—';
+                return traitFloors[t]?.toLocaleString(undefined, { maximumFractionDigits: 2 });
+              })()}
+            </span>
           </ListItem>
         ))}
       </List>

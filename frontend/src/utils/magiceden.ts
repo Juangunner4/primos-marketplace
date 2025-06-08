@@ -148,3 +148,38 @@ export const fetchMagicEdenActivity = async (
     return [];
   }
 };
+
+/**
+ * Fetches the floor price for a specific trait from Magic Eden.
+ * @param collectionSymbol The collection symbol (e.g., "primos")
+ * @param traitType The trait type (e.g., "Clothing")
+ * @param traitValue The trait value (e.g., "Event Staff")
+ * @returns The floor price in SOL, or null if not found.
+ */
+export const getTraitFloorPrice = async (
+  collectionSymbol: string,
+  traitType: string,
+  traitValue: string
+): Promise<number | null> => {
+  const key = `trait-floor-${collectionSymbol}-${traitType}-${traitValue}`;
+  const cached = getCached<number | null>(key);
+  if (cached !== null) return cached;
+  try {
+    const url = `https://api-mainnet.magiceden.dev/v2/collections/${collectionSymbol}/attributes`;
+    const res = await fetchWithRetry(url);
+    if (!res.ok) {
+      setCached(key, null);
+      return null;
+    }
+    const data = await res.json();
+    // Find the trait type and value
+    const traitArr = data?.attributes?.[traitType] || [];
+    const traitObj = traitArr.find((t: any) => t.value === traitValue);
+    const floor = traitObj && traitObj.floor ? Number(traitObj.floor) : null;
+    setCached(key, floor);
+    return floor;
+  } catch {
+    setCached(key, null);
+    return null;
+  }
+};
