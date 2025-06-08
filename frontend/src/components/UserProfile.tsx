@@ -109,7 +109,10 @@ const UserProfile: React.FC = () => {
       axios
         .put(`${backendUrl}/api/user/${publicKey.toBase58()}`, user)
         .then((res) => setUser(res.data))
-        .finally(() => setIsEditing(false));
+        .finally(() => {
+          setIsEditing(false);
+          setShowNFTs(false);
+        });
     }
   };
 
