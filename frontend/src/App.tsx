@@ -16,6 +16,7 @@ import UserProfile from './components/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './components/PrimosMarketGallery';
 import PrimoLabs from './components/PrimoLabs';
+import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
 
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -121,17 +122,18 @@ const Header: React.FC = () => {
 
 const AppRoutes = () => {
   const { publicKey } = useWallet();
+  const { isHolder } = usePrimoHolder();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!publicKey && location.pathname === '/collected') {
+    if ((!publicKey || !isHolder) && location.pathname === '/collected') {
       navigate('/', { replace: true });
     }
-    if (!publicKey && location.pathname === '/labs') {
+    if ((!publicKey || !isHolder) && location.pathname === '/labs') {
       navigate('/', { replace: true });
     }
-  }, [publicKey, location.pathname, navigate]);
+  }, [publicKey, isHolder, location.pathname, navigate]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -160,10 +162,12 @@ const App = () => {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <Router>
-            <Header />
-            <AppRoutes />
-          </Router>
+          <PrimoHolderProvider>
+            <Router>
+              <Header />
+              <AppRoutes />
+            </Router>
+          </PrimoHolderProvider>
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
