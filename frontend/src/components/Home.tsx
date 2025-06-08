@@ -3,14 +3,12 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
-import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
-import { getPythSolPrice } from '../utils/pyth';
 import News from './News';
 import hero from '../images/primoslogo.png';
+import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
+import { getPythSolPrice } from '../utils/pyth';
 
 interface Stats {
-  daoMembers: number;
   uniqueHolders: number | null;
   totalSupply: number | null;
   volume24hr: number | null;
@@ -23,64 +21,195 @@ const MAGICEDEN_SYMBOL = 'primos';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [membersRes, meStats, holderStats, sol] = await Promise.all([
-          axios.get(`${backendUrl}/api/user/members`),
+        const [meStats, meHolderStats, solPrice] = await Promise.all([
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getMagicEdenHolderStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
         ]);
         setStats({
-          daoMembers: membersRes.data.length,
-          uniqueHolders: holderStats?.uniqueHolders ?? null,
-          totalSupply: holderStats?.totalSupply ?? null,
+          uniqueHolders: meHolderStats?.uniqueHolders ?? null,
+          totalSupply: meHolderStats?.totalSupply ?? null,
           volume24hr: meStats?.volume24hr ?? null,
           listedCount: meStats?.listedCount ?? null,
           floorPrice: meStats?.floorPrice ?? null,
-          solPrice: sol ?? null,
+          solPrice: solPrice ?? null,
         });
       } catch (e) {
+        console.error('Failed to fetch stats:', e);
         setStats(null);
       }
     }
     fetchStats();
-  }, [backendUrl]);
+  }, []);
 
   return (
-    <Box sx={{ textAlign: 'center' }}>
-      <Box sx={{ mt: 2 }}>
-        <img src={hero} alt="Primos" style={{ width: 160 }} />
-        <Typography variant="h4" sx={{ mt: 2 }}>
+    <Box
+      sx={{
+        textAlign: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #111 0%, #23272f 100%)',
+        color: '#fff',
+        py: 6,
+      }}
+    >
+      <Box
+        sx={{
+          mt: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 2,
+        }}
+      >
+        <img
+          src={hero}
+          alt="Primos"
+          style={{
+            width: 180,
+            borderRadius: 16,
+            boxShadow: '0 4px 24px #000a',
+            border: '2px solid #fff',
+            background: '#fff',
+            padding: 8,
+          }}
+        />
+        <Typography
+          variant="h3"
+          sx={{
+            mt: 2,
+            fontWeight: 700,
+            letterSpacing: 2,
+            color: '#fff',
+            textShadow: '0 2px 8px #000a',
+          }}
+        >
           {t('home_welcome')}
         </Typography>
-        <Typography variant="body1">{t('home_tagline')}</Typography>
-        <Button variant="contained" sx={{ mt: 2 }} href="https://twitter.com/primosxyz">
+        <Typography
+          variant="h6"
+          sx={{
+            color: '#cfcfcf',
+            mb: 2,
+            fontWeight: 400,
+            letterSpacing: 1,
+          }}
+        >
+          {t('home_tagline')}
+        </Typography>
+        <Button
+          variant="contained"
+          sx={{
+            mt: 2,
+            background: '#111',
+            color: '#fff',
+            border: '2px solid #fff',
+            borderRadius: 2,
+            px: 4,
+            py: 1.5,
+            fontWeight: 700,
+            fontSize: '1.1rem',
+            letterSpacing: 1,
+            boxShadow: '0 2px 8px #0005',
+            transition: 'all 0.2s',
+            '&:hover': {
+              background: '#fff',
+              color: '#111',
+              border: '2px solid #111',
+            },
+          }}
+          href="/market"
+        >
           {t('join_primos')}
         </Button>
       </Box>
       {stats && (
-        <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 3 }}>
-          <Box>
-            <Typography variant="h6">{t('dao_members')}</Typography>
-            <Typography>{stats.daoMembers}</Typography>
+        <Box
+          sx={{
+            mt: 6,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 5,
+            background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
+            borderRadius: 4,
+            p: 4,
+            boxShadow: '0 2px 16px #0003',
+            maxWidth: 900,
+            mx: 'auto',
+            border: '2px solid #fff',
+            position: 'relative',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: -28,
+              left: 24,
+              background: '#111',
+              color: '#fff',
+              px: 2,
+              py: 0.5,
+              borderRadius: 2,
+              fontWeight: 700,
+              fontSize: 18,
+              letterSpacing: 1,
+              border: '2px solid #fff',
+              boxShadow: '0 2px 8px #0005',
+            }}
+          >
+            PRIMOS STATS
           </Box>
           <Box>
-            <Typography variant="h6">{t('unique_holders')}</Typography>
-            <Typography>{stats.uniqueHolders ?? '--'}</Typography>
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('unique_holders')}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {stats.uniqueHolders ?? '--'}
+            </Typography>
           </Box>
           <Box>
-            <Typography variant="h6">{t('listed')}</Typography>
-            <Typography>{stats.listedCount ?? '--'}</Typography>
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('listed')}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {stats.listedCount ?? '--'}
+            </Typography>
           </Box>
           <Box>
-            <Typography variant="h6">{t('volume_day')}</Typography>
-            <Typography>
-              {stats.volume24hr !== null ? (stats.volume24hr / 1e9).toFixed(2) : '--'} SOL
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('volume_day')}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {stats.volume24hr !== null
+                ? (stats.volume24hr / 1e9).toFixed(2)
+                : '--'}{' '}
+              SOL
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('floor_price')}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {stats.floorPrice !== null
+                ? (stats.floorPrice / 1e9).toFixed(2)
+                : '--'}{' '}
+              SOL
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('sol_price')}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {stats.solPrice !== null
+                ? `$${Number(stats.solPrice).toFixed(2)}`
+                : '--'}
             </Typography>
           </Box>
         </Box>
