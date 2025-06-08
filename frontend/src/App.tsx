@@ -15,6 +15,7 @@ import WalletLogin from './components/WalletLogin';
 import UserProfile from './components/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './components/PrimosMarketGallery';
+import PrimoLabs from './components/PrimoLabs';
 
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -127,6 +128,9 @@ const AppRoutes = () => {
     if (!publicKey && location.pathname === '/collected') {
       navigate('/', { replace: true });
     }
+    if (!publicKey && location.pathname === '/labs') {
+      navigate('/', { replace: true });
+    }
   }, [publicKey, location.pathname, navigate]);
 
   return (
@@ -136,6 +140,7 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/" element={<PrimosMarketGallery />} />
           <Route path="/collected" element={<NFTGallery />} />
+          <Route path="/labs" element={<PrimoLabs />} />
           <Route path="/profile" element={<UserProfile />} />
         </Routes>
       </Box>

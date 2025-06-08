@@ -16,6 +16,7 @@ const WalletLogin: React.FC = () => {
   useEffect(() => {
     if (connected && publicKey) {
       ensureUser(publicKey.toString());
+    } else {
     }
   }, [connected, publicKey]);
 
