@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
-import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
+import { getNFTByTokenAddress } from '../utils/helius';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
@@ -12,8 +12,6 @@ import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 
 const MAGICEDEN_SYMBOL = 'primos';
-const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
-
 type Member = { publicKey: string; pfp: string };
 type MemberWithImage = { publicKey: string; image: string | null };
 
@@ -32,7 +30,12 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
     if (!isConnected) return;
 
     const fetchData = async () => {
-      const res = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
+      const membersPromise = axios.get<Member[]>(`${backendUrl}/api/user/members`);
+      const countsPromise = axios.get<{ publicKey: string; count: number }[]>(
+        `${backendUrl}/api/stats/member-nft-counts`
+      );
+
+      const [res, countsRes] = await Promise.all([membersPromise, countsPromise]);
 
       const imagePromises = res.data.map(async (m) => {
         if (m.pfp) {
@@ -46,25 +49,19 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         return { publicKey: m.publicKey, image: null };
       });
 
-      const countPromises = res.data.map((m) =>
-        getAssetsByCollection(PRIMOS_COLLECTION_MINT, m.publicKey).then(
-          (assets) => assets.length
-        )
-      );
-
       const statsPromise = getMagicEdenStats(MAGICEDEN_SYMBOL);
       const solPromise = getPythSolPrice();
 
       const [withImages, counts, stats, sol] = await Promise.all([
         Promise.all(imagePromises),
-        Promise.all(countPromises),
+        Promise.resolve(countsRes.data),
         statsPromise,
         solPromise,
       ]);
 
       setMembers(withImages);
 
-      const totalOwned = counts.reduce((a, b) => a + b, 0);
+      const totalOwned = counts.reduce((a, b) => a + b.count, 0);
       setOwnedCount(totalOwned);
 
       const fp = stats?.floorPrice ? stats.floorPrice / 1e9 : null;
