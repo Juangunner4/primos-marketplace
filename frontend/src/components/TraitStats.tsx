@@ -8,7 +8,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import * as Dialog from '@radix-ui/react-dialog';
+import Drawer from '@mui/material/Drawer';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { getTraitFloorPrice } from '../utils/magiceden';
 import './TraitStats.css';
@@ -102,35 +102,37 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
 
   if (isMobile) {
     return (
-      <Dialog.Root open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger asChild>
-          <IconButton
-            aria-label={t('open_traits')}
-            className="trait-mobile-btn"
-            sx={{
-              position: 'fixed',
-              bottom: 96,
-              right: 24,
-              zIndex: 1301,
-              background: '#000',
-              color: '#fff',
-              border: '1.5px solid #fff',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-              '&:hover': { background: '#222' },
-            }}
-          >
-            <BarChartIcon />
-          </IconButton>
-        </Dialog.Trigger>
+      <>
+        <IconButton
+          aria-label={t('open_traits')}
+          onClick={() => setOpen(true)}
+          className="trait-mobile-btn"
+          sx={{
+            position: 'fixed',
+            bottom: 96,
+            right: 24,
+            zIndex: 1301,
+            background: '#000',
+            color: '#fff',
+            border: '1.5px solid #fff',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+            '&:hover': { background: '#222' },
+          }}
+        >
+          <BarChartIcon />
+        </IconButton>
         {mounted && (
-          <Dialog.Portal>
-            <Dialog.Overlay className="trait-overlay" />
-            <Dialog.Content className="trait-dialog-content">
-              {panel}
-            </Dialog.Content>
-          </Dialog.Portal>
+          <Drawer
+            anchor="right"
+            open={open}
+            onClose={() => setOpen(false)}
+            ModalProps={{ keepMounted: true }}
+            sx={{ [`& .MuiDrawer-paper`]: { width: 340, boxSizing: 'border-box' } }}
+          >
+            {panel}
+          </Drawer>
         )}
-      </Dialog.Root>
+      </>
     );
   }
 
