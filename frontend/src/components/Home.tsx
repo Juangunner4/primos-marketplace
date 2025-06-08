@@ -7,6 +7,11 @@ import News from './News';
 import hero from '../images/primoslogo.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
+import axios from 'axios';
+import Avatar from '@mui/material/Avatar';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import { getNFTByTokenAddress } from '../utils/helius';
 
 interface Stats {
   uniqueHolders: number | null;
@@ -15,13 +20,25 @@ interface Stats {
   listedCount: number | null;
   floorPrice: number | null;
   solPrice: number | null;
+  marketCap: number | null;
+}
+
+interface DaoMember {
+  publicKey: string;
+  pfp: string;
+  image: string | null;
 }
 
 const MAGICEDEN_SYMBOL = 'primos';
 
-const Home: React.FC = () => {
+const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
+  const [members, setMembers] = useState<DaoMember[]>([]);
+  const wallet = useWallet();
+  const { isHolder } = usePrimoHolder();
+  const isConnected = connected ?? (wallet.connected && isHolder);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
 
   useEffect(() => {
     async function fetchStats() {
@@ -31,13 +48,18 @@ const Home: React.FC = () => {
           getMagicEdenHolderStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
         ]);
+        const floor = meStats?.floorPrice ?? null;
+        const supply = meHolderStats?.totalSupply ?? null;
+        const mcap =
+          floor !== null && supply !== null ? (floor * supply) : null;
         setStats({
           uniqueHolders: meHolderStats?.uniqueHolders ?? null,
-          totalSupply: meHolderStats?.totalSupply ?? null,
+          totalSupply: supply,
           volume24hr: meStats?.volume24hr ?? null,
           listedCount: meStats?.listedCount ?? null,
-          floorPrice: meStats?.floorPrice ?? null,
+          floorPrice: floor,
           solPrice: solPrice ?? null,
+          marketCap: mcap,
         });
       } catch (e) {
         console.error('Failed to fetch stats:', e);
@@ -46,6 +68,35 @@ const Home: React.FC = () => {
     }
     fetchStats();
   }, []);
+
+  useEffect(() => {
+    if (!isConnected) return;
+    const fetchMembers = async () => {
+      try {
+        const res = await axios.get<Omit<DaoMember, 'image'>[]>(
+          `${backendUrl}/api/user/members`
+        );
+        const imgs: DaoMember[] = await Promise.all(
+          res.data.slice(0, 5).map(async (m) => {
+            let image: string | null = null;
+            if (m.pfp) {
+              try {
+                const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+                image = nft?.image || null;
+              } catch {
+                image = null;
+              }
+            }
+            return { ...m, image };
+          })
+        );
+        setMembers(imgs);
+      } catch {
+        setMembers([]);
+      }
+    };
+    fetchMembers();
+  }, [isConnected, backendUrl]);
 
   return (
     <Box
@@ -101,31 +152,39 @@ const Home: React.FC = () => {
         >
           {t('home_tagline')}
         </Typography>
-        <Button
-          variant="contained"
-          sx={{
-            mt: 2,
-            background: '#111',
-            color: '#fff',
-            border: '2px solid #fff',
-            borderRadius: 2,
-            px: 4,
-            py: 1.5,
-            fontWeight: 700,
-            fontSize: '1.1rem',
-            letterSpacing: 1,
-            boxShadow: '0 2px 8px #0005',
-            transition: 'all 0.2s',
-            '&:hover': {
-              background: '#fff',
-              color: '#111',
-              border: '2px solid #111',
-            },
-          }}
-          href="/market"
+        <Typography
+          variant="subtitle1"
+          sx={{ color: '#ffeb3b', fontWeight: 600 }}
         >
-          {t('join_primos')}
-        </Button>
+          {t('home_fomo')}
+        </Typography>
+        {!isConnected && (
+          <Button
+            variant="contained"
+            sx={{
+              mt: 2,
+              background: '#111',
+              color: '#fff',
+              border: '2px solid #fff',
+              borderRadius: 2,
+              px: 4,
+              py: 1.5,
+              fontWeight: 700,
+              fontSize: '1.1rem',
+              letterSpacing: 1,
+              boxShadow: '0 2px 8px #0005',
+              transition: 'all 0.2s',
+              '&:hover': {
+                background: '#fff',
+                color: '#111',
+                border: '2px solid #111',
+              },
+            }}
+            href="/market"
+          >
+            {t('join_primos')}
+          </Button>
+        )}
       </Box>
       {stats && (
         <Box
@@ -212,6 +271,33 @@ const Home: React.FC = () => {
                 : '--'}
             </Typography>
           </Box>
+          <Box>
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('market_cap')}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {stats.marketCap !== null
+                ? (stats.marketCap / 1e9).toFixed(2)
+                : '--'}{' '}
+              SOL
+            </Typography>
+          </Box>
+          {members.length > 0 && (
+            <Box>
+              <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+                {t('dao_members')}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                {members.map((m) => (
+                  <Avatar
+                    key={m.publicKey}
+                    src={m.image || undefined}
+                    sx={{ width: 24, height: 24 }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
         </Box>
       )}
       <News />

@@ -22,4 +22,13 @@ describe('Home', () => {
     );
     expect(await screen.findByText(/Welcome/)).toBeTruthy();
   });
+
+  test('hides join button when logged in', () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <Home connected={true} />
+      </I18nextProvider>
+    );
+    expect(screen.queryByText(/Join Primos/i)).toBeNull();
+  });
 });
