@@ -16,6 +16,7 @@ type MarketNFT = {
   name: string;
   price: number;
   variant: string;
+  rank: number | null;
 };
 
 const PrimosMarketGallery: React.FC = () => {
@@ -24,11 +25,21 @@ const PrimosMarketGallery: React.FC = () => {
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const [listedCount, setListedCount] = useState<number | null>(null);
   const [uniqueHolders, setUniqueHolders] = useState<number | null>(null);
+  const [totalSupply, setTotalSupply] = useState<number | null>(null);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageInput, setPageInput] = useState('1');
   const { t } = useTranslation();
+
+  const getRankColor = (rank: number | null) => {
+    if (!rank || !totalSupply) return '#b87333';
+    const pct = rank / totalSupply;
+    if (pct <= 0.01) return '#e5e4e2';
+    if (pct <= 0.05) return '#FFD700';
+    if (pct <= 0.2) return '#C0C0C0';
+    return '#b87333';
+  };
 
   // Fetch stats and SOL price once
   useEffect(() => {
@@ -45,6 +56,7 @@ const PrimosMarketGallery: React.FC = () => {
           setFloorPrice(stats?.floorPrice ? stats.floorPrice / 1e9 : null);
           setSolPrice(solPriceVal ?? null);
           setUniqueHolders(holderStats?.uniqueHolders ?? null);
+          setTotalSupply(holderStats?.totalSupply ?? null);
         }
       } catch (e) {
         // handle error
@@ -83,7 +95,8 @@ const PrimosMarketGallery: React.FC = () => {
         );
 
         // Only 10 per page, assign variant using util
-        const pageNFTs: MarketNFT[] = listings.map((listing: any) => {
+        const pageNFTs: MarketNFT[] = listings
+          .map((listing: any) => {
             const meta = metaMap[listing.tokenMint];
             return {
               id: listing.tokenMint,
@@ -91,8 +104,15 @@ const PrimosMarketGallery: React.FC = () => {
               name: meta?.name || listing.tokenMint,
               price: listing.price,
               variant: getRandomCardVariantName(),
-            };
-          }).filter((nft: MarketNFT) => nft.image);
+              rank:
+                typeof listing.rarityRank === 'number'
+                  ? listing.rarityRank
+                  : typeof listing.rank === 'number'
+                  ? listing.rank
+                  : null,
+            } as MarketNFT;
+          })
+          .filter((nft: MarketNFT) => nft.image);
 
         if (isMounted) setNfts(pageNFTs);
       } catch (e) {
@@ -132,6 +152,12 @@ const PrimosMarketGallery: React.FC = () => {
               <img src={nft.image} alt={nft.name} className="market-nft-img" />
               <div className="market-card-content">
                 <h3 className="market-nft-name">{nft.name}</h3>
+                <span
+                  className="rarity-rank"
+                  style={{ color: getRankColor(nft.rank) }}
+                >
+                  {t('rarity_rank')}: {nft.rank ?? '--'}
+                </span>
               </div>
               <div className="market-card-footer">
                 {priceSol ? (

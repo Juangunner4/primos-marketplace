@@ -156,6 +156,12 @@
   letter-spacing: 0.13em;
   flex-shrink: 0;
 }
+.rarity-rank {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+  display: block;
+}
 .market-nft-price {
   font-size: 1.2rem;
   color: #1a202c;

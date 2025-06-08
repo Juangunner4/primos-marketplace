@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import PrimosMarketGallery from '../PrimosMarketGallery';
 import i18n from '../../i18n';
+import * as magiceden from '../utils/magiceden';
 
 jest.mock('../Activity', () => () => <div />);
 
@@ -37,5 +38,25 @@ describe('PrimosMarketGallery', () => {
       </I18nextProvider>
     );
     expect(screen.getByRole('spinbutton')).toBeTruthy();
+  });
+
+  test('shows rarity rank when listings are loaded', async () => {
+    (magiceden.fetchMagicEdenListings as jest.Mock).mockResolvedValueOnce([
+      {
+        tokenMint: 'mint1',
+        price: 1,
+        rarityRank: 10,
+      },
+    ]);
+    (require('../utils/helius').getNFTByTokenAddress as jest.Mock).mockResolvedValueOnce({
+      image: 'img',
+      name: 'Primo #1',
+    });
+    render(
+      <I18nextProvider i18n={i18n}>
+        <PrimosMarketGallery />
+      </I18nextProvider>
+    );
+    expect(await screen.findByText(/Rank/)).toBeTruthy();
   });
 });
