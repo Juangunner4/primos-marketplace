@@ -9,6 +9,7 @@ import ListItem from '@mui/material/ListItem';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import WorkIcon from '@mui/icons-material/Work';
 import ScienceIcon from '@mui/icons-material/Science';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -29,7 +30,7 @@ const SidebarNav: React.FC = () => {
   const drawerContent = (
     <List sx={{ pt: 8 }}>
       <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-        <Tooltip title={t('market_title')} placement="right">
+        <Tooltip title={t('home')} placement="right">
           <IconButton
             component={NavLink}
             to="/"
@@ -42,6 +43,23 @@ const SidebarNav: React.FC = () => {
             onClick={() => setOpen(false)}
           >
             <HomeIcon />
+          </IconButton>
+        </Tooltip>
+      </ListItem>
+      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
+        <Tooltip title={t('market_title')} placement="right">
+          <IconButton
+            component={NavLink}
+            to="/market"
+            color={location.pathname === '/market' ? 'primary' : 'default'}
+            sx={{
+              color: location.pathname === '/market' ? '#fff' : '#b0b0b0',
+              textShadow: '0 0 6px #fff, 0 0 2px #fff',
+              '&:hover': { color: '#fff', background: '#222' },
+            }}
+            onClick={() => setOpen(false)}
+          >
+            <StorefrontIcon />
           </IconButton>
         </Tooltip>
       </ListItem>

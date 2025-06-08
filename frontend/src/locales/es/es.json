@@ -71,8 +71,7 @@
   "docs_open_source_title": "Interoperabilidad Open-Source",
   "docs_open_source_desc": "Construido sobre Metaplex Auction House y módulos Holaplex, Primos se conecta con el ecosistema Solana, permitiendo intercambios entre mercados, integraciones DeFi y futuras expansiones impulsadas por DAO.",
   "docs_join_family": "Únete a la Familia: Obtén drops prioritarios, voz en la gobernanza, multiplicadores de recompensas y beneficios reales. Desde trading NFT hasta eventos deportivos, Primos es cadena + juego + reclama.",
-  "docs_image_alt": "Visual de la Comunidad Primos"
-  ,
+  "docs_image_alt": "Visual de la Comunidad Primos",
   "docs_nav_overview": "Resumen",
   "docs_nav_treasury": "Tesorería",
   "docs_nav_governance": "Gobernanza",
@@ -95,8 +94,15 @@
   "rarity_rank": "Rango",
   "market_no_price": "Sin precio",
   "primos_title": "Primos",
-  "primos_login_prompt": "Por favor inicia sesi\u00f3n para acceder a Primos",
-  "primos_search": "Buscar por clave p\u00fablica...",
+  "primos_login_prompt": "Por favor inicia sesión para acceder a Primos",
+  "primos_search": "Buscar por clave pública...",
   "primos_no_members": "No se encontraron miembros.",
-  "points": "Puntos"
+  "points": "Puntos",
+  "home_welcome": "Bienvenido a Primos",
+  "home_tagline": "Descubre el mercado de la DAO",
+  "join_primos": "Únete a Primos",
+  "dao_members": "Miembros DAO",
+  "unique_holders": "Holders únicos",
+  "volume_day": "Volumen 24h",
+  "news": "Noticias"
 }

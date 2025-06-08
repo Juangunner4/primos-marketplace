@@ -15,6 +15,7 @@ import WalletLogin from './components/WalletLogin';
 import UserProfile from './components/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './components/PrimosMarketGallery';
+import Home from './components/Home';
 import PrimoLabs from './components/PrimoLabs';
 import Primos from './components/Primos';
 import Docs from './components/Docs';
@@ -145,7 +146,8 @@ const AppRoutes = () => {
       <SidebarNav />
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Routes>
-          <Route path="/" element={<PrimosMarketGallery />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/market" element={<PrimosMarketGallery />} />
           <Route path="/collected" element={<NFTGallery />} />
           <Route path="/labs" element={<PrimoLabs />} />
           <Route path="/primos" element={<Primos />} />
