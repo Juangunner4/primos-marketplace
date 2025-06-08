@@ -16,6 +16,7 @@ import UserProfile from './components/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './components/PrimosMarketGallery';
 import PrimoLabs from './components/PrimoLabs';
+import Docs from './components/Docs';
 import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
 
 import './App.css';
@@ -143,6 +144,7 @@ const AppRoutes = () => {
           <Route path="/" element={<PrimosMarketGallery />} />
           <Route path="/collected" element={<NFTGallery />} />
           <Route path="/labs" element={<PrimoLabs />} />
+          <Route path="/docs" element={<Docs />} />
           <Route path="/profile" element={<UserProfile />} />
         </Routes>
       </Box>

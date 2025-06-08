@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
 import WorkIcon from '@mui/icons-material/Work';
 import ScienceIcon from '@mui/icons-material/Science';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -40,6 +41,23 @@ const SidebarNav: React.FC = () => {
             onClick={() => setOpen(false)}
           >
             <HomeIcon />
+          </IconButton>
+        </Tooltip>
+      </ListItem>
+      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
+        <Tooltip title={t('docs_title')} placement="right">
+          <IconButton
+            component={NavLink}
+            to="/docs"
+            color={location.pathname === '/docs' ? 'primary' : 'default'}
+            sx={{
+              color: location.pathname === '/docs' ? '#fff' : '#b0b0b0',
+              textShadow: '0 0 6px #fff, 0 0 2px #fff',
+              '&:hover': { color: '#fff', background: '#222' },
+            }}
+            onClick={() => setOpen(false)}
+          >
+            <MenuBookIcon />
           </IconButton>
         </Tooltip>
       </ListItem>
