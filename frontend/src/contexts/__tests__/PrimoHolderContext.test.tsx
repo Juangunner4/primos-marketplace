@@ -3,6 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { PrimoHolderProvider, usePrimoHolder } from '../PrimoHolderContext';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getAssetsByCollection } from '../../utils/helius';
+import axios from 'axios';
 
 jest.mock('@solana/wallet-adapter-react', () => ({
   useWallet: jest.fn(),
@@ -12,12 +13,16 @@ jest.mock('../../utils/helius', () => ({
   getAssetsByCollection: jest.fn(),
 }));
 
+jest.mock('axios');
+
 const mockUseWallet = useWallet as jest.Mock;
 const mockGetAssets = getAssetsByCollection as jest.Mock;
+const mockAxiosPost = (axios.post as unknown) as jest.Mock;
 
 describe('PrimoHolderContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAxiosPost.mockResolvedValue({});
   });
 
   test('returns false when wallet not connected', () => {
