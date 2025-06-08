@@ -137,7 +137,7 @@ const Activity: React.FC = () => {
               <span className="activity-price">
                 {item.price.toFixed(3)} SOL
                 {solPrice && (
-                  <span className="usd"> ({(item.price * solPrice).toFixed(2)})</span>
+                  <span className="usd"> (${(item.price * solPrice).toFixed(2)})</span>
                 )}
               </span>
             )}

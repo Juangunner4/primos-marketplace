@@ -100,21 +100,21 @@
 
 .activity-price {
   background: #fff;
-  border-radius: 0.4rem; 
-  padding: 0.08rem 0.32rem; 
-  font-size: 0.92rem; 
+  border-radius: 0.28rem; 
+  padding: 0.02rem 0.18rem; 
+  font-size: 0.72rem; 
   font-weight: bold;
   color: #1a202c;
   display: inline-flex;
   align-items: baseline;
-  border: 2px solid #1a202c;
+  border: 1.5px solid #1a202c;
 }
 
 .activity-price .usd {
-  font-size: 0.9em;
+  font-size: 0.65em;
   color: #444;
   font-weight: 500;
-  margin-left: 0.18em;
+  margin-left: 0.15em;
   opacity: 0.85;
 }
 
