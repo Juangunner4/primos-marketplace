@@ -52,7 +52,17 @@ const Docs: React.FC = () => {
         {t('docs_open_source_desc')}
       </Typography>
 
-        <img src={img802} alt={t('docs_image_alt')} className="docs-img" />
+        <div className="docs-img-wrapper">
+          <img src={img802} alt={t('docs_image_alt')} className="docs-img" />
+          <div className="docs-img-overlay">
+            <Typography variant="h6" className="overlay-title">
+              {t('primo_labs_floating_title')}
+            </Typography>
+            <Typography variant="body2" className="overlay-body">
+              {t('primo_labs_floating_body')}
+            </Typography>
+          </div>
+        </div>
 
         <Typography variant="h5" sx={{ mt: 3 }}>
           {t('docs_join_family')}

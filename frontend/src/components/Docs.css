@@ -38,3 +38,24 @@
   display: block;
   border-radius: 4px;
 }
+
+.docs-img-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.docs-img-overlay {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  padding: 0 1rem;
+}
+
+.overlay-title {
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+}
