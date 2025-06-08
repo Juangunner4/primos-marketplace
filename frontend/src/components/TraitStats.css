@@ -1,0 +1,90 @@
+.trait-panel {
+  width: 340px;
+  border-left: 1px solid #bbb;
+  box-shadow: -4px 0 24px rgba(226, 194, 117, 0.08);
+  padding: 1.5rem 1rem 1rem 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-height: 100vh;
+  background: #f5f5f8;
+}
+
+.trait-desktop {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  height: calc(100vh - 80px);
+  z-index: 1200;
+}
+
+.trait-title {
+  font-family: 'Loteria', 'Segoe UI', sans-serif;
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.04em;
+}
+
+.trait-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.trait-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.2rem;
+  border-bottom: 1px solid #000;
+  font-size: 0.9rem;
+  color: #222;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.trait-row:last-child {
+  border-bottom: none;
+}
+
+.trait-pill {
+  background: #ffe066;
+  border-radius: 0.5rem;
+  padding: 0.1rem 0.6rem;
+  font-weight: bold;
+  color: #1a202c;
+}
+
+.trait-count {
+  margin-left: auto;
+  font-weight: bold;
+}
+
+.trait-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  inset: 0;
+}
+
+.trait-dialog-content {
+  background: #f5f5f8;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: 90vh;
+  width: 90vw;
+  max-width: 340px;
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+  .trait-desktop {
+    display: none;
+  }
+}

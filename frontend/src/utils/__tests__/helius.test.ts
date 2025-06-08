@@ -47,7 +47,13 @@ describe('helius utilities', () => {
     const mockFetch = jest.fn().mockResolvedValue(response);
     (global as any).fetch = mockFetch;
     const nft = await getNFTByTokenAddress('token');
-    expect(nft).toEqual({ id: 'id', image: 'img', name: 'name', listed: true });
+    expect(nft).toEqual({
+      id: 'id',
+      image: 'img',
+      name: 'name',
+      listed: true,
+      attributes: [],
+    });
     const cached = await getNFTByTokenAddress('token');
     expect(cached).toEqual(nft);
     expect(mockFetch).toHaveBeenCalledTimes(1);
