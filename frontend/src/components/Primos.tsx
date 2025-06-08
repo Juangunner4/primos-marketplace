@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
 import './Primos.css';
 
 interface Member {
@@ -17,7 +17,10 @@ interface Member {
   pfp: string;
   points: number;
   pesos: number;
+  nfts: number;
 }
+
+const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
 
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
@@ -35,22 +38,33 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       try {
         const res = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
         const sorted = res.data.sort((a, b) => b.pesos - a.pesos);
-        setMembers(sorted);
         const imgs: Record<string, string | null> = {};
-        await Promise.all(
+        const withCounts: Member[] = await Promise.all(
           sorted.map(async (m) => {
+            let image: string | null = null;
             if (m.pfp) {
               try {
                 const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-                imgs[m.publicKey] = nft?.image || null;
+                image = nft?.image || null;
               } catch {
-                imgs[m.publicKey] = null;
+                image = null;
               }
-            } else {
-              imgs[m.publicKey] = null;
             }
+            imgs[m.publicKey] = image;
+            let count = 0;
+            try {
+              const nfts = await getAssetsByCollection(
+                PRIMOS_COLLECTION_MINT,
+                m.publicKey
+              );
+              count = nfts.length;
+            } catch {
+              count = 0;
+            }
+            return { ...m, nfts: count } as Member;
           })
         );
+        setMembers(withCounts);
         setImages(imgs);
       } catch {
         setMembers([]);
@@ -102,12 +116,11 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 <Typography>
                   {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
                 </Typography>
-                <Typography variant="body2">
-                  {t('points')}: {m.points}
-                </Typography>
-                <Typography variant="body2">
-                  {t('pesos')}: {m.pesos}
-                </Typography>
+                <Box className="primos-pills">
+                  <span className="primos-pill">{t('points')}: {m.points}</span>
+                  <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
+                  <span className="primos-pill">{t('nfts')}: {m.nfts}</span>
+                </Box>
               </Box>
             </Box>
           </Link>
