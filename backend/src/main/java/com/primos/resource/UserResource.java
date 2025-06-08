@@ -30,6 +30,7 @@ public class UserResource {
         }
         LOGGER.info("[UserResource] Login attempt for publicKey: " + req.publicKey);
         User user = User.find("publicKey", req.publicKey).firstResult();
+        boolean holder = req.primoHolder;
         if (user == null) {
             user = new User();
             user.setPublicKey(req.publicKey);
@@ -39,9 +40,12 @@ public class UserResource {
             user.setPoints(0);
             user.setPesos(1000);
             user.setCreatedAt(System.currentTimeMillis());
+            user.setPrimoHolder(holder);
             user.persist();
             LOGGER.info("[UserResource] Created new user for publicKey: " + req.publicKey);
         } else {
+            user.setPrimoHolder(holder);
+            user.persistOrUpdate();
             LOGGER.info("[UserResource] User already exists for publicKey: " + req.publicKey);
         }
         return user;
@@ -80,4 +84,5 @@ public class UserResource {
         }
         return user;
     }
+
 }

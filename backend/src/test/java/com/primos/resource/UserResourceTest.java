@@ -11,4 +11,15 @@ public class UserResourceTest {
         req.publicKey = "";
         assertThrows(jakarta.ws.rs.BadRequestException.class, () -> resource.login(req));
     }
+
+    @Test
+    public void testLoginCreatesUserWithHolderFlag() {
+        UserResource resource = new UserResource();
+        LoginRequest req = new LoginRequest();
+        req.publicKey = "dummy";
+        req.primoHolder = true;
+        com.primos.model.User user = resource.login(req);
+        assertNotNull(user);
+        assertTrue(user.isPrimoHolder());
+    }
 }
