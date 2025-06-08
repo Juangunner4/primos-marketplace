@@ -11,5 +11,6 @@ public class UserTest {
         assertEquals(1000, user.getPesos());
         assertNotNull(user.getSocials());
         assertFalse(user.isPrimoHolder());
+        assertTrue(user.isDaoMember());
     }
 }

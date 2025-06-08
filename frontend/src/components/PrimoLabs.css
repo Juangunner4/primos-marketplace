@@ -7,6 +7,26 @@
   margin-bottom: 1rem;
 }
 
+.nft-stats {
+  margin-bottom: 1rem;
+}
+
+.dao-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
 .dialog-overlay {
   background: rgba(0,0,0,0.6);
   position: fixed;

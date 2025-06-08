@@ -21,5 +21,17 @@ public class UserResourceTest {
         com.primos.model.User user = resource.login(req);
         assertNotNull(user);
         assertTrue(user.isPrimoHolder());
+        assertTrue(user.isDaoMember());
+    }
+
+    @Test
+    public void testGetDaoMembers() {
+        UserResource resource = new UserResource();
+        LoginRequest req = new LoginRequest();
+        req.publicKey = "member";
+        req.primoHolder = true;
+        resource.login(req);
+        java.util.List<com.primos.model.User> members = resource.getDaoMembers();
+        assertFalse(members.isEmpty());
     }
 }
