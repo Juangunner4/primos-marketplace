@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -16,6 +18,8 @@ import { useTheme } from '@mui/material/styles';
 const SidebarNav: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const { publicKey } = useWallet();
+  const { isHolder } = usePrimoHolder();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
@@ -39,40 +43,44 @@ const SidebarNav: React.FC = () => {
           </IconButton>
         </Tooltip>
       </ListItem>
-      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-        <Tooltip title={t('your_primos_nfts')} placement="right">
-          <IconButton
-            component={NavLink}
-            to="/collected"
-            color={location.pathname === '/collected' ? 'primary' : 'default'}
-            sx={{
-              color: location.pathname === '/collected' ? '#fff' : '#b0b0b0',
-              textShadow: '0 0 6px #fff, 0 0 2px #fff',
-              '&:hover': { color: '#fff', background: '#222' },
-            }}
-            onClick={() => setOpen(false)}
-          >
-            <WorkIcon />
-          </IconButton>
-        </Tooltip>
-      </ListItem>
-      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-        <Tooltip title={t('primo_labs')} placement="right">
-          <IconButton
-            component={NavLink}
-            to="/labs"
-            color={location.pathname === '/labs' ? 'primary' : 'default'}
-            sx={{
-              color: location.pathname === '/labs' ? '#fff' : '#b0b0b0',
-              textShadow: '0 0 6px #fff, 0 0 2px #fff',
-              '&:hover': { color: '#fff', background: '#222' },
-            }}
-            onClick={() => setOpen(false)}
-          >
-            <ScienceIcon />
-          </IconButton>
-        </Tooltip>
-      </ListItem>
+      {publicKey && isHolder && (
+        <ListItem disablePadding sx={{ justifyContent: 'center' }}>
+          <Tooltip title={t('your_primos_nfts')} placement="right">
+            <IconButton
+              component={NavLink}
+              to="/collected"
+              color={location.pathname === '/collected' ? 'primary' : 'default'}
+              sx={{
+                color: location.pathname === '/collected' ? '#fff' : '#b0b0b0',
+                textShadow: '0 0 6px #fff, 0 0 2px #fff',
+                '&:hover': { color: '#fff', background: '#222' },
+              }}
+              onClick={() => setOpen(false)}
+            >
+              <WorkIcon />
+            </IconButton>
+          </Tooltip>
+        </ListItem>
+      )}
+      {publicKey && isHolder && (
+        <ListItem disablePadding sx={{ justifyContent: 'center' }}>
+          <Tooltip title={t('primo_labs')} placement="right">
+            <IconButton
+              component={NavLink}
+              to="/labs"
+              color={location.pathname === '/labs' ? 'primary' : 'default'}
+              sx={{
+                color: location.pathname === '/labs' ? '#fff' : '#b0b0b0',
+                textShadow: '0 0 6px #fff, 0 0 2px #fff',
+                '&:hover': { color: '#fff', background: '#222' },
+              }}
+              onClick={() => setOpen(false)}
+            >
+              <ScienceIcon />
+            </IconButton>
+          </Tooltip>
+        </ListItem>
+      )}
     </List>
   );
 
