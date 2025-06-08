@@ -153,6 +153,7 @@ const AppRoutes = () => {
           <Route path="/primos" element={<Primos />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/user/:publicKey" element={<UserProfile />} />
         </Routes>
       </Box>
     </Box>

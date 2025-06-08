@@ -6,12 +6,14 @@ import com.primos.model.User;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/api/user")
@@ -63,7 +65,12 @@ public class UserResource {
     @PUT
     @Path("/{publicKey}/pfp")
     @Consumes(MediaType.TEXT_PLAIN)
-    public User updatePfp(@PathParam("publicKey") String publicKey, String pfpUrl) {
+    public User updatePfp(@PathParam("publicKey") String publicKey,
+                          @HeaderParam("X-Public-Key") String walletKey,
+                          String pfpUrl) {
+        if (walletKey == null || !walletKey.equals(publicKey)) {
+            throw new ForbiddenException();
+        }
         User user = User.find("publicKey", publicKey).firstResult();
         if (user != null) {
             user.setPfp(pfpUrl);
@@ -75,9 +82,17 @@ public class UserResource {
 
     @PUT
     @Path("/{publicKey}")
-    public User updateProfile(@PathParam("publicKey") String publicKey, User updated) {
+    public User updateProfile(@PathParam("publicKey") String publicKey,
+                              @HeaderParam("X-Public-Key") String walletKey,
+                              User updated) {
+        if (walletKey == null || !walletKey.equals(publicKey)) {
+            throw new ForbiddenException();
+        }
+        if (updated == null || !publicKey.equals(updated.getPublicKey())) {
+            throw new ForbiddenException();
+        }
         User user = User.find("publicKey", publicKey).firstResult();
-        if (user != null && updated != null) {
+        if (user != null) {
             user.setBio(updated.getBio());
             user.setSocials(updated.getSocials());
             user.persistOrUpdate();
