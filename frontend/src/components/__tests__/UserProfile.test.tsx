@@ -58,4 +58,31 @@ describe('UserProfile', () => {
       expect(screen.getByText(/Select NFT as PFP/i)).toBeTruthy();
     });
   });
+
+  test('hides NFT selector after saving profile', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <UserProfile />
+      </I18nextProvider>
+    );
+
+    await screen.findByText(/Wallet/i);
+
+    fireEvent.click(screen.getByText(/Edit/i));
+    fireEvent.click(await screen.findByText(/Yes, Edit/i));
+
+    fireEvent.click(await screen.findByText(/Select NFT as PFP/i));
+
+    expect(container.querySelector('.profile-nft-grid')).toBeTruthy();
+
+    fireEvent.click(screen.getByText(/Save/i));
+    fireEvent.click(await screen.findByText(/Yes, Save/i));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Select NFT as PFP/i)).toBeNull();
+    });
+
+    expect(container.querySelector('.profile-nft-grid')).toBeNull();
+  });
 });
