@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAGICEDEN_SYMBOL = 'primos';
 type Member = { publicKey: string; pfp: string };
-type MemberWithImage = { publicKey: string; image: string | null };
+type MemberWithImage = { publicKey: string; image: string | null; count: number };
 
 const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
@@ -21,48 +21,57 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
   const [members, setMembers] = useState<MemberWithImage[]>([]);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
-  const [ownedCount, setOwnedCount] = useState<number>(0);
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const [totalValue, setTotalValue] = useState<number | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+  const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'; // Use your collection mint
 
   useEffect(() => {
     if (!isConnected) return;
 
     const fetchData = async () => {
-      const membersPromise = axios.get<Member[]>(`${backendUrl}/api/user/members`);
-      const countsPromise = axios.get<{ publicKey: string; count: number }[]>(
-        `${backendUrl}/api/stats/member-nft-counts`
+      // Fetch members from backend
+      const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
+
+      // For each member, fetch their NFT count in the Primos collection
+      const withImagesAndCounts = await Promise.all(
+        membersRes.data.map(async (m) => {
+          let image: string | null = null;
+          let count = 0;
+          if (m.pfp) {
+            try {
+              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+              image = nft?.image || null;
+            } catch {
+              image = null;
+            }
+          }
+          try {
+            const nfts = await getAssetsByCollection(PRIMOS_COLLECTION_MINT, m.publicKey);
+            count = nfts.length;
+          } catch {
+            count = 0;
+          }
+          return {
+            publicKey: m.publicKey,
+            image,
+            count,
+          };
+        })
       );
 
-      const [res, countsRes] = await Promise.all([membersPromise, countsPromise]);
+      setMembers(withImagesAndCounts);
 
-      const imagePromises = res.data.map(async (m) => {
-        if (m.pfp) {
-          try {
-            const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-            return { publicKey: m.publicKey, image: nft?.image || null };
-          } catch {
-            return { publicKey: m.publicKey, image: null };
-          }
-        }
-        return { publicKey: m.publicKey, image: null };
-      });
+      // Calculate totalOwned
+      const totalOwned = withImagesAndCounts.reduce((a, b) => a + (b.count || 0), 0);
 
       const statsPromise = getMagicEdenStats(MAGICEDEN_SYMBOL);
       const solPromise = getPythSolPrice();
 
-      const [withImages, counts, stats, sol] = await Promise.all([
-        Promise.all(imagePromises),
-        Promise.resolve(countsRes.data),
+      const [stats, sol] = await Promise.all([
         statsPromise,
         solPromise,
       ]);
-
-      setMembers(withImages);
-
-      const totalOwned = counts.reduce((a, b) => a + b.count, 0);
-      setOwnedCount(totalOwned);
 
       const fp = stats?.floorPrice ? stats.floorPrice / 1e9 : null;
       setFloorPrice(fp);
@@ -102,14 +111,16 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           {t('labs_floor_price')}: {floorPrice !== null ? floorPrice.toFixed(2) : '--'}
         </Typography>
         <Typography>
-          {t('labs_owned')}: {ownedCount}
+          {t('labs_owned')}: {members.reduce((acc, member) => acc + (member.count || 0), 0)}
         </Typography>
         <Typography>
           {t('labs_sol_price')}: {solPrice !== null ? solPrice.toFixed(2) : '--'}
         </Typography>
         <Typography>
           {t('labs_total_value')}:{' '}
-          {totalValue !== null ? totalValue.toFixed(2) : '--'}
+          {floorPrice !== null && solPrice !== null
+            ? `${(members.reduce((acc, member) => acc + (member.count || 0), 0) * floorPrice).toFixed(2)} SOL / ${(members.reduce((acc, member) => acc + (member.count || 0), 0) * floorPrice * solPrice).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })}`
+            : '--'}
         </Typography>
       </Box>
       <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
@@ -124,6 +135,9 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
             <Avatar src={m.image || undefined} sx={{ width: 40, height: 40 }} />
             <Typography sx={{ ml: 1 }}>
               {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
+            </Typography>
+            <Typography variant="caption" sx={{ ml: 1 }}>
+              NFTs: {m.count}
             </Typography>
           </Box>
         ))}
