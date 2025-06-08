@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { getNFTByTokenAddress } from '../utils/helius';
@@ -87,23 +88,29 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       />
       <Box className="primos-list">
         {filtered.map((m) => (
-          <Box key={m.publicKey} className="primos-card">
-            <Avatar
-              src={images[m.publicKey] || undefined}
-              sx={{ width: 56, height: 56 }}
-            />
-            <Box ml={1}>
-              <Typography>
-                {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
-              </Typography>
-              <Typography variant="body2">
-                {t('points')}: {m.points}
-              </Typography>
-              <Typography variant="body2">
-                {t('pesos')}: {m.pesos}
-              </Typography>
+          <Link
+            key={m.publicKey}
+            to={`/user/${m.publicKey}`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <Box className="primos-card">
+              <Avatar
+                src={images[m.publicKey] || undefined}
+                sx={{ width: 56, height: 56 }}
+              />
+              <Box ml={1}>
+                <Typography>
+                  {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
+                </Typography>
+                <Typography variant="body2">
+                  {t('points')}: {m.points}
+                </Typography>
+                <Typography variant="body2">
+                  {t('pesos')}: {m.pesos}
+                </Typography>
+              </Box>
             </Box>
-          </Box>
+          </Link>
         ))}
         {filtered.length === 0 && (
           <Typography className="no-members">
