@@ -10,5 +10,6 @@ public class UserTest {
         assertEquals(0, user.getPoints());
         assertEquals(1000, user.getPesos());
         assertNotNull(user.getSocials());
+        assertFalse(user.isPrimoHolder());
     }
 }

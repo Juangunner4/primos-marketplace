@@ -11,6 +11,7 @@ public class User extends PanacheMongoEntity {
     private String pfp;
     private int points = 0;
     private int pesos = 1000;
+    private boolean primoHolder = false;
     private long createdAt = System.currentTimeMillis();
 
     // Getters and Setters
@@ -31,6 +32,9 @@ public class User extends PanacheMongoEntity {
 
     public int getPesos() { return pesos; }
     public void setPesos(int pesos) { this.pesos = pesos; }
+
+    public boolean isPrimoHolder() { return primoHolder; }
+    public void setPrimoHolder(boolean primoHolder) { this.primoHolder = primoHolder; }
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
