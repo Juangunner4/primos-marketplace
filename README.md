@@ -12,5 +12,10 @@ external APIs. To keep page loads fast:
    another.
 3. Cache responses where appropriate to avoid repeated network requests.
 
+The backend now exposes `/api/stats/member-nft-counts` which aggregates NFT
+ownership counts for all DAO members. The frontend requests this endpoint in
+parallel with other data so that expensive Helius queries happen server side and
+are cached.
+
 These practices help ensure pages render quickly even when pulling data from
 several sources.
