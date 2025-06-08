@@ -4,10 +4,15 @@ import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
+import { getMagicEdenStats } from '../utils/magiceden';
+import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
+
+const MAGICEDEN_SYMBOL = 'primos';
+const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
 
 type Member = { publicKey: string; pfp: string };
 type MemberWithImage = { publicKey: string; image: string | null };
@@ -17,28 +22,57 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? wallet.connected;
   const { t } = useTranslation();
   const [members, setMembers] = useState<MemberWithImage[]>([]);
+  const [floorPrice, setFloorPrice] = useState<number | null>(null);
+  const [ownedCount, setOwnedCount] = useState<number>(0);
+  const [solPrice, setSolPrice] = useState<number | null>(null);
+  const [totalValue, setTotalValue] = useState<number | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
 
   useEffect(() => {
-    if (isConnected) {
-      axios.get<Member[]>(`${backendUrl}/api/user/members`).then(async res => {
-        // For each member, fetch the NFT image using their pfp token address
-        const withImages = await Promise.all(
-          res.data.map(async (m) => {
-            if (m.pfp) {
-              try {
-                const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-                return { publicKey: m.publicKey, image: nft?.image || null };
-              } catch {
-                return { publicKey: m.publicKey, image: null };
-              }
+    if (!isConnected) return;
+
+    const fetchData = async () => {
+      const res = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
+
+      const withImages = await Promise.all(
+        res.data.map(async (m) => {
+          if (m.pfp) {
+            try {
+              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+              return { publicKey: m.publicKey, image: nft?.image || null };
+            } catch {
+              return { publicKey: m.publicKey, image: null };
             }
-            return { publicKey: m.publicKey, image: null };
-          })
-        );
-        setMembers(withImages);
-      });
-    }
+          }
+          return { publicKey: m.publicKey, image: null };
+        })
+      );
+      setMembers(withImages);
+
+      const counts = await Promise.all(
+        res.data.map((m) =>
+          getAssetsByCollection(PRIMOS_COLLECTION_MINT, m.publicKey).then(
+            (assets) => assets.length
+          )
+        )
+      );
+      const totalOwned = counts.reduce((a, b) => a + b, 0);
+      setOwnedCount(totalOwned);
+
+      const [stats, sol] = await Promise.all([
+        getMagicEdenStats(MAGICEDEN_SYMBOL),
+        getPythSolPrice(),
+      ]);
+      const fp = stats?.floorPrice ? stats.floorPrice / 1e9 : null;
+      setFloorPrice(fp);
+      setSolPrice(sol ?? null);
+
+      if (fp !== null) {
+        setTotalValue(totalOwned * fp);
+      }
+    };
+
+    fetchData();
   }, [isConnected]);
 
   if (!isConnected) {
@@ -64,10 +98,19 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       </Typography>
       <Box className="nft-stats">
         <Typography variant="h6">{t('labs_nft_section')}</Typography>
-        <Typography>{t('labs_floor_price')}: --</Typography>
-        <Typography>{t('labs_owned')}: 0</Typography>
-        <Typography>{t('labs_sol_price')}: --</Typography>
-        <Typography>{t('labs_total_value')}: --</Typography>
+        <Typography>
+          {t('labs_floor_price')}: {floorPrice !== null ? floorPrice.toFixed(2) : '--'}
+        </Typography>
+        <Typography>
+          {t('labs_owned')}: {ownedCount}
+        </Typography>
+        <Typography>
+          {t('labs_sol_price')}: {solPrice !== null ? solPrice.toFixed(2) : '--'}
+        </Typography>
+        <Typography>
+          {t('labs_total_value')}:{' '}
+          {totalValue !== null ? totalValue.toFixed(2) : '--'}
+        </Typography>
       </Box>
       <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
         {t('primo_labs_stats_desc')}
