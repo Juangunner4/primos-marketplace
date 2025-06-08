@@ -59,5 +59,17 @@
   "activity_from": "From",
   "activity_to": "To",
   "primo_labs": "Primo Labs",
-  "docs_title": "Docs"
+  "primo_labs_desc": "Primo Labs will function as a launchpad and innovation hub for new features, NFT utilities, and community experiments. Stay tuned for exclusive tools and early access to upcoming projects.",
+  "docs_title": "Docs",
+  "docs_welcome": "Welcome to the Primos Marketplace documentation.",
+  "docs_treasury_title": "Decentralized Community Treasury",
+  "docs_treasury_desc": "A permissioned Solana marketplace that levies ultra-low fees and routes 100% of proceeds into a shared on-chain treasury. This “fee → buyback” loop amplifies floor price and treasury growth—DeFi mechanics meet community ownership.",
+  "docs_governance_title": "Exclusive Family Governance",
+  "docs_governance_desc": "Only verified Primos holders gain marketplace access, voting rights on RWA acquisitions, event sponsorships, and sports partnerships. Stake your NFT, cast your vote, and help chart our on-chain future.",
+  "docs_utility_title": "On-Chain Utility & Rewards Engine",
+  "docs_utility_desc": "Trade, stake, and earn loyalty points redeemable for VIP event passes, merch drops, and real-world activations. Think “game → claim”: every swap is a play, every play scores rewards.",
+  "docs_open_source_title": "Open-Source Interoperability",
+  "docs_open_source_desc": "Built atop Metaplex Auction House and Holaplex modules, Primos plugs into the broader Solana ecosystem—enabling cross-market swaps, DeFi integrations, and future DAO-driven expansions.",
+  "docs_join_family": "Join the Family: Gain priority drops, governance voice, reward multipliers, and real-world perks. From NFT trading to sports events, Primos is chain + game + claim.",
+  "docs_image_alt": "Primos Community Visual"
 }

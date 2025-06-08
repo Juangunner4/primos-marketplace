@@ -59,5 +59,17 @@
   "activity_from": "De",
   "activity_to": "Para",
   "primo_labs": "Primo Labs",
-  "docs_title": "Docs"
+  "primo_labs_desc": "Primo Labs funcionará como una plataforma de lanzamiento y centro de innovación para nuevas funciones, utilidades NFT y experimentos comunitarios. Próximamente: herramientas exclusivas y acceso anticipado a nuevos proyectos.",
+  "docs_title": "Docs",
+  "docs_welcome": "Bienvenido a la documentación de Primos Marketplace.",
+  "docs_treasury_title": "Tesorería Comunitaria Descentralizada",
+  "docs_treasury_desc": "Un marketplace de Solana con permisos que aplica tarifas ultra bajas y dirige el 100% de los ingresos a una tesorería compartida en cadena. Este ciclo de “tarifa → recompra” amplifica el precio mínimo y el crecimiento de la tesorería: DeFi se une a la propiedad comunitaria.",
+  "docs_governance_title": "Gobernanza Exclusiva de la Familia",
+  "docs_governance_desc": "Solo los poseedores verificados de Primos obtienen acceso al marketplace, derechos de voto en adquisiciones RWA, patrocinios de eventos y asociaciones deportivas. Haz stake de tu NFT, vota y ayuda a trazar nuestro futuro en cadena.",
+  "docs_utility_title": "Utilidad y Recompensas On-Chain",
+  "docs_utility_desc": "Intercambia, haz stake y gana puntos de lealtad canjeables por pases VIP, lanzamientos de merchandising y activaciones en el mundo real. Piensa “juega → reclama”: cada intercambio es una jugada, cada jugada suma recompensas.",
+  "docs_open_source_title": "Interoperabilidad Open-Source",
+  "docs_open_source_desc": "Construido sobre Metaplex Auction House y módulos Holaplex, Primos se conecta con el ecosistema Solana, permitiendo intercambios entre mercados, integraciones DeFi y futuras expansiones impulsadas por DAO.",
+  "docs_join_family": "Únete a la Familia: Obtén drops prioritarios, voz en la gobernanza, multiplicadores de recompensas y beneficios reales. Desde trading NFT hasta eventos deportivos, Primos es cadena + juego + reclama.",
+  "docs_image_alt": "Visual de la Comunidad Primos"
 }
