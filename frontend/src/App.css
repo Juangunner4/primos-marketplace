@@ -7,83 +7,6 @@ body {
     color: #333;
 }
 
-.App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #000;
-    padding: 1rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    flex-wrap: wrap;
-}
-
-.logo {
-    height: 50px;
-    width: auto;
-    object-fit: contain;
-}
-
-.logo-left {
-    margin-right: 16px;
-    margin-left: 0;
-    padding-left: 8px;
-    /* standard logo padding */
-    height: 48px;
-    width: auto;
-}
-
-.logo-center-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-}
-
-.logo-center {
-    height: 50px;
-    max-width: 150px;
-}
-
-.wallet-buttons {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex: 1;
-    justify-content: flex-end;
-}
-
-.header .wallet-adapter-button {
-    margin-left: 0.5rem;
-}
-
-.connect-msg {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.1rem;
-    margin-top: 2rem;
-}
-
-.nft-gallery {
-    flex: 1;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.nft-gallery h2 {
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-}
-
 .nft-list {
     list-style: none;
     display: grid;
@@ -107,16 +30,6 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.lang-buttons {
-  z-index: 10;
-}
-.lang-buttons button {
-  font-size: 0.75rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  min-width: 32px;
-  height: 28px;
-}
 
 .beta-text {
   position: absolute;
@@ -131,51 +44,17 @@ body {
   z-index: 5;
 }
 
-.market-gallery, .nft-gallery {
+.market-gallery {
   padding-left: 200px;
 }
 @media (max-width: 900px) {
-  .market-gallery, .nft-gallery {
+  .market-gallery {
     padding-left: 0;
   }
 }
 
 @media (max-width: 600px) {
-  .lang-buttons {
-    position: absolute;
-    left: 0;
-    top: 0;
-    flex-direction: row;
-    padding: 0.5rem 0.5rem 0 0.5rem;
-  }
-  .header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .logo-left,
-  .wallet-buttons,
-  .logo-center-container {
-    justify-content: center;
-    flex: unset;
-  }
-
-  .logo {
-    height: 40px;
-  }
-
-  .wallet-buttons {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .logo-center-container {
-    order: 3;
-  }
-
   /* Make ALL MUI buttons smaller on mobile */
-  .lang-buttons button,
   .MuiButton-root {
     font-size: 0.68rem !important;
     min-width: 22px !important;
