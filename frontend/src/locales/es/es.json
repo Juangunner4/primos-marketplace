@@ -93,5 +93,10 @@
   "floor": "Piso",
   "open_traits": "Ver Rasgos",
   "rarity_rank": "Rango",
-  "market_no_price": "Sin precio"
+  "market_no_price": "Sin precio",
+  "primos_title": "Primos",
+  "primos_login_prompt": "Por favor inicia sesi\u00f3n para acceder a Primos",
+  "primos_search": "Buscar por clave p\u00fablica...",
+  "primos_no_members": "No se encontraron miembros.",
+  "points": "Puntos"
 }

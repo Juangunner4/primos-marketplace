@@ -13,6 +13,7 @@ import WorkIcon from '@mui/icons-material/Work';
 import ScienceIcon from '@mui/icons-material/Science';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
+import PeopleIcon from '@mui/icons-material/People';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
@@ -95,6 +96,25 @@ const SidebarNav: React.FC = () => {
               onClick={() => setOpen(false)}
             >
               <ScienceIcon />
+            </IconButton>
+          </Tooltip>
+        </ListItem>
+      )}
+      {publicKey && isHolder && (
+        <ListItem disablePadding sx={{ justifyContent: 'center' }}>
+          <Tooltip title={t('primos_title')} placement="right">
+            <IconButton
+              component={NavLink}
+              to="/primos"
+              color={location.pathname === '/primos' ? 'primary' : 'default'}
+              sx={{
+                color: location.pathname === '/primos' ? '#fff' : '#b0b0b0',
+                textShadow: '0 0 6px #fff, 0 0 2px #fff',
+                '&:hover': { color: '#fff', background: '#222' },
+              }}
+              onClick={() => setOpen(false)}
+            >
+              <PeopleIcon />
             </IconButton>
           </Tooltip>
         </ListItem>

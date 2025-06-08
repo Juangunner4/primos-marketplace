@@ -16,6 +16,7 @@ import UserProfile from './components/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './components/PrimosMarketGallery';
 import PrimoLabs from './components/PrimoLabs';
+import Primos from './components/Primos';
 import Docs from './components/Docs';
 import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
 
@@ -134,6 +135,9 @@ const AppRoutes = () => {
     if ((!publicKey || !isHolder) && location.pathname === '/labs') {
       navigate('/', { replace: true });
     }
+    if ((!publicKey || !isHolder) && location.pathname === '/primos') {
+      navigate('/', { replace: true });
+    }
   }, [publicKey, isHolder, location.pathname, navigate]);
 
   return (
@@ -144,6 +148,7 @@ const AppRoutes = () => {
           <Route path="/" element={<PrimosMarketGallery />} />
           <Route path="/collected" element={<NFTGallery />} />
           <Route path="/labs" element={<PrimoLabs />} />
+          <Route path="/primos" element={<Primos />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/profile" element={<UserProfile />} />
         </Routes>
