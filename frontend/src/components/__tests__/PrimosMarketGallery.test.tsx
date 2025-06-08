@@ -29,4 +29,13 @@ describe('PrimosMarketGallery', () => {
     );
     expect(screen.getByText(/Loading NFTs/i)).toBeTruthy();
   });
+
+  test('renders pagination input', () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <PrimosMarketGallery />
+      </I18nextProvider>
+    );
+    expect(screen.getByRole('spinbutton')).toBeTruthy();
+  });
 });

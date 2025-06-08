@@ -12,6 +12,10 @@ jest.mock('../utils/helius', () => ({
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));
 
+jest.mock('../utils/pyth', () => ({
+  getPythSolPrice: jest.fn(() => Promise.resolve(null))
+}));
+
 jest.mock('@mui/material/useMediaQuery', () => () => true);
 
 describe('Activity component', () => {

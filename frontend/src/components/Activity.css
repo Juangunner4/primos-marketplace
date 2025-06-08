@@ -81,37 +81,23 @@
 }
 
 .activity-price {
-  color: #fff;
+  background: #ffe066;
+  border-radius: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 1rem;
   font-weight: bold;
-  background: #000;
-  border-radius: 0.5rem;
-  padding: 0.1rem 0.6rem;
-  margin-left: 0.2rem;
-  margin-right: 0.2rem;
+  color: #1a202c;
+  display: inline-flex;
+  align-items: baseline;
+  border: 2px solid #e2c275;
 }
 
-/* Make price pill red for listings */
-.activity-listing .activity-price {
-  background: #e44;
-  color: #fff;
-}
-
-.activity-sol {
-  color: #000;
-  font-size: 1.1em;
-}
-
-.activity-from,
-.activity-to {
-  color: #888;
-  font-size: 0.96em;
-}
-
-.activity-time {
-  margin-left: auto;
-  color: #000;
-  font-size: 0.93em;
-  font-family: monospace;
+.activity-price .usd {
+  font-size: 0.9em;
+  color: #444;
+  font-weight: 500;
+  margin-left: 0.18em;
+  opacity: 0.85;
 }
 
 @media (max-width: 1100px) {
