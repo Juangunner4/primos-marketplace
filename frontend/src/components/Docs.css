@@ -9,6 +9,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: sticky;
+  top: 80px;
+  align-self: flex-start;
 }
 
 .docs-sidebar a {
@@ -74,5 +77,24 @@
   }
   to {
     opacity: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .docs-container {
+    flex-direction: column;
+  }
+  .docs-sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+  .docs-sidebar a {
+    white-space: nowrap;
+    padding: 0 0.5rem;
   }
 }

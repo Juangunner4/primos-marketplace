@@ -6,6 +6,9 @@ import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
@@ -27,116 +30,54 @@ const SidebarNav: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
 
+  const links = [
+    { to: '/', icon: <HomeIcon />, label: t('home'), show: true },
+    { to: '/market', icon: <StorefrontIcon />, label: t('market_title'), show: true },
+    { to: '/docs', icon: <MenuBookIcon />, label: t('docs_title'), show: true },
+    { to: '/collected', icon: <WorkIcon />, label: t('your_primos_nfts'), show: publicKey && isHolder },
+    { to: '/labs', icon: <ScienceIcon />, label: t('primo_labs'), show: publicKey && isHolder },
+    { to: '/primos', icon: <PeopleIcon />, label: t('primos_title'), show: publicKey && isHolder },
+  ];
+
   const drawerContent = (
     <List sx={{ pt: 8 }}>
-      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-        <Tooltip title={t('home')} placement="right">
-          <IconButton
-            component={NavLink}
-            to="/"
-            color={location.pathname === '/' ? 'primary' : 'default'}
-            sx={{
-              color: location.pathname === '/' ? '#fff' : '#b0b0b0',
-              textShadow: '0 0 6px #fff, 0 0 2px #fff',
-              '&:hover': { color: '#fff', background: '#222' },
-            }}
-            onClick={() => setOpen(false)}
-          >
-            <HomeIcon />
-          </IconButton>
-        </Tooltip>
-      </ListItem>
-      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-        <Tooltip title={t('market_title')} placement="right">
-          <IconButton
-            component={NavLink}
-            to="/market"
-            color={location.pathname === '/market' ? 'primary' : 'default'}
-            sx={{
-              color: location.pathname === '/market' ? '#fff' : '#b0b0b0',
-              textShadow: '0 0 6px #fff, 0 0 2px #fff',
-              '&:hover': { color: '#fff', background: '#222' },
-            }}
-            onClick={() => setOpen(false)}
-          >
-            <StorefrontIcon />
-          </IconButton>
-        </Tooltip>
-      </ListItem>
-      <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-        <Tooltip title={t('docs_title')} placement="right">
-          <IconButton
-            component={NavLink}
-            to="/docs"
-            color={location.pathname === '/docs' ? 'primary' : 'default'}
-            sx={{
-              color: location.pathname === '/docs' ? '#fff' : '#b0b0b0',
-              textShadow: '0 0 6px #fff, 0 0 2px #fff',
-              '&:hover': { color: '#fff', background: '#222' },
-            }}
-            onClick={() => setOpen(false)}
-          >
-            <MenuBookIcon />
-          </IconButton>
-        </Tooltip>
-      </ListItem>
-      {publicKey && isHolder && (
-        <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-          <Tooltip title={t('your_primos_nfts')} placement="right">
+      {links.filter(l => l.show).map((l) => (
+        <ListItem key={l.to} disablePadding sx={{ justifyContent: 'center' }}>
+          <Tooltip title={l.label} placement="right">
             <IconButton
               component={NavLink}
-              to="/collected"
-              color={location.pathname === '/collected' ? 'primary' : 'default'}
+              to={l.to}
+              color={location.pathname === l.to ? 'primary' : 'default'}
               sx={{
-                color: location.pathname === '/collected' ? '#fff' : '#b0b0b0',
+                color: location.pathname === l.to ? '#fff' : '#b0b0b0',
                 textShadow: '0 0 6px #fff, 0 0 2px #fff',
                 '&:hover': { color: '#fff', background: '#222' },
               }}
               onClick={() => setOpen(false)}
             >
-              <WorkIcon />
+              {l.icon}
             </IconButton>
           </Tooltip>
         </ListItem>
-      )}
-      {publicKey && isHolder && (
-        <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-          <Tooltip title={t('primo_labs')} placement="right">
-            <IconButton
-              component={NavLink}
-              to="/labs"
-              color={location.pathname === '/labs' ? 'primary' : 'default'}
-              sx={{
-                color: location.pathname === '/labs' ? '#fff' : '#b0b0b0',
-                textShadow: '0 0 6px #fff, 0 0 2px #fff',
-                '&:hover': { color: '#fff', background: '#222' },
-              }}
-              onClick={() => setOpen(false)}
-            >
-              <ScienceIcon />
-            </IconButton>
-          </Tooltip>
+      ))}
+    </List>
+  );
+
+  const drawerContentMobile = (
+    <List sx={{ pt: 2 }}>
+      {links.filter(l => l.show).map((l) => (
+        <ListItem key={l.to} disablePadding>
+          <ListItemButton
+            component={NavLink}
+            to={l.to}
+            selected={location.pathname === l.to}
+            onClick={() => setOpen(false)}
+          >
+            <ListItemIcon sx={{ color: '#fff' }}>{l.icon}</ListItemIcon>
+            <ListItemText primary={l.label} />
+          </ListItemButton>
         </ListItem>
-      )}
-      {publicKey && isHolder && (
-        <ListItem disablePadding sx={{ justifyContent: 'center' }}>
-          <Tooltip title={t('primos_title')} placement="right">
-            <IconButton
-              component={NavLink}
-              to="/primos"
-              color={location.pathname === '/primos' ? 'primary' : 'default'}
-              sx={{
-                color: location.pathname === '/primos' ? '#fff' : '#b0b0b0',
-                textShadow: '0 0 6px #fff, 0 0 2px #fff',
-                '&:hover': { color: '#fff', background: '#222' },
-              }}
-              onClick={() => setOpen(false)}
-            >
-              <PeopleIcon />
-            </IconButton>
-          </Tooltip>
-        </ListItem>
-      )}
+      ))}
     </List>
   );
 
@@ -149,16 +90,16 @@ const SidebarNav: React.FC = () => {
             onClick={() => setOpen(true)}
             sx={{
               position: 'fixed',
-              bottom: 24, // Move to bottom
-              left: 24,   // Move to left
+              top: 16,
+              left: 16,
               zIndex: 1301,
-              background: '#000', // Black background
-              color: '#fff',      // White icon
+              background: '#000',
+              color: '#fff',
               border: '1.5px solid #fff',
               boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
               '&:hover': { background: '#222' },
-              width: 56,
-              height: 56,
+              width: 48,
+              height: 48,
             }}
           >
             <MenuIcon />
@@ -170,15 +111,15 @@ const SidebarNav: React.FC = () => {
             ModalProps={{ keepMounted: true }}
             sx={{
               [`& .MuiDrawer-paper`]: {
-                width: 72,
+                width: 220,
                 boxSizing: 'border-box',
-                backgroundColor: '#000', // Black drawer
-                color: '#fff',           // White icons
+                backgroundColor: '#000',
+                color: '#fff',
                 borderRight: '1px solid #fff',
               },
             }}
           >
-            {drawerContent}
+            {drawerContentMobile}
           </Drawer>
         </>
       ) : (
