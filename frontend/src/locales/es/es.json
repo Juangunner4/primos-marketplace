@@ -60,6 +60,7 @@
   "activity_from": "De",
   "activity_to": "Para",
   "primo_labs": "Primo Labs",
+  "primo_labs_login_prompt": "Por favor inicia sesión para acceder a Primo Labs",
   "primo_labs_desc": "Primo Labs funcionará como una plataforma de lanzamiento y centro de innovación para nuevas funciones, utilidades NFT y experimentos comunitarios. Próximamente: herramientas exclusivas y acceso anticipado a nuevos proyectos.",
   "docs_title": "Docs",
   "docs_welcome": "En el extenso panorama de guías, referencias y tutoriales interminables que pueden rodear cualquier proyecto, finalmente has llegado al lugar donde, después de mucho leer y desplazarte, descubrirás que esta es la documentación oficial de Primos Marketplace.",
@@ -113,9 +114,10 @@
   "defai_open": "Abrir chat",
   "defai_close": "Cerrar",
   "labs_section_defi": "DeFi",
-  "labs_section_memes": "Memes",
+  "labs_section_memes": "MemeFi",
   "labs_section_ai": "IA",
   "labs_section_rwa": "RWA",
   "labs_section_others": "Otros",
+  "coming_soon": "Próximamente",
   "labs_ai_hint": "¿Necesitas ayuda?"
 }
