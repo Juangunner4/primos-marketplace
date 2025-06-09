@@ -111,5 +111,11 @@
   "defai_placeholder": "Pregunta a Eliza...",
   "defai_send": "Enviar",
   "defai_open": "Abrir chat",
-  "defai_close": "Cerrar"
+  "defai_close": "Cerrar",
+  "labs_section_defi": "DeFi",
+  "labs_section_memes": "Memes",
+  "labs_section_ai": "IA",
+  "labs_section_rwa": "RWA",
+  "labs_section_others": "Otros",
+  "labs_ai_hint": "¿Necesitas ayuda?"
 }
