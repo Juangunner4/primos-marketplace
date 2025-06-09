@@ -24,8 +24,6 @@ const WalletLogin: React.FC = () => {
 
       setIsHolder(isHolder);
 
-      console.log(`Wallet Login. User is holder: ${isHolder}`);
-
       // 2. Update backend
       try {
         await axios.post(
