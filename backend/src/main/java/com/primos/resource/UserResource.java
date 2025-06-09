@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import com.primos.model.User;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.NotFoundException;
@@ -13,7 +14,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/api/user")
@@ -42,7 +42,7 @@ public class UserResource {
             user.setPoints(0);
             user.setPesos(1000);
             user.setCreatedAt(System.currentTimeMillis());
-            user.setDaoMember(true);
+            user.setDaoMember(false);
             user.setPrimoHolder(holder);
             user.persist();
             LOGGER.info("[UserResource] Created new user for publicKey: " + req.publicKey);

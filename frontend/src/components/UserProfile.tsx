@@ -29,7 +29,7 @@ const getStatus = (count: number) => {
   return 'shrimp';
 };
 
-const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
@@ -60,7 +60,7 @@ const UserProfile: React.FC = () => {
   // Fetch Primos NFTs
   useEffect(() => {
     if (profileKey) {
-      getAssetsByCollection(PRIMOS_COLLECTION_MINT, profileKey)
+      getAssetsByCollection(PRIMO_COLLECTION, profileKey)
         .then(setNfts)
         .catch(() => setNfts([]));
     }

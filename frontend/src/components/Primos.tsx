@@ -20,26 +20,26 @@ interface Member {
   nfts: number;
 }
 
-
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
   const [members, setMembers] = useState<Member[]>([]);
   const [images, setImages] = useState<Record<string, string | null>>({});
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!isConnected) return;
+
     async function fetchMembers() {
       try {
         const res = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
-        const countsRes = await axios.get<Record<string, number>>(\
+        const countsRes = await axios.get<Record<string, number>>(
           `${backendUrl}/api/stats/member-nft-counts`
         );
-        const sorted = res.data.sort((a, b) => b.pesos - a.pesos);
+        const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
         const imgs: Record<string, string | null> = {};
         const withCounts: Member[] = await Promise.all(
           sorted.map(async (m) => {
@@ -47,7 +47,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
             if (m.pfp) {
               try {
                 const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-                image = nft?.image || null;
+                image = nft?.image ?? null;
               } catch {
                 image = null;
               }

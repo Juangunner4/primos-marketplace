@@ -13,7 +13,7 @@ interface GalleryNFT extends HeliusNFT {
   variant: string;
 }
 
-const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb';
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 const MAGICEDEN_SYMBOL = 'primos';
 
 const NFTGallery: React.FC = () => {
@@ -37,7 +37,7 @@ const NFTGallery: React.FC = () => {
       setLoading(true);
       try {
         const [assets, stats, solPriceVal] = await Promise.all([
-          getAssetsByCollection(PRIMOS_COLLECTION_MINT, pub),
+          getAssetsByCollection(PRIMO_COLLECTION, pub),
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
         ]);

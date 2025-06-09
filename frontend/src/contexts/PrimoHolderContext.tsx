@@ -1,17 +1,19 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
 
 
-interface PrimoContextValue {
+export const PrimoHolderContext = React.createContext<{
   isHolder: boolean;
-}
-
-const PrimoHolderContext = createContext<PrimoContextValue>({ isHolder: false });
+  setIsHolder: (v: boolean) => void;
+}>({
+  isHolder: false,
+  setIsHolder: () => {},
+});
 
 export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { publicKey } = useWallet();
-  const [isHolder, setIsHolder] = useState(false);
+  const [isHolder, setIsHolder] = React.useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           primoHolder: holder,
         });
       } catch (e) {
+        console.error('Failed to check Primo holder status:', e);
         setIsHolder(false);
       }
     };
@@ -43,11 +46,13 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return () => clearInterval(interval);
   }, [publicKey, backendUrl]);
 
+  const contextValue = React.useMemo(() => ({ isHolder, setIsHolder }), [isHolder, setIsHolder]);
+
   return (
-    <PrimoHolderContext.Provider value={{ isHolder }}>
+    <PrimoHolderContext.Provider value={contextValue}>
       {children}
     </PrimoHolderContext.Provider>
   );
 };
 
-export const usePrimoHolder = () => useContext(PrimoHolderContext);
+export const usePrimoHolder = () => React.useContext(PrimoHolderContext);
