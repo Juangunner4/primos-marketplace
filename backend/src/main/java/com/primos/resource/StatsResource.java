@@ -34,23 +34,35 @@ public class StatsResource {
     private static class CacheEntry {
         final int count;
         final long ts;
-        CacheEntry(int c) { this.count = c; this.ts = System.currentTimeMillis(); }
+
+        CacheEntry(int c) {
+            this.count = c;
+            this.ts = System.currentTimeMillis();
+        }
     }
 
     @GET
     @Path("/member-nft-counts")
     public Map<String, Integer> getMemberNftCounts() {
-        List<User> members = User.list("daoMember", true);
+        List<User> members = User.listAll();
         Map<String, Integer> result = new HashMap<>();
         for (User u : members) {
             String pk = u.getPublicKey();
             CacheEntry cached = CACHE.get(pk);
+            int count;
             if (cached != null && System.currentTimeMillis() - cached.ts < CACHE_TTL) {
-                result.put(pk, cached.count);
-                continue;
+                count = cached.count;
+            } else {
+                count = fetchCount(pk);
+                CACHE.put(pk, new CacheEntry(count));
             }
-            int count = fetchCount(pk);
-            CACHE.put(pk, new CacheEntry(count));
+            // --- Update user flags based on live count ---
+            boolean isHolder = count > 0;
+            if (u.isPrimoHolder() != isHolder || u.isDaoMember() != isHolder) {
+                u.setPrimoHolder(isHolder);
+                u.setDaoMember(isHolder);
+                u.persistOrUpdate();
+            }
             result.put(pk, count);
         }
         return result;
@@ -62,31 +74,42 @@ public class StatsResource {
         int count = 0;
         boolean hasMore = true;
         while (hasMore) {
+            boolean shouldContinue = true;
             try {
                 String body = String.format(
-                    "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"getAssetsByGroup\",\"params\":{\"groupKey\":\"collection\",\"groupValue\":\"%s\",\"page\":%d,\"limit\":%d}}",
-                    COLLECTION_MINT, page, limit);
+                        "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"getAssetsByGroup\",\"params\":{\"groupKey\":\"collection\",\"groupValue\":\"%s\",\"page\":%d,\"limit\":%d}}",
+                        COLLECTION_MINT, page, limit);
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("https://mainnet.helius-rpc.com/?api-key=" + API_KEY))
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(body))
                         .build();
                 HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() != 200) break;
-                JsonNode items = MAPPER.readTree(response.body()).path("result").path("items");
-                if (!items.isArray()) break;
-                for (JsonNode item : items) {
-                    String ownerKey = item.path("ownership").path("owner").asText();
-                    if (owner.equals(ownerKey)) {
-                        count += 1;
+                if (response.statusCode() != 200) {
+                    shouldContinue = false;
+                } else {
+                    JsonNode items = MAPPER.readTree(response.body()).path("result").path("items");
+                    if (!items.isArray()) {
+                        shouldContinue = false;
+                    } else {
+                        for (JsonNode item : items) {
+                            String ownerKey = item.path("ownership").path("owner").asText();
+                            if (owner.equals(ownerKey)) {
+                                count += 1;
+                            }
+                        }
+                        if (items.size() == limit) {
+                            page += 1;
+                        } else {
+                            shouldContinue = false;
+                        }
                     }
                 }
-                hasMore = items.size() == limit;
-                page += 1;
             } catch (Exception e) {
                 LOGGER.warning("Failed to fetch count for " + owner + ": " + e.getMessage());
-                break;
+                shouldContinue = false;
             }
+            hasMore = shouldContinue;
         }
         return count;
     }

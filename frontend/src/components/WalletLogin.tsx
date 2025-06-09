@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import { getAssetsByCollection } from '../utils/helius';
+import { checkPrimoHolder } from '../utils/helius';
 import axios from 'axios';
 import './WalletLogin.css';
 
@@ -19,9 +19,8 @@ const WalletLogin: React.FC = () => {
         return;
       }
 
-      // 1. Check NFT ownership
-      const nfts = await getAssetsByCollection(PRIMO_COLLECTION, publicKey.toBase58());
-      const isHolder = nfts.length > 0;
+      // Use the new checkPrimoHolder function for a live check
+      const isHolder = await checkPrimoHolder(PRIMO_COLLECTION, publicKey.toBase58());
 
       setIsHolder(isHolder);
 
@@ -31,7 +30,7 @@ const WalletLogin: React.FC = () => {
       try {
         await axios.post(
           `${process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080'}/api/user/login`,
-          { publicKey: publicKey.toBase58(), isHolder }
+          { publicKey: publicKey.toBase58(), primoHolder: isHolder }
         );
       } catch (e) {
         console.error('Failed to update backend holder status:', e);

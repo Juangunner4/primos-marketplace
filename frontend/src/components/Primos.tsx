@@ -35,7 +35,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
     async function fetchMembers() {
       try {
-        const res = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
+        const res = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
         const countsRes = await axios.get<Record<string, number>>(
           `${backendUrl}/api/stats/member-nft-counts`
         );

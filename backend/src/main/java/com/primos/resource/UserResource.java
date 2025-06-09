@@ -1,7 +1,13 @@
 package com.primos.resource;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.primos.model.User;
 
 import jakarta.ws.rs.Consumes;
@@ -34,8 +40,31 @@ public class UserResource {
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
             LOGGER.info(String.format("[UserResource] Login attempt for publicKey: %s", req.publicKey));
         }
-        User user = io.quarkus.mongodb.panache.PanacheMongoEntityBase.find(PUBLIC_KEY_FIELD, req.publicKey).firstResult();
-        boolean holder = req.primoHolder;
+
+        // --- Fetch live NFT count from Helius API ---
+        boolean holder = false;
+        try {
+            String heliusApiKey = System.getenv().getOrDefault("HELIUS_API_KEY", "");
+            String collectionMint = "2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb"; // Use your collection mint
+            String body = String.format(
+                    "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"getAssetsByGroup\",\"params\":{\"groupKey\":\"collection\",\"groupValue\":\"%s\",\"ownerAddress\":\"%s\",\"page\":1,\"limit\":1}}",
+                    collectionMint, req.publicKey);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://mainnet.helius-rpc.com/?api-key=" + heliusApiKey))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                JsonNode items = new ObjectMapper().readTree(response.body()).path("result").path("items");
+                holder = items.isArray() && items.size() > 0;
+            }
+        } catch (Exception e) {
+            LOGGER.warning("Failed to check Primo NFT ownership for " + req.publicKey + ": " + e.getMessage());
+        }
+
+        User user = User.find(PUBLIC_KEY_FIELD, req.publicKey).firstResult();
         if (user == null) {
             user = new User();
             user.setPublicKey(req.publicKey);
@@ -45,12 +74,20 @@ public class UserResource {
             user.setPoints(0);
             user.setPesos(1000);
             user.setCreatedAt(System.currentTimeMillis());
-            user.setDaoMember(false);
+            user.setDaoMember(holder);
             user.setPrimoHolder(holder);
             user.persist();
-            LOGGER.info(String.format("[UserResource] Created new user for publicKey: %s", req.publicKey));
+            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+                LOGGER.info(String.format("[UserResource] Created new user for publicKey: %s", req.publicKey));
+            }
         } else {
             user.setPrimoHolder(holder);
+            if (holder && !user.isDaoMember()) {
+                user.setDaoMember(true);
+            }
+            if (!holder && user.isDaoMember()) {
+                user.setDaoMember(false);
+            }
             user.persistOrUpdate();
             LOGGER.info(String.format("[UserResource] User already exists for publicKey: %s", req.publicKey));
         }
@@ -61,7 +98,8 @@ public class UserResource {
     @Path("/{publicKey}")
     public User getUser(@PathParam("publicKey") String publicKey) {
         User user = User.find(PUBLIC_KEY_FIELD, publicKey).firstResult();
-        if (user == null) throw new NotFoundException();
+        if (user == null)
+            throw new NotFoundException();
         return user;
     }
 
@@ -69,8 +107,8 @@ public class UserResource {
     @Path("/{publicKey}/pfp")
     @Consumes(MediaType.TEXT_PLAIN)
     public User updatePfp(@PathParam("publicKey") String publicKey,
-                          @HeaderParam("X-Public-Key") String walletKey,
-                          String pfpUrl) {
+            @HeaderParam("X-Public-Key") String walletKey,
+            String pfpUrl) {
         if (walletKey == null || !walletKey.equals(publicKey)) {
             throw new ForbiddenException();
         }
@@ -86,8 +124,8 @@ public class UserResource {
     @PUT
     @Path("/{publicKey}")
     public User updateProfile(@PathParam("publicKey") String publicKey,
-                              @HeaderParam("X-Public-Key") String walletKey,
-                              User updated) {
+            @HeaderParam("X-Public-Key") String walletKey,
+            User updated) {
         if (walletKey == null || !walletKey.equals(publicKey)) {
             throw new ForbiddenException();
         }
@@ -97,7 +135,9 @@ public class UserResource {
         User user = User.find("publicKey", publicKey).firstResult();
         if (user != null) {
             user.setBio(updated.getBio());
-            user.setSocials(updated.getSocials());
+            if (updated.getSocials() != null) {
+                user.setSocials(updated.getSocials());
+            }
             user.persistOrUpdate();
             LOGGER.info(String.format("[UserResource] Updated profile for %s", publicKey));
         }

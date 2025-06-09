@@ -44,7 +44,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
     const fetchData = async () => {
       // Fetch members from backend
-      const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/members`);
+      const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
       const countsRes = await axios.get<Record<string, number>>(
         `${backendUrl}/api/stats/member-nft-counts`
       );
