@@ -31,7 +31,7 @@ const SidebarNav: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const links = [
-    { to: '/', icon: <HomeIcon />, label: t('home'), show: true },
+    { to: '/', icon: <HomeIcon />, label: t('home'), show: true, end: true },
     { to: '/market', icon: <StorefrontIcon />, label: t('market_title'), show: true },
     { to: '/docs', icon: <MenuBookIcon />, label: t('docs_title'), show: true },
     { to: '/collected', icon: <WorkIcon />, label: t('your_primos_nfts'), show: publicKey && isHolder },
@@ -47,6 +47,7 @@ const SidebarNav: React.FC = () => {
             <IconButton
               component={NavLink}
               to={l.to}
+              {...(l.end ? { end: true } : {})}
               color={location.pathname === l.to ? 'primary' : 'default'}
               sx={{
                 color: location.pathname === l.to ? '#fff' : '#b0b0b0',
@@ -70,6 +71,7 @@ const SidebarNav: React.FC = () => {
           <ListItemButton
             component={NavLink}
             to={l.to}
+            {...(l.end ? { end: true } : {})}
             selected={location.pathname === l.to}
             onClick={() => setOpen(false)}
           >
