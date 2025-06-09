@@ -3,14 +3,21 @@ Solana NFT marketplace for the Primos collection.
 
 ## Running the project
 
-The repository contains a Quarkus backend and a React frontend. Both can be
-started independently during development.
+The repository contains two applications:
+
+* **backend** – a Quarkus service that exposes REST APIs and persists user
+  information to MongoDB.
+* **frontend** – a React interface that communicates with the backend and the
+  Solana blockchain.
+
+Both can be started independently during development or together using the
+`run-dev.sh` helper script.
 
 ### Backend
 
 ```bash
 cd backend
-./mvnw quarkus:dev
+mvn quarkus:dev
 ```
 
 ### Frontend
@@ -21,8 +28,8 @@ npm install
 npm start
 ```
 
-Tests for each portion can be run using `./mvnw test` in the backend directory
-and `npm test -- --watchAll=false` in the frontend directory.
+Tests for each portion can be run using `mvn test` in the backend directory and
+`npm test -- --watchAll=false` in the frontend directory.
 
 ## Performance and Data Loading
 

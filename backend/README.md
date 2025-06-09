@@ -1,13 +1,14 @@
 # backend
 
-Backend services are written with [Quarkus](https://quarkus.io/).
+The backend is implemented using [Quarkus](https://quarkus.io/) and exposes a
+REST API backed by MongoDB.
 
 ### Development
 
 Run the API locally with:
 
 ```bash
-./mvnw quarkus:dev
+mvn quarkus:dev
 ```
 
 ### Tests
@@ -15,17 +16,17 @@ Run the API locally with:
 Execute the test suite using:
 
 ```bash
-./mvnw test
+mvn test
 ```
 
-```shell script
-./mvnw package -Dnative
+```bash
+mvn package -Dnative
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+```bash
+mvn package -Dnative -Dquarkus.native.container-build=true
 ```
 
 You can then execute your native executable with: `./target/backend-1.0.0-SNAPSHOT-runner`
