@@ -22,17 +22,29 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    const checkHolder = async () => {
+    const loginAndCheckHolder = async () => {
       if (!publicKey) {
         setIsHolder(false);
         return;
       }
+
+      // Login immediately before fetching NFTs
+      try {
+        await axios.post(`${backendUrl}/api/user/login`, {
+          publicKey: publicKey.toBase58(),
+          primoHolder: false,
+        });
+      } catch (e) {
+        console.error('Failed to login user:', e);
+      }
+
       try {
         const holder = await checkPrimoHolder(
           PRIMO_COLLECTION,
           publicKey.toBase58()
         );
         setIsHolder(holder);
+        // Update backend with real holder status
         await axios.post(`${backendUrl}/api/user/login`, {
           publicKey: publicKey.toBase58(),
           primoHolder: holder,
@@ -43,8 +55,8 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }
     };
 
-    checkHolder();
-    interval = setInterval(checkHolder, 60_000);
+    loginAndCheckHolder();
+    interval = setInterval(loginAndCheckHolder, 60_000);
 
     return () => clearInterval(interval);
   }, [publicKey, backendUrl]);
