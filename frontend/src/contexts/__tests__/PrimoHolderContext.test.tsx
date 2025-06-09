@@ -2,21 +2,17 @@ import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { PrimoHolderProvider, usePrimoHolder } from '../PrimoHolderContext';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getAssetsByCollection } from '../../utils/helius';
 import axios from 'axios';
 
 jest.mock('@solana/wallet-adapter-react', () => ({
   useWallet: jest.fn(),
 }));
 
-jest.mock('../../utils/helius', () => ({
-  getAssetsByCollection: jest.fn(),
-}));
 
 jest.mock('axios');
 
 const mockUseWallet = useWallet as jest.Mock;
-const mockGetAssets = getAssetsByCollection as jest.Mock;
+const mockAxiosGet = (axios.get as unknown) as jest.Mock;
 const mockAxiosPost = (axios.post as unknown) as jest.Mock;
 
 describe('PrimoHolderContext', () => {
@@ -35,7 +31,7 @@ describe('PrimoHolderContext', () => {
 
   test('returns true when NFTs found', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'abc' } });
-    mockGetAssets.mockResolvedValue([{}]);
+    mockAxiosGet.mockResolvedValue({ data: { abc: 1 } });
     const { result } = renderHook(() => usePrimoHolder(), {
       wrapper: ({ children }) => <PrimoHolderProvider>{children}</PrimoHolderProvider>,
     });
@@ -44,7 +40,7 @@ describe('PrimoHolderContext', () => {
 
   test('handles fetch error gracefully', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'abc' } });
-    mockGetAssets.mockRejectedValue(new Error('fail'));
+    mockAxiosGet.mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => usePrimoHolder(), {
       wrapper: ({ children }) => <PrimoHolderProvider>{children}</PrimoHolderProvider>,
     });
