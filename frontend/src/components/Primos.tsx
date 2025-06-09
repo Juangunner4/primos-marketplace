@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
+// Display information directly from the backend without extra NFT lookups
 import './Primos.css';
 
 interface Member {
@@ -17,7 +17,6 @@ interface Member {
   pfp: string;
   points: number;
   pesos: number;
-  nfts: number;
 }
 
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
@@ -26,9 +25,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
-  const collectionMint = process.env.REACT_APP_PRIMOS_COLLECTION!;
   const [members, setMembers] = useState<Member[]>([]);
-  const [images, setImages] = useState<Record<string, string | null>>({});
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -38,31 +35,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       try {
         const res = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
-        const imgs: Record<string, string | null> = {};
-        const withCounts: Member[] = await Promise.all(
-          sorted.map(async (m) => {
-            let image: string | null = null;
-            if (m.pfp) {
-              try {
-                const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-                image = nft?.image ?? null;
-              } catch {
-                image = null;
-              }
-            }
-            imgs[m.publicKey] = image;
-            let count = 0;
-            try {
-              const assets = await getAssetsByCollection(collectionMint, m.publicKey);
-              count = assets.length;
-            } catch {
-              count = 0;
-            }
-            return { ...m, nfts: count } as Member;
-          })
-        );
-        setMembers(withCounts);
-        setImages(imgs);
+        setMembers(sorted);
       } catch {
         setMembers([]);
       }
@@ -106,7 +79,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
           >
             <Box className="primos-card">
               <Avatar
-                src={images[m.publicKey] || undefined}
+                src={m.pfp || undefined}
                 sx={{ width: 56, height: 56 }}
               />
               <Box ml={1}>
@@ -116,7 +89,6 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 <Box className="primos-pills">
                   <span className="primos-pill">{t('points')}: {m.points}</span>
                   <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
-                  <span className="primos-pill">{t('nfts')}: {m.nfts}</span>
                 </Box>
               </Box>
             </Box>
