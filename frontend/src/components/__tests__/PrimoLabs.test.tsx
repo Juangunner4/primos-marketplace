@@ -1,8 +1,15 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../../i18n';
 import PrimoLabs from '../PrimoLabs';
 
-const renderLabs = (connected: boolean) => render(<PrimoLabs connected={connected} />);
+const renderLabs = (connected: boolean) =>
+  render(
+    <I18nextProvider i18n={i18n}>
+      <PrimoLabs connected={connected} />
+    </I18nextProvider>
+  );
 
 describe('PrimoLabs', () => {
   test('prompts login when user not authenticated', () => {

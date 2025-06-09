@@ -104,7 +104,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
           <Typography variant="h6">
-            Please login to access Primo Labs
+            {t('primo_labs_login_prompt')}
           </Typography>
         </Dialog.Content>
       </Dialog.Root>
@@ -114,7 +114,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   return (
     <Box className="labs-container">
       <Typography variant="h4" className="labs-title">
-        Primo Labs
+        {t('primo_labs')}
       </Typography>
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t('primo_labs_desc')}
@@ -144,12 +144,12 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       <Box className="labs-grid">
         <Card className="lab-card">
             <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
-            <Typography>DeFi</Typography>
+            <Typography>{t('labs_section_defi')}</Typography>
             </Box>
         </Card>
         <Card className="lab-card">
           <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
-            <Typography>MemeFi</Typography>
+            <Typography>{t('labs_section_memes')}</Typography>
             <Button size="small" sx={{ color: '#ffffff', textTransform: 'none' }}>
               Browse →
             </Button>
@@ -167,14 +167,14 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         </Card>
         <Card className="lab-card">
           <Typography variant="h6" sx={{ mt: 1 }}>
-            Coming Soon
+            {t('coming_soon')}
           </Typography>
           <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
           <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
         <Card className="lab-card">
             <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
-            <Typography>Dao Members</Typography>
+            <Typography>{t('labs_members_title')}</Typography>
             {members.map((m) => (
               <Link key={m.publicKey} to={`/user/${m.publicKey}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <Box className="member-card">
