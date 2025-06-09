@@ -40,7 +40,9 @@ external APIs. To keep page loads fast:
    NFT counts) and expose a single endpoint that returns all required fields.
 2. Fetch data in parallel on the client so multiple API calls do not block one
    another.
-3. Cache responses where appropriate to avoid repeated network requests.
+3. Cache responses where appropriate to avoid repeated network requests. Login
+   checks for Primo ownership now query the server side cache so the token gate
+   pages appear much faster.
 
 The backend now exposes `/api/stats/member-nft-counts` which aggregates NFT
 ownership counts for all DAO members. The frontend requests this endpoint in
