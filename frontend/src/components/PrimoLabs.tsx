@@ -11,6 +11,8 @@ import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
+import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import DeFAI from './DeFAI';
 
 const MAGICEDEN_SYMBOL = 'primos';
 type Member = { publicKey: string; pfp: string };
@@ -18,7 +20,8 @@ type MemberWithImage = { publicKey: string; image: string | null; count: number 
 
 const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
-  const isConnected = connected ?? wallet.connected;
+  const { isHolder } = usePrimoHolder();
+  const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const [members, setMembers] = useState<MemberWithImage[]>([]);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
@@ -144,6 +147,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           </Link>
         ))}
       </Box>
+      {isHolder && <DeFAI />}
     </Box>
   );
 };
