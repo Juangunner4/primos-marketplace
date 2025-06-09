@@ -100,7 +100,6 @@
   "primos_no_members": "No members found.",
   "points": "Points",
   "home_welcome": "Welcome to Primos",
-  "home_tagline": "Discover the DAO marketplace",
   "join_primos": "Join Primos",
   "home_fomo": "Don't miss out on the next drop!",
   "market_cap": "Market Cap",
@@ -112,6 +111,5 @@
   "defai_placeholder": "Ask Eliza...",
   "defai_send": "Send",
   "defai_open": "Open Chat",
-  "defai_close": "Close",
-  "labs_comics_title": "Primos Comics"
+  "defai_close": "Close"
 }

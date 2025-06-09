@@ -142,17 +142,6 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           {t('home_welcome')}
         </Typography>
         <Typography
-          variant="h6"
-          sx={{
-            color: '#cfcfcf',
-            mb: 2,
-            fontWeight: 400,
-            letterSpacing: 1,
-          }}
-        >
-          {t('home_tagline')}
-        </Typography>
-        <Typography
           variant="subtitle1"
           sx={{ color: '#ffeb3b', fontWeight: 600 }}
         >
@@ -279,7 +268,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           {members.length > 0 && (
             <Box>
               <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
-                {t('dao_members')}
+                {t('primos_title')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
                 {members.map((m) => (

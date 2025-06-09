@@ -100,7 +100,6 @@
   "primos_no_members": "No se encontraron miembros.",
   "points": "Puntos",
   "home_welcome": "Bienvenido a Primos",
-  "home_tagline": "Descubre el mercado de la DAO",
   "join_primos": "Únete a Primos",
   "home_fomo": "¡No te pierdas la próxima oportunidad!",
   "market_cap": "Capitalización",
@@ -112,6 +111,5 @@
   "defai_placeholder": "Pregunta a Eliza...",
   "defai_send": "Enviar",
   "defai_open": "Abrir chat",
-  "defai_close": "Cerrar",
-  "labs_comics_title": "Primos Cómics"
+  "defai_close": "Cerrar"
 }

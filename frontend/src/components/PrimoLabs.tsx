@@ -28,6 +28,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [members, setMembers] = useState<MemberWithImage[]>([]);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [solPrice, setSolPrice] = useState<number | null>(null);
+  const [totalValue, setTotalValue] = useState<number>(0);
   const [hoverBook, setHoverBook] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
   const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'; // Use your collection mint
@@ -151,13 +152,16 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         ))}
       </Box>
       <Box className="comic-section">
-        <Typography variant="h6">{t('labs_comics_title')}</Typography>
         <Box
           className="comic-icon"
           onMouseEnter={() => setHoverBook(true)}
           onMouseLeave={() => setHoverBook(false)}
+          sx={{ position: 'relative', display: 'inline-block' }}
         >
-          {hoverBook ? <MenuBookIcon fontSize="large" /> : <MenuBookOutlinedIcon fontSize="large" />}
+          <img
+            src={require('../images/primosheadlogo.png')}
+            alt="Primos Head"
+          />
         </Box>
       </Box>
       {isHolder && <DeFAI />}

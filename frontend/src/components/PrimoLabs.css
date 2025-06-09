@@ -35,6 +35,8 @@
   margin-top: 0.5rem;
   font-size: 3rem;
   transition: transform 0.2s;
+  position: relative;
+  display: inline-block;
 }
 .comic-icon:hover {
   transform: rotate(3deg);
