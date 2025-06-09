@@ -73,7 +73,7 @@ const SidebarNav: React.FC = () => {
             selected={location.pathname === l.to}
             onClick={() => setOpen(false)}
           >
-            <ListItemIcon sx={{ color: '#fff' }}>{l.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: '#fff', minWidth: 32 }}>{l.icon}</ListItemIcon>
             <ListItemText primary={l.label} />
           </ListItemButton>
         </ListItem>
@@ -90,7 +90,7 @@ const SidebarNav: React.FC = () => {
             onClick={() => setOpen(true)}
             sx={{
               position: 'fixed',
-              top: 16,
+              bottom: 16,
               left: 16,
               zIndex: 1301,
               background: '#000',
