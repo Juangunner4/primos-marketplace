@@ -187,42 +187,36 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         )}
       </Box>
       {stats && (
-        <Box
-          sx={{
-            mt: 6,
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: 5,
-            background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
-            borderRadius: 4,
-            p: 4,
-            boxShadow: '0 2px 16px #0003',
-            maxWidth: 900,
-            mx: 'auto',
-            border: '2px solid #fff',
-            position: 'relative',
-          }}
-        >
           <Box
             sx={{
-              position: 'absolute',
-              top: -28,
-              left: 24,
-              background: '#111',
-              color: '#fff',
-              px: 2,
-              py: 0.5,
-              borderRadius: 2,
-              fontWeight: 700,
-              fontSize: 18,
-              letterSpacing: 1,
+              mt: 6,
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 5,
+              background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
+              borderRadius: '1.5rem',
+              p: 4,
+              boxShadow: '0 2px 16px #0003',
+              maxWidth: 900,
+              mx: 'auto',
               border: '2px solid #fff',
-              boxShadow: '0 2px 8px #0005',
+              position: 'relative',
             }}
           >
-            PRIMOS STATS
-          </Box>
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -40,
+                left: 24,
+              }}
+            >
+              <img
+                src={hero}
+                alt="Primos"
+                style={{ height: 56 }}
+              />
+            </Box>
           <Box>
             <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
               {t('unique_holders')}
