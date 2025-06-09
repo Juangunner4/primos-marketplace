@@ -110,5 +110,8 @@
   "news": "Noticias",
   "defai_title": "DeFAI",
   "defai_placeholder": "Pregunta a Eliza...",
-  "defai_send": "Enviar"
+  "defai_send": "Enviar",
+  "defai_open": "Abrir chat",
+  "defai_close": "Cerrar",
+  "labs_comics_title": "Primos Cómics"
 }

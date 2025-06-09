@@ -3,6 +3,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
 import './DeFAI.css';
 
@@ -19,6 +21,7 @@ const DeFAI: React.FC = () => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
+  const [open, setOpen] = useState(false);
 
   const sendMessage = () => {
     const trimmed = input.trim();
@@ -30,30 +33,52 @@ const DeFAI: React.FC = () => {
   };
 
   return (
-    <Box className="defai-container">
-      <Typography variant="h6" className="defai-title">
-        {t('defai_title')}
-      </Typography>
-      <Box className="defai-chat" data-testid="chat-window">
-        {messages.map((m, i) => (
-          <Box key={i} className={`msg ${m.from}`}>
-            <span>{m.text}</span>
-          </Box>
-        ))}
-      </Box>
-      <Box className="defai-input">
-        <TextField
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={t('defai_placeholder')}
-          size="small"
-          fullWidth
-        />
-        <Button variant="contained" onClick={sendMessage} sx={{ ml: 1 }}>
-          {t('defai_send')}
+    <>
+      {!open && (
+        <Button
+          className="defai-fab"
+          aria-label={t('defai_open')}
+          onClick={() => setOpen(true)}
+        >
+          <SmartToyIcon />
         </Button>
-      </Box>
-    </Box>
+      )}
+      {open && (
+        <Box className="defai-floating">
+          <Box className="defai-container">
+            <Button
+              className="defai-close"
+              aria-label={t('defai_close')}
+              onClick={() => setOpen(false)}
+            >
+              <CloseIcon fontSize="small" />
+            </Button>
+            <Typography variant="h6" className="defai-title">
+              {t('defai_title')}
+            </Typography>
+            <Box className="defai-chat" data-testid="chat-window">
+              {messages.map((m, i) => (
+                <Box key={i} className={`msg ${m.from}`}>
+                  <span>{m.text}</span>
+                </Box>
+              ))}
+            </Box>
+            <Box className="defai-input">
+              <TextField
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={t('defai_placeholder')}
+                size="small"
+                fullWidth
+              />
+              <Button variant="contained" onClick={sendMessage} sx={{ ml: 1 }}>
+                {t('defai_send')}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      )}
+    </>
   );
 };
 

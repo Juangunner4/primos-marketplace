@@ -27,6 +27,19 @@
   padding: 4px 8px;
 }
 
+.comic-section {
+  margin-top: 2rem;
+}
+
+.comic-icon {
+  margin-top: 0.5rem;
+  font-size: 3rem;
+  transition: transform 0.2s;
+}
+.comic-icon:hover {
+  transform: rotate(3deg);
+}
+
 .dialog-overlay {
   background: rgba(0,0,0,0.6);
   position: fixed;

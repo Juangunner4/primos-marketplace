@@ -13,6 +13,8 @@ import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import DeFAI from './DeFAI';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 
 const MAGICEDEN_SYMBOL = 'primos';
 type Member = { publicKey: string; pfp: string };
@@ -26,6 +28,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [members, setMembers] = useState<MemberWithImage[]>([]);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [solPrice, setSolPrice] = useState<number | null>(null);
+  const [hoverBook, setHoverBook] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
   const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'; // Use your collection mint
 
@@ -146,6 +149,16 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
             </Box>
           </Link>
         ))}
+      </Box>
+      <Box className="comic-section">
+        <Typography variant="h6">{t('labs_comics_title')}</Typography>
+        <Box
+          className="comic-icon"
+          onMouseEnter={() => setHoverBook(true)}
+          onMouseLeave={() => setHoverBook(false)}
+        >
+          {hoverBook ? <MenuBookIcon fontSize="large" /> : <MenuBookOutlinedIcon fontSize="large" />}
+        </Box>
       </Box>
       {isHolder && <DeFAI />}
     </Box>

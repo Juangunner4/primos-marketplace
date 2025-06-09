@@ -12,6 +12,7 @@ describe('DeFAI', () => {
       </I18nextProvider>
     );
 
+    fireEvent.click(screen.getByLabelText(i18n.t('defai_open')));
     expect(screen.getByText(i18n.t('defai_title'))).toBeTruthy();
     fireEvent.change(screen.getByPlaceholderText(i18n.t('defai_placeholder')), {
       target: { value: 'Hello' },
