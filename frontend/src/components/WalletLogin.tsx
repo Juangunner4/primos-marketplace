@@ -18,15 +18,19 @@ const WalletLogin: React.FC = () => {
         setIsHolder(false);
         return;
       }
+
       // 1. Check NFT ownership
       const nfts = await getAssetsByCollection(PRIMO_COLLECTION, publicKey.toBase58());
       const isHolder = nfts.length > 0;
+
       setIsHolder(isHolder);
+
+      console.log(`Wallet Login. User is holder: ${isHolder}`);
 
       // 2. Update backend
       try {
         await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/api/user/holder`,
+          `${process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080'}/api/user/login`,
           { publicKey: publicKey.toBase58(), isHolder }
         );
       } catch (e) {

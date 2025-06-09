@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 public class UserResource {
 
     private static final Logger LOGGER = Logger.getLogger(UserResource.class.getName());
+    private static final String PUBLIC_KEY_FIELD = "publicKey";
 
     @POST
     @Path("/login")
@@ -30,8 +31,10 @@ public class UserResource {
             LOGGER.info("[UserResource] Login attempt with missing publicKey");
             throw new jakarta.ws.rs.BadRequestException("publicKey is required");
         }
-        LOGGER.info("[UserResource] Login attempt for publicKey: " + req.publicKey);
-        User user = User.find("publicKey", req.publicKey).firstResult();
+        if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+            LOGGER.info(String.format("[UserResource] Login attempt for publicKey: %s", req.publicKey));
+        }
+        User user = io.quarkus.mongodb.panache.PanacheMongoEntityBase.find(PUBLIC_KEY_FIELD, req.publicKey).firstResult();
         boolean holder = req.primoHolder;
         if (user == null) {
             user = new User();
@@ -45,11 +48,11 @@ public class UserResource {
             user.setDaoMember(false);
             user.setPrimoHolder(holder);
             user.persist();
-            LOGGER.info("[UserResource] Created new user for publicKey: " + req.publicKey);
+            LOGGER.info(String.format("[UserResource] Created new user for publicKey: %s", req.publicKey));
         } else {
             user.setPrimoHolder(holder);
             user.persistOrUpdate();
-            LOGGER.info("[UserResource] User already exists for publicKey: " + req.publicKey);
+            LOGGER.info(String.format("[UserResource] User already exists for publicKey: %s", req.publicKey));
         }
         return user;
     }
@@ -57,7 +60,7 @@ public class UserResource {
     @GET
     @Path("/{publicKey}")
     public User getUser(@PathParam("publicKey") String publicKey) {
-        User user = User.find("publicKey", publicKey).firstResult();
+        User user = User.find(PUBLIC_KEY_FIELD, publicKey).firstResult();
         if (user == null) throw new NotFoundException();
         return user;
     }
@@ -102,9 +105,9 @@ public class UserResource {
     }
 
     @GET
-    @Path("/members")
+    @Path("/primos")
     public java.util.List<User> getDaoMembers() {
-        return User.list("daoMember", true);
+        return User.list("primoHolder", true);
     }
 
 }

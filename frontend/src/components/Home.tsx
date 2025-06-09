@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import News from './News';
 import hero from '../images/primoslogo.png';
+import primoMarket  from '../images/primomarket.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
@@ -38,7 +39,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
 
   useEffect(() => {
     async function fetchStats() {
@@ -74,7 +75,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
     const fetchMembers = async () => {
       try {
         const res = await axios.get<Omit<DaoMember, 'image'>[]>(
-          `${backendUrl}/api/user/members`
+          `${backendUrl}/api/user/primos`
         );
         const imgs: DaoMember[] = await Promise.all(
           res.data.slice(0, 5).map(async (m) => {
@@ -82,7 +83,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
             if (m.pfp) {
               try {
                 const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-                image = nft?.image || null;
+                image = nft?.image ?? null;
               } catch {
                 image = null;
               }
@@ -109,23 +110,25 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }}
     >
       <Box
-        sx={{
-          mt: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 2,
-        }}
+         sx={{
+              mt: 6,
+              justifyContent: 'center',
+              gap: 5,
+              background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
+              borderRadius: '1.5rem',
+              p: 4,
+              boxShadow: '0 2px 16px #0003',
+              maxWidth: 900,
+              mx: 'auto',
+              border: '2px solid #fff',
+              position: 'relative',
+            }}
       >
         <img
-          src={hero}
+          src={primoMarket}
           alt="Primos"
           style={{
             width: 180,
-            borderRadius: 16,
-            boxShadow: '0 4px 24px #000a',
-            border: '2px solid #fff',
-            background: '#fff',
             padding: 8,
           }}
         />
@@ -274,7 +277,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 {members.map((m) => (
                   <Avatar
                     key={m.publicKey}
-                    src={m.image || undefined}
+                    src={m.image ?? undefined}
                     sx={{ width: 24, height: 24 }}
                   />
                 ))}
