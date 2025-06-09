@@ -201,7 +201,7 @@ const PrimosMarketGallery: React.FC = () => {
           </div>
         </div>
         {content}
-        <div className="market-pagination" style={{ display: 'flex', justifyContent: 'center', gap: 12, margin: '2rem 0', alignItems: 'center' }}>
+        <div className="market-pagination">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
