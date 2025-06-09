@@ -5,6 +5,9 @@ import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
+import Card from '@mui/material/Card';
+import Button from '@mui/material/Button';
+import LinearProgress from '@mui/material/LinearProgress';
 import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
@@ -137,6 +140,48 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
         {t('primo_labs_stats_desc')}
       </Typography>
+
+      <Box className="labs-grid">
+        <Card className="lab-card">
+          <Box display="flex" justifyContent="space-between" mb={1}>
+            <Typography color="#aaaaaa">DeFi</Typography>
+          </Box>
+          <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#ff8c00' }}>
+            • 1,977,854
+          </Typography>
+          <Typography variant="subtitle2" sx={{ color: '#ffffff', mb: 1 }}>
+            Decentralized Finance
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#aaaaaa' }}>...</Typography>
+        </Card>
+        <Card className="lab-card">
+          <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
+            <Typography>MemeFi</Typography>
+            <Button size="small" sx={{ color: '#ffffff', textTransform: 'none' }}>
+              Browse →
+            </Button>
+          </Box>
+          <Box>
+            <Box display="flex" justifyContent="space-between" mb={0.5}>
+              <Typography sx={{ color: '#aaaaaa' }}>⇄ 24h Volume</Typography>
+              <Typography sx={{ color: '#ffffff' }}>1 SOL</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" mb={0.5}>
+              <Typography sx={{ color: '#aaaaaa' }}>⇄ 24h PnL</Typography>
+              <Typography sx={{ color: '#ffffff' }}>-1 SOL</Typography>
+            </Box>
+          </Box>
+        </Card>
+        <Card className="lab-card">
+          <Typography>Coming Soon</Typography>
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            Coming Soon
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
+          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
+          <Typography variant="body2" sx={{ color: '#aaaaaa' }}>...</Typography>
+        </Card>
+      </Box>
       <Typography variant="h6" sx={{ mt: 3 }}>
         {t('labs_members_title')}
       </Typography>

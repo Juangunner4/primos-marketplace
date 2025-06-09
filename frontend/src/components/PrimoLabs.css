@@ -103,3 +103,23 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.labs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 24px;
+}
+
+@media (min-width: 600px) {
+  .labs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.lab-card {
+  background: #1e1e1e;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
