@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
 import './Primos.css';
 
 interface Member {
@@ -26,6 +26,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
+  const collectionMint = process.env.REACT_APP_PRIMOS_COLLECTION!;
   const [members, setMembers] = useState<Member[]>([]);
   const [images, setImages] = useState<Record<string, string | null>>({});
   const [search, setSearch] = useState('');
@@ -36,9 +37,6 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
     async function fetchMembers() {
       try {
         const res = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
-        const countsRes = await axios.get<Record<string, number>>(
-          `${backendUrl}/api/stats/member-nft-counts`
-        );
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
         const imgs: Record<string, string | null> = {};
         const withCounts: Member[] = await Promise.all(
@@ -53,7 +51,13 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
               }
             }
             imgs[m.publicKey] = image;
-            const count = countsRes.data[m.publicKey] ?? 0;
+            let count = 0;
+            try {
+              const assets = await getAssetsByCollection(collectionMint, m.publicKey);
+              count = assets.length;
+            } catch {
+              count = 0;
+            }
             return { ...m, nfts: count } as Member;
           })
         );

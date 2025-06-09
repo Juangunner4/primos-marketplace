@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
+import { checkPrimoHolder } from '../utils/helius';
+
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 
 export const PrimoHolderContext = React.createContext<{
@@ -25,10 +28,10 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return;
       }
       try {
-        const res = await axios.get<Record<string, number>>(
-          `${backendUrl}/api/stats/member-nft-counts`
+        const holder = await checkPrimoHolder(
+          PRIMO_COLLECTION,
+          publicKey.toBase58()
         );
-        const holder = (res.data[publicKey.toBase58()] ?? 0) > 0;
         setIsHolder(holder);
         console.log(`Primo Holder Context. User is holder: ${holder}`);
         await axios.post(`${backendUrl}/api/user/login`, {

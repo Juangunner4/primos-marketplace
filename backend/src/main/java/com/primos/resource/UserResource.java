@@ -1,13 +1,7 @@
 package com.primos.resource;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.primos.model.User;
 
 import jakarta.ws.rs.Consumes;
@@ -41,28 +35,8 @@ public class UserResource {
             LOGGER.info(String.format("[UserResource] Login attempt for publicKey: %s", req.publicKey));
         }
 
-        // --- Fetch live NFT count from Helius API ---
-        boolean holder = false;
-        try {
-            String heliusApiKey = System.getenv().getOrDefault("HELIUS_API_KEY", "");
-            String collectionMint = "2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb"; // Use your collection mint
-            String body = String.format(
-                    "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"getAssetsByGroup\",\"params\":{\"groupKey\":\"collection\",\"groupValue\":\"%s\",\"ownerAddress\":\"%s\",\"page\":1,\"limit\":1}}",
-                    collectionMint, req.publicKey);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://mainnet.helius-rpc.com/?api-key=" + heliusApiKey))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
-                    .build();
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                JsonNode items = new ObjectMapper().readTree(response.body()).path("result").path("items");
-                holder = items.isArray() && items.size() > 0;
-            }
-        } catch (Exception e) {
-            LOGGER.warning("Failed to check Primo NFT ownership for " + req.publicKey + ": " + e.getMessage());
-        }
+        // The frontend provides the Primo holder status
+        boolean holder = req.primoHolder;
 
         User user = User.find(PUBLIC_KEY_FIELD, req.publicKey).firstResult();
         if (user == null) {
