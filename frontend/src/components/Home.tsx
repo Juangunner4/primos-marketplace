@@ -12,7 +12,6 @@ import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import { getNFTByTokenAddress } from '../utils/helius';
 
 interface Stats {
   uniqueHolders: number | null;
@@ -27,7 +26,6 @@ interface Stats {
 interface DaoMember {
   publicKey: string;
   pfp: string;
-  image: string | null;
 }
 
 const MAGICEDEN_SYMBOL = 'primos';
@@ -74,24 +72,10 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
     if (!isConnected) return;
     const fetchMembers = async () => {
       try {
-        const res = await axios.get<Omit<DaoMember, 'image'>[]>(
+        const res = await axios.get<DaoMember[]>(
           `${backendUrl}/api/user/primos`
         );
-        const imgs: DaoMember[] = await Promise.all(
-          res.data.slice(0, 5).map(async (m) => {
-            let image: string | null = null;
-            if (m.pfp) {
-              try {
-                const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-                image = nft?.image ?? null;
-              } catch {
-                image = null;
-              }
-            }
-            return { ...m, image };
-          })
-        );
-        setMembers(imgs);
+        setMembers(res.data.slice(0, 5));
       } catch {
         setMembers([]);
       }
@@ -277,7 +261,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 {members.map((m) => (
                   <Avatar
                     key={m.publicKey}
-                    src={m.image ?? undefined}
+                    src={m.pfp || undefined}
                     sx={{ width: 24, height: 24 }}
                   />
                 ))}

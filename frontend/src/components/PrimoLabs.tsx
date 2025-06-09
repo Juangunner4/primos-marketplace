@@ -8,7 +8,7 @@ import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
-import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
+// No additional NFT lookups are needed on this page
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
@@ -25,59 +25,25 @@ import FolderIcon from '@mui/icons-material/Folder';
 
 const MAGICEDEN_SYMBOL = 'primos';
 type Member = { publicKey: string; pfp: string };
-type MemberWithImage = { publicKey: string; image: string | null; count: number };
 
 const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
-  const [members, setMembers] = useState<MemberWithImage[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [solPrice, setSolPrice] = useState<number | null>(null);
-  const [totalValue, setTotalValue] = useState<number>(0);
   const [hoverHead, setHoverHead] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
-  const collectionMint = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
   useEffect(() => {
     if (!isConnected) return;
 
     const fetchData = async () => {
-      // Fetch members from backend
+      // Fetch members from backend only
       const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
-
-      // For each member, attach image and count
-      const withImagesAndCounts = await Promise.all(
-        membersRes.data.map(async (m) => {
-          let image: string | null = null;
-          if (m.pfp) {
-            try {
-              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-              image = nft?.image || null;
-            } catch {
-              image = null;
-            }
-          }
-          let count = 0;
-          try {
-            const assets = await getAssetsByCollection(collectionMint, m.publicKey);
-            count = assets.length;
-          } catch {
-            count = 0;
-          }
-          return {
-            publicKey: m.publicKey,
-            image,
-            count,
-          };
-        })
-      );
-
-      setMembers(withImagesAndCounts);
-
-      // Calculate totalOwned
-      const totalOwned = withImagesAndCounts.reduce((a, b) => a + (b.count || 0), 0);
+      setMembers(membersRes.data);
 
       const statsPromise = getMagicEdenStats(MAGICEDEN_SYMBOL);
       const solPromise = getPythSolPrice();
@@ -90,9 +56,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       const fp = stats?.floorPrice ? stats.floorPrice / 1e9 : null;
       setFloorPrice(fp);
       setSolPrice(sol ?? null);
-      if (fp !== null) {
-        setTotalValue(totalOwned * fp);
-      }
     };
 
     fetchData();
@@ -125,7 +88,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           {t('labs_floor_price')}: {floorPrice !== null ? floorPrice.toFixed(2) : '--'}
         </Typography>
         <Typography>
-          {t('labs_owned')}: {members.reduce((acc, member) => acc + (member.count || 0), 0)}
+          {t('labs_owned')}: {members.length}
         </Typography>
         <Typography>
           {t('labs_sol_price')}: {solPrice !== null ? solPrice.toFixed(2) : '--'}
@@ -133,7 +96,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         <Typography>
           {t('labs_total_value')}:{' '}
           {floorPrice !== null && solPrice !== null
-            ? `${(members.reduce((acc, member) => acc + (member.count || 0), 0) * floorPrice).toFixed(2)} SOL / ${(members.reduce((acc, member) => acc + (member.count || 0), 0) * floorPrice * solPrice).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })}`
+            ? `${(members.length * floorPrice).toFixed(2)} SOL / ${(members.length * floorPrice * solPrice).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })}`
             : '--'}
         </Typography>
       </Box>
@@ -178,12 +141,9 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
             {members.map((m) => (
               <Link key={m.publicKey} to={`/user/${m.publicKey}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <Box className="member-card">
-                  <Avatar src={m.image ?? undefined} sx={{ width: 40, height: 40 }} />
+                  <Avatar src={m.pfp || undefined} sx={{ width: 40, height: 40 }} />
                   <Typography sx={{ ml: 1 }}>
                     {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
-                  </Typography>
-                  <Typography variant="caption" sx={{ ml: 1 }}>
-                    NFTs: {m.count}
                   </Typography>
                 </Box>
               </Link>
