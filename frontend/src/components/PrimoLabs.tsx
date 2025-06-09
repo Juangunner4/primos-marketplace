@@ -143,16 +143,9 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
       <Box className="labs-grid">
         <Card className="lab-card">
-          <Box display="flex" justifyContent="space-between" mb={1}>
-            <Typography color="#aaaaaa">DeFi</Typography>
-          </Box>
-          <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#ff8c00' }}>
-            • 1,977,854
-          </Typography>
-          <Typography variant="subtitle2" sx={{ color: '#ffffff', mb: 1 }}>
-            Decentralized Finance
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#aaaaaa' }}>...</Typography>
+            <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
+            <Typography>DeFi</Typography>
+            </Box>
         </Card>
         <Card className="lab-card">
           <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
@@ -173,71 +166,36 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           </Box>
         </Card>
         <Card className="lab-card">
-          <Typography>Coming Soon</Typography>
           <Typography variant="h6" sx={{ mt: 1 }}>
             Coming Soon
           </Typography>
           <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
           <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
-          <Typography variant="body2" sx={{ color: '#aaaaaa' }}>...</Typography>
         </Card>
-      </Box>
-      <Typography variant="h6" sx={{ mt: 3 }}>
-        {t('labs_members_title')}
-      </Typography>
-      <Box className="dao-members">
-        {members.map((m) => (
-          <Link key={m.publicKey} to={`/user/${m.publicKey}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Box className="member-card">
-              <Avatar src={m.image || undefined} sx={{ width: 40, height: 40 }} />
-              <Typography sx={{ ml: 1 }}>
-                {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
-              </Typography>
-              <Typography variant="caption" sx={{ ml: 1 }}>
-                NFTs: {m.count}
-              </Typography>
-            </Box>
-          </Link>
-        ))}
-      </Box>
-      <Box className="labs-areas">
-        <Box className="area-row">
-          <AccountBalanceIcon className="area-icon" />
-          <Typography>{t('labs_section_defi')}</Typography>
-        </Box>
-        <Box className="area-row">
-          <EmojiEmotionsIcon className="area-icon" />
-          <Typography>{t('labs_section_memes')}</Typography>
-        </Box>
-        <Box className="area-row">
-          <SmartToyIcon className="area-icon" />
-          <Typography>{t('labs_section_ai')}</Typography>
-        </Box>
-        <Box className="area-row">
-          <BusinessCenterIcon className="area-icon" />
-          <Typography>{t('labs_section_rwa')}</Typography>
-        </Box>
-        <Box className="area-row">
-          <MoreHorizIcon className="area-icon" />
-          <Typography>{t('labs_section_others')}</Typography>
-        </Box>
+        <Card className="lab-card">
+            <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
+            <Typography>Dao Members</Typography>
+            {members.map((m) => (
+              <Link key={m.publicKey} to={`/user/${m.publicKey}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Box className="member-card">
+                  <Avatar src={m.image ?? undefined} sx={{ width: 40, height: 40 }} />
+                  <Typography sx={{ ml: 1 }}>
+                    {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
+                  </Typography>
+                  <Typography variant="caption" sx={{ ml: 1 }}>
+                    NFTs: {m.count}
+                  </Typography>
+                </Box>
+              </Link>
+            ))}
+          </Box>
+        </Card>
       </Box>
       <Box
         className="floating-file"
         aria-label="Comic Files"
       >
         <FolderIcon />
-      </Box>
-      <Box
-        className="floating-head"
-        aria-label="AI Assistant"
-        onMouseEnter={() => setHoverHead(true)}
-        onMouseLeave={() => setHoverHead(false)}
-      >
-        <img src={require('../images/primosheadlogo.png')} alt="AI Head" />
-        {hoverHead && (
-          <Box className="speech-pill">{t('labs_ai_hint')}</Box>
-        )}
       </Box>
       {isHolder && <DeFAI />}
     </Box>
