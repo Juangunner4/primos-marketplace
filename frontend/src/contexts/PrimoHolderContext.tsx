@@ -15,6 +15,8 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
 
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+
     const checkHolder = async () => {
       if (!publicKey) {
         setIsHolder(false);
@@ -34,8 +36,12 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setIsHolder(false);
       }
     };
+
     checkHolder();
-  }, [publicKey]);
+    interval = setInterval(checkHolder, 60_000);
+
+    return () => clearInterval(interval);
+  }, [publicKey, backendUrl]);
 
   return (
     <PrimoHolderContext.Provider value={{ isHolder }}>
