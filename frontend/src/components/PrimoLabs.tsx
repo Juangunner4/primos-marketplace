@@ -8,7 +8,7 @@ import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress, getAssetsByCollection } from '../utils/helius';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
@@ -38,6 +38,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [totalValue, setTotalValue] = useState<number>(0);
   const [hoverHead, setHoverHead] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+  const collectionMint = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
   useEffect(() => {
     if (!isConnected) return;
@@ -45,9 +46,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
     const fetchData = async () => {
       // Fetch members from backend
       const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
-      const countsRes = await axios.get<Record<string, number>>(
-        `${backendUrl}/api/stats/member-nft-counts`
-      );
 
       // For each member, attach image and count
       const withImagesAndCounts = await Promise.all(
@@ -61,7 +59,13 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
               image = null;
             }
           }
-          const count = countsRes.data[m.publicKey] ?? 0;
+          let count = 0;
+          try {
+            const assets = await getAssetsByCollection(collectionMint, m.publicKey);
+            count = assets.length;
+          } catch {
+            count = 0;
+          }
           return {
             publicKey: m.publicKey,
             image,
