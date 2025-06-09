@@ -107,5 +107,8 @@
   "dao_members": "DAO Members",
   "unique_holders": "Unique Holders",
   "volume_day": "Volume 24h",
-  "news": "News"
+  "news": "News",
+  "defai_title": "DeFAI",
+  "defai_placeholder": "Ask Eliza...",
+  "defai_send": "Send"
 }

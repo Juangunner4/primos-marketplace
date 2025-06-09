@@ -14,5 +14,6 @@ describe('PrimoLabs', () => {
     renderLabs(true);
     expect(screen.getByText(/Primo Labs/i)).toBeTruthy();
     expect(screen.getByText(/Our Primos NFTs/i)).toBeTruthy();
+    expect(screen.getByText(/DeFAI/i)).toBeTruthy();
   });
 });
