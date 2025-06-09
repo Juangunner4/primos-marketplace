@@ -14,7 +14,8 @@ describe('PrimoLabs', () => {
     renderLabs(true);
     expect(screen.getByText(/Primo Labs/i)).toBeTruthy();
     expect(screen.getByText(/Our Primos NFTs/i)).toBeTruthy();
-    expect(screen.getByText(/Primos Comics/i)).toBeTruthy();
+    expect(screen.getByText(/DeFi/i)).toBeTruthy();
+    expect(screen.getByLabelText(/AI Assistant/i)).toBeTruthy();
     // open chat bot
     screen.getByLabelText(/Open Chat/i).click();
     expect(screen.getByText(/DeFAI/i)).toBeTruthy();

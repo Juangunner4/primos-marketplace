@@ -13,8 +13,12 @@ import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import DeFAI from './DeFAI';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import FolderIcon from '@mui/icons-material/Folder';
 
 const MAGICEDEN_SYMBOL = 'primos';
 type Member = { publicKey: string; pfp: string };
@@ -29,7 +33,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const [totalValue, setTotalValue] = useState<number>(0);
-  const [hoverBook, setHoverBook] = useState(false);
+  const [hoverHead, setHoverHead] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
   const PRIMOS_COLLECTION_MINT = '2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb'; // Use your collection mint
 
@@ -151,18 +155,44 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           </Link>
         ))}
       </Box>
-      <Box className="comic-section">
-        <Box
-          className="comic-icon"
-          onMouseEnter={() => setHoverBook(true)}
-          onMouseLeave={() => setHoverBook(false)}
-          sx={{ position: 'relative', display: 'inline-block' }}
-        >
-          <img
-            src={require('../images/primosheadlogo.png')}
-            alt="Primos Head"
-          />
+      <Box className="labs-areas">
+        <Box className="area-row">
+          <AccountBalanceIcon className="area-icon" />
+          <Typography>{t('labs_section_defi')}</Typography>
         </Box>
+        <Box className="area-row">
+          <EmojiEmotionsIcon className="area-icon" />
+          <Typography>{t('labs_section_memes')}</Typography>
+        </Box>
+        <Box className="area-row">
+          <SmartToyIcon className="area-icon" />
+          <Typography>{t('labs_section_ai')}</Typography>
+        </Box>
+        <Box className="area-row">
+          <BusinessCenterIcon className="area-icon" />
+          <Typography>{t('labs_section_rwa')}</Typography>
+        </Box>
+        <Box className="area-row">
+          <MoreHorizIcon className="area-icon" />
+          <Typography>{t('labs_section_others')}</Typography>
+        </Box>
+      </Box>
+      <Box
+        className="floating-file"
+        aria-label="Comic Files"
+      >
+        <FolderIcon />
+      </Box>
+      <Box
+        className="floating-head"
+        aria-label="AI Assistant"
+        onMouseEnter={() => setHoverHead(true)}
+        onMouseLeave={() => setHoverHead(false)}
+      >
+        <img src={require('../images/primosheadlogo.png')} alt="AI Head" />
+        {hoverHead && (
+          <Box className="speech-pill">{t('labs_ai_hint')}</Box>
+        )}
       </Box>
       {isHolder && <DeFAI />}
     </Box>

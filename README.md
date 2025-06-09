@@ -1,5 +1,28 @@
 # primos-marketplace
-Solana NFT MarketPlace for Primos
+Solana NFT marketplace for the Primos collection.
+
+## Running the project
+
+The repository contains a Quarkus backend and a React frontend. Both can be
+started independently during development.
+
+### Backend
+
+```bash
+cd backend
+./mvnw quarkus:dev
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Tests for each portion can be run using `./mvnw test` in the backend directory
+and `npm test -- --watchAll=false` in the frontend directory.
 
 ## Performance and Data Loading
 
