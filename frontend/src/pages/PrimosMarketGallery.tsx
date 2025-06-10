@@ -239,7 +239,20 @@ const PrimosMarketGallery: React.FC = () => {
           <CompareArrowsIcon />
         </IconButton>
       )}
-      <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
+      <FilterPanel
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        minRank={minRank}
+        maxRank={maxRank}
+        setMinPrice={setMinPrice}
+        setMaxPrice={setMaxPrice}
+        setMinRank={setMinRank}
+        setMaxRank={setMaxRank}
+        onClear={handleClearFilters}
+        onApply={handleApplyFilters}
+      />
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>

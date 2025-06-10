@@ -25,6 +25,10 @@ const NFTGallery: React.FC = () => {
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minRank, setMinRank] = useState('');
+  const [maxRank, setMaxRank] = useState('');
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -108,6 +112,17 @@ const NFTGallery: React.FC = () => {
     );
   }
 
+  const handleApplyFilters = () => {
+    setFilterOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setMinPrice('');
+    setMaxPrice('');
+    setMinRank('');
+    setMaxRank('');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
       {/* Filter Icon and Panel, just like PrimosMarketGallery */}
@@ -126,7 +141,20 @@ const NFTGallery: React.FC = () => {
           <CompareArrowsIcon />
         </IconButton>
       )}
-      <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
+      <FilterPanel
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        minRank={minRank}
+        maxRank={maxRank}
+        setMinPrice={setMinPrice}
+        setMaxPrice={setMaxPrice}
+        setMinRank={setMinRank}
+        setMaxRank={setMaxRank}
+        onClear={handleClearFilters}
+        onApply={handleApplyFilters}
+      />
 
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
