@@ -11,7 +11,8 @@ import LinearProgress from '@mui/material/LinearProgress';
 // No additional NFT lookups are needed on this page
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../services/helius';
+import { getNFTByTokenAddress } from '../utils/helius';
+import { fetchCollectionNFTsForOwner } from '../utils/helius';
 import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';

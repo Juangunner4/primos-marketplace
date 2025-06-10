@@ -9,7 +9,8 @@ import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../services/helius';
+import { getNFTByTokenAddress } from '../utils/helius';
+import { fetchCollectionNFTsForOwner } from '../utils/helius';
 import './Primos.css';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;

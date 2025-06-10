@@ -12,7 +12,8 @@ import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../services/helius';
+import { getNFTByTokenAddress } from '../utils/helius';
+import { fetchCollectionNFTsForOwner } from '../utils/helius';
 
 interface Stats {
   uniqueHolders: number | null;

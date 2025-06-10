@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getPythSolPrice } from '../utils/pyth';
 import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
-import { getNFTByTokenAddress } from '../services/helius';
+import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import { getRankColor } from '../utils/rank';

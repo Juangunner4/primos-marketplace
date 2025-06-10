@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
-import { checkPrimoHolder } from '../services/helius';
+import { checkPrimoHolder } from '../utils/helius';
+;
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../services/helius';
+import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
+
 import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
