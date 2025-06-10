@@ -4,16 +4,12 @@ import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } fr
 import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
-import { getRankColor } from '../utils/rank';
 import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
-import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import Filter from '../components/Filter';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -216,6 +212,17 @@ const PrimosMarketGallery: React.FC = () => {
     );
   }
 
+  const handleApplyFilters = () => {
+    setFilterOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setMinPrice('');
+    setMaxPrice('');
+    setMinRank('');
+    setMaxRank('');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
       <div className="market-gallery" style={{ flex: 1 }}>
@@ -281,71 +288,19 @@ const PrimosMarketGallery: React.FC = () => {
         ModalProps={{ keepMounted: true }}
         sx={{ [`& .MuiDrawer-paper`]: { width: 260, boxSizing: 'border-box' } }}
       >
-        <Box className="filter-panel">
-          <Typography variant="h6" component="h3" className="filter-title">
-            {t('filters')}
-          </Typography>
-          <Box className="filter-group">
-            <Typography variant="subtitle2">{t('filter_price')}</Typography>
-            <TextField
-              type="number"
-              label="Min"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              size="small"
-              fullWidth
-              sx={{ mb: 1 }}
-            />
-            <TextField
-              type="number"
-              label="Max"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              size="small"
-              fullWidth
-            />
-          </Box>
-          <Box className="filter-group">
-            <Typography variant="subtitle2">{t('filter_rank')}</Typography>
-            <TextField
-              type="number"
-              label="Min"
-              value={minRank}
-              onChange={(e) => setMinRank(e.target.value)}
-              size="small"
-              fullWidth
-              sx={{ mb: 1 }}
-            />
-            <TextField
-              type="number"
-              label="Max"
-              value={maxRank}
-              onChange={(e) => setMaxRank(e.target.value)}
-              size="small"
-              fullWidth
-            />
-          </Box>
-          <Box className="filter-actions">
-            <Button
-              variant="contained"
-              onClick={() => setFilterOpen(false)}
-              sx={{ mr: 1 }}
-            >
-              {t('apply_filters')}
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setMinPrice('');
-                setMaxPrice('');
-                setMinRank('');
-                setMaxRank('');
-              }}
-            >
-              {t('clear_filters')}
-            </Button>
-          </Box>
-        </Box>
+        <Filter
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          minRank={minRank}
+          maxRank={maxRank}
+          setMinPrice={setMinPrice}
+          setMaxPrice={setMaxPrice}
+          setMinRank={setMinRank}
+          setMaxRank={setMaxRank}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+          onClose={() => setFilterOpen(false)}
+        />
       </Drawer>
     </div>
   );
