@@ -11,6 +11,11 @@ jest.mock('../../utils/magiceden', () => ({
 }));
 jest.mock('../../utils/pyth', () => ({ getPythSolPrice: jest.fn(() => Promise.resolve(1)) }));
 
+jest.mock('../services/helius', () => ({
+  getNFTByTokenAddress: jest.fn(() => Promise.resolve(null)),
+  fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([])),
+}));
+
 jest.mock('@mui/material/Button', () => (props: any) => <button {...props} />);
 
 describe('Home', () => {

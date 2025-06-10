@@ -8,7 +8,7 @@ jest.mock('../utils/magiceden', () => ({
   fetchMagicEdenActivity: jest.fn(() => Promise.resolve([]))
 }));
 
-jest.mock('../utils/helius', () => ({
+jest.mock('../services/helius', () => ({
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));
 

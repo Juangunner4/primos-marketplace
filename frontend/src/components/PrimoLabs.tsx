@@ -11,7 +11,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 // No additional NFT lookups are needed on this page
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../services/helius';
 import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ import DeFAI from './DeFAI';
 import FolderIcon from '@mui/icons-material/Folder';
 
 const MAGICEDEN_SYMBOL = 'primos';
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 type Member = { publicKey: string; pfp: string };
 
 const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
@@ -37,9 +38,21 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
     if (!isConnected) return;
 
     const fetchData = async () => {
-      // Fetch members from backend only
       const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
-      setMembers(membersRes.data);
+      const enriched = await Promise.all(
+        membersRes.data.map(async (m) => {
+          let image = '';
+          if (m.pfp) {
+            const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+            image = nft?.image || '';
+          } else {
+            const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
+            image = nfts[0]?.image || '';
+          }
+          return { ...m, pfp: image };
+        })
+      );
+      setMembers(enriched);
 
       const statsPromise = getMagicEdenStats(MAGICEDEN_SYMBOL);
       const solPromise = getPythSolPrice();

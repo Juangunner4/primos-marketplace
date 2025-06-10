@@ -9,7 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import Drawer from '@mui/material/Drawer';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress } from '../services/helius';
 import { getTraitFloorPrice } from '../utils/magiceden';
 import './TraitStats.css';
 
