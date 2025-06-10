@@ -17,7 +17,7 @@ import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import DeFAI from './DeFAI';
+import DeFAI from '../components/DeFAI';
 import FolderIcon from '@mui/icons-material/Folder';
 
 const MAGICEDEN_SYMBOL = 'primos';

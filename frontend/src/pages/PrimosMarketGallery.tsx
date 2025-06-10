@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import { getRankColor } from '../utils/rank';
 import './PrimosMarketGallery.css';
-import Activity from './Activity';
+import Activity from '../components/Activity';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';

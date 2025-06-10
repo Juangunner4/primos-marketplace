@@ -6,7 +6,7 @@ import { getPythSolPrice } from '../utils/pyth';
 import logo from '../images/primoslogo.png';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
-import TraitStats from './TraitStats';
+import TraitStats from '../components/TraitStats';
 import './PrimosMarketGallery.css'; // Use only the unified CSS
 
 interface GalleryNFT extends HeliusNFT {

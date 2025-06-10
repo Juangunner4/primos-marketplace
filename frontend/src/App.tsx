@@ -10,15 +10,15 @@ import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 
 import logo from './images/primosheadlogo.png';
-import NFTGallery from './components/NFTGallery';
+import NFTGallery from './pages/NFTGallery';
 import WalletLogin from './components/WalletLogin';
 import UserProfile from './components/UserProfile';
 import SidebarNav from './components/SidebarNav';
-import PrimosMarketGallery from './components/PrimosMarketGallery';
+import PrimosMarketGallery from './pages/PrimosMarketGallery';
 import Home from './components/Home';
-import PrimoLabs from './components/PrimoLabs';
-import Primos from './components/Primos';
-import Docs from './components/Docs';
+import PrimoLabs from './pages/PrimoLabs';
+import Primos from './pages/Primos';
+import Docs from './pages/Docs';
 import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
 
 import './App.css';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import Primos from '../Primos';
+import Primos from '../../pages/Primos';
 
 jest.mock('axios', () => ({
   get: jest.fn(() =>
