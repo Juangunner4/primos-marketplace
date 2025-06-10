@@ -1,107 +1,124 @@
-import React from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import { useTranslation } from 'react-i18next';
-import './Filter.css';
+import {
+  Box,
+  Typography,
+  TextField,
+  Autocomplete,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Slider,
+  FormControlLabel,
+  Checkbox,
+  Chip,
+  Button,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useState } from "react";
 
-type FilterProps = {
-  minPrice: string;
-  maxPrice: string;
-  minRank: string;
-  maxRank: string;
-  setMinPrice: (v: string) => void;
-  setMaxPrice: (v: string) => void;
-  setMinRank: (v: string) => void;
-  setMaxRank: (v: string) => void;
-  onApply: () => void;
-  onClear: () => void;
-  onClose: () => void;
-};
+export function FilterPanel() {
+  // 1) Collection search
+  const [collection, setCollection] = useState<string | null>(null);
 
-const Filter: React.FC<FilterProps> = ({
-  minPrice,
-  maxPrice,
-  minRank,
-  maxRank,
-  setMinPrice,
-  setMaxPrice,
-  setMinRank,
-  setMaxRank,
-  onApply,
-  onClear,
-  onClose,
-}) => {
-  const { t } = useTranslation();
+  // 2) Price range
+  const [priceRange, setPriceRange] = useState<number[]>([0, 10]);
+
+  // 3) Dynamic attributes
+  const ATTRIBUTE_GROUPS: Record<string, string[]> = {
+    Color: ["Red", "Blue", "Green"],
+    Hat: ["Beanie", "Cap", "None"],
+  };
+  const [attrs, setAttrs] = useState<Record<string, Set<string>>>({});
+
+  const toggleAttr = (group: string, value: string) => {
+    setAttrs((prev) => {
+      const next = new Set(prev[group]);
+      if (next.has(value)) {
+        next.delete(value);
+      } else {
+        next.add(value);
+      }
+      return { ...prev, [group]: next };
+    });
+  };
 
   return (
-    <Box className="filter-panel">
-      <Typography variant="h6" component="h3" className="filter-title">
-        {t('filters')}
+    <Box p={2} width={280}>
+      <Typography variant="h6" gutterBottom>
+        Filters
       </Typography>
-      <Box className="filter-group">
-        <Typography variant="subtitle2">{t('filter_price')}</Typography>
-        <TextField
-          type="number"
-          label="Min"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-          size="small"
-          fullWidth
-          sx={{ mb: 1 }}
-        />
-        <TextField
-          type="number"
-          label="Max"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          size="small"
-          fullWidth
-        />
+
+      {/* 1) Collection Autocomplete */}
+      <Autocomplete
+        options={[]}
+        value={collection}
+        onChange={(_, v) => setCollection(v)}
+        renderInput={(params) => (
+          <TextField {...params} label="Collection" size="small" />
+        )}
+        sx={{ mb: 3 }}
+      />
+
+      {/* 2) Price Slider */}
+      <Typography gutterBottom>Price (SOL)</Typography>
+      <Slider
+        value={priceRange}
+        onChange={(_, v) => setPriceRange(v as number[])}
+        valueLabelDisplay="auto"
+        min={0}
+        max={20}
+        step={0.01}
+        sx={{ mb: 3 }}
+      />
+
+      {/* 3) Attribute Accordions */}
+      {Object.entries(ATTRIBUTE_GROUPS).map(([group, options]) => (
+        <Accordion key={group} disableGutters>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>{group}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box display="flex" flexWrap="wrap" gap={1} maxHeight={200} overflow="auto">
+              {options.map((opt) => (
+                <Chip
+                  key={opt}
+                  label={opt}
+                  size="small"
+                  variant={attrs[group]?.has(opt) ? "filled" : "outlined"}
+                  onClick={() => toggleAttr(group, opt)}
+                />
+              ))}
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      ))}
+
+      {/* 4) Active filters & Apply / Reset */}
+      <Box mt={2} display="flex" flexWrap="wrap" gap={1}>
+        {collection && <Chip label={collection} onDelete={() => setCollection(null)} />}
+        {Object.entries(attrs).flatMap(([g, set]) =>
+          Array.from(set).map((v) => (
+            <Chip key={`${g}-${v}`} label={`${g}: ${v}`} onDelete={() => toggleAttr(g, v)} />
+          ))
+        )}
       </Box>
-      <Box className="filter-group">
-        <Typography variant="subtitle2">{t('filter_rank')}</Typography>
-        <TextField
-          type="number"
-          label="Min"
-          value={minRank}
-          onChange={(e) => setMinRank(e.target.value)}
-          size="small"
-          fullWidth
-          sx={{ mb: 1 }}
-        />
-        <TextField
-          type="number"
-          label="Max"
-          value={maxRank}
-          onChange={(e) => setMaxRank(e.target.value)}
-          size="small"
-          fullWidth
-        />
-      </Box>
-      <Box className="filter-actions">
+
+      <Box display="flex" justifyContent="space-between" mt={3}>
         <Button
-          variant="contained"
+          size="small"
           onClick={() => {
-            onApply();
-            onClose();
+            setCollection(null);
+            setPriceRange([0, 10]);
+            setAttrs({});
           }}
-          sx={{ mr: 1 }}
         >
-          {t('apply_filters')}
+          Reset
         </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            onClear();
-          }}
-        >
-          {t('clear_filters')}
+        <Button variant="contained" size="small" onClick={() => {}}>
+          Apply
         </Button>
       </Box>
     </Box>
   );
-};
+}
 
-export default Filter;
+export default FilterPanel;
