@@ -223,7 +223,6 @@
   z-index: -1;
 }
 .buy-button:hover {
-  color: #fff;
   border-color: #000;
 }
 .buy-button:hover::after {
@@ -239,7 +238,6 @@
   font-size: 0.95rem;
   font-weight: 700;
   font-family: 'Segoe UI', sans-serif;
-  color: #fff;
   letter-spacing: 0.07em;
   z-index: 3;
   box-shadow: 0 2px 8px rgba(226, 194, 117, 0.13);
@@ -254,6 +252,7 @@
   border-top: 1px solid #ddd;
   padding-top: 1.5rem;
 }
+
 @media (max-width: 900px) {
   .market-gallery {
     margin-left: 0;

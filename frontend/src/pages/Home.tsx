@@ -5,15 +5,14 @@ import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import News from '../components/News';
 import hero from '../images/primoslogo.png';
-import primoMarket  from '../images/primomarket.png';
+import primoMarket from '../images/primomarket.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import { getNFTByTokenAddress } from '../utils/helius';
-import { fetchCollectionNFTsForOwner } from '../utils/helius';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 
 interface Stats {
   uniqueHolders: number | null;
@@ -110,28 +109,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }}
     >
       <Box
-         sx={{
-              mt: 6,
-              justifyContent: 'center',
-              gap: 5,
-              background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
-              borderRadius: '1.5rem',
-              p: 4,
-              boxShadow: '0 2px 16px #0003',
-              maxWidth: 900,
-              mx: 'auto',
-              border: '2px solid #fff',
-              position: 'relative',
-            }}
       >
-        <img
-          src={primoMarket}
-          alt="Primos"
-          style={{
-            width: 180,
-            padding: 8,
-          }}
-        />
         <Typography
           variant="h3"
           sx={{
@@ -179,36 +157,36 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         )}
       </Box>
       {stats && (
+        <Box
+          sx={{
+            mt: 6,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 5,
+            background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
+            borderRadius: '1.5rem',
+            p: 4,
+            boxShadow: '0 2px 16px #0003',
+            maxWidth: 900,
+            mx: 'auto',
+            border: '2px solid #fff',
+            position: 'relative',
+          }}
+        >
           <Box
             sx={{
-              mt: 6,
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: 5,
-              background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
-              borderRadius: '1.5rem',
-              p: 4,
-              boxShadow: '0 2px 16px #0003',
-              maxWidth: 900,
-              mx: 'auto',
-              border: '2px solid #fff',
-              position: 'relative',
+              position: 'absolute',
+              top: -40,
+              left: 24,
             }}
           >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: -40,
-                left: 24,
-              }}
-            >
-              <img
-                src={hero}
-                alt="Primos"
-                style={{ height: 56 }}
-              />
-            </Box>
+            <img
+              src={hero}
+              alt="Primos"
+              style={{ height: 56 }}
+            />
+          </Box>
           <Box>
             <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
               {t('unique_holders')}
