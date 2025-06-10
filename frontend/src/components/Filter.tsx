@@ -13,7 +13,12 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState } from "react";
 
-export function FilterPanel() {
+export interface FilterPanelProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
   // 1) Collection search
   const [collection, setCollection] = useState<string | null>(null);
 
@@ -39,8 +44,13 @@ export function FilterPanel() {
     });
   };
 
+  if (!open) return null; // Only render if open
+
   return (
     <Box p={2} width={280}>
+      <Button onClick={onClose} sx={{ mb: 2 }}>
+        Close
+      </Button>
       <Typography variant="h6" gutterBottom>
         Filters
       </Typography>
@@ -60,7 +70,7 @@ export function FilterPanel() {
       <Typography gutterBottom>Price (SOL)</Typography>
       <Slider
         value={priceRange}
-        onChange={(_, v) => setPriceRange(v as number[])}
+        onChange={(_, v) => setPriceRange(v)}
         valueLabelDisplay="auto"
         min={0}
         max={20}

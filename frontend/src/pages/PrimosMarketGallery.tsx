@@ -9,7 +9,7 @@ import Activity from '../components/Activity';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import Filter from '../components/Filter';
+import Filter, { FilterPanel } from '../components/Filter';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -232,7 +232,7 @@ const PrimosMarketGallery: React.FC = () => {
       >
         <CompareArrowsIcon />
       </IconButton>
-      <Filter />
+      <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
