@@ -59,4 +59,16 @@ describe('PrimosMarketGallery', () => {
     );
     expect(await screen.findByText(/Rank/)).toBeTruthy();
   });
+
+  test('renders buy button for each nft', async () => {
+    (magiceden.fetchMagicEdenListings as jest.Mock).mockResolvedValueOnce([
+      { tokenMint: 'mint1', price: 1, rarityRank: 1, img: 'img', name: 'Primo' },
+    ]);
+    render(
+      <I18nextProvider i18n={i18n}>
+        <PrimosMarketGallery />
+      </I18nextProvider>
+    );
+    expect(await screen.findByText('Buy Now')).toBeTruthy();
+  });
 });
