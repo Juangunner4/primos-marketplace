@@ -315,3 +315,31 @@
     height: 160px;
   }
 }
+
+.filter-panel {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  height: 100%;
+  background: #f5f5f8;
+}
+
+.filter-title {
+  font-family: 'Loteria', 'Segoe UI', sans-serif;
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 0.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.5rem;
+}
