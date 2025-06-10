@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-// Display information directly from the backend without extra NFT lookups
+import { getNFTByTokenAddress } from '../utils/helius';
 import './Primos.css';
 
 interface Member {

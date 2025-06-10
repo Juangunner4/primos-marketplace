@@ -8,6 +8,7 @@ import hero from '../images/primoslogo.png';
 import primoMarket  from '../images/primomarket.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
+import { getNFTByTokenAddress } from '../utils/helius';
 import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
