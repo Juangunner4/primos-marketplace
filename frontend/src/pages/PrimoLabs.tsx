@@ -66,27 +66,11 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
     <Box className="labs-container">
       <Box className="labs-grid">
         <Card className="lab-card">
-          <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
-            <Typography>{t('labs_section_defi')}</Typography>
-          </Box>
-        </Card>
-        <Card className="lab-card">
-          <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
-            <Typography>{t('labs_section_memes')}</Typography>
-            <Button size="small" sx={{ color: '#ffffff', textTransform: 'none' }}>
-              Browse →
-            </Button>
-          </Box>
-          <Box>
-            <Box display="flex" justifyContent="space-between" mb={0.5}>
-              <Typography sx={{ color: '#aaaaaa' }}>⇄ 24h Volume</Typography>
-              <Typography sx={{ color: '#ffffff' }}>1 SOL</Typography>
-            </Box>
-            <Box display="flex" justifyContent="space-between" mb={0.5}>
-              <Typography sx={{ color: '#aaaaaa' }}>⇄ 24h PnL</Typography>
-              <Typography sx={{ color: '#ffffff' }}>-1 SOL</Typography>
-            </Box>
-          </Box>
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            {t('coming_soon')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
+          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
         <Card className="lab-card">
           <Typography variant="h6" sx={{ mt: 1 }}>
@@ -96,19 +80,32 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
         <Card className="lab-card">
-          <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
-            <Typography>{t('labs_members_title')}</Typography>
-            {members.map((m) => (
-              <Link key={m.publicKey} to={`/user/${m.publicKey}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <Box className="member-card">
-                  <Avatar src={m.pfp || undefined} sx={{ width: 40, height: 40 }} />
-                  <Typography sx={{ ml: 1 }}>
-                    {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
-                  </Typography>
-                </Box>
-              </Link>
-            ))}
-          </Box>
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            {t('coming_soon')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
+          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
+        </Card>
+        <Card className="lab-card">
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            {t('coming_soon')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
+          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
+        </Card>
+        <Card className="lab-card">
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            {t('coming_soon')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
+          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
+        </Card>
+        <Card className="lab-card">
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            {t('coming_soon')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
+          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
       </Box>
     </Box>
