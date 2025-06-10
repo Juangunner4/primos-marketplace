@@ -15,7 +15,6 @@ import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import FolderIcon from '@mui/icons-material/Folder';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
@@ -29,8 +28,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [solPrice, setSolPrice] = useState<number | null>(null);
-  const [hoverHead, setHoverHead] = useState(false);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
 
   useEffect(() => {
     if (!isConnected) return;
@@ -83,34 +81,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
   return (
     <Box className="labs-container">
-      <Typography variant="h4" className="labs-title">
-        {t('primo_labs')}
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        {t('primo_labs_desc')}
-      </Typography>
-      <Box className="nft-stats">
-        <Typography variant="h6">{t('labs_nft_section')}</Typography>
-        <Typography>
-          {t('labs_floor_price')}: {floorPrice !== null ? floorPrice.toFixed(2) : '--'}
-        </Typography>
-        <Typography>
-          {t('labs_owned')}: {members.length}
-        </Typography>
-        <Typography>
-          {t('labs_sol_price')}: {solPrice !== null ? solPrice.toFixed(2) : '--'}
-        </Typography>
-        <Typography>
-          {t('labs_total_value')}:{' '}
-          {floorPrice !== null && solPrice !== null
-            ? `${(members.length * floorPrice).toFixed(2)} SOL / ${(members.length * floorPrice * solPrice).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })}`
-            : '--'}
-        </Typography>
-      </Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-        {t('primo_labs_stats_desc')}
-      </Typography>
-
       <Box className="labs-grid">
         <Card className="lab-card">
           <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
@@ -157,12 +127,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
             ))}
           </Box>
         </Card>
-      </Box>
-      <Box
-        className="floating-file"
-        aria-label="Comic Files"
-      >
-        <FolderIcon />
       </Box>
     </Box>
   );
