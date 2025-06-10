@@ -1,4 +1,9 @@
-import { getAssetsByCollection, getNFTByTokenAddress } from '../helius';
+import {
+  getAssetsByCollection,
+  getNFTByTokenAddress,
+  checkPrimoHolder,
+  fetchCollectionNFTsForOwner,
+} from '../helius';
 
 describe('helius utilities', () => {
   afterEach(() => {
@@ -57,5 +62,36 @@ describe('helius utilities', () => {
     const cached = await getNFTByTokenAddress('token');
     expect(cached).toEqual(nft);
     expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  test('checkPrimoHolder returns true when collection has NFTs', async () => {
+    jest
+      .spyOn(require('../helius'), 'getAssetsByCollection')
+      .mockResolvedValueOnce([{ id: '1' }]);
+    const result = await checkPrimoHolder('col', 'owner');
+    expect(result).toBe(true);
+  });
+
+  test('fetchCollectionNFTsForOwner aggregates pages', async () => {
+    (global as any).fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          result: {
+            items: [
+              {
+                id: '1',
+                content: { links: { image: 'img' }, metadata: { name: 'n' }, files: [] },
+              },
+            ],
+          },
+        }),
+      })
+      .mockResolvedValueOnce({ ok: false });
+    const nfts = await fetchCollectionNFTsForOwner('owner', 'col');
+    expect(nfts).toEqual([
+      { id: '1', image: 'img', name: 'n', listed: false, attributes: [] },
+    ]);
   });
 });
