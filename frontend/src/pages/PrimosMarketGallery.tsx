@@ -207,7 +207,7 @@ const PrimosMarketGallery: React.FC = () => {
                 ) : (
                   <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>{t('market_no_price')}</span>
                 )}
-                <button className="buy-button">Buy Now</button>
+                <button className="buy-button" >Buy Now</button>
               </div>
             </li>
           );
