@@ -8,15 +8,12 @@ import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
-import { getMagicEdenStats } from '../utils/magiceden';
-import { getPythSolPrice } from '../utils/pyth';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 
-const MAGICEDEN_SYMBOL = 'primos';
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 type Member = { publicKey: string; pfp: string };
 
@@ -26,8 +23,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
-  const [floorPrice, setFloorPrice] = useState<number | null>(null);
-  const [solPrice, setSolPrice] = useState<number | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
 
   useEffect(() => {
@@ -49,18 +44,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         })
       );
       setMembers(enriched);
-
-      const statsPromise = getMagicEdenStats(MAGICEDEN_SYMBOL);
-      const solPromise = getPythSolPrice();
-
-      const [stats, sol] = await Promise.all([
-        statsPromise,
-        solPromise,
-      ]);
-
-      const fp = stats?.floorPrice ? stats.floorPrice / 1e9 : null;
-      setFloorPrice(fp);
-      setSolPrice(sol ?? null);
     };
 
     fetchData();
