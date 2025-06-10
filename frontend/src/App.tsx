@@ -15,7 +15,7 @@ import WalletLogin from './components/WalletLogin';
 import UserProfile from './components/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './pages/PrimosMarketGallery';
-import Home from './components/Home';
+import Home from './pages/Home';
 import PrimoLabs from './pages/PrimoLabs';
 import Primos from './pages/Primos';
 import Docs from './pages/Docs';
