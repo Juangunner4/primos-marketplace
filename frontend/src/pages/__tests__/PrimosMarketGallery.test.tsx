@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
-import PrimosMarketGallery from '../../pages/PrimosMarketGallery';
+import PrimosMarketGallery from '../PrimosMarketGallery';
 import i18n from '../../i18n';
 import * as magiceden from '../utils/magiceden';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
-import NFTGallery from '../../pages/NFTGallery';
+import NFTGallery from '../NFTGallery';
 import i18n from '../../i18n';
 
 jest.mock('@solana/wallet-adapter-react', () => ({

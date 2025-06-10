@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '../../i18n';
-import PrimoLabs from '../../pages/PrimoLabs';
+import PrimoLabs from '../PrimoLabs';
 
 const renderLabs = (connected: boolean) =>
   render(

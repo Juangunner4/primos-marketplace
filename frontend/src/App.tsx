@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './pages/NFTGallery';
 import WalletLogin from './components/WalletLogin';
-import UserProfile from './components/UserProfile';
+import UserProfile from './pages/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './pages/PrimosMarketGallery';
 import Home from './pages/Home';

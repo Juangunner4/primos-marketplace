@@ -33,7 +33,6 @@ const PrimosMarketGallery: React.FC = () => {
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const [listedCount, setListedCount] = useState<number | null>(null);
   const [uniqueHolders, setUniqueHolders] = useState<number | null>(null);
-  const [totalSupply, setTotalSupply] = useState<number | null>(null);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -61,7 +60,7 @@ const PrimosMarketGallery: React.FC = () => {
           setFloorPrice(stats?.floorPrice ? stats.floorPrice / 1e9 : null);
           setSolPrice(solPriceVal ?? null);
           setUniqueHolders(holderStats?.uniqueHolders ?? null);
-          setTotalSupply(holderStats?.totalSupply ?? null);
+          setUniqueHolders(holderStats?.uniqueHolders ?? null);
         }
       } catch (e) {
         console.error('Failed to fetch stats:', e);
@@ -71,79 +70,94 @@ const PrimosMarketGallery: React.FC = () => {
     return () => { isMounted = false; };
   }, []);
 
+  // Helper function moved out to avoid deep nesting
+  function getNftRank(listing: any, metaAttrs: any): number | null {
+    if (typeof listing.rarityRank === 'number') {
+      return listing.rarityRank;
+    }
+    if (typeof listing.rank === 'number') {
+      return listing.rank;
+    }
+    if (metaAttrs) {
+      const attr = metaAttrs.find(
+        (a: any) =>
+          a.trait_type?.toLowerCase() === 'rank' ||
+          a.trait_type?.toLowerCase() === 'rarity rank'
+      );
+      if (attr && !isNaN(Number(attr.value))) {
+        return Number(attr.value);
+      }
+    }
+    return null;
+  }
+
   // Fetch listings for current page
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
 
-    async function fetchPage() {
-      try {
-        const offset = (page - 1) * PAGE_SIZE;
-        const listings = await fetchMagicEdenListings(MAGICEDEN_SYMBOL, offset, PAGE_SIZE);
+    fetchPage(page, setNfts, setLoading, setTotalPages, getNftRank).catch((e) => {
+      console.error('Failed to fetch listings:', e);
+      if (isMounted) setNfts([]);
+      if (isMounted) setLoading(false);
+    });
 
-        if (page === 1) {
-          const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
-          if (stats?.listedCount) {
-            setTotalPages(Math.ceil(stats.listedCount / PAGE_SIZE));
-          }
-        }
-
-        function getNftRank(listing: any, metaAttrs: any): number | null {
-          if (typeof listing.rarityRank === 'number') {
-            return listing.rarityRank;
-          }
-          if (typeof listing.rank === 'number') {
-            return listing.rank;
-          }
-          if (metaAttrs) {
-            const attr = metaAttrs.find(
-              (a: any) =>
-                a.trait_type?.toLowerCase() === 'rank' ||
-                a.trait_type?.toLowerCase() === 'rarity rank'
-            );
-            if (attr && !isNaN(Number(attr.value))) {
-              return Number(attr.value);
-            }
-          }
-          return null;
-        }
-        
-        // Build NFT objects using listing data and fetch metadata only when missing
-        const pageNFTs: MarketNFT[] = await Promise.all(
-          listings.map(async (listing: any) => {
-            let image = listing.img ?? listing.image ?? listing.extra?.img;
-            let name = listing.name ?? listing.title;
-            let meta: any = null;
-            if (!image || !name) {
-              meta = await getNFTByTokenAddress(listing.tokenMint);
-              image = image ?? meta?.image;
-              name = name ?? meta?.name;
-            }
-            const metaAttrs = meta?.attributes;
-            const rank = getNftRank(listing, metaAttrs);
-            return {
-              id: listing.tokenMint,
-              image: image || '',
-              name: name || listing.tokenMint,
-              price: listing.price,
-              variant: getRandomCardVariantName(),
-              rank,
-            } as MarketNFT;
-          })
-        );
-
-        const filtered = pageNFTs.filter((nft) => nft.image);
-
-        if (isMounted) setNfts(filtered);
-      } catch (e) {
-        if (isMounted) setNfts([]);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-    fetchPage();
     return () => { isMounted = false; };
   }, [page]);
+
+  // Move fetchPage outside of the component function body
+  async function fetchPage(
+    page: number,
+    setNfts: React.Dispatch<React.SetStateAction<MarketNFT[]>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setTotalPages: React.Dispatch<React.SetStateAction<number>>,
+    getNftRank: (listing: any, metaAttrs: any) => number | null
+  ) {
+    try {
+      const offset = (page - 1) * PAGE_SIZE;
+      const listings = await fetchMagicEdenListings(MAGICEDEN_SYMBOL, offset, PAGE_SIZE);
+
+      if (page === 1) {
+        const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
+        if (stats?.listedCount) {
+          setTotalPages(Math.ceil(stats.listedCount / PAGE_SIZE));
+        }
+      }
+
+      // Build NFT objects using listing data and fetch metadata only when missing
+      const pageNFTs: MarketNFT[] = await Promise.all(
+        listings.map(async (listing: any) => {
+          let image = listing.img ?? listing.image ?? listing.extra?.img;
+          let name = listing.name ?? listing.title;
+          let meta: any = null;
+          if (!image || !name) {
+            meta = await getNFTByTokenAddress(listing.tokenMint);
+            image = image ?? meta?.image;
+            name = name ?? meta?.name;
+          }
+          const metaAttrs = meta?.attributes;
+          const rank = getNftRank(listing, metaAttrs);
+          return {
+            id: listing.tokenMint,
+            image: image || '',
+            name: name || listing.tokenMint,
+            price: listing.price,
+            variant: getRandomCardVariantName(),
+            rank,
+          } as MarketNFT;
+        })
+      );
+
+      const filtered = pageNFTs.filter((nft) => nft.image);
+
+      setNfts(filtered);
+    } catch (e) {
+      console.error('Error fetching page:', e);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     setPageInput(String(page));
@@ -178,13 +192,7 @@ const PrimosMarketGallery: React.FC = () => {
           const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
           return (
             <li key={nft.id} className={`market-card market-card--${variant.name}`}>
-              <span className="market-prefix market-primo-number">{nft.name}</span>
-              <span
-                className="market-prefix market-rarity-rank"
-                style={{ color: getRankColor(nft.rank, totalSupply) }}
-              >
-                {t('rarity_rank')}: {nft.rank ?? '--'}
-              </span>
+              <span className="market-prefix market-primo-number" style={{ background: variant.bg, borderColor: variant.border }} >{nft.name}</span>
               <img src={nft.image} alt={nft.name} className="market-nft-img" />
               <div className="market-card-content">
               </div>
