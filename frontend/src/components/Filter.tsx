@@ -20,6 +20,16 @@ import { useState } from "react";
 export interface FilterPanelProps {
   open: boolean;
   onClose: () => void;
+  minPrice: string;
+  maxPrice: string;
+  minRank: string;
+  maxRank: string;
+  setMinPrice: (v: string) => void;
+  setMaxPrice: (v: string) => void;
+  setMinRank: (v: string) => void;
+  setMaxRank: (v: string) => void;
+  onClear: () => void;
+  onApply: () => void;
 }
 
 const MARKETPLACES = [
@@ -29,13 +39,24 @@ const MARKETPLACES = [
   // Add more as needed
 ];
 
-export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
+export function FilterPanel({
+  open,
+  onClose,
+  minPrice,
+  maxPrice,
+  minRank,
+  maxRank,
+  setMinPrice,
+  setMaxPrice,
+  setMinRank,
+  setMaxRank,
+  onClear,
+  onApply,
+}: Readonly<FilterPanelProps>) {
   // 1) Marketplaces
   const [selectedMarketplaces, setSelectedMarketplaces] = useState<string[]>([]);
 
-  // 2) Price range (min/max)
-  const [minPrice, setMinPrice] = useState<string>('');
-  const [maxPrice, setMaxPrice] = useState<string>('');
+  // 2) Price range (min/max) handled by parent
 
   // 3) Dynamic attributes (traits)
   const ATTRIBUTE_GROUPS: Record<string, string[]> = {
@@ -125,6 +146,27 @@ export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
         />
       </Box>
 
+      {/* Rank Min/Max */}
+      <Typography gutterBottom>Rank</Typography>
+      <Box display="flex" gap={1} mb={3}>
+        <TextField
+          label="Min"
+          type="number"
+          size="small"
+          value={minRank}
+          onChange={e => setMinRank(e.target.value)}
+          inputProps={{ min: 1, step: 1 }}
+        />
+        <TextField
+          label="Max"
+          type="number"
+          size="small"
+          value={maxRank}
+          onChange={e => setMaxRank(e.target.value)}
+          inputProps={{ min: 1, step: 1 }}
+        />
+      </Box>
+
       {/* 3) Attribute Accordions */}
       {Object.entries(ATTRIBUTE_GROUPS).map(([group, options]) => (
         <Accordion key={group} disableGutters>
@@ -158,6 +200,8 @@ export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
         ))}
         {minPrice && <Chip label={`Min: ${minPrice}`} onDelete={() => setMinPrice('')} />}
         {maxPrice && <Chip label={`Max: ${maxPrice}`} onDelete={() => setMaxPrice('')} />}
+        {minRank && <Chip label={`Rank Min: ${minRank}`} onDelete={() => setMinRank('')} />}
+        {maxRank && <Chip label={`Rank Max: ${maxRank}`} onDelete={() => setMaxRank('')} />}
         {Object.entries(attrs).flatMap(([g, set]) =>
           Array.from(set).map((v) => (
             <Chip key={`${g}-${v}`} label={`${g}: ${v}`} onDelete={() => toggleAttr(g, v)} />
@@ -180,9 +224,12 @@ export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
           }}
           onClick={() => {
             setSelectedMarketplaces([]);
+            setAttrs({});
             setMinPrice('');
             setMaxPrice('');
-            setAttrs({});
+            setMinRank('');
+            setMaxRank('');
+            onClear();
           }}
         >
           Reset
@@ -200,7 +247,10 @@ export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
               boxShadow: 'none',
             },
           }}
-          onClick={() => {}}
+          onClick={() => {
+            onApply();
+            onClose();
+          }}
         >
           Apply
         </Button>

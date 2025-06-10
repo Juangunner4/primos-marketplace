@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import PrimosMarketGallery from '../PrimosMarketGallery';
 import i18n from '../../i18n';
@@ -70,5 +70,22 @@ describe('PrimosMarketGallery', () => {
       </I18nextProvider>
     );
     expect(await screen.findByText('Buy Now')).toBeTruthy();
+  });
+
+  test('filters nfts by min price', async () => {
+    (magiceden.fetchMagicEdenListings as jest.Mock).mockResolvedValueOnce([
+      { tokenMint: 'mint1', price: 1, rarityRank: 1, img: 'img1', name: 'Primo1' },
+      { tokenMint: 'mint2', price: 5, rarityRank: 2, img: 'img2', name: 'Primo2' },
+    ]);
+    render(
+      <I18nextProvider i18n={i18n}>
+        <PrimosMarketGallery />
+      </I18nextProvider>
+    );
+    fireEvent.click(screen.getByLabelText(/Open Filters/i));
+    fireEvent.change(screen.getAllByLabelText('Min')[0], { target: { value: '2' } });
+    fireEvent.click(screen.getByText('Apply'));
+    expect(await screen.findByText('Primo2')).toBeTruthy();
+    expect(screen.queryByText('Primo1')).toBeNull();
   });
 });
