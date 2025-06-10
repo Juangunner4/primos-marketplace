@@ -179,8 +179,8 @@
 .market-nft-price-pill {
   background: var(--bg-color, #ffe066);
   border-radius: 0.7rem;
-  padding: 0.32rem 1.1rem;
-  font-size: 1.08rem;
+  padding: 0.18rem 0.7rem; 
+  font-size: 0.98rem;     
   font-weight: bold;
   color: #1a202c;
   margin: 0;
@@ -189,6 +189,8 @@
   border: 2px solid var(--border-color, #e2c275);
   display: inline-flex;
   align-items: baseline;
+  justify-content: center;   
+  align-self: center;        
 }
 .market-nft-price-pill .usd {
   font-size: 0.92em;

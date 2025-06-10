@@ -52,7 +52,7 @@ const PrimosMarketGallery: React.FC = () => {
           setTotalSupply(holderStats?.totalSupply ?? null);
         }
       } catch (e) {
-        // handle error
+        console.error('Failed to fetch stats:', e);
       }
     }
     fetchStats();
@@ -66,11 +66,9 @@ const PrimosMarketGallery: React.FC = () => {
 
     async function fetchPage() {
       try {
-        // Fetch only the listings for the current page
         const offset = (page - 1) * PAGE_SIZE;
         const listings = await fetchMagicEdenListings(MAGICEDEN_SYMBOL, offset, PAGE_SIZE);
 
-        // If this is the first page, also get the total count for pagination
         if (page === 1) {
           const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
           if (stats?.listedCount) {
@@ -78,33 +76,39 @@ const PrimosMarketGallery: React.FC = () => {
           }
         }
 
+        function getNftRank(listing: any, metaAttrs: any): number | null {
+          if (typeof listing.rarityRank === 'number') {
+            return listing.rarityRank;
+          }
+          if (typeof listing.rank === 'number') {
+            return listing.rank;
+          }
+          if (metaAttrs) {
+            const attr = metaAttrs.find(
+              (a: any) =>
+                a.trait_type?.toLowerCase() === 'rank' ||
+                a.trait_type?.toLowerCase() === 'rarity rank'
+            );
+            if (attr && !isNaN(Number(attr.value))) {
+              return Number(attr.value);
+            }
+          }
+          return null;
+        }
+        
         // Build NFT objects using listing data and fetch metadata only when missing
         const pageNFTs: MarketNFT[] = await Promise.all(
           listings.map(async (listing: any) => {
-            let image = listing.img || listing.image || listing.extra?.img;
-            let name = listing.name || listing.title;
+            let image = listing.img ?? listing.image ?? listing.extra?.img;
+            let name = listing.name ?? listing.title;
             let meta: any = null;
             if (!image || !name) {
               meta = await getNFTByTokenAddress(listing.tokenMint);
-              image = image || meta?.image;
-              name = name || meta?.name;
+              image = image ?? meta?.image;
+              name = name ?? meta?.name;
             }
             const metaAttrs = meta?.attributes;
-            let rank: number | null = null;
-            if (typeof listing.rarityRank === 'number') {
-              rank = listing.rarityRank;
-            } else if (typeof listing.rank === 'number') {
-              rank = listing.rank;
-            } else {
-              const attr = metaAttrs?.find(
-                (a: any) =>
-                  a.trait_type?.toLowerCase() === 'rank' ||
-                  a.trait_type?.toLowerCase() === 'rarity rank'
-              );
-              if (attr && !isNaN(Number(attr.value))) {
-                rank = Number(attr.value);
-              }
-            }
+            const rank = getNftRank(listing, metaAttrs);
             return {
               id: listing.tokenMint,
               image: image || '',
@@ -152,16 +156,15 @@ const PrimosMarketGallery: React.FC = () => {
           const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
           return (
             <li key={nft.id} className={`market-card market-card--${variant.name}`}>
-              <span className="market-prefix">{nft.id.slice(0, 4)}</span>
+              <span className="market-prefix market-primo-number">{nft.name}</span>
+              <span
+                className="market-prefix market-rarity-rank"
+                style={{ color: getRankColor(nft.rank, totalSupply) }}
+              >
+                {t('rarity_rank')}: {nft.rank ?? '--'}
+              </span>
               <img src={nft.image} alt={nft.name} className="market-nft-img" />
               <div className="market-card-content">
-                <h3 className="market-nft-name">{nft.name}</h3>
-                <span
-                  className="rarity-rank"
-                  style={{ color: getRankColor(nft.rank, totalSupply) }}
-                >
-                  {t('rarity_rank')}: {nft.rank ?? '--'}
-                </span>
               </div>
               <div className="market-card-footer">
                 {priceSol ? (
