@@ -225,18 +225,18 @@ const PrimosMarketGallery: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-      <Filter/>
+      <IconButton
+        aria-label={t('open_filters')}
+        onClick={() => setFilterOpen(true)}
+        sx={{ color: '#555' }}
+      >
+        <CompareArrowsIcon />
+      </IconButton>
+      <Filter />
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <h2 className="market-title">{t('market_title')}</h2>
-            <IconButton
-              aria-label={t('open_filters')}
-              onClick={() => setFilterOpen(true)}
-              sx={{ color: '#555' }}
-            >
-              <CompareArrowsIcon />
-            </IconButton>
           </div>
           <div className="market-stats-pills">
             <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
