@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { getPythSolPrice } from '../utils/pyth';
 import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
@@ -7,6 +7,13 @@ import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import { getRankColor } from '../utils/rank';
 import './PrimosMarketGallery.css';
 import Activity from './Activity';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -31,6 +38,11 @@ const PrimosMarketGallery: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageInput, setPageInput] = useState('1');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minRank, setMinRank] = useState('');
+  const [maxRank, setMaxRank] = useState('');
   const { t } = useTranslation();
 
 
@@ -137,6 +149,16 @@ const PrimosMarketGallery: React.FC = () => {
     setPageInput(String(page));
   }, [page]);
 
+  const filteredNfts = useMemo(() => {
+    return nfts.filter((nft) => {
+      if (minPrice && nft.price < parseFloat(minPrice)) return false;
+      if (maxPrice && nft.price > parseFloat(maxPrice)) return false;
+      if (minRank && (nft.rank === null || nft.rank < parseInt(minRank, 10))) return false;
+      if (maxRank && (nft.rank === null || nft.rank > parseInt(maxRank, 10))) return false;
+      return true;
+    });
+  }, [nfts, minPrice, maxPrice, minRank, maxRank]);
+
   let content;
   if (loading) {
     content = (
@@ -145,12 +167,12 @@ const PrimosMarketGallery: React.FC = () => {
         <span>{t('market_loading')}</span>
       </div>
     );
-  } else if (nfts.length === 0) {
+  } else if (filteredNfts.length === 0) {
     content = <p className="no-nfts">{t('market_no_nfts')}</p>;
   } else {
     content = (
       <ul className="market-nft-list nft-list">
-        {nfts.map((nft) => {
+        {filteredNfts.map((nft) => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
           const priceSol = nft.price ? nft.price.toFixed(3) : null;
           const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
@@ -190,7 +212,16 @@ const PrimosMarketGallery: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
-          <h2 className="market-title">{t('market_title')}</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <h2 className="market-title">{t('market_title')}</h2>
+            <IconButton
+              aria-label={t('open_filters')}
+              onClick={() => setFilterOpen(true)}
+              sx={{ color: '#555' }}
+            >
+              <CompareArrowsIcon />
+            </IconButton>
+          </div>
           <div className="market-stats-pills">
             <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
             <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
@@ -235,6 +266,79 @@ const PrimosMarketGallery: React.FC = () => {
         </div>
       </div>
       <Activity />
+      <Drawer
+        anchor="left"
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{ [`& .MuiDrawer-paper`]: { width: 260, boxSizing: 'border-box' } }}
+      >
+        <Box className="filter-panel">
+          <Typography variant="h6" component="h3" className="filter-title">
+            {t('filters')}
+          </Typography>
+          <Box className="filter-group">
+            <Typography variant="subtitle2">{t('filter_price')}</Typography>
+            <TextField
+              type="number"
+              label="Min"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              size="small"
+              fullWidth
+              sx={{ mb: 1 }}
+            />
+            <TextField
+              type="number"
+              label="Max"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              size="small"
+              fullWidth
+            />
+          </Box>
+          <Box className="filter-group">
+            <Typography variant="subtitle2">{t('filter_rank')}</Typography>
+            <TextField
+              type="number"
+              label="Min"
+              value={minRank}
+              onChange={(e) => setMinRank(e.target.value)}
+              size="small"
+              fullWidth
+              sx={{ mb: 1 }}
+            />
+            <TextField
+              type="number"
+              label="Max"
+              value={maxRank}
+              onChange={(e) => setMaxRank(e.target.value)}
+              size="small"
+              fullWidth
+            />
+          </Box>
+          <Box className="filter-actions">
+            <Button
+              variant="contained"
+              onClick={() => setFilterOpen(false)}
+              sx={{ mr: 1 }}
+            >
+              {t('apply_filters')}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setMinPrice('');
+                setMaxPrice('');
+                setMinRank('');
+                setMaxRank('');
+              }}
+            >
+              {t('clear_filters')}
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
     </div>
   );
 };

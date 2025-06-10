@@ -119,5 +119,11 @@
   "labs_section_rwa": "RWA",
   "labs_section_others": "Others",
   "coming_soon": "Coming Soon",
-  "labs_ai_hint": "Need help?"
+  "labs_ai_hint": "Need help?",
+  "open_filters": "Open Filters",
+  "filters": "Filters",
+  "filter_price": "Price",
+  "filter_rank": "Rank",
+  "apply_filters": "Apply",
+  "clear_filters": "Clear"
 }
