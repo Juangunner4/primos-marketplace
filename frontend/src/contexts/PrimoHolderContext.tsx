@@ -31,21 +31,12 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       // Login immediately before fetching NFTs
       try {
-        await axios.post(`${backendUrl}/api/user/login`, {
-          publicKey: publicKey.toBase58(),
-          primoHolder: false,
-        });
-      } catch (e) {
-        console.error('Failed to login user:', e);
-      }
-
-      try {
         const holder = await checkPrimoHolder(
           PRIMO_COLLECTION,
           publicKey.toBase58()
         );
         setIsHolder(holder);
-        // Update backend with real holder status
+        console.log('Primo holder status:', holder);
         await axios.post(`${backendUrl}/api/user/login`, {
           publicKey: publicKey.toBase58(),
           primoHolder: holder,

@@ -63,7 +63,9 @@ public class UserResource {
                 user.setDaoMember(false);
             }
             user.persistOrUpdate();
-            LOGGER.info(String.format("[UserResource] User already exists for publicKey: %s", req.publicKey));
+            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+                LOGGER.info(String.format("[UserResource] User already exists for publicKey: %s", req.publicKey));
+            }
         }
         return user;
     }
