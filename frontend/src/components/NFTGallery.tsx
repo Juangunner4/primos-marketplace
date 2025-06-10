@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getAssetsByCollection, HeliusNFT } from '../utils/helius';
+import { getAssetsByCollection, HeliusNFT } from '../services/helius';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import logo from '../images/primoslogo.png';

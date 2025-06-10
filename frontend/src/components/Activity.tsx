@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import './Activity.css';
 import { fetchMagicEdenActivity } from '../utils/magiceden';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress } from '../services/helius';
 import { getPythSolPrice } from '../utils/pyth';
 
 type ActivityItem = {

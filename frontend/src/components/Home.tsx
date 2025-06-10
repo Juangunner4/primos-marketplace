@@ -8,11 +8,11 @@ import hero from '../images/primoslogo.png';
 import primoMarket  from '../images/primomarket.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
-import { getNFTByTokenAddress } from '../utils/helius';
 import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../services/helius';
 
 interface Stats {
   uniqueHolders: number | null;
@@ -30,6 +30,7 @@ interface DaoMember {
 }
 
 const MAGICEDEN_SYMBOL = 'primos';
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
@@ -76,7 +77,20 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         const res = await axios.get<DaoMember[]>(
           `${backendUrl}/api/user/primos`
         );
-        setMembers(res.data.slice(0, 5));
+        const enriched = await Promise.all(
+          res.data.slice(0, 5).map(async (m) => {
+            let image = '';
+            if (m.pfp) {
+              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+              image = nft?.image || '';
+            } else {
+              const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
+              image = nfts[0]?.image || '';
+            }
+            return { ...m, pfp: image };
+          })
+        );
+        setMembers(enriched);
       } catch {
         setMembers([]);
       }

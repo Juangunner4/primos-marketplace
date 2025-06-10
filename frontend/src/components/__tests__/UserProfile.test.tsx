@@ -22,7 +22,7 @@ jest.mock('axios', () => ({
   put: jest.fn(() => Promise.resolve({ data: {} }))
 }));
 
-jest.mock('../utils/helius', () => ({
+jest.mock('../services/helius', () => ({
   getAssetsByCollection: jest.fn(() => Promise.resolve([])),
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));

@@ -13,7 +13,7 @@ jest.mock('../utils/magiceden', () => ({
   getMagicEdenHolderStats: jest.fn(() => Promise.resolve(null))
 }));
 
-jest.mock('../utils/helius', () => ({
+jest.mock('../services/helius', () => ({
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));
 
@@ -48,7 +48,7 @@ describe('PrimosMarketGallery', () => {
         rarityRank: 10,
       },
     ]);
-    (require('../utils/helius').getNFTByTokenAddress as jest.Mock).mockResolvedValueOnce({
+    (require('../services/helius').getNFTByTokenAddress as jest.Mock).mockResolvedValueOnce({
       image: 'img',
       name: 'Primo #1',
     });

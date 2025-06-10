@@ -9,8 +9,10 @@ import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { getNFTByTokenAddress } from '../utils/helius';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../services/helius';
 import './Primos.css';
+
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 interface Member {
   publicKey: string;
@@ -35,7 +37,20 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       try {
         const res = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
-        setMembers(sorted);
+        const enriched = await Promise.all(
+          sorted.map(async (m) => {
+            let image = '';
+            if (m.pfp) {
+              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+              image = nft?.image || '';
+            } else {
+              const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
+              image = nfts[0]?.image || '';
+            }
+            return { ...m, pfp: image };
+          })
+        );
+        setMembers(enriched);
       } catch {
         setMembers([]);
       }
