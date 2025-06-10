@@ -8,7 +8,7 @@ export interface MarketplaceWrapperProps {
   children: React.ReactNode;
 }
 
-export function MarketplaceWrapper({ children }: MarketplaceWrapperProps) {
+export function MarketplaceWrapper({ children }: Readonly<MarketplaceWrapperProps>) {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
   const [open, setOpen] = useState(false);

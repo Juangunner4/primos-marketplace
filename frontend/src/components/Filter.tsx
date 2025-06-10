@@ -7,8 +7,6 @@ import {
   AccordionSummary,
   AccordionDetails,
   Slider,
-  FormControlLabel,
-  Checkbox,
   Chip,
   Button,
 } from "@mui/material";

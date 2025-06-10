@@ -225,6 +225,7 @@ const PrimosMarketGallery: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+      <Filter/>
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -281,27 +282,6 @@ const PrimosMarketGallery: React.FC = () => {
         </div>
       </div>
       <Activity />
-      <Drawer
-        anchor="left"
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        ModalProps={{ keepMounted: true }}
-        sx={{ [`& .MuiDrawer-paper`]: { width: 260, boxSizing: 'border-box' } }}
-      >
-        <Filter
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          minRank={minRank}
-          maxRank={maxRank}
-          setMinPrice={setMinPrice}
-          setMaxPrice={setMaxPrice}
-          setMinRank={setMinRank}
-          setMaxRank={setMaxRank}
-          onApply={handleApplyFilters}
-          onClear={handleClearFilters}
-          onClose={() => setFilterOpen(false)}
-        />
-      </Drawer>
     </div>
   );
 };
