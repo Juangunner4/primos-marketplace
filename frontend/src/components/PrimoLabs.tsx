@@ -16,11 +16,6 @@ import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import DeFAI from './DeFAI';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
-import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FolderIcon from '@mui/icons-material/Folder';
 
 const MAGICEDEN_SYMBOL = 'primos';
@@ -106,9 +101,9 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
       <Box className="labs-grid">
         <Card className="lab-card">
-            <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
+          <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
             <Typography>{t('labs_section_defi')}</Typography>
-            </Box>
+          </Box>
         </Card>
         <Card className="lab-card">
           <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
@@ -136,7 +131,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
         <Card className="lab-card">
-            <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
+          <Box className="lab-card-header" display="flex" justifyContent="space-between" mb={1}>
             <Typography>{t('labs_members_title')}</Typography>
             {members.map((m) => (
               <Link key={m.publicKey} to={`/user/${m.publicKey}`} style={{ textDecoration: 'none', color: 'inherit' }}>

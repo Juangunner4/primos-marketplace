@@ -65,19 +65,25 @@ const SidebarNav: React.FC = () => {
   );
 
   const drawerContentMobile = (
-    <List sx={{ pt: 2 }}>
+    <List sx={{ pt: 8 }}>
       {links.filter(l => l.show).map((l) => (
-        <ListItem key={l.to} disablePadding>
-          <ListItemButton
-            component={NavLink}
-            to={l.to}
-            {...(l.end ? { end: true } : {})}
-            selected={location.pathname === l.to}
-            onClick={() => setOpen(false)}
-          >
-            <ListItemIcon sx={{ color: '#fff', minWidth: 32 }}>{l.icon}</ListItemIcon>
-            <ListItemText primary={l.label} />
-          </ListItemButton>
+        <ListItem key={l.to} disablePadding sx={{ justifyContent: 'center' }}>
+          <Tooltip title={l.label} placement="right">
+            <IconButton
+              component={NavLink}
+              to={l.to}
+              {...(l.end ? { end: true } : {})}
+              color={location.pathname === l.to ? 'primary' : 'default'}
+              sx={{
+                color: location.pathname === l.to ? '#fff' : '#b0b0b0',
+                textShadow: '0 0 6px #fff, 0 0 2px #fff',
+                '&:hover': { color: '#fff', background: '#222' },
+              }}
+              onClick={() => setOpen(false)}
+            >
+              {l.icon}
+            </IconButton>
+          </Tooltip>
         </ListItem>
       ))}
     </List>
@@ -113,12 +119,13 @@ const SidebarNav: React.FC = () => {
             ModalProps={{ keepMounted: true }}
             sx={{
               [`& .MuiDrawer-paper`]: {
-                width: 220,
+                width: 72,
                 boxSizing: 'border-box',
-                backgroundColor: '#000',
-                color: '#fff',
-                borderRight: '1px solid #fff',
+                backgroundColor: '#181818',
+                color: '#ffe066',
+                borderRight: '1px solid rgba(255, 255, 255, 0.5)',
               },
+              display: { xs: 'block', md: 'none'},
             }}
           >
             {drawerContentMobile}
