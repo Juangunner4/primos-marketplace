@@ -8,16 +8,13 @@ import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
-// No additional NFT lookups are needed on this page
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
-import { getNFTByTokenAddress } from '../utils/helius';
-import { fetchCollectionNFTsForOwner } from '../utils/helius';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import axios from 'axios';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import DeFAI from '../components/DeFAI';
 import FolderIcon from '@mui/icons-material/Folder';
 
 const MAGICEDEN_SYMBOL = 'primos';
@@ -45,10 +42,10 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           let image = '';
           if (m.pfp) {
             const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-            image = nft?.image || '';
+            image = nft?.image ?? '';
           } else {
             const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
-            image = nfts[0]?.image || '';
+            image = nfts[0]?.image ?? '';
           }
           return { ...m, pfp: image };
         })
@@ -167,7 +164,6 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       >
         <FolderIcon />
       </Box>
-      {isHolder && <DeFAI />}
     </Box>
   );
 };

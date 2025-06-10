@@ -24,9 +24,4 @@ describe('PrimoLabs', () => {
     expect(screen.getByText(/DeFi/i)).toBeTruthy();
     expect(screen.getByText(/MemeFi/i)).toBeTruthy();
     expect(screen.getByText(/Coming Soon/i)).toBeTruthy();
-    expect(screen.getByLabelText(/AI Assistant/i)).toBeTruthy();
-    // open chat bot
-    screen.getByLabelText(/Open Chat/i).click();
-    expect(screen.getByText(/DeFAI/i)).toBeTruthy();
-  });
 });
