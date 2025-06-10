@@ -2,10 +2,8 @@ import React, { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
 import { checkPrimoHolder } from '../utils/helius';
-;
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
-
 
 export const PrimoHolderContext = React.createContext<{
   isHolder: boolean;
@@ -21,15 +19,11 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-
     const loginAndCheckHolder = async () => {
       if (!publicKey) {
         setIsHolder(false);
         return;
       }
-
-      // Login immediately before fetching NFTs
       try {
         const holder = await checkPrimoHolder(
           PRIMO_COLLECTION,
@@ -46,11 +40,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setIsHolder(false);
       }
     };
-
     loginAndCheckHolder();
-    interval = setInterval(loginAndCheckHolder, 60_000);
-
-    return () => clearInterval(interval);
   }, [publicKey, backendUrl]);
 
   const contextValue = React.useMemo(() => ({ isHolder, setIsHolder }), [isHolder, setIsHolder]);
