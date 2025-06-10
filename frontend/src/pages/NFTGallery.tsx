@@ -7,7 +7,10 @@ import logo from '../images/primoslogo.png';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import TraitStats from '../components/TraitStats';
-import './PrimosMarketGallery.css'; // Use only the unified CSS
+import IconButton from '@mui/material/IconButton';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { FilterPanel } from '../components/Filter';
+import './PrimosMarketGallery.css';
 
 interface GalleryNFT extends HeliusNFT {
   variant: string;
@@ -15,16 +18,17 @@ interface GalleryNFT extends HeliusNFT {
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 const MAGICEDEN_SYMBOL = 'primos';
-
 const NFTGallery: React.FC = () => {
   const { publicKey } = useWallet();
   const [nfts, setNfts] = useState<GalleryNFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
+
     const fetchData = async () => {
       if (!publicKey) {
         setNfts([]);
@@ -76,6 +80,7 @@ const NFTGallery: React.FC = () => {
   let galleryContent;
   if (loading) {
     galleryContent = (
+      
       <div className="loading-wrapper">
         <div className="spinner" />
         <span>{t('loading_nfts')}</span>
@@ -105,6 +110,24 @@ const NFTGallery: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+      {/* Filter Icon and Panel, just like PrimosMarketGallery */}
+      {!filterOpen && (
+        <IconButton
+          aria-label={t('open_filters')}
+          onClick={() => setFilterOpen(true)}
+          sx={{
+            border: '1px solid #bbb',
+            borderRadius: 3,
+            boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
+            background: '#f5f5f8',
+            margin: '0 10px 0 10px',
+          }}
+        >
+          <CompareArrowsIcon />
+        </IconButton>
+      )}
+      <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
+
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <h2 className="market-title">{t('your_primos_nfts')}</h2>

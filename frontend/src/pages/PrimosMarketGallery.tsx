@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
-import { Box } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { FilterPanel } from '../components/Filter';
