@@ -134,8 +134,9 @@
 .market-card-footer {
   width: 92%;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
   position: absolute;
   bottom: 18px;
   left: 0;
@@ -195,6 +196,36 @@
   font-weight: 500;
   margin-left: 0.18em;
   opacity: 0.85;
+}
+.buy-button {
+  background: var(--bg-color, #ffe066);
+  border: 2px solid var(--border-color, #e2c275);
+  color: #000;
+  font-weight: bold;
+  border-radius: 0.7rem;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s, border-color 0.3s;
+}
+.buy-button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background: #000;
+  transition: width 0.4s ease;
+  z-index: -1;
+}
+.buy-button:hover {
+  color: #fff;
+  border-color: #000;
+}
+.buy-button:hover::after {
+  width: 100%;
 }
 .market-card .market-prefix {
   position: absolute;

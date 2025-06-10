@@ -4,6 +4,7 @@ import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } fr
 import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
+import { getRankColor } from '../utils/rank';
 import './PrimosMarketGallery.css';
 import Activity from './Activity';
 
@@ -32,14 +33,6 @@ const PrimosMarketGallery: React.FC = () => {
   const [pageInput, setPageInput] = useState('1');
   const { t } = useTranslation();
 
-  const getRankColor = (rank: number | null) => {
-    if (!rank || !totalSupply) return '#b87333';
-    const pct = rank / totalSupply;
-    if (pct <= 0.01) return '#e5e4e2';
-    if (pct <= 0.05) return '#FFD700';
-    if (pct <= 0.2) return '#C0C0C0';
-    return '#b87333';
-  };
 
   // Fetch stats and SOL price once
   useEffect(() => {
@@ -85,26 +78,25 @@ const PrimosMarketGallery: React.FC = () => {
           }
         }
 
-        // Fetch metadata for these NFTs only
-        const metaMap: Record<string, any> = {};
-        await Promise.all(
+        // Build NFT objects using listing data and fetch metadata only when missing
+        const pageNFTs: MarketNFT[] = await Promise.all(
           listings.map(async (listing: any) => {
-            const meta = await getNFTByTokenAddress(listing.tokenMint);
-            if (meta) metaMap[listing.tokenMint] = meta;
-          })
-        );
-
-        // Only 10 per page, assign variant using util
-        const pageNFTs: MarketNFT[] = listings
-          .map((listing: any) => {
-            const meta = metaMap[listing.tokenMint];
+            let image = listing.img || listing.image || listing.extra?.img;
+            let name = listing.name || listing.title;
+            let meta: any = null;
+            if (!image || !name) {
+              meta = await getNFTByTokenAddress(listing.tokenMint);
+              image = image || meta?.image;
+              name = name || meta?.name;
+            }
+            const metaAttrs = meta?.attributes;
             let rank: number | null = null;
             if (typeof listing.rarityRank === 'number') {
               rank = listing.rarityRank;
             } else if (typeof listing.rank === 'number') {
               rank = listing.rank;
             } else {
-              const attr = meta?.attributes?.find(
+              const attr = metaAttrs?.find(
                 (a: any) =>
                   a.trait_type?.toLowerCase() === 'rank' ||
                   a.trait_type?.toLowerCase() === 'rarity rank'
@@ -115,16 +107,18 @@ const PrimosMarketGallery: React.FC = () => {
             }
             return {
               id: listing.tokenMint,
-              image: meta?.image || '',
-              name: meta?.name || listing.tokenMint,
+              image: image || '',
+              name: name || listing.tokenMint,
               price: listing.price,
               variant: getRandomCardVariantName(),
               rank,
             } as MarketNFT;
           })
-          .filter((nft: MarketNFT) => nft.image);
+        );
 
-        if (isMounted) setNfts(pageNFTs);
+        const filtered = pageNFTs.filter((nft) => nft.image);
+
+        if (isMounted) setNfts(filtered);
       } catch (e) {
         if (isMounted) setNfts([]);
       } finally {
@@ -164,7 +158,7 @@ const PrimosMarketGallery: React.FC = () => {
                 <h3 className="market-nft-name">{nft.name}</h3>
                 <span
                   className="rarity-rank"
-                  style={{ color: getRankColor(nft.rank) }}
+                  style={{ color: getRankColor(nft.rank, totalSupply) }}
                 >
                   {t('rarity_rank')}: {nft.rank ?? '--'}
                 </span>
@@ -180,6 +174,7 @@ const PrimosMarketGallery: React.FC = () => {
                 ) : (
                   <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>{t('market_no_price')}</span>
                 )}
+                <button className="buy-button">Buy Now</button>
               </div>
             </li>
           );
