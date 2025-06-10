@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
-import Drawer from '@mui/material/Drawer';
+import { Box } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import Filter, { FilterPanel } from '../components/Filter';
+import { FilterPanel } from '../components/Filter';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -225,13 +225,21 @@ const PrimosMarketGallery: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-      <IconButton
-        aria-label={t('open_filters')}
-        onClick={() => setFilterOpen(true)}
-        sx={{ color: '#555' }}
-      >
-        <CompareArrowsIcon />
-      </IconButton>
+      {!filterOpen && (
+        <IconButton
+          aria-label={t('open_filters')}
+          onClick={() => setFilterOpen(true)}
+          sx={{
+            border: '1px solid #bbb',
+            borderRadius: 3,
+            boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
+            background: '#f5f5f8',
+            margin: '0 10px 0 10px',
+          }}
+        >
+          <CompareArrowsIcon />
+        </IconButton>
+      )}
       <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">

@@ -9,7 +9,11 @@ import {
   Slider,
   Chip,
   Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
 } from "@mui/material";
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState } from "react";
 
@@ -18,14 +22,22 @@ export interface FilterPanelProps {
   onClose: () => void;
 }
 
+const MARKETPLACES = [
+  { label: "Magic Eden", value: "ME" },
+  { label: "Tensor", value: "Tensor" },
+  { label: "SOLSniper", value: "SOLSniper" },
+  // Add more as needed
+];
+
 export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
-  // 1) Collection search
-  const [collection, setCollection] = useState<string | null>(null);
+  // 1) Marketplaces
+  const [selectedMarketplaces, setSelectedMarketplaces] = useState<string[]>([]);
 
-  // 2) Price range
-  const [priceRange, setPriceRange] = useState<number[]>([0, 10]);
+  // 2) Price range (min/max)
+  const [minPrice, setMinPrice] = useState<string>('');
+  const [maxPrice, setMaxPrice] = useState<string>('');
 
-  // 3) Dynamic attributes
+  // 3) Dynamic attributes (traits)
   const ATTRIBUTE_GROUPS: Record<string, string[]> = {
     Color: ["Red", "Blue", "Green"],
     Hat: ["Beanie", "Cap", "None"],
@@ -44,39 +56,74 @@ export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
     });
   };
 
+  const handleMarketplaceChange = (value: string) => {
+    setSelectedMarketplaces((prev) =>
+      prev.includes(value)
+        ? prev.filter((v) => v !== value)
+        : [...prev, value]
+    );
+  };
+
   if (!open) return null; // Only render if open
 
   return (
-    <Box p={2} width={280}>
-      <Button onClick={onClose} sx={{ mb: 2 }}>
-        Close
-      </Button>
+    <Box
+      p={2}
+      width={280}
+      sx={{
+        border: '1px solid #bbb',
+        borderRadius: 3,
+        boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
+        background: '#f5f5f8',
+        margin: '0 10px 0 10px',
+      }}
+    >
+      <Box display="flex" justifyContent="flex-end" mb={2}>
+        <Button onClick={onClose} sx={{ minWidth: 0, p: 1, color: '#555' }}>
+          <CompareArrowsIcon />
+        </Button>
+      </Box>
       <Typography variant="h6" gutterBottom>
         Filters
       </Typography>
 
-      {/* 1) Collection Autocomplete */}
-      <Autocomplete
-        options={[]}
-        value={collection}
-        onChange={(_, v) => setCollection(v)}
-        renderInput={(params) => (
-          <TextField {...params} label="Collection" size="small" />
-        )}
-        sx={{ mb: 3 }}
-      />
+      {/* 1) Marketplaces */}
+      <Typography gutterBottom>Marketplaces</Typography>
+      <FormGroup sx={{ mb: 2 }}>
+        {MARKETPLACES.map((mp) => (
+          <FormControlLabel
+            key={mp.value}
+            control={
+              <Checkbox
+                checked={selectedMarketplaces.includes(mp.value)}
+                onChange={() => handleMarketplaceChange(mp.value)}
+              />
+            }
+            label={mp.label}
+          />
+        ))}
+      </FormGroup>
 
-      {/* 2) Price Slider */}
+      {/* 2) Price Min/Max */}
       <Typography gutterBottom>Price (SOL)</Typography>
-      <Slider
-        value={priceRange}
-        onChange={(_, v) => setPriceRange(v)}
-        valueLabelDisplay="auto"
-        min={0}
-        max={20}
-        step={0.01}
-        sx={{ mb: 3 }}
-      />
+      <Box display="flex" gap={1} mb={3}>
+        <TextField
+          label="Min"
+          type="number"
+          size="small"
+          value={minPrice}
+          onChange={e => setMinPrice(e.target.value)}
+          inputProps={{ min: 0, step: 0.01 }}
+        />
+        <TextField
+          label="Max"
+          type="number"
+          size="small"
+          value={maxPrice}
+          onChange={e => setMaxPrice(e.target.value)}
+          inputProps={{ min: 0, step: 0.01 }}
+        />
+      </Box>
 
       {/* 3) Attribute Accordions */}
       {Object.entries(ATTRIBUTE_GROUPS).map(([group, options]) => (
@@ -102,7 +149,15 @@ export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
 
       {/* 4) Active filters & Apply / Reset */}
       <Box mt={2} display="flex" flexWrap="wrap" gap={1}>
-        {collection && <Chip label={collection} onDelete={() => setCollection(null)} />}
+        {selectedMarketplaces.map((mp) => (
+          <Chip
+            key={mp}
+            label={MARKETPLACES.find(m => m.value === mp)?.label || mp}
+            onDelete={() => handleMarketplaceChange(mp)}
+          />
+        ))}
+        {minPrice && <Chip label={`Min: ${minPrice}`} onDelete={() => setMinPrice('')} />}
+        {maxPrice && <Chip label={`Max: ${maxPrice}`} onDelete={() => setMaxPrice('')} />}
         {Object.entries(attrs).flatMap(([g, set]) =>
           Array.from(set).map((v) => (
             <Chip key={`${g}-${v}`} label={`${g}: ${v}`} onDelete={() => toggleAttr(g, v)} />
@@ -113,15 +168,40 @@ export function FilterPanel({ open, onClose }: Readonly<FilterPanelProps>) {
       <Box display="flex" justifyContent="space-between" mt={3}>
         <Button
           size="small"
+          variant="outlined"
+          sx={{
+            color: '#222',
+            borderColor: '#222',
+            background: '#fff',
+            '&:hover': {
+              background: '#f5f5f5',
+              borderColor: '#000',
+            },
+          }}
           onClick={() => {
-            setCollection(null);
-            setPriceRange([0, 10]);
+            setSelectedMarketplaces([]);
+            setMinPrice('');
+            setMaxPrice('');
             setAttrs({});
           }}
         >
           Reset
         </Button>
-        <Button variant="contained" size="small" onClick={() => {}}>
+        <Button
+          variant="contained"
+          size="small"
+          sx={{
+            background: '#222',
+            color: '#fff',
+            boxShadow: 'none',
+            '&:hover': {
+              background: '#000',
+              color: '#fff',
+              boxShadow: 'none',
+            },
+          }}
+          onClick={() => {}}
+        >
           Apply
         </Button>
       </Box>
