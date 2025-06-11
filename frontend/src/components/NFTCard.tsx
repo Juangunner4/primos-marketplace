@@ -17,13 +17,16 @@ interface NFTCardProps {
   nft: MarketNFT | null;
   open: boolean;
   onClose: () => void;
+  solPriceUsd?: number; // Optionally pass SOL price in USD for conversion
 }
 
-const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose }) => {
+const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) => {
   if (!nft) return null;
   const variant =
     CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
   const priceSol = nft.price ? nft.price.toFixed(3) : null;
+  const priceUsd =
+    nft.price && solPriceUsd ? (nft.price * solPriceUsd).toFixed(2) : null;
 
   return (
     <Dialog.Root open={open} onOpenChange={(val) => !val && onClose()}>
@@ -40,22 +43,26 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose }) => {
             {nft.name}
           </span>
           <img src={nft.image} alt={nft.name} className="market-nft-img" />
-          <div className="market-card-content">
-            {nft.rank !== null && (
-              <span className="rarity-rank">Rank: {nft.rank}</span>
-            )}
-          </div>
+          <div className="market-card-content"></div>
           <div className="market-card-footer">
-            {priceSol && (
+            {priceSol ? (
               <span
                 className="market-nft-price-pill"
                 style={{ background: variant.bg, borderColor: variant.border }}
               >
                 {priceSol} SOL
+                {priceUsd && <span className="usd"> (${priceUsd})</span>}
+              </span>
+            ) : (
+              <span
+                className="market-nft-price-pill"
+                style={{ background: variant.bg, borderColor: variant.border }}
+              >
+                No price
               </span>
             )}
             <button className="buy-button" onClick={onClose}>
-              Close
+              Buy Now
             </button>
           </div>
         </div>

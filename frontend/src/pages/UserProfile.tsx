@@ -9,7 +9,7 @@ import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Box, Typography, TextField, Button, Avatar } from '@mui/material';
-import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
+import CircleIcon from '@mui/icons-material/Circle';
 
 type SocialLinks = {
   twitter: string;
@@ -293,7 +293,6 @@ const fadeOut = keyframes`
                 sx={{
                   width: 64,
                   height: 64,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -304,10 +303,6 @@ const fadeOut = keyframes`
                   pointerEvents: ballAnimating || user.pointsToday >= 4 ? 'none' : 'auto',
                   zIndex: 2,
                   position: 'relative',
-                  borderRadius: '50%',
-                  background: '#000',
-                  border: '1.5px solid #fff',
-                  color: '#fff',
                   userSelect: 'none',
                   ...(ballAnimating && {
                     animation: `${fadeOut} 0.8s forwards`,
@@ -320,7 +315,7 @@ const fadeOut = keyframes`
                     : String(t('earn_point') ?? '')
                 }
               >
-                <SportsBasketballIcon sx={{ fontSize: 32 }} />
+                <CircleIcon sx={{ fontSize: 32 }} />
               </Box>
             )}
           </Box>
