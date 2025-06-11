@@ -115,5 +115,7 @@
   "filter_price": "Price",
   "filter_rank": "Rank",
   "apply_filters": "Apply",
-  "clear_filters": "Clear"
+  "clear_filters": "Clear",
+  "earn_point": "Earn Point",
+  "limit_reached": "Daily limit reached"
 }

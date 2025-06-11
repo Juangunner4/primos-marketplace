@@ -10,6 +10,8 @@ public class User extends PanacheMongoEntity {
     private SocialLinks socials = new SocialLinks();
     private String pfp;
     private int points = 0;
+    private int pointsToday = 0;
+    private String pointsDate = java.time.LocalDate.now().toString();
     private int pesos = 1000;
     private boolean primoHolder = false;
     private boolean daoMember = true;
@@ -30,6 +32,12 @@ public class User extends PanacheMongoEntity {
 
     public int getPoints() { return points; }
     public void setPoints(int points) { this.points = points; }
+
+    public int getPointsToday() { return pointsToday; }
+    public void setPointsToday(int pointsToday) { this.pointsToday = pointsToday; }
+
+    public String getPointsDate() { return pointsDate; }
+    public void setPointsDate(String pointsDate) { this.pointsDate = pointsDate; }
 
     public int getPesos() { return pesos; }
     public void setPesos(int pesos) { this.pesos = pesos; }

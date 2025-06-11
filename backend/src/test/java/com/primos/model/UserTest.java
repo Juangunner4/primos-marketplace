@@ -8,6 +8,8 @@ public class UserTest {
     public void testDefaultValues() {
         User user = new User();
         assertEquals(0, user.getPoints());
+        assertEquals(0, user.getPointsToday());
+        assertNotNull(user.getPointsDate());
         assertEquals(1000, user.getPesos());
         assertNotNull(user.getSocials());
         assertFalse(user.isPrimoHolder());

@@ -21,6 +21,8 @@ type UserDoc = {
   socials: SocialLinks;
   pfp: string; // token address
   points: number;
+  pointsToday: number;
+  pointsDate: string;
   pesos: number;
 };
 
@@ -130,6 +132,19 @@ const UserProfile: React.FC = () => {
     }
   };
 
+  const handleEarnPoint = () => {
+    if (publicKey && user && isOwner) {
+      axios
+        .post(
+          `${backendUrl}/api/user/${publicKey.toBase58()}/points`,
+          null,
+          { headers: { 'X-Public-Key': publicKey.toBase58() } }
+        )
+        .then((res) => setUser(res.data))
+        .catch(() => {});
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -235,6 +250,19 @@ const UserProfile: React.FC = () => {
         <Typography>
           <strong>{t('marketplace_balance')}</strong> {user.pesos} {t('pesos')}
         </Typography>
+        <Typography>
+          <strong>{t('points')}</strong> {user.points}
+        </Typography>
+        {isOwner && (
+          <Button
+            variant="outlined"
+            onClick={handleEarnPoint}
+            disabled={user.pointsToday >= 4}
+            sx={{ mt: 1 }}
+          >
+            {user.pointsToday >= 4 ? t('limit_reached') : t('earn_point')}
+          </Button>
+        )}
         {isOwner && isEditing && (
           <Button
             variant="contained"
