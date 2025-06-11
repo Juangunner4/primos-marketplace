@@ -108,6 +108,22 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
           <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
       </Box>
+      {members.length > 0 && (
+        <Box>
+          <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+            {t('primos_title')}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+            {members.map((m) => (
+              <Avatar
+                key={m.publicKey}
+                src={m.pfp || undefined}
+                sx={{ width: 24, height: 24 }}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import News from '../components/News';
 import hero from '../images/primoslogo.png';
-import primoMarket from '../images/primomarket.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import axios from 'axios';

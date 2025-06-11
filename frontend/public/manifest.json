@@ -1,6 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Primos",
+  "name": "Primos - Your App",
+  "description": "Primos is personal.",
+  "version": "1.0.0",
   "icons": [
     {
       "src": "favicon.ico",
