@@ -130,6 +130,9 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
+    if (!publicKey && (location.pathname === '/profile' || location.pathname.startsWith('/user'))) {
+      navigate('/', { replace: true });
+    }
     if ((!publicKey || !isHolder) && location.pathname === '/collected') {
       navigate('/', { replace: true });
     }

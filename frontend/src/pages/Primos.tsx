@@ -36,7 +36,9 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
     async function fetchMembers() {
       try {
-        const res = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
+        const res = await axios.get<Member[]>(`${backendUrl}/api/user/primos`, {
+          headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
+        });
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
         const enriched = await Promise.all(
           sorted.map(async (m) => {

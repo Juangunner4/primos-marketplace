@@ -72,7 +72,11 @@ public class UserResource {
 
     @GET
     @Path("/{publicKey}")
-    public User getUser(@PathParam("publicKey") String publicKey) {
+    public User getUser(@PathParam("publicKey") String publicKey,
+            @HeaderParam("X-Public-Key") String walletKey) {
+        if (walletKey == null || walletKey.isEmpty()) {
+            throw new ForbiddenException();
+        }
         User user = User.find(PUBLIC_KEY_FIELD, publicKey).firstResult();
         if (user == null)
             throw new NotFoundException();
@@ -122,7 +126,10 @@ public class UserResource {
 
     @GET
     @Path("/primos")
-    public java.util.List<User> getDaoMembers() {
+    public java.util.List<User> getDaoMembers(@HeaderParam("X-Public-Key") String walletKey) {
+        if (walletKey == null || walletKey.isEmpty()) {
+            throw new ForbiddenException();
+        }
         return User.list("primoHolder", true);
     }
 

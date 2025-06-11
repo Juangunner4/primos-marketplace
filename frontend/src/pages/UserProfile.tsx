@@ -51,12 +51,15 @@ const UserProfile: React.FC = () => {
 
   // Fetch user info
   useEffect(() => {
-    if (profileKey) {
-      axios.get(`${backendUrl}/api/user/${profileKey}`)
-        .then(res => setUser(res.data))
+    if (profileKey && publicKey) {
+      axios
+        .get(`${backendUrl}/api/user/${profileKey}`, {
+          headers: { 'X-Public-Key': publicKey.toBase58() },
+        })
+        .then((res) => setUser(res.data))
         .catch(() => setUser(null));
     }
-  }, [profileKey]);
+  }, [profileKey, publicKey, backendUrl]);
 
   // Fetch Primos NFTs
   useEffect(() => {
