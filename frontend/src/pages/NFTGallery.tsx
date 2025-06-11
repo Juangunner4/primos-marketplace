@@ -109,8 +109,7 @@ const NFTGallery: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-      {/* Filter Icon and Panel, just like PrimosMarketGallery */}
-      {!filterOpen && (
+      {/* {!filterOpen && (
         <IconButton
           aria-label={t('open_filters')}
           onClick={() => setFilterOpen(true)}
@@ -124,7 +123,7 @@ const NFTGallery: React.FC = () => {
         >
           <CompareArrowsIcon />
         </IconButton>
-      )}
+      )} */}
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <h2 className="market-title">{t('your_primos_nfts')}</h2>

@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
+import { keyframes } from '@emotion/react';
 
 import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +50,8 @@ const UserProfile: React.FC = () => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [ballVisible, setBallVisible] = useState(true);
+  const [ballAnimating, setBallAnimating] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
 
   // Fetch user info
@@ -132,18 +135,47 @@ const UserProfile: React.FC = () => {
     }
   };
 
+  // Hide ball if limit reached
+  useEffect(() => {
+    if (user && user.pointsToday >= 4) {
+      setBallVisible(false);
+    } else {
+      setBallVisible(true);
+    }
+  }, [user?.pointsToday]);
+
   const handleEarnPoint = () => {
-    if (publicKey && user && isOwner) {
+    if (publicKey && user && isOwner && user.pointsToday < 4) {
+      setBallAnimating(true); // Start animation
       axios
         .post(
           `${backendUrl}/api/user/${publicKey.toBase58()}/points`,
-          null,
-          { headers: { 'X-Public-Key': publicKey.toBase58() } }
+          {},
+          { headers: { 'Content-Type': 'application/json', 'X-Public-Key': publicKey.toBase58() } }
         )
         .then((res) => setUser(res.data))
-        .catch(() => {});
+        .finally(() => {
+          setTimeout(() => {
+            setBallAnimating(false);
+            // Only show again if limit not reached
+            if (user && user.pointsToday + 1 < 4) setBallVisible(true);
+            else setBallVisible(false);
+          }, 800); // Animation duration
+        });
+      setBallVisible(false); // Hide immediately
     }
   };
+
+  const float = keyframes`
+  0% { transform: translateY(0px);}
+  50% { transform: translateY(-20px);}
+  100% { transform: translateY(0px);}
+`;
+
+const fadeOut = keyframes`
+  0% { opacity: 1; transform: scale(1);}
+  100% { opacity: 0; transform: scale(0.7);}
+`;
 
   if (!user) return null;
 
@@ -253,15 +285,43 @@ const UserProfile: React.FC = () => {
         <Typography>
           <strong>{t('points')}</strong> {user.points}
         </Typography>
-        {isOwner && (
-          <Button
-            variant="outlined"
-            onClick={handleEarnPoint}
-            disabled={user.pointsToday >= 4}
-            sx={{ mt: 1 }}
-          >
-            {user.pointsToday >= 4 ? t('limit_reached') : t('earn_point')}
-          </Button>
+        {isOwner && ballVisible && (
+          <Box display="flex" justifyContent="center" mt={2}>
+            {ballVisible && (
+              <Box
+                sx={{
+                  width: 64,
+                  height: 64,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: user.pointsToday >= 4 ? 'not-allowed' : 'pointer',
+                  animation: `${float} 2s ease-in-out infinite`,
+                  transition: 'opacity 0.3s, transform 0.3s',
+                  opacity: ballAnimating ? 0 : 1,
+                  pointerEvents: ballAnimating || user.pointsToday >= 4 ? 'none' : 'auto',
+                  zIndex: 2,
+                  position: 'relative',
+                  fontWeight: 700,
+                  fontSize: 22,
+                  color: '#fff',
+                  userSelect: 'none',
+                  ...(ballAnimating && {
+                    animation: `${fadeOut} 0.8s forwards`,
+                  }),
+                }}
+                onClick={handleEarnPoint}
+                title={
+                  user.pointsToday >= 4
+                    ? String(t('limit_reached') ?? '')
+                    : String(t('earn_point') ?? '')
+                }
+              >
+                🏀
+              </Box>
+            )}
+          </Box>
         )}
         {isOwner && isEditing && (
           <Button

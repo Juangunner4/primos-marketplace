@@ -297,7 +297,7 @@ const PrimosMarketGallery: React.FC = () => {
           transition: 'opacity 0.2s, filter 0.2s',
         }}
       >
-        {!filterOpen && (
+        {/* {!filterOpen && (
           <IconButton
             aria-label={t('open_filters')}
             onClick={() => setFilterOpen(true)}
@@ -328,7 +328,7 @@ const PrimosMarketGallery: React.FC = () => {
           setMaxRank={setMaxRank}
           onClear={handleClearFilters}
           onApply={handleApplyFilters}
-        />
+        /> */}
         <div className="market-gallery" style={{ flex: 1 }}>
           <div className="market-header-row">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>

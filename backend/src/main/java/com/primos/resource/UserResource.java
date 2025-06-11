@@ -96,7 +96,9 @@ public class UserResource {
         if (user != null) {
             user.setPfp(pfpUrl);
             user.persistOrUpdate();
-            LOGGER.info(String.format("[UserResource] Updated PFP for publicKey: %s to %s", publicKey, pfpUrl));
+            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+                LOGGER.info(String.format("[UserResource] Updated PFP for publicKey: %s to %s", publicKey, pfpUrl));
+            }
         }
         return user;
     }
@@ -119,33 +121,55 @@ public class UserResource {
                 user.setSocials(updated.getSocials());
             }
             user.persistOrUpdate();
-            LOGGER.info(String.format("[UserResource] Updated profile for %s", publicKey));
+            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+                LOGGER.info(String.format("[UserResource] Updated profile for %s", publicKey));
+            }
         }
         return user;
     }
 
     @POST
     @Path("/{publicKey}/points")
+    @Consumes(MediaType.APPLICATION_JSON) // Explicitly expect JSON, even if body is empty
     public User addPoint(@PathParam("publicKey") String publicKey,
             @HeaderParam("X-Public-Key") String walletKey) {
+        if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+            LOGGER.info(String.format("[addPoint] Called for publicKey: %s with walletKey: %s", publicKey, walletKey));
+        }
         if (walletKey == null || !walletKey.equals(publicKey)) {
+            LOGGER.warning("[addPoint] Forbidden: walletKey missing or does not match publicKey");
             throw new ForbiddenException();
         }
         User user = User.find("publicKey", publicKey).firstResult();
         if (user == null) {
+            if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
+                LOGGER.warning(String.format("[addPoint] User not found for publicKey: %s", publicKey));
+            }
             throw new NotFoundException();
         }
         String today = java.time.LocalDate.now().toString();
+        if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+            LOGGER.info(String.format("[addPoint] User %s, today: %s, user.pointsDate: %s, user.pointsToday: %d",
+                    publicKey, today, user.getPointsDate(), user.getPointsToday()));
+        }
         if (!today.equals(user.getPointsDate())) {
             user.setPointsDate(today);
             user.setPointsToday(0);
+            LOGGER.info("[addPoint] Reset pointsToday for new day");
         }
         if (user.getPointsToday() >= 4) {
+            if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
+                LOGGER.warning(String.format("[addPoint] Daily limit reached for user: %s", publicKey));
+            }
             throw new jakarta.ws.rs.BadRequestException("Daily limit reached");
         }
         user.setPoints(user.getPoints() + 1);
         user.setPointsToday(user.getPointsToday() + 1);
         user.persistOrUpdate();
+        if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+            LOGGER.info(String.format("[addPoint] Updated points: %d, pointsToday: %d for user: %s",
+                    user.getPoints(), user.getPointsToday(), publicKey));
+        }
         return user;
     }
 
