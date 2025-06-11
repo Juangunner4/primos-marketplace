@@ -21,7 +21,7 @@ export interface FilterPanelProps {
   maxRank: string;
   attributeGroups: Record<string, string[]>;
   selectedAttributes: Record<string, Set<string>>;
-  setSelectedAttributes: (v: Record<string, Set<string>>) => void;
+  setSelectedAttributes: (v: Record<string, Set<string>> | ((prev: Record<string, Set<string>>) => Record<string, Set<string>>)) => void;
   setMinPrice: (v: string) => void;
   setMaxPrice: (v: string) => void;
   setMinRank: (v: string) => void;
@@ -50,7 +50,7 @@ export function FilterPanel({
 }: Readonly<FilterPanelProps>) {
 
   const toggleAttr = (group: string, value: string) => {
-    setSelectedAttributes((prev) => {
+    setSelectedAttributes((prev: Record<string, Set<string>>) => {
       const next = new Set(prev[group] ?? []);
       if (next.has(value)) {
         next.delete(value);
