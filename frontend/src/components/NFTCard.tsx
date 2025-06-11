@@ -32,6 +32,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
     <Dialog.Root open={open} onOpenChange={(val) => !val && onClose()}>
       <Dialog.Overlay className="nft-dialog-overlay" />
       <Dialog.Content className="nft-dialog-content">
+        <button className="close-button" onClick={onClose}>Close</button>
         <div
           className={`market-card market-card--${variant.name}`}
           style={{ margin: '0 auto' }}
@@ -42,8 +43,20 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
           >
             {nft.name}
           </span>
-          <img src={nft.image} alt={nft.name} className="market-nft-img" />
-          <div className="market-card-content"></div>
+          <img src={nft.image} alt={nft.name} className="market-nft-img modal-nft-img" />
+          <div className="market-card-content">
+            {nft.rank !== null && (
+              <span className="rarity-rank">Rank #{nft.rank}</span>
+            )}
+            <span className="nft-id">ID: {nft.id}</span>
+            {nft.attributes && nft.attributes.length > 0 && (
+              <ul className="nft-attributes">
+                {nft.attributes.slice(0, 5).map((attr) => (
+                  <li key={attr.trait_type}>{attr.trait_type}: {attr.value}</li>
+                ))}
+              </ul>
+            )}
+          </div>
           <div className="market-card-footer">
             {priceSol ? (
               <span

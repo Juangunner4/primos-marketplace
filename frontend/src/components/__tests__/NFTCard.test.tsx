@@ -12,9 +12,11 @@ const sampleNFT: MarketNFT = {
 };
 
 describe('NFTCard', () => {
-  test('renders when open', () => {
+  test('renders nft details when open', () => {
     render(<NFTCard nft={sampleNFT} open={true} onClose={() => {}} />);
     expect(screen.getByText('Primo 1')).toBeTruthy();
+    expect(screen.getByText('ID: 1')).toBeTruthy();
+    expect(screen.getByText('Rank #5')).toBeTruthy();
   });
 
   test('calls onClose when close button clicked', () => {
