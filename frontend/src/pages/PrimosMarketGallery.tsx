@@ -184,7 +184,7 @@ const PrimosMarketGallery: React.FC = () => {
   }, [page]);
 
   // Helper to check if an attribute group matches all selected values
-  function hasAllAttributes(attrs: { trait_type: string; value: string }[] = [], group: string, values: Set<string>) {
+  function hasAllAttributes(group: string, values: Set<string>, attrs: { trait_type: string; value: string }[] = []) {
     return Array.from(values).every((val) =>
       attrs.some((a) => a.trait_type?.toLowerCase() === group.toLowerCase() && a.value === val)
     );
@@ -199,7 +199,7 @@ const PrimosMarketGallery: React.FC = () => {
       for (const [group, set] of Object.entries(selectedAttributes)) {
         if (set.size === 0) continue;
         const attrs = nft.attributes || [];
-        if (!hasAllAttributes(attrs, group, set)) return false;
+        if (!hasAllAttributes(group, set, attrs)) return false;
       }
       return true;
     });
@@ -222,6 +222,15 @@ const PrimosMarketGallery: React.FC = () => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
           const priceSol = nft.price ? nft.price.toFixed(3) : null;
           const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
+
+          // Determine rank variant
+          let rankVariant = CARD_VARIANTS.find(v => v.name === 'bronze');
+          if (nft.rank !== null && nft.rank <= 100) {
+            rankVariant = CARD_VARIANTS.find(v => v.name === 'gold');
+          } else if (nft.rank !== null && nft.rank <= 500) {
+            rankVariant = CARD_VARIANTS.find(v => v.name === 'silver');
+          }
+
           return (
             <li
               key={nft.id}
@@ -239,10 +248,53 @@ const PrimosMarketGallery: React.FC = () => {
                 }
               }}
             >
-              <span className="market-prefix market-primo-number" style={{ background: variant.bg, borderColor: variant.border }} >{nft.name}</span>
+              {/* Rank pill: top-left */}
+              <span
+                className="market-prefix market-primo-number"
+                style={{
+                  background: rankVariant?.bg,
+                  borderColor: rankVariant?.border,
+                  left: 12,
+                  right: 'auto',
+                  position: 'absolute',
+                  top: 12,
+                  zIndex: 2,
+                }}
+              >
+                {nft.rank !== null ? `#${nft.rank}` : '--'}
+              </span>
+              {/* ID pill: top-right */}
+              <span
+                className="market-prefix market-primo-number"
+                style={{
+                  background: variant.bg,
+                  borderColor: variant.border,
+                  right: 14,
+                  left: 'auto',
+                  position: 'absolute',
+                  top: 12,
+                  zIndex: 2,
+                }}
+              >
+                {nft.id.slice(0, 4)}
+              </span>
               <img src={nft.image} alt={nft.name} className="market-nft-img" />
-              <div className="market-card-content">
-              </div>
+              {/* Name pill: below image, centered */}
+              <span
+                className="market-prefix market-primo-number"
+               style={{
+                  background: variant.bg,
+                  borderColor: variant.border,
+                  right: 75,
+                  left: 'auto',
+                  position: 'absolute',
+                  top: 204,
+                  zIndex: 2,
+                }}
+              >
+                {nft.name}
+              </span>
+              <div className="market-card-content"></div>
               <div className="market-card-footer">
                 {priceSol ? (
                   <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>

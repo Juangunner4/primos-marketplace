@@ -116,11 +116,12 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22), 0 4px 16px rgba(0, 0, 0, 0.10);
   z-index: 10;
 }
-.market-card--pink { --bg-color: #ffe4e6; --border-color: #ff69b4; }
 .market-card--yellow { --bg-color: #fffbe6; --border-color: #e2c275; }
 .market-card--green { --bg-color: #e6ffe6; --border-color: #2e8b57; }
 .market-card--blue { --bg-color: #e6f0ff; --border-color: #4169e1; }
-.market-card--orange { --bg-color: #fff0e6; --border-color: #ff7f50; }
+.market-card--gold { --bg-color: #ffe066; --border-color: #ffd700; }
+.market-card--silver { --bg-color: #f8f9fa; --border-color: #b0b0b0; }
+.market-card--bronze { --bg-color: #fbeee0; --border-color: #cd7f32; }
 
 .market-card-header {
   width: 100%;
@@ -226,6 +227,13 @@
   letter-spacing: 0.07em;
   z-index: 3;
   box-shadow: 0 2px 8px rgba(226, 194, 117, 0.13);
+  overflow: hidden;
+  max-width: 95%;
+  text-overflow: unset;
+  white-space: normal;
+  word-break: break-word;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
 }
 
 .market-pagination {
