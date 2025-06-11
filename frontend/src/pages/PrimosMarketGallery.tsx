@@ -9,6 +9,7 @@ import Activity from '../components/Activity';
 import IconButton from '@mui/material/IconButton';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { FilterPanel } from '../components/Filter';
+import NFTCard from '../components/NFTCard';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -40,6 +41,8 @@ const PrimosMarketGallery: React.FC = () => {
   const [maxRank, setMaxRank] = useState('');
   const [attributeGroups, setAttributeGroups] = useState<Record<string, string[]>>({});
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, Set<string>>>({});
+  const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
+  const [cardOpen, setCardOpen] = useState(false);
   const { t } = useTranslation();
 
 
@@ -216,7 +219,14 @@ const PrimosMarketGallery: React.FC = () => {
           const priceSol = nft.price ? nft.price.toFixed(3) : null;
           const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
           return (
-            <li key={nft.id} className={`market-card market-card--${variant.name}`}>
+            <li
+              key={nft.id}
+              className={`market-card market-card--${variant.name}`}
+              onClick={() => {
+                setSelectedNft(nft);
+                setCardOpen(true);
+              }}
+            >
               <span className="market-prefix market-primo-number" style={{ background: variant.bg, borderColor: variant.border }} >{nft.name}</span>
               <img src={nft.image} alt={nft.name} className="market-nft-img" />
               <div className="market-card-content">
@@ -336,6 +346,7 @@ const PrimosMarketGallery: React.FC = () => {
         </div>
       </div>
       <Activity />
+      <NFTCard nft={selectedNft} open={cardOpen} onClose={() => setCardOpen(false)} />
     </div>
   );
 };
