@@ -57,4 +57,23 @@ module.exports = {
       return config;
     },
   },
+  devServer: (devServerConfig) => {
+    const before = devServerConfig.onBeforeSetupMiddleware;
+    const after = devServerConfig.onAfterSetupMiddleware;
+
+    devServerConfig.onBeforeSetupMiddleware = undefined;
+    devServerConfig.onAfterSetupMiddleware = undefined;
+
+    devServerConfig.setupMiddlewares = (middlewares, devServer) => {
+      if (typeof before === "function") {
+        before(devServer);
+      }
+      if (typeof after === "function") {
+        after(devServer);
+      }
+      return middlewares;
+    };
+
+    return devServerConfig;
+  },
 };
