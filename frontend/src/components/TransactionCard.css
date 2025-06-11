@@ -1,0 +1,42 @@
+.transaction-card-floating {
+  position: absolute;
+  top: 40px;
+  right: -320px; /* Adjust as needed for your layout */
+  width: 260px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 1.2rem 1.5rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.transaction-card-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: 100%;
+}
+
+.buy-button,
+.paywith-button,
+.offer-button {
+  width: 100%;
+  padding: 0.7rem 0;
+  border: 2px solid;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  background: inherit; /* Will be overridden by inline style */
+  color: inherit;      /* Will be overridden by inline style */
+}
+
+.buy-button:hover,
+.paywith-button:hover,
+.offer-button:hover {
+  filter: brightness(0.95);
+}

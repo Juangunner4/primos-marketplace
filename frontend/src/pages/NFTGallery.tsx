@@ -106,7 +106,22 @@ const NFTGallery: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-      {/* Filter UI removed */}
+      {/* Something for Primos here */}
+      {/* {!filterOpen && (
+        <IconButton
+          aria-label={t('open_filters')}
+          onClick={() => setFilterOpen(true)}
+          sx={{
+            border: '1px solid #bbb',
+            borderRadius: 3,
+            boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
+            background: '#f5f5f8',
+            margin: '0 10px 0 10px',
+          }}
+        >
+          <CompareArrowsIcon />
+        </IconButton>
+      )} */}
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <h2 className="market-title">{t('your_primos_nfts')}</h2>
