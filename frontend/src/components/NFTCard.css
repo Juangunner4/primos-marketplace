@@ -8,12 +8,15 @@
   border-radius: 0.75rem;
   padding: 1.5rem;
   width: 90%;
-  max-width: 400px;
+  max-width: 800px;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   outline: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
 }
 
 /* Style adjustments for modal card */
