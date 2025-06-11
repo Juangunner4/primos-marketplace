@@ -34,7 +34,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
       <Dialog.Content className="nft-dialog-content">
         <button className="close-button" onClick={onClose}>Close</button>
         <div
-          className={`market-card market-card--${variant.name}`}
+          className={`market-card nft-modal-card market-card--${variant.name}`}
           style={{ margin: '0 auto' }}
         >
           <span

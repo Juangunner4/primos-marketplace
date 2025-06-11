@@ -16,6 +16,15 @@
   outline: none;
 }
 
+/* Style adjustments for modal card */
+.nft-modal-card {
+  border: none;
+}
+
+.nft-modal-card .market-nft-img {
+  border-bottom: none;
+}
+
 .close-button {
   position: absolute;
   top: 8px;
