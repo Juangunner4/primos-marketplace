@@ -15,3 +15,56 @@
   transform: translate(-50%, -50%);
   outline: none;
 }
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #444;
+}
+
+.modal-nft-img {
+  height: auto;
+  max-height: 340px;
+  object-fit: contain;
+}
+
+.market-card-content {
+  width: 92%;
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
+.nft-id {
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.rarity-rank {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.3rem;
+  display: block;
+}
+
+.nft-attributes {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.nft-attributes li {
+  background: #f5f5f5;
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+}
