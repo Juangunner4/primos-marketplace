@@ -4,6 +4,7 @@ import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import UserProfile from '../UserProfile';
 import i18n from '../../i18n';
+import axios from 'axios';
 
 const mockUseWallet = jest.fn();
 jest.mock('@solana/wallet-adapter-react', () => ({
@@ -17,9 +18,21 @@ jest.mock('axios', () => ({
     socials: { twitter: '', discord: '', website: '' },
     pfp: '',
     points: 0,
+    pointsToday: 0,
+    pointsDate: 'today',
     pesos: 0
   }})),
-  put: jest.fn(() => Promise.resolve({ data: {} }))
+  put: jest.fn(() => Promise.resolve({ data: {} })),
+  post: jest.fn(() => Promise.resolve({ data: {
+    publicKey: 'pubkey123',
+    bio: '',
+    socials: { twitter: '', discord: '', website: '' },
+    pfp: '',
+    points: 1,
+    pointsToday: 1,
+    pointsDate: 'today',
+    pesos: 0
+  }}))
 }));
 
 jest.mock('../services/helius', () => ({
@@ -99,5 +112,19 @@ describe('UserProfile', () => {
 
     await screen.findByText(/Wallet/i);
     expect(screen.queryByText(/Edit/i)).toBeNull();
+  });
+
+  test('earns point when clicking button', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    const { findByText } = render(
+      <I18nextProvider i18n={i18n}>
+        <UserProfile />
+      </I18nextProvider>
+    );
+
+    await findByText(/Wallet/i);
+    fireEvent.click(screen.getByText(/Earn Point/i));
+    await waitFor(() => expect((axios.post as jest.Mock).mock.calls.length).toBe(1));
+    expect(await screen.findByText(/Points: 1/i)).toBeTruthy();
   });
 });

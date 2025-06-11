@@ -115,5 +115,7 @@
   "filter_price": "Precio",
   "filter_rank": "Rango",
   "apply_filters": "Aplicar",
-  "clear_filters": "Limpiar"
+  "clear_filters": "Limpiar",
+  "earn_point": "Ganar punto",
+  "limit_reached": "Límite diario alcanzado"
 }

@@ -60,4 +60,18 @@ public class UserResourceTest {
         UserResource resource = new UserResource();
         assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> resource.getDaoMembers(null));
     }
+
+    @Test
+    public void testAddPointIncrementsUntilLimit() {
+        UserResource resource = new UserResource();
+        LoginRequest req = new LoginRequest();
+        req.publicKey = "pointy";
+        resource.login(req);
+        for (int i = 0; i < 4; i++) {
+            com.primos.model.User u = resource.addPoint("pointy", "pointy");
+            assertEquals(i + 1, u.getPoints());
+        }
+        assertThrows(jakarta.ws.rs.BadRequestException.class,
+                () -> resource.addPoint("pointy", "pointy"));
+    }
 }

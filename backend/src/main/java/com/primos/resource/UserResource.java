@@ -124,6 +124,31 @@ public class UserResource {
         return user;
     }
 
+    @POST
+    @Path("/{publicKey}/points")
+    public User addPoint(@PathParam("publicKey") String publicKey,
+            @HeaderParam("X-Public-Key") String walletKey) {
+        if (walletKey == null || !walletKey.equals(publicKey)) {
+            throw new ForbiddenException();
+        }
+        User user = User.find("publicKey", publicKey).firstResult();
+        if (user == null) {
+            throw new NotFoundException();
+        }
+        String today = java.time.LocalDate.now().toString();
+        if (!today.equals(user.getPointsDate())) {
+            user.setPointsDate(today);
+            user.setPointsToday(0);
+        }
+        if (user.getPointsToday() >= 4) {
+            throw new jakarta.ws.rs.BadRequestException("Daily limit reached");
+        }
+        user.setPoints(user.getPoints() + 1);
+        user.setPointsToday(user.getPointsToday() + 1);
+        user.persistOrUpdate();
+        return user;
+    }
+
     @GET
     @Path("/primos")
     public java.util.List<User> getDaoMembers(@HeaderParam("X-Public-Key") String walletKey) {
