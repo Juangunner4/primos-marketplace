@@ -29,7 +29,9 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
     if (!isConnected) return;
 
     const fetchData = async () => {
-      const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/primos`);
+      const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/primos`, {
+        headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
+      });
       const enriched = await Promise.all(
         membersRes.data.map(async (m) => {
           let image = '';

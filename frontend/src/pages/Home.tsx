@@ -74,7 +74,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
     const fetchMembers = async () => {
       try {
         const res = await axios.get<DaoMember[]>(
-          `${backendUrl}/api/user/primos`
+          `${backendUrl}/api/user/primos`,
+          { headers: { 'X-Public-Key': wallet.publicKey?.toBase58() } }
         );
         const enriched = await Promise.all(
           res.data.slice(0, 5).map(async (m) => {
