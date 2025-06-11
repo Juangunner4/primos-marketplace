@@ -48,6 +48,12 @@ module.exports = {
           }
         });
       }
+      config.ignoreWarnings = [
+        (warning) =>
+          warning.module &&
+          warning.module.resource &&
+          warning.module.resource.includes("node_modules"),
+      ];
       return config;
     },
   },
