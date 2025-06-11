@@ -43,75 +43,65 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
       <Dialog.Overlay className="nft-dialog-overlay" />
       <Dialog.Content className="nft-dialog-content">
         <button className="close-button" onClick={onClose}>{t('close')}</button>
-        <div
-          className={`market-card nft-modal-card market-card--${variant.name}`}
-          style={{ margin: '0 auto' }}
-        >
-          {/* Rank pill: top-left */}
-          <span
-            className="market-prefix market-primo-number"
-            style={{
-              background: rankVariant?.bg,
-              borderColor: rankVariant?.border,
-              left: 12,
-              right: 'auto',
-              position: 'absolute',
-              top: 12,
-              zIndex: 2,
-            }}
+        <div className="nft-modal-vertical">
+          <div
+            className={`market-card nft-modal-card market-card--${variant.name} nft-modal-image-container`}
           >
-            {nft.rank !== null ? `#${nft.rank}` : '--'}
-          </span>
-          {/* ID pill: top-right */}
-          <span
-            className="market-prefix market-primo-number"
-            style={{
-              background: variant.bg,
-              borderColor: variant.border,
-              right: 14,
-              left: 'auto',
-              position: 'absolute',
-              top: 12,
-              zIndex: 2,
-            }}
-          >
-            {nft.id.slice(0, 4)}
-          </span>
-          <img src={nft.image} alt={nft.name} className="market-nft-img modal-nft-img" />
-          {/* Name pill: below image, centered */}
-          <span
-            className="market-prefix market-primo-number"
-            style={{
-              background: variant.bg,
-              borderColor: variant.border,
-              position: 'relative',
-              display: 'block',
-              margin: '0.7rem auto 0.3rem auto',
-              textAlign: 'center',
-              zIndex: 1,
-              maxWidth: '95%',
-              fontSize: '1.08rem',
-              fontWeight: 700,
-              whiteSpace: 'normal',
-              overflow: 'visible',
-              textOverflow: 'unset',
-              padding: '0.22rem 0.8rem',
-              wordBreak: 'break-word',
-              right: 50,
-              left: 'unset',
-              top: 'unset',
-            }}
-          >
-            {nft.name}
-          </span>
+            <img src={nft.image} alt={nft.name} className="market-nft-img modal-nft-img" />
+          </div>
+          <div className="nft-modal-info">
+            <div className="nft-info-pills">
+              <span
+                className="nft-info-pill rank"
+                style={{
+                  borderColor: rankVariant?.border,
+                  background: rankVariant?.bg,
+                }}
+              >
+                {nft.rank !== null ? `#${nft.rank}` : '--'}
+              </span>
+              <span
+                className="nft-info-pill id"
+                style={{
+                  borderColor: variant.border,
+                  background: variant.bg,
+                }}
+              >
+                {nft.id.slice(0, 4)}
+              </span>
+              <span
+                className="nft-info-pill name"
+                style={{
+                  borderColor: variant.border,
+                  background: variant.bg,
+                  maxWidth: 160,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={nft.name}
+              >
+                {nft.name}
+              </span>
+            </div>
+            {nft.attributes && nft.attributes.length > 0 && (
+              <ul className="nft-attributes">
+                {nft.attributes.slice(0, 6).map((attr, i) => (
+                  <li key={i}>
+                    <strong>{attr.trait_type}:</strong> {attr.value}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <TransactionCard
+            priceSol={priceSol}
+            priceUsd={priceUsd}
+            onBuy={onClose}
+            variantBg={variant.bg}
+            variantBorder={variant.border}
+          />
         </div>
-        <TransactionCard
-          priceSol={priceSol}
-          priceUsd={priceUsd}
-          onBuy={onClose}
-          variantBg={variant.bg}
-          variantBorder={variant.border}
-        />
       </Dialog.Content>
     </Dialog.Root>
   );
