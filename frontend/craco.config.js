@@ -26,6 +26,28 @@ module.exports = {
           Buffer: ["buffer", "Buffer"],
         })
       );
+
+      // Exclude node_modules from source map parsing to
+      // suppress warnings about missing TypeScript files in
+      // third-party packages like @reown/appkit-ui.
+      if (config.module && Array.isArray(config.module.rules)) {
+        config.module.rules.forEach((rule) => {
+          if (Array.isArray(rule.oneOf)) {
+            rule.oneOf.forEach((oneOfRule) => {
+              const uses = oneOfRule.use || [];
+              const loaders = Array.isArray(uses) ? uses : [uses];
+              loaders.forEach((loader) => {
+                if (
+                  loader.loader &&
+                  loader.loader.includes("source-map-loader")
+                ) {
+                  oneOfRule.exclude = /node_modules/;
+                }
+              });
+            });
+          }
+        });
+      }
       return config;
     },
   },
