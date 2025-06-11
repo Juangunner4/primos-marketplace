@@ -53,12 +53,7 @@ export function FilterPanel({
   onClear,
   onApply,
 }: Readonly<FilterPanelProps>) {
-  // 1) Marketplaces
-  const [selectedMarketplaces, setSelectedMarketplaces] = useState<string[]>([]);
 
-  // 2) Price range (min/max) handled by parent
-
-  // 3) Dynamic attributes (traits)
   const ATTRIBUTE_GROUPS: Record<string, string[]> = {
     Color: ["Red", "Blue", "Green"],
     Hat: ["Beanie", "Cap", "None"],
@@ -77,15 +72,7 @@ export function FilterPanel({
     });
   };
 
-  const handleMarketplaceChange = (value: string) => {
-    setSelectedMarketplaces((prev) =>
-      prev.includes(value)
-        ? prev.filter((v) => v !== value)
-        : [...prev, value]
-    );
-  };
-
-  if (!open) return null; // Only render if open
+  if (!open) return null;
 
   return (
     <Box
@@ -107,23 +94,6 @@ export function FilterPanel({
       <Typography variant="h6" gutterBottom>
         Filters
       </Typography>
-
-      {/* 1) Marketplaces */}
-      <Typography gutterBottom>Marketplaces</Typography>
-      <FormGroup sx={{ mb: 2 }}>
-        {MARKETPLACES.map((mp) => (
-          <FormControlLabel
-            key={mp.value}
-            control={
-              <Checkbox
-                checked={selectedMarketplaces.includes(mp.value)}
-                onChange={() => handleMarketplaceChange(mp.value)}
-              />
-            }
-            label={mp.label}
-          />
-        ))}
-      </FormGroup>
 
       {/* 2) Price Min/Max */}
       <Typography gutterBottom>Price (SOL)</Typography>
@@ -191,13 +161,7 @@ export function FilterPanel({
 
       {/* 4) Active filters & Apply / Reset */}
       <Box mt={2} display="flex" flexWrap="wrap" gap={1}>
-        {selectedMarketplaces.map((mp) => (
-          <Chip
-            key={mp}
-            label={MARKETPLACES.find(m => m.value === mp)?.label || mp}
-            onDelete={() => handleMarketplaceChange(mp)}
-          />
-        ))}
+        {/* REMOVED selectedMarketplaces chips */}
         {minPrice && <Chip label={`Min: ${minPrice}`} onDelete={() => setMinPrice('')} />}
         {maxPrice && <Chip label={`Max: ${maxPrice}`} onDelete={() => setMaxPrice('')} />}
         {minRank && <Chip label={`Rank Min: ${minRank}`} onDelete={() => setMinRank('')} />}
@@ -223,7 +187,7 @@ export function FilterPanel({
             },
           }}
           onClick={() => {
-            setSelectedMarketplaces([]);
+            // REMOVED setSelectedMarketplaces
             setAttrs({});
             setMinPrice('');
             setMaxPrice('');
