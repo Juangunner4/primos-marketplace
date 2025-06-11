@@ -117,5 +117,8 @@
   "apply_filters": "Aplicar",
   "clear_filters": "Limpiar",
   "earn_point": "Ganar punto",
-  "limit_reached": "Límite diario alcanzado"
+  "limit_reached": "Límite diario alcanzado",
+  "close": "Cerrar",
+  "buy_now": "Comprar ahora",
+  "go": "Ir"
 }

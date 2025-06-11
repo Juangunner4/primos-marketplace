@@ -127,7 +127,7 @@ const Activity: React.FC = () => {
             {item.type === 'listing' ? (
               <span className="activity-pill listing-pill">
                 <span className="paper-hand" style={{ marginRight: 4 }}>🫲</span>{' '}
-                List
+                {t('activity_listing')}
               </span>
             ) : (
               <span className="activity-type">{typeLabels[item.type] || item.type}</span>

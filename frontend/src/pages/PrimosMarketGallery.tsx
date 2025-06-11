@@ -1,14 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getPythSolPrice } from '../utils/pyth';
-import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats, getCollectionAttributes } from '../utils/magiceden';
+import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
-import IconButton from '@mui/material/IconButton';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import { FilterPanel } from '../components/Filter';
 import NFTCard from '../components/NFTCard';
 
 const MAGICEDEN_SYMBOL = 'primos';
@@ -34,13 +31,6 @@ const PrimosMarketGallery: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageInput, setPageInput] = useState('1');
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [minRank, setMinRank] = useState('');
-  const [maxRank, setMaxRank] = useState('');
-  const [attributeGroups, setAttributeGroups] = useState<Record<string, string[]>>({});
-  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, Set<string>>>({});
   const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
   const { t } = useTranslation();
@@ -69,29 +59,6 @@ const PrimosMarketGallery: React.FC = () => {
     }
     fetchStats();
     return () => { isMounted = false; };
-  }, []);
-
-  // Fetch attribute groups once
-  useEffect(() => {
-    let mounted = true;
-    async function fetchAttrs() {
-      try {
-        const data = await getCollectionAttributes(MAGICEDEN_SYMBOL);
-        if (!mounted) return;
-        const groups: Record<string, string[]> = {};
-        const attrs = data?.attributes || {};
-        for (const key of Object.keys(attrs)) {
-          groups[key] = attrs[key].map((a: any) => a.value);
-        }
-        setAttributeGroups(groups);
-      } catch (e) {
-        console.error('Failed to fetch attributes', e);
-      }
-    }
-    fetchAttrs();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   // Helper function moved out to avoid deep nesting
@@ -183,27 +150,7 @@ const PrimosMarketGallery: React.FC = () => {
     setPageInput(String(page));
   }, [page]);
 
-  // Helper to check if an attribute group matches all selected values
-  function hasAllAttributes(group: string, values: Set<string>, attrs: { trait_type: string; value: string }[] = []) {
-    return Array.from(values).every((val) =>
-      attrs.some((a) => a.trait_type?.toLowerCase() === group.toLowerCase() && a.value === val)
-    );
-  }
-
-  const filteredNfts = useMemo(() => {
-    return nfts.filter((nft) => {
-      if (minPrice && nft.price < parseFloat(minPrice)) return false;
-      if (maxPrice && nft.price > parseFloat(maxPrice)) return false;
-      if (minRank && (nft.rank === null || nft.rank < parseInt(minRank, 10))) return false;
-      if (maxRank && (nft.rank === null || nft.rank > parseInt(maxRank, 10))) return false;
-      for (const [group, set] of Object.entries(selectedAttributes)) {
-        if (set.size === 0) continue;
-        const attrs = nft.attributes || [];
-        if (!hasAllAttributes(group, set, attrs)) return false;
-      }
-      return true;
-    });
-  }, [nfts, minPrice, maxPrice, minRank, maxRank, selectedAttributes]);
+  const filteredNfts = nfts;
 
   let content;
   if (loading) {
@@ -306,7 +253,7 @@ const PrimosMarketGallery: React.FC = () => {
                 ) : (
                   <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>{t('market_no_price')}</span>
                 )}
-                <button className="buy-button" >Buy Now</button>
+                <button className="buy-button" >{t('buy_now')}</button>
               </div>
             </li>
           );
@@ -315,17 +262,6 @@ const PrimosMarketGallery: React.FC = () => {
     );
   }
 
-  const handleApplyFilters = () => {
-    setFilterOpen(false);
-  };
-
-  const handleClearFilters = () => {
-    setMinPrice('');
-    setMaxPrice('');
-    setMinRank('');
-    setMaxRank('');
-    setSelectedAttributes({});
-  };
 
   return (
     <>
@@ -361,38 +297,6 @@ const PrimosMarketGallery: React.FC = () => {
           transition: 'opacity 0.2s, filter 0.2s',
         }}
       >
-        {/* {!filterOpen && (
-          <IconButton
-            aria-label={t('open_filters')}
-            onClick={() => setFilterOpen(true)}
-            sx={{
-              border: '1px solid #bbb',
-              borderRadius: 3,
-              boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
-              background: '#f5f5f8',
-              margin: '0 10px 0 10px',
-            }}
-          >
-            <CompareArrowsIcon />
-          </IconButton>
-        )}
-        <FilterPanel
-          open={filterOpen}
-          onClose={() => setFilterOpen(false)}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          minRank={minRank}
-          maxRank={maxRank}
-          attributeGroups={attributeGroups}
-          selectedAttributes={selectedAttributes}
-          setSelectedAttributes={setSelectedAttributes}
-          setMinPrice={setMinPrice}
-          setMaxPrice={setMaxPrice}
-          setMinRank={setMinRank}
-          setMaxRank={setMaxRank}
-          onClear={handleClearFilters}
-          onApply={handleApplyFilters}
-        /> */}
         <div className="market-gallery" style={{ flex: 1 }}>
           <div className="market-header-row">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -430,7 +334,7 @@ const PrimosMarketGallery: React.FC = () => {
               }}
               style={{ padding: '0.4rem 0.8rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: '#fff' }}
             >
-              Go
+              {t('go')}
             </button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

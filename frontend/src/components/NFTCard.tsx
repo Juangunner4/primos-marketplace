@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useTranslation } from 'react-i18next';
 import './NFTCard.css';
 import { CARD_VARIANTS } from '../utils/cardVariants';
 
@@ -21,6 +22,7 @@ interface NFTCardProps {
 }
 
 const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) => {
+  const { t } = useTranslation();
   if (!nft) return null;
   const variant =
     CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
@@ -32,7 +34,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
     <Dialog.Root open={open} onOpenChange={(val) => !val && onClose()}>
       <Dialog.Overlay className="nft-dialog-overlay" />
       <Dialog.Content className="nft-dialog-content">
-        <button className="close-button" onClick={onClose}>Close</button>
+        <button className="close-button" onClick={onClose}>{t('close')}</button>
         <div
           className={`market-card nft-modal-card market-card--${variant.name}`}
           style={{ margin: '0 auto' }}
@@ -46,7 +48,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
           <img src={nft.image} alt={nft.name} className="market-nft-img modal-nft-img" />
           <div className="market-card-content">
             {nft.rank !== null && (
-              <span className="rarity-rank">Rank #{nft.rank}</span>
+              <span className="rarity-rank">{t('rarity_rank')} #{nft.rank}</span>
             )}
             <span className="nft-id">ID: {nft.id}</span>
             {nft.attributes && nft.attributes.length > 0 && (
@@ -71,11 +73,11 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
                 className="market-nft-price-pill"
                 style={{ background: variant.bg, borderColor: variant.border }}
               >
-                No price
+                {t('market_no_price')}
               </span>
             )}
             <button className="buy-button" onClick={onClose}>
-              Buy Now
+              {t('buy_now')}
             </button>
           </div>
         </div>
