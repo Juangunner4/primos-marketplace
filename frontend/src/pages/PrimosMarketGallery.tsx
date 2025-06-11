@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getPythSolPrice } from '../utils/pyth';
-import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
+import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats, getCollectionAttributes } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
@@ -20,6 +20,7 @@ type MarketNFT = {
   price: number;
   variant: string;
   rank: number | null;
+  attributes?: { trait_type: string; value: string }[];
 };
 
 const PrimosMarketGallery: React.FC = () => {
@@ -37,6 +38,8 @@ const PrimosMarketGallery: React.FC = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [minRank, setMinRank] = useState('');
   const [maxRank, setMaxRank] = useState('');
+  const [attributeGroups, setAttributeGroups] = useState<Record<string, string[]>>({});
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, Set<string>>>({});
   const { t } = useTranslation();
 
 
@@ -63,6 +66,29 @@ const PrimosMarketGallery: React.FC = () => {
     }
     fetchStats();
     return () => { isMounted = false; };
+  }, []);
+
+  // Fetch attribute groups once
+  useEffect(() => {
+    let mounted = true;
+    async function fetchAttrs() {
+      try {
+        const data = await getCollectionAttributes(MAGICEDEN_SYMBOL);
+        if (!mounted) return;
+        const groups: Record<string, string[]> = {};
+        const attrs = data?.attributes || {};
+        for (const key of Object.keys(attrs)) {
+          groups[key] = attrs[key].map((a: any) => a.value);
+        }
+        setAttributeGroups(groups);
+      } catch (e) {
+        console.error('Failed to fetch attributes', e);
+      }
+    }
+    fetchAttrs();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Helper function moved out to avoid deep nesting
@@ -119,26 +145,22 @@ const PrimosMarketGallery: React.FC = () => {
         }
       }
 
-      // Build NFT objects using listing data and fetch metadata only when missing
+      // Build NFT objects using listing data and fetch metadata for attributes
       const pageNFTs: MarketNFT[] = await Promise.all(
         listings.map(async (listing: any) => {
-          let image = listing.img ?? listing.image ?? listing.extra?.img;
-          let name = listing.name ?? listing.title;
-          let meta: any = null;
-          if (!image || !name) {
-            meta = await getNFTByTokenAddress(listing.tokenMint);
-            image = image ?? meta?.image;
-            name = name ?? meta?.name;
-          }
+          const meta = await getNFTByTokenAddress(listing.tokenMint);
+          const image = listing.img ?? listing.image ?? listing.extra?.img ?? meta?.image ?? '';
+          const name = listing.name ?? listing.title ?? meta?.name ?? listing.tokenMint;
           const metaAttrs = meta?.attributes;
           const rank = getNftRank(listing, metaAttrs);
           return {
             id: listing.tokenMint,
-            image: image || '',
-            name: name || listing.tokenMint,
+            image,
+            name,
             price: listing.price,
             variant: getRandomCardVariantName(),
             rank,
+            attributes: metaAttrs,
           } as MarketNFT;
         })
       );
@@ -164,9 +186,17 @@ const PrimosMarketGallery: React.FC = () => {
       if (maxPrice && nft.price > parseFloat(maxPrice)) return false;
       if (minRank && (nft.rank === null || nft.rank < parseInt(minRank, 10))) return false;
       if (maxRank && (nft.rank === null || nft.rank > parseInt(maxRank, 10))) return false;
+      for (const [group, set] of Object.entries(selectedAttributes)) {
+        if (set.size === 0) continue;
+        const attrs = nft.attributes || [];
+        const hasAll = Array.from(set).every((val) =>
+          attrs.some((a) => a.trait_type?.toLowerCase() === group.toLowerCase() && a.value === val)
+        );
+        if (!hasAll) return false;
+      }
       return true;
     });
-  }, [nfts, minPrice, maxPrice, minRank, maxRank]);
+  }, [nfts, minPrice, maxPrice, minRank, maxRank, selectedAttributes]);
 
   let content;
   if (loading) {
@@ -220,6 +250,7 @@ const PrimosMarketGallery: React.FC = () => {
     setMaxPrice('');
     setMinRank('');
     setMaxRank('');
+    setSelectedAttributes({});
   };
 
   return (
@@ -246,6 +277,9 @@ const PrimosMarketGallery: React.FC = () => {
         maxPrice={maxPrice}
         minRank={minRank}
         maxRank={maxRank}
+        attributeGroups={attributeGroups}
+        selectedAttributes={selectedAttributes}
+        setSelectedAttributes={setSelectedAttributes}
         setMinPrice={setMinPrice}
         setMaxPrice={setMaxPrice}
         setMinRank={setMinRank}
