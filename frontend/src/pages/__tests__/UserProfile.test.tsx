@@ -28,14 +28,16 @@ jest.mock('../services/helius', () => ({
 }));
 
 describe('UserProfile', () => {
-  test('returns null when wallet not connected', () => {
+  test('prompts login when wallet not connected', () => {
     mockUseWallet.mockReturnValue({ publicKey: null });
-    const { container } = render(
-      <I18nextProvider i18n={i18n}>
-        <UserProfile />
-      </I18nextProvider>
+    render(
+      <MemoryRouter initialEntries={['/user/abc']}>
+        <Routes>
+          <Route path="/user/:publicKey" element={<I18nextProvider i18n={i18n}><UserProfile /></I18nextProvider>} />
+        </Routes>
+      </MemoryRouter>
     );
-    expect(container.firstChild).toBeNull();
+    expect(screen.getByText(/Please login to view user profiles/i)).toBeTruthy();
   });
 
   test('shows cancel button and NFT selector when entering edit mode', async () => {
@@ -99,5 +101,17 @@ describe('UserProfile', () => {
 
     await screen.findByText(/Wallet/i);
     expect(screen.queryByText(/Edit/i)).toBeNull();
+  });
+
+  test('prompts login on profile route when wallet disconnected', () => {
+    mockUseWallet.mockReturnValue({ publicKey: null });
+    render(
+      <MemoryRouter initialEntries={['/user/tester']}>
+        <Routes>
+          <Route path="/user/:publicKey" element={<I18nextProvider i18n={i18n}><UserProfile /></I18nextProvider>} />
+        </Routes>
+      </MemoryRouter>
+    );
+    expect(screen.getByText(/Please login to view user profiles/i)).toBeTruthy();
   });
 });

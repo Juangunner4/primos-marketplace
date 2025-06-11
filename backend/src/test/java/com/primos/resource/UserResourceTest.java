@@ -34,4 +34,11 @@ public class UserResourceTest {
         java.util.List<com.primos.model.User> members = resource.getDaoMembers();
         assertFalse(members.isEmpty());
     }
+
+    @Test
+    public void testGetUserRequiresHeader() {
+        UserResource resource = new UserResource();
+        assertThrows(jakarta.ws.rs.ForbiddenException.class,
+                () -> resource.getUser("somekey", null));
+    }
 }
