@@ -183,6 +183,13 @@ const PrimosMarketGallery: React.FC = () => {
     setPageInput(String(page));
   }, [page]);
 
+  // Helper to check if an attribute group matches all selected values
+  function hasAllAttributes(attrs: { trait_type: string; value: string }[] = [], group: string, values: Set<string>) {
+    return Array.from(values).every((val) =>
+      attrs.some((a) => a.trait_type?.toLowerCase() === group.toLowerCase() && a.value === val)
+    );
+  }
+
   const filteredNfts = useMemo(() => {
     return nfts.filter((nft) => {
       if (minPrice && nft.price < parseFloat(minPrice)) return false;
@@ -192,10 +199,7 @@ const PrimosMarketGallery: React.FC = () => {
       for (const [group, set] of Object.entries(selectedAttributes)) {
         if (set.size === 0) continue;
         const attrs = nft.attributes || [];
-        const hasAll = Array.from(set).every((val) =>
-          attrs.some((a) => a.trait_type?.toLowerCase() === group.toLowerCase() && a.value === val)
-        );
-        if (!hasAll) return false;
+        if (!hasAllAttributes(attrs, group, set)) return false;
       }
       return true;
     });
@@ -222,9 +226,17 @@ const PrimosMarketGallery: React.FC = () => {
             <li
               key={nft.id}
               className={`market-card market-card--${variant.name}`}
+              tabIndex={0}
+              role="button"
               onClick={() => {
                 setSelectedNft(nft);
                 setCardOpen(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setSelectedNft(nft);
+                  setCardOpen(true);
+                }
               }}
             >
               <span className="market-prefix market-primo-number" style={{ background: variant.bg, borderColor: variant.border }} >{nft.name}</span>
