@@ -104,14 +104,14 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
           >
             {nft.name}
           </span>
-          <TransactionCard
-            priceSol={priceSol}
-            priceUsd={priceUsd}
-            onBuy={onClose}
-            variantBg={variant.bg}
-            variantBorder={variant.border}
-          />
         </div>
+        <TransactionCard
+          priceSol={priceSol}
+          priceUsd={priceUsd}
+          onBuy={onClose}
+          variantBg={variant.bg}
+          variantBorder={variant.border}
+        />
       </Dialog.Content>
     </Dialog.Root>
   );

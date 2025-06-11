@@ -120,5 +120,7 @@
   "limit_reached": "Daily limit reached",
   "close": "Close",
   "buy_now": "Buy Now",
+  "pay_with": "Pay with",
+  "make_an_offer": "Make an Offer",
   "go": "Go"
 }
