@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Link } from 'react-router-dom';
 import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
-import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import axios from 'axios';
