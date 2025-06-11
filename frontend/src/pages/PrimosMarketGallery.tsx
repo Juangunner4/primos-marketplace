@@ -232,10 +232,10 @@ const PrimosMarketGallery: React.FC = () => {
                style={{
                   background: variant.bg,
                   borderColor: variant.border,
-                  right: 75,
+                  right: 85,
                   left: 'auto',
                   position: 'absolute',
-                  top: 204,
+                  top: 200,
                   zIndex: 2,
                 }}
               >
