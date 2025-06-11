@@ -264,90 +264,122 @@ const PrimosMarketGallery: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-      {!filterOpen && (
-        <IconButton
-          aria-label={t('open_filters')}
-          onClick={() => setFilterOpen(true)}
-          sx={{
-            border: '1px solid #bbb',
-            borderRadius: 3,
-            boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
-            background: '#f5f5f8',
-            margin: '0 10px 0 10px',
+    <>
+      {/* Overlay and NFTCard modal */}
+      {cardOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            zIndex: 1200,
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <CompareArrowsIcon />
-        </IconButton>
+          <NFTCard nft={selectedNft} open={cardOpen} onClose={() => setCardOpen(false)} />
+        </div>
       )}
-      <FilterPanel
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        minPrice={minPrice}
-        maxPrice={maxPrice}
-        minRank={minRank}
-        maxRank={maxRank}
-        attributeGroups={attributeGroups}
-        selectedAttributes={selectedAttributes}
-        setSelectedAttributes={setSelectedAttributes}
-        setMinPrice={setMinPrice}
-        setMaxPrice={setMaxPrice}
-        setMinRank={setMinRank}
-        setMaxRank={setMaxRank}
-        onClear={handleClearFilters}
-        onApply={handleApplyFilters}
-      />
-      <div className="market-gallery" style={{ flex: 1 }}>
-        <div className="market-header-row">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <h2 className="market-title">{t('market_title')}</h2>
-          </div>
-          <div className="market-stats-pills">
-            <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
-            <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
-            <span className="market-pill">{t('market_holders')}: {uniqueHolders ?? '--'}</span>
-            <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice}` : '--'}</span>
-          </div>
-        </div>
-        {content}
-        <div className="market-pagination">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
-          >
-            {t('prev') || 'Prev'}
-          </button>
-          <span style={{ fontWeight: 500 }}>{page} / {totalPages}</span>
-          <input
-            type="number"
-            min={1}
-            max={totalPages}
-            value={pageInput}
-            onChange={(e) => setPageInput(e.target.value)}
-            style={{ width: 60, padding: '0.3rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc' }}
-          />
-          <button
-            onClick={() => {
-              const num = Math.max(1, Math.min(totalPages, parseInt(pageInput, 10) || 1));
-              setPage(num);
+
+      {/* Main marketplace content, faded when modal is open */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          filter: cardOpen ? 'blur(2px)' : 'none',
+          opacity: cardOpen ? 0.4 : 1,
+          pointerEvents: cardOpen ? 'none' : 'auto',
+          transition: 'opacity 0.2s, filter 0.2s',
+        }}
+      >
+        {!filterOpen && (
+          <IconButton
+            aria-label={t('open_filters')}
+            onClick={() => setFilterOpen(true)}
+            sx={{
+              border: '1px solid #bbb',
+              borderRadius: 3,
+              boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
+              background: '#f5f5f8',
+              margin: '0 10px 0 10px',
             }}
-            style={{ padding: '0.4rem 0.8rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: '#fff' }}
           >
-            Go
-          </button>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
-          >
-            {t('next') || 'Next'}
-          </button>
+            <CompareArrowsIcon />
+          </IconButton>
+        )}
+        <FilterPanel
+          open={filterOpen}
+          onClose={() => setFilterOpen(false)}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          minRank={minRank}
+          maxRank={maxRank}
+          attributeGroups={attributeGroups}
+          selectedAttributes={selectedAttributes}
+          setSelectedAttributes={setSelectedAttributes}
+          setMinPrice={setMinPrice}
+          setMaxPrice={setMaxPrice}
+          setMinRank={setMinRank}
+          setMaxRank={setMaxRank}
+          onClear={handleClearFilters}
+          onApply={handleApplyFilters}
+        />
+        <div className="market-gallery" style={{ flex: 1 }}>
+          <div className="market-header-row">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <h2 className="market-title">{t('market_title')}</h2>
+            </div>
+            <div className="market-stats-pills">
+              <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
+              <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
+              <span className="market-pill">{t('market_holders')}: {uniqueHolders ?? '--'}</span>
+              <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice}` : '--'}</span>
+            </div>
+          </div>
+          {content}
+          <div className="market-pagination">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
+            >
+              {t('prev') || 'Prev'}
+            </button>
+            <span style={{ fontWeight: 500 }}>{page} / {totalPages}</span>
+            <input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={pageInput}
+              onChange={(e) => setPageInput(e.target.value)}
+              style={{ width: 60, padding: '0.3rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc' }}
+            />
+            <button
+              onClick={() => {
+                const num = Math.max(1, Math.min(totalPages, parseInt(pageInput, 10) || 1));
+                setPage(num);
+              }}
+              style={{ padding: '0.4rem 0.8rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: '#fff' }}
+            >
+              Go
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
+            >
+              {t('next') || 'Next'}
+            </button>
+          </div>
         </div>
+        <Activity />
       </div>
-      <Activity />
-      <NFTCard nft={selectedNft} open={cardOpen} onClose={() => setCardOpen(false)} />
-    </div>
+    </>
   );
 };
 
