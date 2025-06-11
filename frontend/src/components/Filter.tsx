@@ -2,20 +2,15 @@ import {
   Box,
   Typography,
   TextField,
-  Autocomplete,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Slider,
   Chip,
   Button,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
 } from "@mui/material";
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useState } from "react";
+
 
 export interface FilterPanelProps {
   open: boolean;
@@ -24,6 +19,9 @@ export interface FilterPanelProps {
   maxPrice: string;
   minRank: string;
   maxRank: string;
+  attributeGroups: Record<string, string[]>;
+  selectedAttributes: Record<string, Set<string>>;
+  setSelectedAttributes: (v: Record<string, Set<string>>) => void;
   setMinPrice: (v: string) => void;
   setMaxPrice: (v: string) => void;
   setMinRank: (v: string) => void;
@@ -32,12 +30,6 @@ export interface FilterPanelProps {
   onApply: () => void;
 }
 
-const MARKETPLACES = [
-  { label: "Magic Eden", value: "ME" },
-  { label: "Tensor", value: "Tensor" },
-  { label: "SOLSniper", value: "SOLSniper" },
-  // Add more as needed
-];
 
 export function FilterPanel({
   open,
@@ -46,6 +38,9 @@ export function FilterPanel({
   maxPrice,
   minRank,
   maxRank,
+  attributeGroups,
+  selectedAttributes,
+  setSelectedAttributes,
   setMinPrice,
   setMaxPrice,
   setMinRank,
@@ -54,15 +49,9 @@ export function FilterPanel({
   onApply,
 }: Readonly<FilterPanelProps>) {
 
-  const ATTRIBUTE_GROUPS: Record<string, string[]> = {
-    Color: ["Red", "Blue", "Green"],
-    Hat: ["Beanie", "Cap", "None"],
-  };
-  const [attrs, setAttrs] = useState<Record<string, Set<string>>>({});
-
   const toggleAttr = (group: string, value: string) => {
-    setAttrs((prev) => {
-      const next = new Set(prev[group]);
+    setSelectedAttributes((prev) => {
+      const next = new Set(prev[group] ?? []);
       if (next.has(value)) {
         next.delete(value);
       } else {
@@ -137,8 +126,8 @@ export function FilterPanel({
         />
       </Box>
 
-      {/* 3) Attribute Accordions */}
-      {Object.entries(ATTRIBUTE_GROUPS).map(([group, options]) => (
+  {/* 3) Attribute Accordions */}
+  {Object.entries(attributeGroups).map(([group, options]) => (
         <Accordion key={group} disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography>{group}</Typography>
@@ -150,7 +139,7 @@ export function FilterPanel({
                   key={opt}
                   label={opt}
                   size="small"
-                  variant={attrs[group]?.has(opt) ? "filled" : "outlined"}
+                  variant={selectedAttributes[group]?.has(opt) ? "filled" : "outlined"}
                   onClick={() => toggleAttr(group, opt)}
                 />
               ))}
@@ -166,7 +155,7 @@ export function FilterPanel({
         {maxPrice && <Chip label={`Max: ${maxPrice}`} onDelete={() => setMaxPrice('')} />}
         {minRank && <Chip label={`Rank Min: ${minRank}`} onDelete={() => setMinRank('')} />}
         {maxRank && <Chip label={`Rank Max: ${maxRank}`} onDelete={() => setMaxRank('')} />}
-        {Object.entries(attrs).flatMap(([g, set]) =>
+        {Object.entries(selectedAttributes).flatMap(([g, set]) =>
           Array.from(set).map((v) => (
             <Chip key={`${g}-${v}`} label={`${g}: ${v}`} onDelete={() => toggleAttr(g, v)} />
           ))
@@ -188,7 +177,7 @@ export function FilterPanel({
           }}
           onClick={() => {
             // REMOVED setSelectedMarketplaces
-            setAttrs({});
+            setSelectedAttributes({});
             setMinPrice('');
             setMaxPrice('');
             setMinRank('');

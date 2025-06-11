@@ -10,7 +10,8 @@ jest.mock('../Activity', () => () => <div />);
 jest.mock('../utils/magiceden', () => ({
   fetchMagicEdenListings: jest.fn(() => Promise.resolve([])),
   getMagicEdenStats: jest.fn(() => Promise.resolve(null)),
-  getMagicEdenHolderStats: jest.fn(() => Promise.resolve(null))
+  getMagicEdenHolderStats: jest.fn(() => Promise.resolve(null)),
+  getCollectionAttributes: jest.fn(() => Promise.resolve({ attributes: {} }))
 }));
 
 jest.mock('../services/helius', () => ({
