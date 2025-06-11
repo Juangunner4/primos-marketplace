@@ -7,8 +7,6 @@ import logo from '../images/primoslogo.png';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import TraitStats from '../components/TraitStats';
-import IconButton from '@mui/material/IconButton';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import './PrimosMarketGallery.css';
 
 interface GalleryNFT extends HeliusNFT {
@@ -23,7 +21,6 @@ const NFTGallery: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -109,21 +106,7 @@ const NFTGallery: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-      {/* {!filterOpen && (
-        <IconButton
-          aria-label={t('open_filters')}
-          onClick={() => setFilterOpen(true)}
-          sx={{
-            border: '1px solid #bbb',
-            borderRadius: 3,
-            boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
-            background: '#f5f5f8',
-            margin: '0 10px 0 10px',
-          }}
-        >
-          <CompareArrowsIcon />
-        </IconButton>
-      )} */}
+      {/* Filter UI removed */}
       <div className="market-gallery" style={{ flex: 1 }}>
         <div className="market-header-row">
           <h2 className="market-title">{t('your_primos_nfts')}</h2>

@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useTranslation } from 'react-i18next';
 
 
 export interface FilterPanelProps {
@@ -48,6 +49,7 @@ export function FilterPanel({
   onClear,
   onApply,
 }: Readonly<FilterPanelProps>) {
+  const { t } = useTranslation();
 
   const toggleAttr = (group: string, value: string) => {
     setSelectedAttributes((prev: Record<string, Set<string>>) => {
@@ -81,11 +83,11 @@ export function FilterPanel({
         </Button>
       </Box>
       <Typography variant="h6" gutterBottom>
-        Filters
+        {t('filters')}
       </Typography>
 
       {/* 2) Price Min/Max */}
-      <Typography gutterBottom>Price (SOL)</Typography>
+      <Typography gutterBottom>{t('filter_price')} (SOL)</Typography>
       <Box display="flex" gap={1} mb={3}>
         <TextField
           label="Min"
@@ -106,7 +108,7 @@ export function FilterPanel({
       </Box>
 
       {/* Rank Min/Max */}
-      <Typography gutterBottom>Rank</Typography>
+      <Typography gutterBottom>{t('filter_rank')}</Typography>
       <Box display="flex" gap={1} mb={3}>
         <TextField
           label="Min"
@@ -185,7 +187,7 @@ export function FilterPanel({
             onClear();
           }}
         >
-          Reset
+          {t('clear_filters')}
         </Button>
         <Button
           variant="contained"
@@ -205,7 +207,7 @@ export function FilterPanel({
             onClose();
           }}
         >
-          Apply
+          {t('apply_filters')}
         </Button>
       </Box>
     </Box>

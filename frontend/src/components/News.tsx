@@ -2,6 +2,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import * as Accordion from '@radix-ui/react-accordion';
+import { useTranslation } from 'react-i18next';
 
 export interface NewsItem {
   id: string;
@@ -15,11 +16,12 @@ const sampleNews: NewsItem[] = [
 ];
 
 const News: React.FC<{ items?: NewsItem[] }> = ({ items }) => {
+  const { t } = useTranslation();
   const news = items ?? sampleNews;
   return (
     <Box sx={{ mt: 4 }}>
       <Typography variant="h5" sx={{ mb: 2 }}>
-        News
+        {t('news')}
       </Typography>
       <Accordion.Root type="single" collapsible>
         {news.map((n) => (
