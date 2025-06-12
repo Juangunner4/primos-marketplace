@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Card, CardActionArea, CardContent, CardMedia, CardActions, Button, Typography, Box } from '@mui/material';
+import * as Dialog from '@radix-ui/react-dialog';
 import { getPythSolPrice } from '../utils/pyth';
 import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
@@ -164,7 +166,16 @@ const PrimosMarketGallery: React.FC = () => {
     content = <p className="no-nfts">{t('market_no_nfts')}</p>;
   } else {
     content = (
-      <ul className="market-nft-list nft-list">
+      <Box
+        className="market-nft-list nft-list"
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gap: 3,
+          padding: 0,
+          margin: 0,
+        }}
+      >
         {filteredNfts.map((nft) => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
           const priceSol = nft.price ? nft.price.toFixed(3) : null;
@@ -179,91 +190,200 @@ const PrimosMarketGallery: React.FC = () => {
           }
 
           return (
-            <button
-              key={nft.id}
-              type="button"
-              className={`market-card market-card--${variant.name}`}
-              onClick={() => {
-                setSelectedNft(nft);
-                setCardOpen(true);
-              }}
-              style={{ background: 'none', border: 'none', padding: 0, width: '100%', textAlign: 'inherit', cursor: 'pointer' }}
-            >
-              {/* Name pill: below image, centered */}
-              <span
-                className="market-signature"
-                style={{
-                  position: 'absolute',
-                  transform: 'translateX(-50%) rotate(-4deg)',
-                  zIndex: 1,
-                  left: '60%',
-                  top: 200, 
-                  fontFamily: "'Pacifico', 'Dancing Script', cursive, sans-serif",
-                  fontSize: '1.25rem',
-                  fontWeight: 500,
-                  color: variant.border,
-                  background: 'rgba(255,255,255,0.7)',
-                  border: 'none',
-                  padding: '0.2em 0.8em',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                  pointerEvents: 'none',
-                  letterSpacing: '1px',
-                  opacity: 0.95,
-                  userSelect: 'none',
-                }}
-              >
-                {nft.name}
-              </span>
-              {/* Rank pill: top-left */}
-              <span
-                className="market-prefix market-primo-number"
-                style={{
-                  background: rankVariant?.bg,
-                  borderColor: rankVariant?.border,
-                  left: 12,
-                  right: 'auto',
-                  position: 'absolute',
-                  top: 12,
-                  zIndex: 2,
-                }}
-              >
-                {nft.rank !== null ? `#${nft.rank}` : '--'}
-              </span>
-              {/* ID pill: top-right */}
-              <span
-                className="market-prefix market-primo-number"
-                style={{
-                  background: variant.bg,
-                  borderColor: variant.border,
-                  right: 14,
-                  left: 'auto',
-                  position: 'absolute',
-                  top: 12,
-                  zIndex: 2,
-                }}
-              >
-                {nft.id.slice(0, 4)}
-              </span>
-              <img src={nft.image} alt={nft.name} className="market-nft-img" />
-              <div className="market-card-content"></div>
-              <div className="market-card-footer">
-                {priceSol ? (
-                  <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>
-                    {priceSol} SOL
-                    {priceUsd && (
-                      <span className="usd"> (${priceUsd})</span>
+            <Dialog.Root open={selectedNft?.id === nft.id && cardOpen} onOpenChange={(open) => {
+              setCardOpen(open);
+              if (!open) setSelectedNft(null);
+            }} key={nft.id}>
+              <Dialog.Trigger asChild>
+                <Card
+                  sx={{
+                    borderRadius: 4,
+                    boxShadow: 6,
+                    position: 'relative',
+                    background: variant.bg,
+                    border: `2.5px solid ${variant.border}`,
+                    minHeight: 340,
+                    transition: 'transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)',
+                    '&:hover': {
+                      transform: 'scale(1.07) rotate(-2deg) translateY(-8px)',
+                      boxShadow: 12,
+                    },
+                    overflow: 'hidden', // important for overlay
+                  }}
+                >
+                  <CardActionArea
+                    onClick={() => {
+                      setSelectedNft(nft);
+                      setCardOpen(true);
+                    }}
+                    sx={{ borderRadius: 4 }}
+                  >
+                    {/* Rank pill: top-left */}
+                    <Box sx={{
+                      position: 'absolute', top: 14, left: 14, zIndex: 2,
+                      background: rankVariant?.bg, border: `2px solid ${rankVariant?.border}`,
+                      borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
+                    }}>
+                      {nft.rank !== null ? `#${nft.rank}` : '--'}
+                    </Box>
+                    {/* ID pill: top-right */}
+                    <Box sx={{
+                      position: 'absolute', top: 14, right: 14, zIndex: 2,
+                      background: variant.bg, border: `2px solid ${variant.border}`,
+                      borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
+                    }}>
+                      {nft.id.slice(0, 4)}
+                    </Box>
+                    {/* NFT Image */}
+                    <CardMedia
+                      component="img"
+                      image={nft.image}
+                      alt={nft.name}
+                      sx={{
+                        width: '95%',
+                        margin: '0.5rem auto 0 auto',
+                        borderRadius: '1.2rem 1.2rem 0 0',
+                        borderBottom: `5px solid ${variant.border}`,
+                        background: '#fff',
+                        objectFit: 'cover',
+                        height: 200,
+                      }}
+                    />
+                    {/* Name pill: below image, centered */}
+                    <Typography
+                      sx={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: 210,
+                        transform: 'translateX(-50%) rotate(-4deg)',
+                        zIndex: 1,
+                        fontFamily: "'Pacifico', 'Dancing Script', cursive, sans-serif",
+                        fontSize: '1.25rem',
+                        fontWeight: 500,
+                        color: variant.border,
+                        background: 'rgba(255,255,255,0.7)',
+                        border: 'none',
+                        px: 2,
+                        py: 0.5,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                        pointerEvents: 'none',
+                        letterSpacing: '1px',
+                        opacity: 0.95,
+                        userSelect: 'none',
+                        maxWidth: '90%',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {nft.name}
+                    </Typography>
+                    <CardContent sx={{ pt: 7, pb: 2 }}>
+                      {/* You can add more info here if needed */}
+                    </CardContent>
+                  </CardActionArea>
+                  <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                    {priceSol ? (
+                      <Box
+                        sx={{
+                          background: variant.bg,
+                          border: `2px solid ${variant.border}`,
+                          borderRadius: 2,
+                          px: 2,
+                          py: 0.5,
+                          fontWeight: 'bold',
+                          fontSize: '1.05rem',
+                          color: '#1a202c',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                          display: 'inline-flex',
+                          alignItems: 'baseline',
+                          justifyContent: 'center',
+                          alignSelf: 'center',
+                        }}
+                      >
+                        {priceSol} SOL
+                        {priceUsd && (
+                          <span style={{ fontSize: '0.92em', color: '#444', fontWeight: 500, marginLeft: '0.18em', opacity: 0.85 }}>
+                            (${priceUsd})
+                          </span>
+                        )}
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          background: variant.bg,
+                          border: `2px solid ${variant.border}`,
+                          borderRadius: 2,
+                          px: 2,
+                          py: 0.5,
+                          fontWeight: 'bold',
+                          fontSize: '1.05rem',
+                          color: '#1a202c',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                          display: 'inline-flex',
+                          alignItems: 'baseline',
+                          justifyContent: 'center',
+                          alignSelf: 'center',
+                        }}
+                      >
+                        {t('market_no_price')}
+                      </Box>
                     )}
-                  </span>
-                ) : (
-                  <span className="market-nft-price-pill" style={{ background: variant.bg, borderColor: variant.border }}>{t('market_no_price')}</span>
-                )}
-                <button className="buy-button" >{t('buy_now')}</button>
-              </div>
-            </button>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        mt: 1,
+                        borderRadius: 2,
+                        background: variant.bg,
+                        color: '#222',
+                        fontWeight: 700,
+                        border: `2px solid ${variant.border}`,
+                        boxShadow: 'none',
+                        '&:hover': {
+                          background: variant.border,
+                          color: '#fff',
+                        },
+                      }}
+                    >
+                      {t('buy_now')}
+                    </Button>
+                  </CardActions>
+                  <div className="plastic-wrap" />
+                </Card>
+              </Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Overlay style={{
+                  background: 'rgba(0,0,0,0.55)',
+                  position: 'fixed',
+                  inset: 0,
+                  zIndex: 1200,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }} />
+                <Dialog.Content style={{
+                  position: 'fixed',
+                  zIndex: 1300,
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background: '#fff',
+                  borderRadius: 16,
+                  boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
+                  padding: 0,
+                  outline: 'none',
+                  minWidth: 340,
+                  maxWidth: '95vw',
+                  maxHeight: '90vh',
+                  overflow: 'auto',
+                }}>
+                  <NFTCard nft={nft} open={selectedNft?.id === nft.id && cardOpen} onClose={() => setCardOpen(false)} />
+                </Dialog.Content>
+              </Dialog.Portal>
+            </Dialog.Root>
           );
         })}
-
-      </ul>
+      </Box>
     );
   }
 

@@ -153,6 +153,7 @@
 @media (max-width: 700px) {
   .close-button {
     top: 120px;
+    z-index: 99;
     right: 12px;
     width: 32px;
     height: 32px;
@@ -187,6 +188,17 @@
 
 /* Desktop layout adjustments */
 @media (min-width: 701px) {
+  .close-button {
+    top: 120px;
+    z-index: 99;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .close-button .MuiSvgIcon-root {
+    font-size: 1.4rem;
+  }
   .nft-dialog-content {
     max-width: 1000px;
   }

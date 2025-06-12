@@ -407,3 +407,31 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.plastic-wrap {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  border-radius: inherit;
+  /* Subtle glossy gradient */
+  background: 
+    linear-gradient(120deg, rgba(255,255,255,0.22) 10%, rgba(255,255,255,0.09) 40%, rgba(255,255,255,0.18) 60%, rgba(255,255,255,0.10) 100%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.07) 0 2px, transparent 2px 8px);
+  /* Simulate a plastic shine streak */
+  box-shadow:
+    0 2px 12px 0 rgba(255,255,255,0.13) inset,
+    0 0 0 2px rgba(255,255,255,0.08) inset;
+  /* Optional: add a faint noise texture for realism */
+  /* background-image: url('/static/plastic-noise.png'); */
+  /* background-blend-mode: lighten; */
+  transition: opacity 0.2s;
+}
+
+.market-card:hover .plastic-wrap,
+.MuiCard-root:hover .plastic-wrap {
+  opacity: 0.92;
+  background: 
+    linear-gradient(120deg, rgba(255,255,255,0.32) 10%, rgba(255,255,255,0.13) 40%, rgba(255,255,255,0.22) 60%, rgba(255,255,255,0.15) 100%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.12) 0 2px, transparent 2px 8px);
+}
