@@ -179,22 +179,41 @@ const PrimosMarketGallery: React.FC = () => {
           }
 
           return (
-            <li
+            <button
               key={nft.id}
+              type="button"
               className={`market-card market-card--${variant.name}`}
-              tabIndex={0}
-              role="button"
               onClick={() => {
                 setSelectedNft(nft);
                 setCardOpen(true);
               }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setSelectedNft(nft);
-                  setCardOpen(true);
-                }
-              }}
+              style={{ background: 'none', border: 'none', padding: 0, width: '100%', textAlign: 'inherit', cursor: 'pointer' }}
             >
+              {/* Name pill: below image, centered */}
+              <span
+                className="market-signature"
+                style={{
+                  position: 'absolute',
+                  transform: 'translateX(-50%) rotate(-4deg)',
+                  zIndex: 1,
+                  left: '60%',
+                  top: 200, 
+                  fontFamily: "'Pacifico', 'Dancing Script', cursive, sans-serif",
+                  fontSize: '1.25rem',
+                  fontWeight: 500,
+                  color: variant.border,
+                  background: 'rgba(255,255,255,0.7)',
+                  border: 'none',
+                  padding: '0.2em 0.8em',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                  pointerEvents: 'none',
+                  letterSpacing: '1px',
+                  opacity: 0.95,
+                  userSelect: 'none',
+                }}
+              >
+                {nft.name}
+              </span>
               {/* Rank pill: top-left */}
               <span
                 className="market-prefix market-primo-number"
@@ -226,21 +245,6 @@ const PrimosMarketGallery: React.FC = () => {
                 {nft.id.slice(0, 4)}
               </span>
               <img src={nft.image} alt={nft.name} className="market-nft-img" />
-              {/* Name pill: below image, centered */}
-              <span
-                className="market-prefix market-primo-number"
-               style={{
-                  background: variant.bg,
-                  borderColor: variant.border,
-                  right: 65,
-                  left: 'auto',
-                  position: 'absolute',
-                  top: 200,
-                  zIndex: 2,
-                }}
-              >
-                {nft.name}
-              </span>
               <div className="market-card-content"></div>
               <div className="market-card-footer">
                 {priceSol ? (
@@ -255,13 +259,13 @@ const PrimosMarketGallery: React.FC = () => {
                 )}
                 <button className="buy-button" >{t('buy_now')}</button>
               </div>
-            </li>
+            </button>
           );
         })}
+
       </ul>
     );
   }
-
 
   return (
     <>

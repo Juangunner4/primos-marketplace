@@ -18,9 +18,6 @@
 }
 
 .nft-modal-vertical {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
   padding: 2rem 1.2rem 2rem 1.2rem;
   max-width: 98vw;
@@ -108,24 +105,6 @@
   margin-bottom: 0.1rem;
 }
 
-.nft-modal-image-container {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-  min-width: 220px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  margin: 16px auto 0 auto;
-  /* Add top margin for spacing */
-  padding: 10px 0 0 0;
-  /* Add top padding for extra space */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
 .modal-nft-img {
   width: 100%;
   max-width: 340px;
@@ -137,13 +116,6 @@
   margin: 0 auto;
   display: block;
   box-shadow: none;
-}
-
-.nft-modal-info,
-.transaction-card-floating {
-  width: 100%;
-  max-width: 320px;
-  min-width: 220px;
 }
 
 .close-button {
@@ -217,7 +189,6 @@
 @media (min-width: 701px) {
   .nft-dialog-content {
     max-width: 1000px;
-    width: 95vw;
   }
 
   .nft-modal-vertical {
@@ -227,17 +198,6 @@
     width: 100%;
     max-width: 100%;
     gap: 2rem;
-  }
-
-  .nft-modal-image-container {
-    width: 32%;
-    max-width: 320px;
-    flex-shrink: 1;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    margin: 0;
-    padding: 0;
   }
 
   .nft-modal-attributes-panel {

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Dancing+Script:wght@700&display=swap');
+
 .market-gallery {
   padding: 2rem 0;
   min-height: 100vh;
@@ -104,10 +106,7 @@
 
 .market-card {
   background: var(--bg-color, #fffbe6);
-  border: 5px solid var(--border-color, #e2c275);
-  border-radius: 1.5rem;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 0;
   margin: 0 auto;
   width: 260px;
   min-width: 0;
@@ -117,8 +116,6 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  transition: transform 0.18s cubic-bezier(.4, 2, .6, 1), box-shadow 0.18s;
-  cursor: pointer;
   z-index: 1;
 }
 
@@ -170,20 +167,17 @@
 }
 
 .market-card-footer {
-  width: 92%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.4rem;
-  position: absolute;
-  bottom: 18px;
   left: 0;
-  padding: 0 1rem;
+  padding: inherit;
+  z-index: 2;
 }
 
 .market-nft-img {
   width: 95%;
-  height: 180px;
   object-fit: cover;
   border-radius: 1.2rem 1.2rem 0 0;
   border-bottom: 5px solid var(--border-color, #e2c275);
@@ -271,25 +265,17 @@
 }
 
 .market-card .market-prefix {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  background: rgba(226, 194, 117, 0.93);
   padding: 0.22rem 0.6rem;
   border-radius: 0.5rem;
   font-size: 0.95rem;
   font-weight: 700;
   font-family: 'Segoe UI', sans-serif;
-  letter-spacing: 0.07em;
-  z-index: 3;
   box-shadow: 0 2px 8px rgba(226, 194, 117, 0.13);
   overflow: hidden;
   max-width: 95%;
   white-space: nowrap;
   text-overflow: ellipsis;
   word-break: normal;
-  padding-left: 0.8rem;
-  padding-right: 0.8rem;
 }
 
 .market-pagination {
@@ -303,6 +289,11 @@
 }
 
 @media (max-width: 900px) {
+  .market-card-footer {
+    padding: 50px 1rem 1rem 1rem;
+    align-items: center;
+  }
+
   .market-gallery {
     margin-left: 0;
   }
@@ -362,8 +353,8 @@
     margin-bottom: 0.2rem;
   }
 
-  .market-nft-img {
-    height: 160px;
+  .market-signature {
+    top: px;
   }
 }
 
@@ -393,4 +384,26 @@
   margin-top: auto;
   display: flex;
   gap: 0.5rem;
+}
+
+.market-signature {
+  font-family: 'Pacifico', 'Dancing Script', cursive, sans-serif;
+  font-size: 1.25rem;
+  color: #7a5c2e;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  padding: 0.2em 0.8em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  pointer-events: none;
+  letter-spacing: 1px;
+  opacity: 0.95;
+  user-select: none;
+  position: absolute;
+  transform: translateX(-50%) rotate(-4deg);
+  top: 170px;
+  z-index: 1;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
