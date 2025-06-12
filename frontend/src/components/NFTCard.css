@@ -120,19 +120,19 @@
 
 .close-button {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 12px;
+  right: 12px;
   z-index: 99;
   border: none;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #fff;
-  background: #111;
+  background: #888;
 }
 
 .close-button:hover {
@@ -144,16 +144,14 @@
   font-size: 1.6rem;
 }
 
-.close-button .MuiSvgIcon-root:hover {
+.close-button:hover .MuiSvgIcon-root {
   color: #000;
-  font-size: 1.6rem;
 }
 
 /* Mobile layout adjustments */
 @media (max-width: 700px) {
   .close-button {
-    top: 120px;
-    z-index: 99;
+    top: 12px;
     right: 12px;
     width: 32px;
     height: 32px;
@@ -189,8 +187,7 @@
 /* Desktop layout adjustments */
 @media (min-width: 701px) {
   .close-button {
-    top: 120px;
-    z-index: 99;
+    top: 12px;
     right: 12px;
     width: 32px;
     height: 32px;
