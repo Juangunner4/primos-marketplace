@@ -30,7 +30,6 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           publicKey.toBase58()
         );
         setIsHolder(holder);
-        console.log('Primo holder status:', holder);
         await axios.post(`${backendUrl}/api/user/login`, {
           publicKey: publicKey.toBase58(),
           primoHolder: holder,

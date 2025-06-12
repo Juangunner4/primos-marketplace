@@ -93,9 +93,9 @@ const Header: React.FC = () => {
           </Box>
         </Box>
         {/* BETA */}
-        <span className="beta-text">BETA</span>
+        <span className="beta-text">{t('beta')}</span>
         <Box sx={{ ml: 8 }}>
-          <img src={logo} alt="Left Logo" className="logo logo-left logo-float" style={{ marginLeft: '60px', height: 48 }} />
+          <img src={logo} alt={t('logo_alt')} className="logo logo-left logo-float" style={{ marginLeft: '60px', height: 48 }} />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
           {publicKey && (
