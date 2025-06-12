@@ -362,13 +362,6 @@
     margin-bottom: 0.2rem;
   }
 
-  .market-card {
-    width: 98vw;
-    max-width: 340px;
-    margin: 0.5rem auto;
-    height: auto;
-  }
-
   .market-nft-img {
     height: 160px;
   }
