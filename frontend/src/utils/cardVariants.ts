@@ -8,6 +8,10 @@ export const CARD_VARIANTS = [
   { name: 'bronze', bg: '#fbeee0', border: '#cd7f32' },
 ];
 
+/**
+ * Returns a random card variant name from the base variants (yellow, green, blue).
+ * @returns One of "yellow", "green", or "blue".
+ */
 export function getRandomCardVariantName() {
   const idx = Math.floor(Math.random() * 3); // Only randomize among yellow, green, blue
   return CARD_VARIANTS[idx].name;

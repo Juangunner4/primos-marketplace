@@ -54,6 +54,11 @@ const setAttrCached = (key: string, data: any) => {
   attrCache[key] = { ts: Date.now(), data };
 };
 
+/**
+ * Retrieves general collection statistics from Magic Eden.
+ * @param symbol The collection symbol used by Magic Eden.
+ * @returns Parsed statistics or null on failure.
+ */
 export const getMagicEdenStats = async (
   symbol: string
 ): Promise<MagicEdenStats | null> => {
@@ -96,6 +101,11 @@ export interface MagicEdenHolderStats {
 }
 
 
+/**
+ * Retrieves holder statistics for a collection.
+ * @param symbol The collection symbol used by Magic Eden.
+ * @returns Holder stats information or null on failure.
+ */
 export const getMagicEdenHolderStats = async (
   symbol: string
 ): Promise<MagicEdenHolderStats | null> => {
@@ -115,6 +125,13 @@ export const getMagicEdenHolderStats = async (
   }
 };
 
+/**
+ * Fetches marketplace listings for a collection and sorts them by price.
+ * @param symbol The collection symbol used by Magic Eden.
+ * @param offset Pagination offset.
+ * @param limit Maximum number of listings to return.
+ * @returns Sorted list of listings or an empty array on failure.
+ */
 export const fetchMagicEdenListings = async (
   symbol: string,
   offset = 0,
@@ -140,6 +157,13 @@ export const fetchMagicEdenListings = async (
   }
 };
 
+/**
+ * Fetches recent activity for a collection.
+ * @param symbol The collection symbol used by Magic Eden.
+ * @param offset Pagination offset.
+ * @param limit Maximum number of records to return.
+ * @returns Activity array or an empty array when an error occurs.
+ */
 export const fetchMagicEdenActivity = async (
   symbol: string,
   offset = 0,
@@ -162,6 +186,11 @@ export const fetchMagicEdenActivity = async (
   }
 };
 
+/**
+ * Retrieves attribute data for a collection.
+ * @param symbol The collection symbol used by Magic Eden.
+ * @returns Attribute information or null if not found.
+ */
 export const getCollectionAttributes = async (
   symbol: string
 ): Promise<any | null> => {

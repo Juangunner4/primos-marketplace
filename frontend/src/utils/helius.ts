@@ -13,6 +13,14 @@ let heliusChain: Promise<unknown> = Promise.resolve();
 const collectionCache: Record<string, { ts: number; data: HeliusNFT[] }> = {};
 const COLLECTION_CACHE_TTL = 60_000; // 1 minute
 
+/**
+ * Internal helper that performs fetch requests with retry logic and rate limit handling.
+ * @param url The target URL for the fetch call.
+ * @param options Fetch options to use for the request.
+ * @param retries Number of retry attempts when the request fails.
+ * @param backoff Base backoff time in milliseconds between retries.
+ * @param minDelay Minimum delay enforced between chained requests.
+ */
 const heliusFetch = async (
   url: string,
   options: RequestInit,
@@ -40,6 +48,12 @@ const heliusFetch = async (
   return result;
 };
 
+/**
+ * Retrieves all assets in a collection owned by a specific wallet.
+ * @param collectionAddress The address of the NFT collection.
+ * @param ownerPubkey The public key of the wallet to filter by.
+ * @returns A list of simplified NFT objects for the owner.
+ */
 export const getAssetsByCollection = async (
   collectionAddress: string,
   ownerPubkey: string
@@ -113,6 +127,11 @@ export const getAssetsByCollection = async (
 const nftCache: Record<string, HeliusNFT> = {};
 
 
+/**
+ * Fetches metadata for a single NFT by its token address.
+ * @param tokenAddress The mint address of the NFT.
+ * @returns NFT information or null when not found.
+ */
 export const getNFTByTokenAddress = async (
   tokenAddress: string
 ): Promise<HeliusNFT | null> => {
@@ -158,7 +177,10 @@ export const getNFTByTokenAddress = async (
 };
 
 /**
- * Checks if the given ownerPubkey holds at least one NFT from the collection.
+ * Checks if the given wallet holds at least one NFT from the specified collection.
+ * @param collectionAddress The collection's address on Solana.
+ * @param ownerPubkey The wallet public key to check.
+ * @returns True if the wallet owns any NFTs from the collection.
  */
 export const checkPrimoHolder = async (
   collectionAddress: string,
@@ -173,6 +195,12 @@ export const checkPrimoHolder = async (
   }
 };
 
+/**
+ * Fetches NFTs from a collection owned by a specific address.
+ * @param ownerAddress Wallet address whose NFTs will be fetched.
+ * @param collectionAddress Address of the collection to search.
+ * @returns Array of NFTs owned by the wallet.
+ */
 export async function fetchCollectionNFTsForOwner(
   ownerAddress: string,
   collectionAddress: string

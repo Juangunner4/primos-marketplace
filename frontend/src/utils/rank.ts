@@ -1,3 +1,9 @@
+/**
+ * Returns a color associated with an NFT rank percentile.
+ * @param rank The rank position of the NFT.
+ * @param totalSupply Total supply of NFTs in the collection.
+ * @returns A hex color string representing the rank tier.
+ */
 export function getRankColor(rank: number | null, totalSupply: number | null): string {
   if (!rank || !totalSupply) return '#b87333';
   const pct = rank / totalSupply;

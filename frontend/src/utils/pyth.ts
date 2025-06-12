@@ -24,7 +24,10 @@ const fetchWithRetry = async (
 let cachedPrice: { ts: number; value: number | null } | null = null;
 const CACHE_TTL = 60_000; // 1 minute
 
-// Fetch SOL price from Pyth's public price service REST API
+/**
+ * Fetches the current SOL price in USD using Pyth's public price service.
+ * @returns The SOL price or null if unavailable.
+ */
 export const getPythSolPrice = async (): Promise<number | null> => {
   if (cachedPrice && Date.now() - cachedPrice.ts < CACHE_TTL) {
     return cachedPrice.value;
