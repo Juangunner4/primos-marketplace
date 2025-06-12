@@ -2,8 +2,6 @@
   position: relative;
   width: 260px;
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
   padding: 1.2rem 1.5rem;
   z-index: 10;
   display: flex;
@@ -30,8 +28,8 @@
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
-  background: inherit; /* Will be overridden by inline style */
-  color: inherit;      /* Will be overridden by inline style */
+  background: inherit;
+  color: inherit;
 }
 
 .buy-button:hover,
