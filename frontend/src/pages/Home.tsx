@@ -183,7 +183,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           >
             <img
               src={hero}
-              alt="Primos"
+              alt={t('hero_alt')}
               style={{ height: 56 }}
             />
           </Box>

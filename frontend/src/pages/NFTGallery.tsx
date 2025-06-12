@@ -27,9 +27,6 @@ const NFTGallery: React.FC = () => {
   const { t } = useTranslation();
 
   const handleList = () => {
-    if (selectedNft) {
-      console.log('Listing NFT', selectedNft.id);
-    }
     setCardOpen(false);
   };
 
@@ -70,7 +67,7 @@ const NFTGallery: React.FC = () => {
   if (!publicKey) {
     return (
       <div className="nft-connect-wrapper">
-        <img src={logo} alt="Primos Logo" className="nft-logo" />
+        <img src={logo} alt={t('logo_alt')} className="nft-logo" />
         <p className="connect-text">{t("connect_wallet")}</p>
       </div>
     );
