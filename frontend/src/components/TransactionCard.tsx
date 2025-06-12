@@ -1,7 +1,6 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import './TransactionCard.css';
-
+import React from "react";
+import { useTranslation } from "react-i18next";
+import "./TransactionCard.css";
 
 interface TransactionCardProps {
   priceSol: string | null;
@@ -9,6 +8,7 @@ interface TransactionCardProps {
   onBuy: () => void;
   variantBg: string;
   variantBorder: string;
+  buyLabel?: string;
 }
 
 const TransactionCard: React.FC<TransactionCardProps> = ({
@@ -17,6 +17,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   onBuy,
   variantBg,
   variantBorder,
+  buyLabel,
 }) => {
   const { t } = useTranslation();
 
@@ -35,28 +36,40 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
           className="market-nft-price-pill"
           style={{ background: variantBg, borderColor: variantBorder }}
         >
-          {t('market_no_price')}
+          {t("market_no_price")}
         </span>
       )}
       <div className="transaction-card-buttons">
         <button
           className="buy-button"
-          style={{ background: variantBg, borderColor: variantBorder, color: '#222' }}
+          style={{
+            background: variantBg,
+            borderColor: variantBorder,
+            color: "#222",
+          }}
           onClick={onBuy}
         >
-          {t('buy_now')}
+          {buyLabel || t("buy_now")}
         </button>
         <button
           className="paywith-button"
-          style={{ background: variantBg, borderColor: variantBorder, color: '#222' }}
+          style={{
+            background: variantBg,
+            borderColor: variantBorder,
+            color: "#222",
+          }}
         >
-          {t('pay_with')}
+          {t("pay_with")}
         </button>
         <button
           className="offer-button"
-          style={{ background: variantBg, borderColor: variantBorder, color: '#222' }}
+          style={{
+            background: variantBg,
+            borderColor: variantBorder,
+            color: "#222",
+          }}
         >
-          {t('make_an_offer')}
+          {t("make_an_offer")}
         </button>
       </div>
     </div>

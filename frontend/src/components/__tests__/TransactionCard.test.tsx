@@ -1,11 +1,11 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-import TransactionCard from '../TransactionCard';
-import i18n from '../../i18n';
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { I18nextProvider } from "react-i18next";
+import TransactionCard from "../TransactionCard";
+import i18n from "../../i18n";
 
-describe('TransactionCard', () => {
-  test('renders price and buttons', () => {
+describe("TransactionCard", () => {
+  test("renders price and buttons", () => {
     const onBuy = jest.fn();
     render(
       <I18nextProvider i18n={i18n}>
@@ -16,15 +16,30 @@ describe('TransactionCard', () => {
           variantBg="#fff"
           variantBorder="#000"
         />
-      </I18nextProvider>
+      </I18nextProvider>,
     );
-    expect(screen.getByText('1.23 SOL')).toBeTruthy();
-    expect(screen.getByText(i18n.t('buy_now'))).toBeTruthy();
-    fireEvent.click(screen.getByText(i18n.t('buy_now')));
+    expect(screen.getByText("1.23 SOL")).toBeTruthy();
+    expect(screen.getByText(i18n.t("buy_now"))).toBeTruthy();
+    fireEvent.click(screen.getByText(i18n.t("buy_now")));
     expect(onBuy).toHaveBeenCalled();
   });
 
-  test('shows no price text when price missing', () => {
+  test("allows custom button label", () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <TransactionCard
+          priceSol="1.23"
+          onBuy={() => {}}
+          variantBg="#fff"
+          variantBorder="#000"
+          buyLabel="List"
+        />
+      </I18nextProvider>,
+    );
+    expect(screen.getByText("List")).toBeTruthy();
+  });
+
+  test("shows no price text when price missing", () => {
     render(
       <I18nextProvider i18n={i18n}>
         <TransactionCard
@@ -33,8 +48,8 @@ describe('TransactionCard', () => {
           variantBg="#fff"
           variantBorder="#000"
         />
-      </I18nextProvider>
+      </I18nextProvider>,
     );
-    expect(screen.getByText(i18n.t('market_no_price'))).toBeTruthy();
+    expect(screen.getByText(i18n.t("market_no_price"))).toBeTruthy();
   });
 });

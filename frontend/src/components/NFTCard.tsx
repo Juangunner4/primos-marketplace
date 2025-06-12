@@ -1,10 +1,10 @@
-import React from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { useTranslation } from 'react-i18next';
-import './NFTCard.css';
-import { CARD_VARIANTS } from '../utils/cardVariants';
-import TransactionCard from './TransactionCard';
-import CloseIcon from '@mui/icons-material/Close';
+import React from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { useTranslation } from "react-i18next";
+import "./NFTCard.css";
+import { CARD_VARIANTS } from "../utils/cardVariants";
+import TransactionCard from "./TransactionCard";
+import CloseIcon from "@mui/icons-material/Close";
 
 export type MarketNFT = {
   id: string;
@@ -21,19 +21,26 @@ interface NFTCardProps {
   open: boolean;
   onClose: () => void;
   solPriceUsd?: number; // Optionally pass SOL price in USD for conversion
+  buyLabel?: string;
 }
 
-const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) => {
+const NFTCard: React.FC<NFTCardProps> = ({
+  nft,
+  open,
+  onClose,
+  solPriceUsd,
+  buyLabel,
+}) => {
   const { t } = useTranslation();
   if (!nft) return null;
   const variant =
     CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
   // Add rankVariant logic
-  let rankVariant = CARD_VARIANTS.find(v => v.name === 'bronze');
+  let rankVariant = CARD_VARIANTS.find((v) => v.name === "bronze");
   if (nft.rank !== null && nft.rank <= 100) {
-    rankVariant = CARD_VARIANTS.find(v => v.name === 'gold');
+    rankVariant = CARD_VARIANTS.find((v) => v.name === "gold");
   } else if (nft.rank !== null && nft.rank <= 500) {
-    rankVariant = CARD_VARIANTS.find(v => v.name === 'silver');
+    rankVariant = CARD_VARIANTS.find((v) => v.name === "silver");
   }
   const priceSol = nft.price ? nft.price.toFixed(3) : null;
   const priceUsd =
@@ -43,12 +50,16 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
     <Dialog.Root open={open} onOpenChange={(val) => !val && onClose()}>
       <Dialog.Overlay className="nft-dialog-overlay" />
       <Dialog.Content className="nft-dialog-content">
-        <button className="close-button" onClick={onClose} aria-label={t('close')}>
+        <button
+          className="close-button"
+          onClick={onClose}
+          aria-label={t("close")}
+        >
           <CloseIcon fontSize="medium" />
         </button>
         <div className="nft-modal-vertical">
           <div
-            className={ `nft-modal-card market-card--${variant.name} nft-modal-image-container`}
+            className={`nft-modal-card market-card--${variant.name} nft-modal-image-container`}
           >
             <img src={nft.image} alt={nft.name} className="modal-nft-img" />
           </div>
@@ -61,7 +72,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
                   background: rankVariant?.bg,
                 }}
               >
-                {nft.rank !== null ? `#${nft.rank}` : '--'}
+                {nft.rank !== null ? `#${nft.rank}` : "--"}
               </span>
               <span
                 className="nft-info-pill id"
@@ -78,9 +89,9 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
                   borderColor: variant.border,
                   background: variant.bg,
                   maxWidth: 160,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
                 title={nft.name}
               >
@@ -103,6 +114,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, open, onClose, solPriceUsd }) =>
             onBuy={onClose}
             variantBg={variant.bg}
             variantBorder={variant.border}
+            buyLabel={buyLabel}
           />
         </div>
       </Dialog.Content>
