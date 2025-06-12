@@ -26,6 +26,13 @@ const NFTGallery: React.FC = () => {
   const [cardOpen, setCardOpen] = useState(false);
   const { t } = useTranslation();
 
+  const handleList = () => {
+    if (selectedNft) {
+      console.log('Listing NFT', selectedNft.id);
+    }
+    setCardOpen(false);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!publicKey) {
@@ -166,6 +173,7 @@ const NFTGallery: React.FC = () => {
             nft={selectedNft}
             open={cardOpen}
             onClose={() => setCardOpen(false)}
+            onBuy={handleList}
             buyLabel={t("list")}
             solPriceUsd={solPrice ?? undefined}
           />
@@ -176,6 +184,10 @@ const NFTGallery: React.FC = () => {
           display: "flex",
           flexDirection: "row",
           alignItems: "flex-start",
+          filter: cardOpen ? "blur(2px)" : "none",
+          opacity: cardOpen ? 0.4 : 1,
+          pointerEvents: cardOpen ? "none" : "auto",
+          transition: "opacity 0.2s, filter 0.2s",
         }}
       >
         {/* Something for Primos here */}

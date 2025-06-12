@@ -20,6 +20,7 @@ interface NFTCardProps {
   nft: MarketNFT | null;
   open: boolean;
   onClose: () => void;
+  onBuy?: () => void;
   solPriceUsd?: number; // Optionally pass SOL price in USD for conversion
   buyLabel?: string;
 }
@@ -28,6 +29,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
   nft,
   open,
   onClose,
+  onBuy,
   solPriceUsd,
   buyLabel,
 }) => {
@@ -111,7 +113,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
           <TransactionCard
             priceSol={priceSol}
             priceUsd={priceUsd}
-            onBuy={onClose}
+            onBuy={onBuy || onClose}
             variantBg={variant.bg}
             variantBorder={variant.border}
             buyLabel={buyLabel}
