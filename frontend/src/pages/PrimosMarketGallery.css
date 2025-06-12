@@ -6,11 +6,13 @@
   border: 1px solid #ccc;
   border-radius: 0.75rem;
 }
+
 @media (max-width: 1100px) {
   .market-gallery {
     margin-right: 0;
   }
 }
+
 @media (max-width: 700px) {
   .market-gallery {
     margin-left: 0;
@@ -18,6 +20,7 @@
     padding: 1rem 0.2rem;
   }
 }
+
 .market-title {
   font-size: 2.2rem;
   font-weight: bold;
@@ -32,6 +35,7 @@
   text-shadow: none;
   flex-shrink: 0;
 }
+
 .market-header-row {
   display: flex;
   flex-direction: row;
@@ -42,6 +46,7 @@
   padding-bottom: 1rem;
   border-bottom: 1px solid #ddd;
 }
+
 .market-stats-pills {
   display: flex;
   gap: 1.2rem;
@@ -52,6 +57,7 @@
   flex-wrap: wrap;
   margin-bottom: 0.5rem;
 }
+
 .market-stats-pills .market-pill {
   background: #fff;
   border-radius: 0.7rem;
@@ -63,6 +69,7 @@
   font-weight: bold;
   margin-left: 0;
 }
+
 .market-nft-list.nft-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -90,8 +97,11 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .market-card {
   background: var(--bg-color, #fffbe6);
   border: 5px solid var(--border-color, #e2c275);
@@ -107,21 +117,46 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s;
+  transition: transform 0.18s cubic-bezier(.4, 2, .6, 1), box-shadow 0.18s;
   cursor: pointer;
   z-index: 1;
 }
+
 .market-card:hover {
   transform: scale(1.07) rotate(-2deg) translateY(-8px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22), 0 4px 16px rgba(0, 0, 0, 0.10);
   z-index: 10;
 }
-.market-card--yellow { --bg-color: #fffbe6; --border-color: #e2c275; }
-.market-card--green { --bg-color: #e6ffe6; --border-color: #2e8b57; }
-.market-card--blue { --bg-color: #e6f0ff; --border-color: #4169e1; }
-.market-card--gold { --bg-color: #ffe066; --border-color: #ffd700; }
-.market-card--silver { --bg-color: #f8f9fa; --border-color: #b0b0b0; }
-.market-card--bronze { --bg-color: #fbeee0; --border-color: #cd7f32; }
+
+.market-card--yellow {
+  --bg-color: #fffbe6;
+  --border-color: #e2c275;
+}
+
+.market-card--green {
+  --bg-color: #e6ffe6;
+  --border-color: #2e8b57;
+}
+
+.market-card--blue {
+  --bg-color: #e6f0ff;
+  --border-color: #4169e1;
+}
+
+.market-card--gold {
+  --bg-color: #ffe066;
+  --border-color: #ffd700;
+}
+
+.market-card--silver {
+  --bg-color: #f8f9fa;
+  --border-color: #b0b0b0;
+}
+
+.market-card--bronze {
+  --bg-color: #fbeee0;
+  --border-color: #cd7f32;
+}
 
 .market-card-header {
   width: 100%;
@@ -133,6 +168,7 @@
   font-weight: bold;
   opacity: 0.7;
 }
+
 .market-card-footer {
   width: 92%;
   display: flex;
@@ -144,6 +180,7 @@
   left: 0;
   padding: 0 1rem;
 }
+
 .market-nft-img {
   width: 95%;
   height: 180px;
@@ -153,6 +190,7 @@
   background: #fff;
   margin-top: 0.5rem;
 }
+
 .market-nft-name {
   font-family: 'Loteria', 'Segoe UI', sans-serif;
   font-size: 1.25rem;
@@ -163,12 +201,14 @@
   letter-spacing: 0.13em;
   flex-shrink: 0;
 }
+
 .rarity-rank {
   font-size: 1rem;
   font-weight: 600;
   margin-top: 0.2rem;
   display: block;
 }
+
 .market-nft-price {
   font-size: 1.2rem;
   color: #1a202c;
@@ -178,22 +218,24 @@
   font-weight: bold;
   margin-bottom: 1rem;
 }
+
 .market-nft-price-pill {
   background: var(--bg-color, #ffe066);
   border-radius: 0.7rem;
-  padding: 0.18rem 0.7rem; 
-  font-size: 0.98rem;     
+  padding: 0.18rem 0.7rem;
+  font-size: 0.98rem;
   font-weight: bold;
   color: #1a202c;
   margin: 0;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   border: 2px solid var(--border-color, #e2c275);
   display: inline-flex;
   align-items: baseline;
-  justify-content: center;   
-  align-self: center;        
+  justify-content: center;
+  align-self: center;
 }
+
 .market-nft-price-pill .usd {
   font-size: 0.92em;
   color: #444;
@@ -201,17 +243,31 @@
   margin-left: 0.18em;
   opacity: 0.85;
 }
+
 .buy-button {
-  background: var(--bg-color, #ffe066);
-  border: 2px solid var(--border-color, #e2c275);
-  color: #000;
-  font-weight: bold;
-  border-radius: 0.7rem;
-  padding: 0.4rem 1.1rem;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: color 0.3s, border-color 0.3s;
+  z-index: 1;
+}
+
+.buy-button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--bg-color, #ffe066);
+  z-index: -1;
+  transition: width 0.3s cubic-bezier(.4, 2, .6, 1);
+}
+
+.buy-button:hover::before {
+  width: 100%;
+}
+
+.buy-button:hover {
+  color: #222;
 }
 
 .market-card .market-prefix {
@@ -229,9 +285,9 @@
   box-shadow: 0 2px 8px rgba(226, 194, 117, 0.13);
   overflow: hidden;
   max-width: 95%;
-  text-overflow: unset;
-  white-space: normal;
-  word-break: break-word;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: normal;
   padding-left: 0.8rem;
   padding-right: 0.8rem;
 }
@@ -250,17 +306,20 @@
   .market-gallery {
     margin-left: 0;
   }
+
   .market-header-row {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
   }
+
   .market-title {
     text-align: left;
     font-size: 1.5rem;
     margin-left: 0;
     margin-top: 0.5rem;
   }
+
   .market-stats-pills {
     width: 100%;
     gap: 1rem;
@@ -268,6 +327,7 @@
     flex-wrap: wrap;
     justify-content: flex-start;
   }
+
   .market-stats-pills .market-pill {
     min-width: 120px;
     margin-left: 0;
@@ -275,34 +335,40 @@
     font-size: 0.98rem;
   }
 }
+
 @media (max-width: 600px) {
   .market-header-row {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
   }
+
   .market-title {
     font-size: 1.3rem;
     text-align: left;
   }
+
   .market-stats-pills {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
     width: 100%;
   }
+
   .market-stats-pills .market-pill {
     width: 100%;
     min-width: unset;
     font-size: 0.95rem;
     margin-bottom: 0.2rem;
   }
+
   .market-card {
     width: 98vw;
     max-width: 340px;
     margin: 0.5rem auto;
     height: auto;
   }
+
   .market-nft-img {
     height: 160px;
   }

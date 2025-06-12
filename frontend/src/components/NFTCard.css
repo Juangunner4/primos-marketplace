@@ -60,11 +60,12 @@
 /* Info pills styling */
 .nft-info-pills {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;           /* Prevent wrapping */
   gap: 0.7rem;
   margin-bottom: 0.2rem;
   width: 100%;
   justify-content: flex-start;
+  overflow-x: auto;            /* Allow horizontal scroll if needed */
 }
 
 @media (max-width: 700px) {
@@ -85,6 +86,9 @@
   box-shadow: 0 2px 8px rgba(226, 194, 117, 0.08);
   min-width: 60px;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nft-info-pill.rank {
@@ -140,23 +144,41 @@
   background: transparent;
   border: none;
   box-shadow: none;
-  margin: 0 auto;
-  padding: 0;
+  margin: 16px auto 0 auto; /* Add top margin for spacing */
+  padding: 10px 0 0 0;      /* Add top padding for extra space */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+@media (max-width: 700px) {
+  .nft-modal-image-container {
+    max-width: 98vw;
+    min-width: 0;
+    margin: 12px auto 0 auto; /* Slightly less margin on mobile */
+    padding: 8px 0 0 0;
+  }
+}
+
 .modal-nft-img {
-  width: 100%;
-  max-width: 320px;
-  height: 220px;
+  width: 96%;                /* Add some space from the sides */
+  max-width: 300px;
+  height: 200px;
   object-fit: contain;
-  border-radius: 1.2rem 1.2rem 0 0;
+  border-radius: 0;          /* Remove radius for sharp corners */
   background: #fff;
   border-bottom: 5px solid var(--border-color, #e2c275);
-  margin: 0;
+  margin: 0 auto;
   display: block;
+  box-shadow: none;
+}
+
+@media (max-width: 700px) {
+  .modal-nft-img {
+    width: 98vw;
+    max-width: 98vw;
+    height: 160px;
+  }
 }
 
 .nft-modal-info,
@@ -167,9 +189,9 @@
 }
 
 .close-button {
-  position: fixed;
-  top: 100px;
-  right: 10px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
   z-index: 10;
   border: none;
   border-radius: 50%;
@@ -179,7 +201,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #000;
+  color: #fff;
+  background: #111;
 }
 
 .close-button:hover {
@@ -187,6 +210,6 @@
 }
 
 .close-button .MuiSvgIcon-root {
-  color: #000;
+  color: #fff;
   font-size: 1.6rem;
 }
