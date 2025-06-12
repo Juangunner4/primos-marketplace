@@ -14,13 +14,21 @@
   align-self: flex-start;
 }
 
-.docs-sidebar a {
+.docs-sidebar button {
+  background: none;
+  border: none;
   color: #0366d6;
   text-decoration: none;
   font-weight: 500;
+  cursor: pointer;
 }
 
-.docs-sidebar a:hover {
+.docs-sidebar button:hover {
+  text-decoration: underline;
+}
+
+.docs-sidebar button.active {
+  font-weight: 700;
   text-decoration: underline;
 }
 
@@ -28,6 +36,16 @@
   flex: 1;
   text-align: left;
   padding: 0 1rem;
+}
+
+.docs-section {
+  display: none;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.docs-section.active {
+  display: block;
 }
 
 .docs-title {
@@ -93,7 +111,7 @@
     margin-bottom: 1rem;
     gap: 1rem;
   }
-  .docs-sidebar a {
+  .docs-sidebar button {
     white-space: nowrap;
     padding: 0 0.5rem;
   }
