@@ -5,6 +5,7 @@ import "./NFTCard.css";
 import { CARD_VARIANTS } from "../utils/cardVariants";
 import TransactionCard from "./TransactionCard";
 import CloseIcon from "@mui/icons-material/Close";
+import Box from "@mui/material/Box";
 
 export type MarketNFT = {
   id: string;
@@ -59,13 +60,67 @@ const NFTCard: React.FC<NFTCardProps> = ({
         >
           <CloseIcon fontSize="medium" />
         </button>
-        <div className="nft-modal-vertical">
-          <div
-            className={`nft-modal-card market-card--${variant.name} nft-modal-image-container`}
+        <Box
+          className="nft-modal-vertical"
+          sx={{
+            display: { xs: "block", md: "flex" },
+            flexDirection: { md: "row" },
+            alignItems: { md: "flex-start" },
+            gap: { md: 3 },
+            width: "100%",
+            maxWidth: "100%",
+          }}
+        >
+          {/* 3. Action Buttons */}
+          <Box
+            className="nft-modal-actions-panel"
+            sx={{
+              width: { md: "32%" },
+              maxWidth: 320,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              justifyContent: "flex-start",
+              paddingLeft: { md: "1rem" },
+            }}
+          >
+            <TransactionCard
+              priceSol={priceSol}
+              priceUsd={priceUsd}
+              onBuy={onBuy || onClose}
+              variantBg={variant.bg}
+              variantBorder={variant.border}
+              buyLabel={buyLabel}
+            />
+          </Box>
+          {/* 1. NFT Image */}
+          <Box
+            className="nft-modal-image-container"
+            sx={{
+              width: { md: "32%" },
+              maxWidth: 320,
+              minWidth: 220,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              margin: 0,
+              padding: 0,
+            }}
           >
             <img src={nft.image} alt={nft.name} className="modal-nft-img" />
-          </div>
-          <div className="nft-modal-info">
+          </Box>
+                    {/* 2. Attributes & Info */}
+          <Box
+            className="nft-modal-attributes-panel"
+            sx={{
+              width: { md: "36%" },
+              maxWidth: 340,
+              padding: { md: "0 1rem" },
+              display: "flex",
+              flexDirection: "column",
+              gap: 1.2,
+            }}
+          >
             <div className="nft-info-pills">
               <span
                 className="nft-info-pill rank"
@@ -109,16 +164,8 @@ const NFTCard: React.FC<NFTCardProps> = ({
                 ))}
               </ul>
             )}
-          </div>
-          <TransactionCard
-            priceSol={priceSol}
-            priceUsd={priceUsd}
-            onBuy={onBuy || onClose}
-            variantBg={variant.bg}
-            variantBorder={variant.border}
-            buyLabel={buyLabel}
-          />
-        </div>
+          </Box>
+        </Box>
       </Dialog.Content>
     </Dialog.Root>
   );

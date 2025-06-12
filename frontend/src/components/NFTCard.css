@@ -217,33 +217,64 @@
 /* Desktop layout adjustments */
 @media (min-width: 701px) {
   .nft-dialog-content {
-    max-width: 900px;
-    width: 90vw;
+    max-width: 1000px;
+    width: 95vw;
   }
 
   .nft-modal-vertical {
+    display: flex;
     flex-direction: row;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
     max-width: 100%;
+    gap: 2rem;
+  }
+
+  .nft-modal-image-container,
+  .nft-modal-attributes-panel,
+  .nft-modal-actions-panel {
+    min-width: 0; /* Allow shrinking to fit */
   }
 
   .nft-modal-image-container {
-    width: 40%;
-    max-width: none;
+    width: 32%;
+    max-width: 320px;
+    flex-shrink: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
     margin: 0;
     padding: 0;
   }
 
-  .nft-modal-info {
-    width: 35%;
-    max-width: none;
+  .nft-modal-attributes-panel {
+    width: 36%;
+    max-width: 340px;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1.2rem;
+    flex-shrink: 1;
+  }
+
+  .nft-modal-actions-panel {
+    width: 32%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
     padding-left: 1rem;
+    flex-shrink: 1;
   }
 
   .transaction-card-floating {
-    width: 25%;
-    margin-left: 1rem;
+    width: 100%;
+    max-width: 320px;
+    min-width: 180px;
+    margin-left: 0;
   }
 }
