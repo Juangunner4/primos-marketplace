@@ -10,7 +10,8 @@ import java.util.List;
 @ApplicationScoped
 public class PointsResetJob {
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    // Run every day at 10AM Eastern Time
+    @Scheduled(cron = "0 0 10 * * ?", timezone = "America/New_York")
     void resetDailyPoints() {
         String today = LocalDate.now().toString();
         List<User> users = User.listAll();
