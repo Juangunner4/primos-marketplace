@@ -166,16 +166,7 @@ const PrimosMarketGallery: React.FC = () => {
     content = <p className="no-nfts">{t('market_no_nfts')}</p>;
   } else {
     content = (
-      <Box
-        className="market-nft-list nft-list"
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: 3,
-          padding: 0,
-          margin: 0,
-        }}
-      >
+      <ul className="nft-gallery-grid market-nft-list nft-list">
         {filteredNfts.map((nft) => {
           const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
           const priceSol = nft.price ? nft.price.toFixed(3) : null;
@@ -195,33 +186,17 @@ const PrimosMarketGallery: React.FC = () => {
               if (!open) setSelectedNft(null);
             }} key={nft.id}>
               <Dialog.Trigger asChild>
-                <Card
-                  sx={{
-                    borderRadius: 4,
-                    boxShadow: 6,
-                    position: 'relative',
-                    background: variant.bg,
-                    border: `2.5px solid ${variant.border}`,
-                    minHeight: 340,
-                    transition: 'transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)',
-                    '&:hover': {
-                      transform: 'scale(1.07) rotate(-2deg) translateY(-8px)',
-                      boxShadow: 12,
-                    },
-                    overflow: 'hidden', // important for overlay
-                  }}
-                >
+                <Card>
                   <CardActionArea
                     onClick={() => {
                       setSelectedNft(nft);
                       setCardOpen(true);
                     }}
-                    sx={{ borderRadius: 4 }}
                   >
                     {/* Rank pill: top-left */}
                     <Box sx={{
                       position: 'absolute', top: 14, left: 14, zIndex: 2,
-                      background: rankVariant?.bg, border: `2px solid ${rankVariant?.border}`,
+                      background: rankVariant?.bg,
                       borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
                     }}>
                       {nft.rank !== null ? `#${nft.rank}` : '--'}
@@ -229,7 +204,7 @@ const PrimosMarketGallery: React.FC = () => {
                     {/* ID pill: top-right */}
                     <Box sx={{
                       position: 'absolute', top: 14, right: 14, zIndex: 2,
-                      background: variant.bg, border: `2px solid ${variant.border}`,
+                      background: variant.bg,
                       borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
                     }}>
                       {nft.id.slice(0, 4)}
@@ -239,15 +214,6 @@ const PrimosMarketGallery: React.FC = () => {
                       component="img"
                       image={nft.image}
                       alt={nft.name}
-                      sx={{
-                        width: '95%',
-                        margin: '0.5rem auto 0 auto',
-                        borderRadius: '1.2rem 1.2rem 0 0',
-                        borderBottom: `5px solid ${variant.border}`,
-                        background: '#fff',
-                        objectFit: 'cover',
-                        height: 200,
-                      }}
                     />
                     {/* Name pill: below image, centered */}
                     <Typography
@@ -332,7 +298,6 @@ const PrimosMarketGallery: React.FC = () => {
                     <Button
                       variant="contained"
                       sx={{
-                        mt: 1,
                         borderRadius: 2,
                         background: variant.bg,
                         color: '#222',
@@ -348,7 +313,6 @@ const PrimosMarketGallery: React.FC = () => {
                       {t('buy_now')}
                     </Button>
                   </CardActions>
-                  <div className="plastic-wrap" />
                 </Card>
               </Dialog.Trigger>
               <Dialog.Portal>
@@ -356,56 +320,42 @@ const PrimosMarketGallery: React.FC = () => {
                   background: 'rgba(0,0,0,0.55)',
                   position: 'fixed',
                   inset: 0,
-                  zIndex: 1200,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }} />
-                <Dialog.Content style={{
-                  position: 'fixed',
-                  zIndex: 1300,
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  background: '#fff',
-                  borderRadius: 16,
-                  boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
-                  padding: 0,
-                  outline: 'none',
-                  minWidth: 340,
-                  maxWidth: '95vw',
-                  maxHeight: '90vh',
-                  overflow: 'auto',
-                }}>
-                  <NFTCard nft={nft} open={selectedNft?.id === nft.id && cardOpen} onClose={() => setCardOpen(false)} />
-                </Dialog.Content>
               </Dialog.Portal>
             </Dialog.Root>
           );
         })}
-      </Box>
+      </ul>
     );
   }
 
   return (
     <>
       {/* Overlay and NFTCard modal */}
-      {cardOpen && (
+       {cardOpen && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             zIndex: 1200,
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.55)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.55)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <NFTCard nft={selectedNft} open={cardOpen} onClose={() => setCardOpen(false)} />
+          <NFTCard
+            nft={selectedNft}
+            open={cardOpen}
+            onClose={() => setCardOpen(false)}
+            solPriceUsd={solPrice ?? undefined}
+          />
         </div>
       )}
 
