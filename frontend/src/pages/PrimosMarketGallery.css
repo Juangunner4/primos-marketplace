@@ -9,20 +9,6 @@
   border-radius: 0.75rem;
 }
 
-@media (max-width: 1100px) {
-  .market-gallery {
-    margin-right: 0;
-  }
-}
-
-@media (max-width: 700px) {
-  .market-gallery {
-    margin-left: 0;
-    margin-top: 60px;
-    padding: 1rem 0.2rem;
-  }
-}
-
 .market-title {
   font-size: 2.2rem;
   font-weight: bold;
@@ -231,32 +217,6 @@
   opacity: 0.85;
 }
 
-.buy-button {
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.buy-button::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  background: var(--bg-color, #ffe066);
-  z-index: -1;
-  transition: width 0.3s cubic-bezier(.4, 2, .6, 1);
-}
-
-.buy-button:hover::before {
-  width: 100%;
-}
-
-.buy-button:hover {
-  color: #222;
-}
-
 .market-card .market-prefix {
   padding: 0.22rem 0.6rem;
   border-radius: 0.5rem;
@@ -281,7 +241,14 @@
   padding-top: 1.5rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+  .market-gallery {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 700px) {
+
   .market-card-footer {
     padding: 50px 1rem 1rem 1rem;
     align-items: center;
@@ -289,6 +256,8 @@
 
   .market-gallery {
     margin-left: 0;
+    margin-top: 60px;
+    padding: 1rem 0.2rem;
   }
 
   .market-header-row {
@@ -320,37 +289,6 @@
   }
 }
 
-@media (max-width: 600px) {
-  .market-header-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .market-title {
-    font-size: 1.3rem;
-    text-align: left;
-  }
-
-  .market-stats-pills {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    width: 100%;
-  }
-
-  .market-stats-pills .market-pill {
-    width: 100%;
-    min-width: unset;
-    font-size: 0.95rem;
-    margin-bottom: 0.2rem;
-  }
-
-  .market-signature {
-    top: px;
-  }
-}
-
 .filter-panel {
   padding: 1.2rem;
   display: flex;
@@ -377,26 +315,4 @@
   margin-top: auto;
   display: flex;
   gap: 0.5rem;
-}
-
-.market-signature {
-  font-family: 'Pacifico', 'Dancing Script', cursive, sans-serif;
-  font-size: 1.25rem;
-  color: #7a5c2e;
-  background: rgba(255, 255, 255, 0.7);
-  border: none;
-  padding: 0.2em 0.8em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-  pointer-events: none;
-  letter-spacing: 1px;
-  opacity: 0.95;
-  user-select: none;
-  position: absolute;
-  transform: translateX(-50%) rotate(-4deg);
-  top: 170px;
-  z-index: 1;
-  max-width: 90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }

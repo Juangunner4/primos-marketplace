@@ -10,7 +10,7 @@ import TraitStats from "../components/TraitStats";
 import NFTCard, { MarketNFT } from "../components/NFTCard";
 import "./PrimosMarketGallery.css";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Card, CardActionArea, CardMedia, CardContent, CardActions, Button, Typography, Box } from "@mui/material";
+import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box } from "@mui/material";
 
 type GalleryNFT = {
   id: string;
@@ -87,9 +87,9 @@ const NFTGallery: React.FC = () => {
   const totalValueUSD =
     floorPrice && solPrice
       ? (nfts.length * (floorPrice / 1e9) * solPrice).toLocaleString(
-          undefined,
-          { style: "currency", currency: "USD", maximumFractionDigits: 2 },
-        )
+        undefined,
+        { style: "currency", currency: "USD", maximumFractionDigits: 2 },
+      )
       : "--";
 
   let galleryContent;
@@ -154,37 +154,14 @@ const NFTGallery: React.FC = () => {
                       alt={nft.name}
                     />
                     {/* Name pill: below image, centered */}
-                    <Typography
-                      sx={{
-                        position: 'absolute',
-                        left: '50%',
-                        top: 210,
-                        transform: 'translateX(-50%) rotate(-4deg)',
-                        zIndex: 1,
-                        fontFamily: "'Pacifico', 'Dancing Script', cursive, sans-serif",
-                        fontSize: '1.25rem',
-                        fontWeight: 500,
-                        color: variant.border,
-                        background: 'rgba(255,255,255,0.7)',
-                        border: 'none',
-                        px: 2,
-                        py: 0.5,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                        pointerEvents: 'none',
-                        letterSpacing: '1px',
-                        opacity: 0.95,
-                        userSelect: 'none',
-                        maxWidth: '90%',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
+                    <Typography sx={{
+                      position: 'absolute', bottom: -5, left: 5, zIndex: 2,
+                      background: variant.bg,
+                      borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '0.85rem'
+                    }}
                     >
                       {nft.name}
                     </Typography>
-                    <CardContent sx={{ pt: 7, pb: 2 }}>
-                      {/* You can add more info here if needed */}
-                    </CardContent>
                   </CardActionArea>
                   <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                     {priceSol ? (
@@ -277,7 +254,7 @@ const NFTGallery: React.FC = () => {
           style={{
             position: "fixed",
             zIndex: 1200,
-            top: 0,
+            top: 15,
             left: 0,
             width: "100vw",
             height: "100vh",

@@ -88,7 +88,25 @@ const NFTCard: React.FC<NFTCardProps> = ({
           >
             <img src={nft.image} alt={nft.name} className="modal-nft-img" />
           </Box>
-          {/* 2. Attributes & Info */}
+          {/* 2. Action Buttons */}
+          <Box
+            className="nft-modal-actions-panel"
+            sx={{
+              width: { xs: "100%", md: "32%" },
+              maxWidth: { xs: "100%", md: 320 },
+              display: "flex",
+            }}
+          >
+            <TransactionCard
+              priceSol={priceSol}
+              priceUsd={priceUsd}
+              onBuy={onBuy || onClose}
+              variantBg={variant.bg}
+              variantBorder={variant.border}
+              buyLabel={buyLabel}
+            />
+          </Box>
+          {/* 3. Attributes & Info */}
           <Box
             className="nft-modal-attributes-panel"
             sx={{
@@ -144,24 +162,6 @@ const NFTCard: React.FC<NFTCardProps> = ({
                 ))}
               </ul>
             )}
-          </Box>
-          {/* 3. Action Buttons */}
-          <Box
-            className="nft-modal-actions-panel"
-            sx={{
-              width: { xs: "100%", md: "32%" },
-              maxWidth: { xs: "100%", md: 320 },
-              display: "flex",
-            }}
-          >
-            <TransactionCard
-              priceSol={priceSol}
-              priceUsd={priceUsd}
-              onBuy={onBuy || onClose}
-              variantBg={variant.bg}
-              variantBorder={variant.border}
-              buyLabel={buyLabel}
-            />
           </Box>
         </Box>
       </Dialog.Content>
