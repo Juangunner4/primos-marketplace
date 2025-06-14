@@ -50,7 +50,7 @@ const Header: React.FC = () => {
         const token = res.data?.pfp;
         if (token) {
           const nft = await getNFTByTokenAddress(token.replace(/"/g, ''));
-          setPfpImage(nft?.image || null);
+          setPfpImage(nft?.image ?? null);
         } else {
           setPfpImage(null);
         }
@@ -133,25 +133,27 @@ const Header: React.FC = () => {
               variant="contained"
               onClick={() => navigate(isProfilePage ? '/' : '/profile')}
               sx={{
-                background: isProfilePage ? '#111' : '#fff',
-                color: isProfilePage ? '#fff' : '#111',
+                background: isProfilePage ? '#e2e8f0' : '#111',
+                color: isProfilePage ? '#111' : '#e2e8f0',
                 border: '1px solid #111',
                 '&:hover': {
                   background: isProfilePage ? '#222' : '#f0f0f0',
-                  color: isProfilePage ? '#fff' : '#111',
+                  color: isProfilePage ? '#e2e8f0' : '#111',
                 },
                 ml: 1,
                 minWidth: isProfilePage ? undefined : 40,
                 padding: isProfilePage ? undefined : 0,
               }}
             >
-              {isProfilePage ? (
-                t('home')
-              ) : pfpImage ? (
-                <Avatar src={pfpImage} className="pfp-avatar" />
-              ) : (
-                t('profile')
-              )}
+              {(() => {
+                if (isProfilePage) {
+                  return t('home');
+                } else if (pfpImage) {
+                  return <Avatar src={pfpImage} />;
+                } else {
+                  return t('profile');
+                }
+              })()}
             </Button>
           )}
           <WalletLogin />
