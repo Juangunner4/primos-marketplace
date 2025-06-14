@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
@@ -8,6 +8,8 @@ import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
+import Avatar from '@mui/material/Avatar';
+import axios from 'axios';
 
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './pages/NFTGallery';
@@ -20,6 +22,7 @@ import PrimoLabs from './pages/PrimoLabs';
 import Primos from './pages/Primos';
 import Docs from './pages/Docs';
 import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
+import { getNFTByTokenAddress } from './utils/helius';
 
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -30,6 +33,33 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === '/profile';
+
+  const [pfpImage, setPfpImage] = useState<string | null>(null);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
+
+  useEffect(() => {
+    const fetchPfp = async () => {
+      if (!publicKey) {
+        setPfpImage(null);
+        return;
+      }
+      try {
+        const res = await axios.get(`${backendUrl}/api/user/${publicKey.toBase58()}`, {
+          headers: { 'X-Public-Key': publicKey.toBase58() },
+        });
+        const token = res.data?.pfp;
+        if (token) {
+          const nft = await getNFTByTokenAddress(token.replace(/"/g, ''));
+          setPfpImage(nft?.image || null);
+        } else {
+          setPfpImage(null);
+        }
+      } catch {
+        setPfpImage(null);
+      }
+    };
+    fetchPfp();
+  }, [publicKey, backendUrl]);
 
   return (
     <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -111,9 +141,17 @@ const Header: React.FC = () => {
                   color: isProfilePage ? '#fff' : '#111',
                 },
                 ml: 1,
+                minWidth: isProfilePage ? undefined : 40,
+                padding: isProfilePage ? undefined : 0,
               }}
             >
-              {isProfilePage ? t('home') : t('profile')}
+              {isProfilePage ? (
+                t('home')
+              ) : pfpImage ? (
+                <Avatar src={pfpImage} className="pfp-avatar" />
+              ) : (
+                t('profile')
+              )}
             </Button>
           )}
           <WalletLogin />
