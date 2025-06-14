@@ -104,30 +104,13 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         textAlign: 'center',
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #111 0%, #23272f 100%)',
+        borderRadius: '1.5rem',
         color: '#fff',
         py: 6,
       }}
     >
       <Box
       >
-        <Typography
-          variant="h3"
-          sx={{
-            mt: 2,
-            fontWeight: 700,
-            letterSpacing: 2,
-            color: '#fff',
-            textShadow: '0 2px 8px #000a',
-          }}
-        >
-          {t('home_welcome')}
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{ color: '#ffeb3b', fontWeight: 600 }}
-        >
-          {t('home_fomo')}
-        </Typography>
         {!isConnected && (
           <Button
             variant="contained"
@@ -246,7 +229,24 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
               SOL
             </Typography>
           </Box>
-          {members.length > 0 && (
+        </Box>
+      )}
+      <Box sx={{
+        mt: 6,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 5,
+        background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
+        borderRadius: '1.5rem',
+        p: 4,
+        boxShadow: '0 2px 16px #0003',
+        maxWidth: 900,
+        mx: 'auto',
+        border: '2px solid #fff',
+        position: 'relative',
+      }}>
+        {members.length > 0 && (
             <Box>
               <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
                 {t('primos_title')}
@@ -262,9 +262,24 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
               </Box>
             </Box>
           )}
-        </Box>
-      )}
-      <News />
+      </Box>
+      <Box sx={{
+        mt: 6,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 5,
+        background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
+        borderRadius: '1.5rem',
+        p: 4,
+        boxShadow: '0 2px 16px #0003',
+        maxWidth: 900,
+        mx: 'auto',
+        border: '2px solid #fff',
+        position: 'relative',
+      }}>
+        {/* <News /> */}
+      </Box>
     </Box>
   );
 };
