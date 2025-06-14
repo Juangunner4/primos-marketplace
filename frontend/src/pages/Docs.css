@@ -100,19 +100,39 @@
 
 @media (max-width: 600px) {
   .docs-container {
-    flex-direction: column;
+    flex-direction: column-reverse; /* Sidebar at bottom */
   }
   .docs-sidebar {
-    width: 100%;
+    width: 100vw;
     flex-direction: row;
     overflow-x: auto;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 1rem;
+    border-top: 1px solid #ddd;
+    border-bottom: none;
+    margin-bottom: 0;
+    margin-top: 1rem;
     gap: 1rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background: #fff;
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
   }
   .docs-sidebar button {
     white-space: nowrap;
     padding: 0 0.5rem;
+    background: none;
+    border: none;
+    color: #0366d6;
+    font-weight: 500;
+    font-size: 1rem;
+    height: 48px;
+    line-height: 48px;
+  }
+  .docs-content {
+    padding-bottom: 60px; /* Space for bottom nav */
   }
 }

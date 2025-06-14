@@ -1,53 +1,117 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import * as RadixScrollArea from '@radix-ui/react-scroll-area';
 import { useTranslation } from 'react-i18next';
 import img802 from '../images/802.png';
 import './Docs.css';
 
+const NAV_ITEMS = [
+  { key: 'overview', label: 'docs_nav_overview' },
+  { key: 'treasury', label: 'docs_nav_treasury' },
+  { key: 'governance', label: 'docs_nav_governance' },
+  { key: 'utility', label: 'docs_nav_utility' },
+  { key: 'open-source', label: 'docs_nav_open_source' },
+];
+
 const Docs: React.FC = () => {
   const { t } = useTranslation();
   const [active, setActive] = useState('overview');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
-    <Box className="docs-container">
-      <nav className="docs-sidebar">
-        <button
-          className={active === 'overview' ? 'active' : ''}
-          onClick={() => setActive('overview')}
+    <Box className="docs-container" sx={{ flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
+      {/* Sidebar */}
+      {isMobile ? (
+        <Paper
+          elevation={8}
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100vw',
+            zIndex: 1200,
+            borderRadius: 0,
+          }}
         >
-          {t('docs_nav_overview')}
-        </button>
-        <button
-          className={active === 'treasury' ? 'active' : ''}
-          onClick={() => setActive('treasury')}
+          <RadixScrollArea.Root type="auto" style={{ width: '100vw', overflowX: 'auto' }}>
+            <BottomNavigation
+              showLabels
+              value={active}
+              onChange={(_, newValue) => setActive(newValue)}
+              sx={{
+                width: '100vw',
+                background: '#fff',
+                borderTop: '1px solid #eee',
+              }}
+            >
+              {NAV_ITEMS.map((item) => (
+                <BottomNavigationAction
+                  key={item.key}
+                  label={t(item.label)}
+                  value={item.key}
+                  sx={{
+                    minWidth: 80,
+                    color: active === item.key ? theme.palette.primary.main : '#555',
+                  }}
+                />
+              ))}
+            </BottomNavigation>
+          </RadixScrollArea.Root>
+        </Paper>
+      ) : (
+        <Paper
+          elevation={3}
+          sx={{
+            width: 180,
+            minWidth: 140,
+            maxWidth: 220,
+            p: 0,
+            pt: 2,
+            mr: 2,
+            position: 'sticky',
+            top: 80,
+            height: 'fit-content',
+            alignSelf: 'flex-start',
+            background: '#fff',
+          }}
         >
-          {t('docs_nav_treasury')}
-        </button>
-        <button
-          className={active === 'governance' ? 'active' : ''}
-          onClick={() => setActive('governance')}
-        >
-          {t('docs_nav_governance')}
-        </button>
-        <button
-          className={active === 'utility' ? 'active' : ''}
-          onClick={() => setActive('utility')}
-        >
-          {t('docs_nav_utility')}
-        </button>
-        <button
-          className={active === 'open-source' ? 'active' : ''}
-          onClick={() => setActive('open-source')}
-        >
-          {t('docs_nav_open_source')}
-        </button>
-      </nav>
-      <Box className="docs-content">
+          <List component="nav" aria-label="docs navigation">
+            {NAV_ITEMS.map((item) => (
+              <ListItemButton
+                key={item.key}
+                selected={active === item.key}
+                onClick={() => setActive(item.key)}
+                sx={{
+                  borderRadius: 1,
+                  mb: 0.5,
+                  color: active === item.key ? theme.palette.primary.main : '#222',
+                  fontWeight: active === item.key ? 700 : 500,
+                }}
+              >
+                <ListItemText primary={t(item.label)} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Paper>
+      )}
+
+      {/* Content */}
+      <Box className="docs-content" sx={{ pb: { xs: 8, sm: 0 } }}>
         <section
           id="overview"
-          className={`docs-section ${active === 'overview' ? 'active' : ''}`}
+          style={{ display: active === 'overview' ? 'block' : 'none' }}
         >
-          <Typography variant="h4" className="docs-title">
+          <Typography variant="h4" className="docs-title" sx={{ mb: 2 }}>
             {t('docs_title')}
           </Typography>
           <Typography variant="body1" className="docs-text" sx={{ mb: 3 }}>
@@ -68,10 +132,9 @@ const Docs: React.FC = () => {
             {t('docs_join_family')}
           </Typography>
         </section>
-
         <section
           id="treasury"
-          className={`docs-section ${active === 'treasury' ? 'active' : ''}`}
+          style={{ display: active === 'treasury' ? 'block' : 'none' }}
         >
           <Typography variant="h5" sx={{ mt: 3 }}>
             {t('docs_treasury_title')}
@@ -80,10 +143,9 @@ const Docs: React.FC = () => {
             {t('docs_treasury_desc')}
           </Typography>
         </section>
-
         <section
           id="governance"
-          className={`docs-section ${active === 'governance' ? 'active' : ''}`}
+          style={{ display: active === 'governance' ? 'block' : 'none' }}
         >
           <Typography variant="h5" sx={{ mt: 3 }}>
             {t('docs_governance_title')}
@@ -92,10 +154,9 @@ const Docs: React.FC = () => {
             {t('docs_governance_desc')}
           </Typography>
         </section>
-
         <section
           id="utility"
-          className={`docs-section ${active === 'utility' ? 'active' : ''}`}
+          style={{ display: active === 'utility' ? 'block' : 'none' }}
         >
           <Typography variant="h5" sx={{ mt: 3 }}>
             {t('docs_utility_title')}
@@ -104,10 +165,9 @@ const Docs: React.FC = () => {
             {t('docs_utility_desc')}
           </Typography>
         </section>
-
         <section
           id="open-source"
-          className={`docs-section ${active === 'open-source' ? 'active' : ''}`}
+          style={{ display: active === 'open-source' ? 'block' : 'none' }}
         >
           <Typography variant="h5" sx={{ mt: 3 }}>
             {t('docs_open_source_title')}
