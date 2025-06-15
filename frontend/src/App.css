@@ -7,30 +7,6 @@ body {
     color: #333;
 }
 
-.nft-list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
-    padding: 0;
-    margin: 0;
-}
-
-.nft-list li {
-    background-color: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    text-align: center;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.nft-list li:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-
 .beta-text {
   position: absolute;
   right: 1.5rem;
@@ -42,13 +18,4 @@ body {
   font-weight: bold;
   pointer-events: none;
   z-index: 5;
-}
-
-.market-gallery {
-  padding-left: 80px;
-}
-@media (max-width: 900px) {
-  .market-gallery {
-    padding-left: 0;
-  }
 }

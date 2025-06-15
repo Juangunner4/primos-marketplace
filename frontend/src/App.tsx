@@ -93,7 +93,7 @@ const Header: React.FC = () => {
                 borderColor: '#111',
                 '&:hover': {
                   background: i18n.language === 'en' ? '#222' : '#f0f0f0',
-                  color: i18n.language === 'en' ? '#fff' : '#111',
+                  color: i18n.language === 'en' ? '#e2e8f0' : '#111',
                 },
               }}
             >
@@ -114,7 +114,7 @@ const Header: React.FC = () => {
                 borderColor: '#111',
                 '&:hover': {
                   background: i18n.language === 'es' ? '#222' : '#f0f0f0',
-                  color: i18n.language === 'es' ? '#fff' : '#111',
+                  color: i18n.language === 'es' ? '#e2e8f0' : '#111',
                 },
               }}
             >
