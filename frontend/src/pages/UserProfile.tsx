@@ -286,9 +286,9 @@ const fadeOut = keyframes`
         <Typography>
           <strong>{t('points')}</strong> {user.points}
         </Typography>
-        {isOwner && ballVisible && (
-          <Box display="flex" justifyContent="center" mt={2}>
-            {ballVisible && (
+        {isOwner && (
+          <Box display="flex" justifyContent="center" mt={2} sx={{ minHeight: 64 }}>
+            {ballVisible ? (
               <Box
                 sx={{
                   width: 64,
@@ -317,6 +317,9 @@ const fadeOut = keyframes`
               >
                 <CircleIcon sx={{ fontSize: 32 }} />
               </Box>
+            ) : (
+              // Empty box to preserve space
+              <Box sx={{ width: 64, height: 64 }} />
             )}
           </Box>
         )}
