@@ -12,7 +12,8 @@ The repository contains three applications:
 * **mobile** – a React Native application powered by Expo.
 
 Both can be started independently during development or together using the
-`run-dev.sh` helper script.
+`run-dev.sh` helper script. A PowerShell version is available as
+`run-dev.ps1` for Windows environments.
 
 ### Backend
 
