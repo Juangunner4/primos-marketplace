@@ -13,6 +13,7 @@ import './Activity.css';
 import { fetchMagicEdenActivity } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { getPythSolPrice } from '../utils/pyth';
+import NFTCard, { MarketNFT } from './NFTCard';
 
 type ActivityItem = {
   id: string;
@@ -28,6 +29,8 @@ const MAGICEDEN_SYMBOL = 'primos';
 const Activity: React.FC = () => {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [solPrice, setSolPrice] = useState<number | null>(null);
+  const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
+  const [cardOpen, setCardOpen] = useState(false);
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -115,12 +118,25 @@ const Activity: React.FC = () => {
               <img
                 src={item.image}
                 alt={item.nftName}
+                onClick={() => {
+                  const nft: MarketNFT = {
+                    id: item.id,
+                    image: item.image!,
+                    name: item.nftName,
+                    price: item.price ?? 0,
+                    variant: 'yellow',
+                    rank: null,
+                  };
+                  setSelectedNft(nft);
+                  setCardOpen(true);
+                }}
                 style={{
                   width: 32,
                   height: 32,
                   borderRadius: 6,
                   marginRight: 8,
                   objectFit: 'cover',
+                  cursor: 'pointer',
                 }}
               />
             )}
@@ -149,6 +165,29 @@ const Activity: React.FC = () => {
 
   return (
     <>
+      {cardOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            zIndex: 1200,
+            top: 15,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <NFTCard
+            nft={selectedNft}
+            open={cardOpen}
+            onClose={() => setCardOpen(false)}
+            solPriceUsd={solPrice ?? undefined}
+          />
+        </div>
+      )}
       {isMobile ? (
         <>
           <IconButton
