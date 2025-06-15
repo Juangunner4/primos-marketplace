@@ -41,6 +41,22 @@ const Activity: React.FC = () => {
     setMounted(true);
   }, []);
 
+  // Close the activity drawer when clicking outside on mobile
+  useEffect(() => {
+    if (!isMobile || !open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (cardOpen) return;
+      const drawer = document.querySelector('.MuiDrawer-paper');
+      if (drawer && !drawer.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+    };
+  }, [isMobile, open, cardOpen]);
+
   useEffect(() => {
     getPythSolPrice().then((p) => setSolPrice(p));
   }, []);
@@ -169,7 +185,7 @@ const Activity: React.FC = () => {
         <div
           style={{
             position: 'fixed',
-            zIndex: 1200,
+            zIndex: 1400,
             top: 15,
             left: 0,
             width: '100vw',
