@@ -8,5 +8,8 @@ backend_pid=$!
 npm --prefix frontend start &
 frontend_pid=$!
 
-trap 'kill $backend_pid $frontend_pid' INT TERM
-wait $backend_pid $frontend_pid
+npm --prefix mobile run start &
+mobile_pid=$!
+
+trap 'kill $backend_pid $frontend_pid $mobile_pid' INT TERM
+wait $backend_pid $frontend_pid $mobile_pid

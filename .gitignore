@@ -151,3 +151,6 @@ apps/*/dist/
 apps/*/build/
 **/build/
 **/dist/
+.expo
+mobile/web-build/
+mobile/dist/

@@ -3,12 +3,13 @@ Solana NFT marketplace for the Primos collection.
 
 ## Running the project
 
-The repository contains two applications:
+The repository contains three applications:
 
 * **backend** – a Quarkus service that exposes REST APIs and persists user
   information to MongoDB.
 * **frontend** – a React interface that communicates with the backend and the
   Solana blockchain.
+* **mobile** – a React Native application powered by Expo.
 
 Both can be started independently during development or together using the
 `run-dev.sh` helper script.
@@ -26,6 +27,14 @@ mvn quarkus:dev
 cd frontend
 npm install
 npm start
+```
+
+### Mobile
+
+```bash
+cd mobile
+npm install
+npx expo start
 ```
 
 Tests for each portion can be run using `mvn test` in the backend directory and
