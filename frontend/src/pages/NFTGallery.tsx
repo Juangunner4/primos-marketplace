@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { getAssetsByCollection } from "../utils/helius";
+import { getAssetsByCollection, getNFTByTokenAddress } from "../utils/helius";
 import { getMagicEdenStats } from "../utils/magiceden";
 import { getPythSolPrice } from "../utils/pyth";
 import logo from "../images/primoslogo.png";
@@ -55,12 +55,18 @@ const NFTGallery: React.FC = () => {
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
         ]);
-        const assetsWithVariants = assets.map((nft) => ({
-          ...nft,
-          variant: getRandomCardVariantName(),
-          price: 0,      // Ensure price exists
-          rank: null,     // Ensure rank exists
-        }));
+        const assetsWithVariants = await Promise.all(
+          assets.map(async (nft) => {
+            const meta = await getNFTByTokenAddress(nft.id);
+            return {
+              ...nft,
+              variant: getRandomCardVariantName(),
+              price: 0, // Ensure price exists
+              rank: null, // Ensure rank exists
+              attributes: meta?.attributes,
+            } as GalleryNFT;
+          })
+        );
         setNfts(assetsWithVariants);
         setFloorPrice(stats?.floorPrice ?? null);
         setSolPrice(solPriceVal ?? null);
