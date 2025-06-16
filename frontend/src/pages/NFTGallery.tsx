@@ -292,7 +292,6 @@ const NFTGallery: React.FC = () => {
           style={{
             position: "fixed",
             zIndex: 1200,
-            top: 15,
             left: 0,
             width: "100vw",
             height: "100vh",
