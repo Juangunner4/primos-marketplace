@@ -123,3 +123,11 @@
   border-radius: 8px;
   padding: 1.25rem;
 }
+
+.lab-card.meme-wars {
+  background: linear-gradient(135deg, #3700ff, #ff0099);
+}
+
+.lab-card.eliza-bot {
+  background: linear-gradient(135deg, #0d324d, #7f5a83);
+}
