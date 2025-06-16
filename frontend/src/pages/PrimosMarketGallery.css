@@ -316,3 +316,39 @@
   display: flex;
   gap: 0.5rem;
 }
+
+.nft-gallery-grid.market-nft-list.nft-list>* {
+  transition:
+    transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    z-index 0.22s,
+    border-color 0.18s;
+  will-change: transform, box-shadow, border-color;
+  z-index: 1;
+  position: relative;
+  border: 1px solid #222;
+  background: #fff;
+}
+
+.nft-gallery-grid.market-nft-list.nft-list>*:hover {
+  transform: scale(1.09) rotate(-2.5deg) translateY(-16px);
+  box-shadow:
+    0 8px 0 #444,
+    0 24px 64px rgba(0, 0, 0, 0.22),
+    0 6px 18px rgba(80, 80, 80, 0.18),
+    0 0px 0px 4px #fff;
+  z-index: 10;
+  cursor: pointer;
+  filter: none;
+}
+
+.nft-gallery-grid.market-nft-list.nft-list>*:active {
+  transform: scale(1.03) rotate(-1deg) translateY(-4px);
+  box-shadow:
+    0 4px 0 #888,
+    0 10px 32px rgba(0, 0, 0, 0.18),
+    0 2px 8px rgba(80, 80, 80, 0.10);
+  border: 3px solid #eee;
+  outline: 2px solid #222;
+  filter: none;
+}
