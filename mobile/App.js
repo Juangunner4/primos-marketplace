@@ -1,13 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, Text, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useTranslation } from 'react-i18next';
+import './i18n';
 
 export default function App() {
+  const { t } = useTranslation();
   return (
-    <View style={styles.container}>
-      <Text>Welcome to Primos Marketplace mobile!</Text>
+    <SafeAreaView style={styles.container}>
+      <Text>{t('mobile_welcome')}</Text>
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaView>
   );
 }
 
