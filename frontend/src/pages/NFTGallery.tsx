@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { getAssetsByCollection } from "../utils/helius";
+import { getAssetsByCollection, getNFTByTokenAddress } from "../utils/helius";
 import { getMagicEdenStats } from "../utils/magiceden";
 import { getPythSolPrice } from "../utils/pyth";
 import logo from "../images/primoslogo.png";
@@ -38,6 +38,27 @@ const NFTGallery: React.FC = () => {
     setCardOpen(false);
   };
 
+  // Helper function to extract rank, copied from PrimosMarketGallery
+  function getNftRank(listing: any, metaAttrs: any): number | null {
+    if (typeof listing.rarityRank === 'number') {
+      return listing.rarityRank;
+    }
+    if (typeof listing.rank === 'number') {
+      return listing.rank;
+    }
+    if (metaAttrs) {
+      const attr = metaAttrs.find(
+        (a: any) =>
+          a.trait_type?.toLowerCase() === 'rank' ||
+          a.trait_type?.toLowerCase() === 'rarity rank'
+      );
+      if (attr && !isNaN(Number(attr.value))) {
+        return Number(attr.value);
+      }
+    }
+    return null;
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       if (!publicKey) {
@@ -55,13 +76,30 @@ const NFTGallery: React.FC = () => {
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
         ]);
-        const assetsWithVariants = assets.map((nft) => ({
-          ...nft,
-          variant: getRandomCardVariantName(),
-          price: 0,      // Ensure price exists
-          rank: null,     // Ensure rank exists
-        }));
-        setNfts(assetsWithVariants);
+
+        // Use the same logic as PrimosMarketGallery to fetch metadata and rank
+        const pageNFTs = await Promise.all(
+          assets.map(async (asset: any) => {
+            const meta = await getNFTByTokenAddress(asset.id);
+            const image = asset.img ?? asset.image ?? asset.extra?.img ?? meta?.image ?? '';
+            const name = asset.name ?? asset.title ?? meta?.name ?? asset.id;
+            const metaAttrs = meta?.attributes;
+            const rank = getNftRank(asset, metaAttrs);
+            return {
+              id: asset.id,
+              image,
+              name,
+              price: 0,
+              variant: getRandomCardVariantName(),
+              rank,
+              attributes: metaAttrs,
+            };
+          })
+        );
+
+        const filtered = pageNFTs.filter((nft) => nft.image);
+
+        setNfts(filtered);
         setFloorPrice(stats?.floorPrice ?? null);
         setSolPrice(solPriceVal ?? null);
       } catch (e) {
