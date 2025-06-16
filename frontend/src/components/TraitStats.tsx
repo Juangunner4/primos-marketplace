@@ -109,7 +109,7 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
           className="trait-mobile-btn"
           sx={{
             position: 'fixed',
-            bottom: 96,
+            bottom: 16,
             right: 24,
             zIndex: 1301,
             background: '#000',
@@ -117,6 +117,8 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
             border: '1.5px solid #fff',
             boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
             '&:hover': { background: '#222' },
+            width: 48,
+            height: 48,
           }}
         >
           <BarChartIcon />
