@@ -65,19 +65,15 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   return (
     <Box className="labs-container">
       <Box className="labs-grid">
-        <Card className="lab-card">
+        <Card className="lab-card meme-wars">
           <Typography variant="h6" sx={{ mt: 1 }}>
-            {t('coming_soon')}
+            {t('labs_meme_wars')}
           </Typography>
-          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
-          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
-        <Card className="lab-card">
+        <Card className="lab-card eliza-bot">
           <Typography variant="h6" sx={{ mt: 1 }}>
-            {t('coming_soon')}
+            {t('labs_eliza_bot')}
           </Typography>
-          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
-          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
         </Card>
         <Card className="lab-card">
           <Typography variant="h6" sx={{ mt: 1 }}>
