@@ -125,9 +125,9 @@
 }
 
 .lab-card.meme-wars {
-  background: linear-gradient(135deg, #3700ff, #ff0099);
+  background: linear-gradient(135deg, #1e1e1e, #ffffff);
 }
 
 .lab-card.eliza-bot {
-  background: linear-gradient(135deg, #0d324d, #7f5a83);
+  background: linear-gradient(135deg, #ffffff, #1e1e1e);
 }
