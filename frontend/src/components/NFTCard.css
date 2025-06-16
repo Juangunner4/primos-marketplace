@@ -15,7 +15,7 @@
   width: 98vw;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
   position: relative;
-  max-height: 90vh;
+  max-height: 95vh;
   overflow-y: auto;
 }
 
@@ -176,7 +176,6 @@
 
   .nft-dialog-content {
     width: 100%;
-    max-width: 100vw;
     padding: 2rem 1.2rem 2rem 1.2rem;
     border-radius: 0.75rem;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
