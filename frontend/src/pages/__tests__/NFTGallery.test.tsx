@@ -14,6 +14,7 @@ jest.mock("../../utils/helius", () => ({
       { id: "1", image: "img", name: "Primo", listed: false, attributes: [] },
     ]),
   ),
+  getNFTByTokenAddress: jest.fn(() => Promise.resolve({ attributes: [] })),
 }));
 
 jest.mock("../../utils/magiceden", () => ({
