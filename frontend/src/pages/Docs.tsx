@@ -128,9 +128,6 @@ const Docs: React.FC = () => {
               </Typography>
             </div>
           </div>
-          <Typography variant="h5" sx={{ mt: 3 }}>
-            {t('docs_join_family')}
-          </Typography>
         </section>
         <section
           id="treasury"
