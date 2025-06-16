@@ -143,10 +143,6 @@ const NFTCard: React.FC<NFTCardProps> = ({
                 style={{
                   borderColor: variant.border,
                   background: variant.bg,
-                  maxWidth: 160,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
                 }}
                 title={nft.name}
               >
@@ -155,7 +151,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
             </div>
             {nft.attributes && nft.attributes.length > 0 && (
               <ul className="nft-attributes">
-                {nft.attributes.slice(0, 6).map((attr, i) => (
+                {nft.attributes.map((attr, i) => (
                   <li key={i}>
                     <strong>{attr.trait_type}:</strong> {attr.value}
                   </li>

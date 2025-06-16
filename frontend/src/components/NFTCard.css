@@ -15,6 +15,8 @@
   width: 98vw;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .nft-modal-vertical {
@@ -61,8 +63,6 @@
   min-width: 60px;
   text-align: center;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .nft-info-pill.rank {
