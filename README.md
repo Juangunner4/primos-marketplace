@@ -38,6 +38,8 @@ npm install
 npx expo start
 ```
 
+There are currently no automated tests for the mobile app.
+
 Tests for each portion can be run using `mvn test` in the backend directory and
 `npm test -- --watchAll=false` in the frontend directory.
 
@@ -46,3 +48,7 @@ Tests for each portion can be run using `mvn test` in the backend directory and
 The frontend communicates directly with Solana and other Web3 services. The
 backend simply reads and writes user information from MongoDB. This keeps the
 on‑chain logic in the client and makes the server lightweight.
+
+## Internationalization
+
+Translations for the web frontend are stored under `frontend/src/locales`. The mobile app uses the same `i18next` setup with JSON files located in `mobile/locales`.

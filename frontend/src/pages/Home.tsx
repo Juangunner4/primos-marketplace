@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
-import News from '../components/News';
 import hero from '../images/primoslogo.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
@@ -278,7 +277,6 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         border: '2px solid #fff',
         position: 'relative',
       }}>
-        {/* <News /> */}
       </Box>
     </Box>
   );
