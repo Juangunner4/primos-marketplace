@@ -15,6 +15,7 @@ public class User extends PanacheMongoEntity {
     private int pesos = 1000;
     private boolean primoHolder = false;
     private boolean daoMember = true;
+    private boolean betaRedeemed = false;
     private long createdAt = System.currentTimeMillis();
 
     // Getters and Setters
@@ -47,6 +48,9 @@ public class User extends PanacheMongoEntity {
 
     public boolean isDaoMember() { return daoMember; }
     public void setDaoMember(boolean daoMember) { this.daoMember = daoMember; }
+
+    public boolean isBetaRedeemed() { return betaRedeemed; }
+    public void setBetaRedeemed(boolean betaRedeemed) { this.betaRedeemed = betaRedeemed; }
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }

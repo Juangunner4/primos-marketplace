@@ -3,6 +3,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button, TextField, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import './BetaRedeem.css';
 
 interface BetaRedeemProps {
   autoOpen?: boolean;
@@ -13,6 +15,7 @@ const ADMIN_WALLET =
 
 const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
   const { publicKey } = useWallet();
+  const { betaRedeemed, setBetaRedeemed } = usePrimoHolder();
   const [open, setOpen] = useState(autoOpen);
   const [code, setCode] = useState('');
   const { t } = useTranslation();
@@ -20,7 +23,7 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
   if (
     !publicKey ||
     publicKey.toBase58() === ADMIN_WALLET ||
-    localStorage.getItem('betaRedeemed') === 'true'
+    betaRedeemed
   )
     return null;
 
@@ -30,6 +33,7 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
     if (publicKey) {
       localStorage.setItem('betaWallet', publicKey.toBase58());
     }
+    setBetaRedeemed(false);
     setOpen(false);
     window.location.reload();
   };

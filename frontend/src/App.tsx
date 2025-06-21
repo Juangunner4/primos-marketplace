@@ -169,21 +169,24 @@ const Header: React.FC = () => {
 
 const AppRoutes = () => {
   const { publicKey } = useWallet();
-  const { isHolder } = usePrimoHolder();
+  const { isHolder, betaRedeemed } = usePrimoHolder();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!publicKey && (location.pathname === '/profile' || location.pathname.startsWith('/user'))) {
+    if (
+      (!publicKey || !isHolder || !betaRedeemed) &&
+      (location.pathname === '/profile' || location.pathname.startsWith('/user'))
+    ) {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder) && location.pathname === '/collected') {
+    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/collected') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder) && location.pathname === '/labs') {
+    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/labs') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder) && location.pathname === '/primos') {
+    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/primos') {
       navigate('/', { replace: true });
     }
     if (
@@ -192,7 +195,13 @@ const AppRoutes = () => {
     ) {
       navigate('/', { replace: true });
     }
-  }, [publicKey, isHolder, location.pathname, navigate]);
+    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/profile') {
+      navigate('/', { replace: true });
+    }
+    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname.startsWith('/user')) {
+      navigate('/', { replace: true });
+    }
+  }, [publicKey, isHolder, betaRedeemed, location.pathname, navigate]);
 
   return (
     <Box sx={{ display: 'flex' }}>

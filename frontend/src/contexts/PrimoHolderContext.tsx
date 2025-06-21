@@ -9,20 +9,28 @@ const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 export const PrimoHolderContext = React.createContext<{
   isHolder: boolean;
   setIsHolder: (v: boolean) => void;
+  betaRedeemed: boolean;
+  setBetaRedeemed: (v: boolean) => void;
 }>({
   isHolder: false,
   setIsHolder: () => {},
+  betaRedeemed: false,
+  setBetaRedeemed: () => {},
 });
 
 export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { publicKey } = useWallet();
   const [isHolder, setIsHolder] = React.useState(false);
+  const [betaRedeemed, setBetaRedeemed] = React.useState(
+    localStorage.getItem('betaRedeemed') === 'true'
+  );
   const backendUrl = getBackendUrl();
 
   useEffect(() => {
     const loginAndCheckHolder = async () => {
       if (!publicKey) {
         setIsHolder(false);
+        setBetaRedeemed(false);
         return;
       }
       try {
@@ -49,8 +57,10 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           payload.betaCode = betaCode;
         }
         try {
-          await axios.post(`${backendUrl}/api/user/login`, payload);
-          if (!redeemed) {
+          const res = await axios.post(`${backendUrl}/api/user/login`, payload);
+          const serverRedeemed = res.data?.betaRedeemed ?? redeemed;
+          setBetaRedeemed(serverRedeemed);
+          if (!redeemed && serverRedeemed) {
             localStorage.setItem('betaRedeemed', 'true');
             localStorage.removeItem('betaCode');
           }
@@ -64,12 +74,16 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
       } catch (e) {
         console.error('Failed to check Primo holder status:', e);
         setIsHolder(false);
+        setBetaRedeemed(false);
       }
     };
     loginAndCheckHolder();
   }, [publicKey, backendUrl]);
 
-  const contextValue = React.useMemo(() => ({ isHolder, setIsHolder }), [isHolder, setIsHolder]);
+  const contextValue = React.useMemo(
+    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed }),
+    [isHolder, setIsHolder, betaRedeemed, setBetaRedeemed]
+  );
 
   return (
     <PrimoHolderContext.Provider value={contextValue}>
