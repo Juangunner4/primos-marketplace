@@ -22,7 +22,7 @@ const SidebarNav: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { publicKey } = useWallet();
-  const { isHolder } = usePrimoHolder();
+  const { isHolder, betaRedeemed } = usePrimoHolder();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
@@ -31,9 +31,24 @@ const SidebarNav: React.FC = () => {
     { to: '/', icon: <HomeIcon />, label: t('home'), show: true, end: true },
     { to: '/market', icon: <StorefrontIcon />, label: t('market_title'), show: true },
     { to: '/docs', icon: <MenuBookIcon />, label: t('docs_title'), show: true },
-    { to: '/collected', icon: <WorkIcon />, label: t('your_primos_nfts'), show: publicKey && isHolder },
-    { to: '/labs', icon: <ScienceIcon />, label: t('primo_labs'), show: publicKey && isHolder },
-    { to: '/primos', icon: <PeopleIcon />, label: t('primos_title'), show: publicKey && isHolder },
+    {
+      to: '/collected',
+      icon: <WorkIcon />,
+      label: t('your_primos_nfts'),
+      show: publicKey && isHolder && betaRedeemed,
+    },
+    {
+      to: '/labs',
+      icon: <ScienceIcon />,
+      label: t('primo_labs'),
+      show: publicKey && isHolder && betaRedeemed,
+    },
+    {
+      to: '/primos',
+      icon: <PeopleIcon />,
+      label: t('primos_title'),
+      show: publicKey && isHolder && betaRedeemed,
+    },
   ];
 
   const drawerContent = (

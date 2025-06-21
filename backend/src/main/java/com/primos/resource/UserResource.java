@@ -36,15 +36,22 @@ public class UserResource {
         if (user == null) {
             validateBetaCodeOrThrow(req.betaCode);
             user = createNewUser(req.publicKey, holder);
+            user.setBetaRedeemed(true);
+            user.persist();
             if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
                 LOGGER.info(String.format("[UserResource] Created new user for publicKey: %s", req.publicKey));
             }
         } else {
             updateHolderStatus(user, holder);
+            if (!user.isBetaRedeemed() && req.betaCode != null && !req.betaCode.isEmpty()) {
+                validateBetaCodeOrThrow(req.betaCode);
+                user.setBetaRedeemed(true);
+            }
             if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
                 LOGGER.info(String.format("[UserResource] User already exists for publicKey: %s", req.publicKey));
             }
         }
+        user.persistOrUpdate();
         return user;
     }
 
