@@ -23,6 +23,7 @@ import PrimoLabs from './pages/PrimoLabs';
 import Primos from './pages/Primos';
 import Docs from './pages/Docs';
 import Admin from './pages/Admin';
+import BetaRedeem from './components/BetaRedeem';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
@@ -228,6 +229,7 @@ const App = () => {
           <PrimoHolderProvider>
             <Router>
               <Header />
+              <BetaRedeem autoOpen />
               <AppRoutes />
             </Router>
           </PrimoHolderProvider>

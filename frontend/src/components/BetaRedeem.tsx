@@ -4,13 +4,25 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Button, TextField, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-const BetaRedeem: React.FC = () => {
+interface BetaRedeemProps {
+  autoOpen?: boolean;
+}
+
+const ADMIN_WALLET =
+  process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
+
+const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
   const { publicKey } = useWallet();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(autoOpen);
   const [code, setCode] = useState('');
   const { t } = useTranslation();
 
-  if (!publicKey || localStorage.getItem('betaRedeemed') === 'true') return null;
+  if (
+    !publicKey ||
+    publicKey.toBase58() === ADMIN_WALLET ||
+    localStorage.getItem('betaRedeemed') === 'true'
+  )
+    return null;
 
   const handleRedeem = () => {
     localStorage.setItem('betaCode', code);
@@ -21,11 +33,13 @@ const BetaRedeem: React.FC = () => {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button variant="outlined" sx={{ mt: 2 }}>
-          {t('redeem_beta')}
-        </Button>
-      </Dialog.Trigger>
+      {!autoOpen && (
+        <Dialog.Trigger asChild>
+          <Button variant="outlined" sx={{ mt: 2 }}>
+            {t('redeem_beta')}
+          </Button>
+        </Dialog.Trigger>
+      )}
       <Dialog.Overlay className="dialog-overlay" />
       <Dialog.Content className="dialog-content">
         <Dialog.Title>{t('enter_beta_code')}</Dialog.Title>
