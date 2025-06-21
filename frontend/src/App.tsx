@@ -10,6 +10,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import axios from 'axios';
+import { getBackendUrl } from './utils/env';
 
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './pages/NFTGallery';
@@ -39,7 +40,7 @@ const Header: React.FC = () => {
   const isProfilePage = location.pathname === '/profile';
 
   const [pfpImage, setPfpImage] = useState<string | null>(null);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
+  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     const fetchPfp = async () => {
@@ -68,7 +69,6 @@ const Header: React.FC = () => {
   return (
     <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar sx={{ minHeight: 64, display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
-        {/* Language buttons */}
         <Box
           sx={{
             display: 'flex',
@@ -126,7 +126,6 @@ const Header: React.FC = () => {
             </Button>
           </Box>
         </Box>
-        {/* BETA */}
         <span className="beta-text">{t('beta')}</span>
         <Box sx={{ ml: 8 }}>
           <img src={logo} alt={t('logo_alt')} className="logo logo-left logo-float" style={{ marginLeft: '60px', height: 48 }} />

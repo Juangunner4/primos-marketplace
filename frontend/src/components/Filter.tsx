@@ -86,7 +86,6 @@ export function FilterPanel({
         {t('filters')}
       </Typography>
 
-      {/* 2) Price Min/Max */}
       <Typography gutterBottom>{t('filter_price')} (SOL)</Typography>
       <Box display="flex" gap={1} mb={3}>
         <TextField
@@ -107,7 +106,6 @@ export function FilterPanel({
         />
       </Box>
 
-      {/* Rank Min/Max */}
       <Typography gutterBottom>{t('filter_rank')}</Typography>
       <Box display="flex" gap={1} mb={3}>
         <TextField
@@ -128,7 +126,6 @@ export function FilterPanel({
         />
       </Box>
 
-  {/* 3) Attribute Accordions */}
   {Object.entries(attributeGroups).map(([group, options]) => (
         <Accordion key={group} disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -150,9 +147,7 @@ export function FilterPanel({
         </Accordion>
       ))}
 
-      {/* 4) Active filters & Apply / Reset */}
       <Box mt={2} display="flex" flexWrap="wrap" gap={1}>
-        {/* REMOVED selectedMarketplaces chips */}
         {minPrice && <Chip label={`Min: ${minPrice}`} onDelete={() => setMinPrice('')} />}
         {maxPrice && <Chip label={`Max: ${maxPrice}`} onDelete={() => setMaxPrice('')} />}
         {minRank && <Chip label={`Rank Min: ${minRank}`} onDelete={() => setMinRank('')} />}
@@ -178,7 +173,6 @@ export function FilterPanel({
             },
           }}
           onClick={() => {
-            // REMOVED setSelectedMarketplaces
             setSelectedAttributes({});
             setMinPrice('');
             setMaxPrice('');

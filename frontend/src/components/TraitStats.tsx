@@ -50,7 +50,6 @@ const TraitStats: React.FC<Props> = ({ nftIds }) => {
       }
       if (!cancelled) setTraits(counts);
 
-      // Fetch floor prices for each trait
       const floorPromises = Object.keys(counts).map(async (key) => {
         const [trait_type, value] = key.split(": ").map((s) => s.trim());
         const price = await getTraitFloorPrice(MAGICEDEN_SYMBOL, trait_type, value);

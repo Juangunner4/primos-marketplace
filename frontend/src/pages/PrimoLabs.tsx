@@ -8,6 +8,7 @@ import Card from '@mui/material/Card';
 import LinearProgress from '@mui/material/LinearProgress';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import axios from 'axios';
+import { getBackendUrl } from '../utils/env';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
@@ -21,7 +22,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
+  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     if (!isConnected) return;
