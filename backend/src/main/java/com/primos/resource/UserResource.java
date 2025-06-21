@@ -27,6 +27,28 @@ public class UserResource {
     @POST
     @Path("/login")
     public User login(LoginRequest req) {
+        validateLoginRequest(req);
+
+        boolean holder = req.primoHolder;
+
+        User user = io.quarkus.mongodb.panache.PanacheMongoEntityBase.find(PUBLIC_KEY_FIELD, req.publicKey)
+                .firstResult();
+        if (user == null) {
+            validateBetaCodeOrThrow(req.betaCode);
+            user = createNewUser(req.publicKey, holder);
+            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+                LOGGER.info(String.format("[UserResource] Created new user for publicKey: %s", req.publicKey));
+            }
+        } else {
+            updateHolderStatus(user, holder);
+            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+                LOGGER.info(String.format("[UserResource] User already exists for publicKey: %s", req.publicKey));
+            }
+        }
+        return user;
+    }
+
+    private void validateLoginRequest(LoginRequest req) {
         if (req == null || req.publicKey == null || req.publicKey.isEmpty()) {
             LOGGER.info("[UserResource] Login attempt with missing publicKey");
             throw new jakarta.ws.rs.BadRequestException("publicKey is required");
@@ -34,52 +56,48 @@ public class UserResource {
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
             LOGGER.info(String.format("[UserResource] Login attempt for publicKey: %s", req.publicKey));
         }
+    }
 
-        // The frontend provides the Primo holder status
-        boolean holder = req.primoHolder;
-
-        User user = User.find(PUBLIC_KEY_FIELD, req.publicKey).firstResult();
-        if (user == null) {
-            // Require a valid beta code for new users
-            if (req.betaCode == null || req.betaCode.isEmpty()) {
-                LOGGER.info("[UserResource] Missing beta code for new user");
-                throw new ForbiddenException();
-            }
-            com.primos.model.BetaCode beta = com.primos.model.BetaCode.find("code", req.betaCode).firstResult();
-            if (beta == null) {
-                LOGGER.info("[UserResource] Invalid beta code: " + req.betaCode);
-                throw new ForbiddenException();
-            }
-            beta.delete();
-
-            user = new User();
-            user.setPublicKey(req.publicKey);
-            user.setBio("");
-            user.setSocials(new User.SocialLinks());
-            user.setPfp("");
-            user.setPoints(0);
-            user.setPesos(1000);
-            user.setCreatedAt(System.currentTimeMillis());
-            user.setDaoMember(holder);
-            user.setPrimoHolder(holder);
-            user.persist();
-            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-                LOGGER.info(String.format("[UserResource] Created new user for publicKey: %s", req.publicKey));
-            }
-        } else {
-            user.setPrimoHolder(holder);
-            if (holder && !user.isDaoMember()) {
-                user.setDaoMember(true);
-            }
-            if (!holder && user.isDaoMember()) {
-                user.setDaoMember(false);
-            }
-            user.persistOrUpdate();
-            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-                LOGGER.info(String.format("[UserResource] User already exists for publicKey: %s", req.publicKey));
-            }
+    private void validateBetaCodeOrThrow(String betaCode) {
+        if (betaCode == null || betaCode.isEmpty()) {
+            LOGGER.info("[UserResource] Missing beta code for new user");
+            throw new ForbiddenException();
         }
+        com.primos.model.BetaCode beta = io.quarkus.mongodb.panache.PanacheMongoEntityBase
+                .find("code", betaCode).firstResult();
+        if (beta == null) {
+            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+                LOGGER.info(String.format("[UserResource] Invalid beta code: %s", betaCode));
+            }
+            throw new ForbiddenException();
+        }
+        beta.delete();
+    }
+
+    private User createNewUser(String publicKey, boolean holder) {
+        User user = new User();
+        user.setPublicKey(publicKey);
+        user.setBio("");
+        user.setSocials(new User.SocialLinks());
+        user.setPfp("");
+        user.setPoints(0);
+        user.setPesos(1000);
+        user.setCreatedAt(System.currentTimeMillis());
+        user.setDaoMember(holder);
+        user.setPrimoHolder(holder);
+        user.persist();
         return user;
+    }
+
+    private void updateHolderStatus(User user, boolean holder) {
+        user.setPrimoHolder(holder);
+        if (holder && !user.isDaoMember()) {
+            user.setDaoMember(true);
+        }
+        if (!holder && user.isDaoMember()) {
+            user.setDaoMember(false);
+        }
+        user.persistOrUpdate();
     }
 
     @GET
