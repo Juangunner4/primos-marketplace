@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button, TextField, Box } from '@mui/material';
@@ -15,13 +15,26 @@ const ADMIN_WALLET =
 
 const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
   const { publicKey } = useWallet();
-  const { betaRedeemed, setBetaRedeemed } = usePrimoHolder();
+  const { isHolder, betaRedeemed, setBetaRedeemed } = usePrimoHolder();
   const [open, setOpen] = useState(autoOpen);
   const [code, setCode] = useState('');
   const { t } = useTranslation();
 
+  useEffect(() => {
+    if (
+      autoOpen &&
+      !betaRedeemed &&
+      publicKey &&
+      isHolder &&
+      publicKey.toBase58() !== ADMIN_WALLET
+    ) {
+      setOpen(true);
+    }
+  }, [autoOpen, betaRedeemed, publicKey, isHolder]);
+
   if (
     !publicKey ||
+    !isHolder ||
     publicKey.toBase58() === ADMIN_WALLET ||
     betaRedeemed
   )
