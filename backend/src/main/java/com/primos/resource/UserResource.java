@@ -31,7 +31,7 @@ public class UserResource {
 
         boolean holder = req.primoHolder;
 
-        User user = io.quarkus.mongodb.panache.PanacheMongoEntityBase.find(PUBLIC_KEY_FIELD, req.publicKey)
+        User user = User.find(PUBLIC_KEY_FIELD, req.publicKey)
                 .firstResult();
         if (user == null) {
             validateBetaCodeOrThrow(req.betaCode);
