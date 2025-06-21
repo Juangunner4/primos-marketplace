@@ -17,6 +17,12 @@ The backend restricts logins to users with a valid beta code. Thirty beta codes
 are generated on startup. A code is required when a wallet logs in for the first
 time and is consumed afterwards.
 
+### Admin Page
+
+Logging in with the admin wallet enables an additional page accessible from the profile screen. Set
+the wallet address via the `ADMIN_WALLET` environment variable (defaults to the project's demo value).
+The admin can create and view beta codes which are stored in MongoDB.
+
 Both can be started independently during development or together using the
 `run-dev.sh` helper script. A PowerShell version is available as
 `run-dev.ps1` for Windows environments.

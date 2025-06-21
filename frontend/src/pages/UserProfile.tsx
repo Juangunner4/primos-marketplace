@@ -8,8 +8,11 @@ import { keyframes } from '@emotion/react';
 import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Box, Typography, TextField, Button, Avatar } from '@mui/material';
+import { Box, Typography, TextField, Button, Avatar, IconButton } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { Link } from 'react-router-dom';
+import BetaRedeem from '../components/BetaRedeem';
 
 type SocialLinks = {
   twitter: string;
@@ -35,6 +38,8 @@ const getStatus = (count: number) => {
 };
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
+const ADMIN_WALLET =
+  process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
@@ -215,6 +220,11 @@ const fadeOut = keyframes`
               {isEditing ? t('cancel') : t('edit')}
             </Button>
           )}
+          {isOwner && publicKey?.toBase58() === ADMIN_WALLET && (
+            <IconButton component={Link} to="/admin" sx={{ ml: 1 }}>
+              <AdminPanelSettingsIcon />
+            </IconButton>
+          )}
         </Box>
         {isOwner && isEditing && (
           <Button
@@ -339,6 +349,7 @@ const fadeOut = keyframes`
           </Button>
         )}
       </Box>
+      {isOwner && <BetaRedeem />}
       {isOwner && (
       <>
       <Dialog.Root open={pfpDialogOpen} onOpenChange={setPfpDialogOpen}>
