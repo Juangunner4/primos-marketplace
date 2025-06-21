@@ -61,9 +61,12 @@ Translations for the web frontend are stored under `frontend/src/locales`. The m
 
 ## Docker Setup
 
-The repository includes a `docker-compose.yml` file that builds images for the frontend and backend and also starts a MongoDB instance. Environment values are read from a `.env` file.
-An example configuration for local development is provided in `.env` while `.env.test`
-contains placeholders for the test environment on Render. Use it with `docker compose --env-file .env.test` when running locally against the test setup.
+The repository includes a `docker-compose.yml` file that builds images for the
+frontend and backend and also starts a MongoDB instance. Environment values are
+read from a `.env` file. An example configuration for local development is
+provided in `.env` while `.env.test` contains placeholders for the test
+environment on Render. Use it with `docker compose --env-file .env.test` when
+running locally against the test setup.
 
 Run the following command from the repository root to start the entire stack:
 
@@ -72,6 +75,35 @@ docker compose up --build
 ```
 
 The frontend will be available on [http://localhost:3000](http://localhost:3000) and the backend on [http://localhost:8080](http://localhost:8080).
+
+### Local Docker Image
+
+Build the Docker images using the local development settings defined in `.env`:
+
+```bash
+docker compose --env-file .env build
+```
+
+After building, start the containers with:
+
+```bash
+docker compose --env-file .env up
+```
+
+### Test Docker Image
+
+You can also build images using the settings in `.env.test` which mirror the
+Render test environment:
+
+```bash
+docker compose --env-file .env.test build
+```
+
+Run the stack against the test configuration with:
+
+```bash
+docker compose --env-file .env.test up
+```
 
 ### Deploying to Render
 
