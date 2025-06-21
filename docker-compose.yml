@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - '27017:27017'
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mongodb
+    environment:
+      QUARKUS_MONGODB_CONNECTION_STRING: ${QUARKUS_MONGODB_CONNECTION_STRING}
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: ${BACKEND_URL}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+

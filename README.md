@@ -58,3 +58,21 @@ on‑chain logic in the client and makes the server lightweight.
 ## Internationalization
 
 Translations for the web frontend are stored under `frontend/src/locales`. The mobile app uses the same `i18next` setup with JSON files located in `mobile/locales`.
+
+## Docker Setup
+
+The repository includes a `docker-compose.yml` file that builds images for the frontend and backend and also starts a MongoDB instance. Environment values are read from a `.env` file.
+An example configuration for local development is provided in `.env` while `.env.test`
+contains placeholders for the test environment on Render. Use it with `docker compose --env-file .env.test` when running locally against the test setup.
+
+Run the following command from the repository root to start the entire stack:
+
+```bash
+docker compose up --build
+```
+
+The frontend will be available on [http://localhost:3000](http://localhost:3000) and the backend on [http://localhost:8080](http://localhost:8080).
+
+### Deploying to Render
+
+The repository includes a `render.yaml` file that defines Docker-based services for the backend and frontend. Create an environment group in Render named `primos-test` and supply values for variables such as `QUARKUS_MONGODB_CONNECTION_STRING`. When you connect the repository, Render will automatically create the services using the Dockerfiles under `backend` and `frontend`.

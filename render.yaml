@@ -1,0 +1,21 @@
+envVarGroups:
+  - name: primos-test
+    envVars:
+      - key: QUARKUS_MONGODB_CONNECTION_STRING
+        value: mongodb+srv://<username>:<password>@cluster.mongodb.net/primos-db
+services:
+  - type: web
+    name: primos-backend-test
+    env: docker
+    plan: free
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - fromGroup: primos-test
+  - type: web
+    name: primos-frontend-test
+    env: docker
+    plan: free
+    dockerfilePath: frontend/Dockerfile
+    envVars:
+      - key: BACKEND_URL
+        value: https://primos-backend-test.onrender.com
