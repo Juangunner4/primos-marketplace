@@ -30,10 +30,37 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           publicKey.toBase58()
         );
         setIsHolder(holder);
-        await axios.post(`${backendUrl}/api/user/login`, {
+        const redeemed = localStorage.getItem('betaRedeemed') === 'true';
+        let betaCode = localStorage.getItem('betaCode') ?? '';
+        const payload: any = {
           publicKey: publicKey.toBase58(),
           primoHolder: holder,
-        });
+        };
+        if (!redeemed && betaCode) {
+          payload.betaCode = betaCode;
+        }
+        try {
+          await axios.post(`${backendUrl}/api/user/login`, payload);
+          if (!redeemed) {
+            localStorage.setItem('betaRedeemed', 'true');
+            localStorage.removeItem('betaCode');
+          }
+        } catch (err: any) {
+          if (!redeemed && err.response && err.response.status === 403) {
+            betaCode = window.prompt('Enter beta code') || '';
+            if (betaCode) {
+              await axios.post(`${backendUrl}/api/user/login`, {
+                publicKey: publicKey.toBase58(),
+                primoHolder: holder,
+                betaCode,
+              });
+              localStorage.setItem('betaRedeemed', 'true');
+              localStorage.removeItem('betaCode');
+            }
+          } else {
+            throw err;
+          }
+        }
       } catch (e) {
         console.error('Failed to check Primo holder status:', e);
         setIsHolder(false);

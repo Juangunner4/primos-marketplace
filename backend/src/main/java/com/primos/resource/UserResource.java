@@ -40,6 +40,18 @@ public class UserResource {
 
         User user = User.find(PUBLIC_KEY_FIELD, req.publicKey).firstResult();
         if (user == null) {
+            // Require a valid beta code for new users
+            if (req.betaCode == null || req.betaCode.isEmpty()) {
+                LOGGER.info("[UserResource] Missing beta code for new user");
+                throw new ForbiddenException();
+            }
+            com.primos.model.BetaCode beta = com.primos.model.BetaCode.find("code", req.betaCode).firstResult();
+            if (beta == null) {
+                LOGGER.info("[UserResource] Invalid beta code: " + req.betaCode);
+                throw new ForbiddenException();
+            }
+            beta.delete();
+
             user = new User();
             user.setPublicKey(req.publicKey);
             user.setBio("");
