@@ -132,5 +132,6 @@
   "admin_panel": "Admin",
   "access_denied": "Acceso denegado",
   "beta_codes": "Códigos Beta",
-  "create_code": "Crear Código"
+  "create_code": "Crear Código",
+  "checking_access": "Verificando acceso..."
 }

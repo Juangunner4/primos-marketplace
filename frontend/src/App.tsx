@@ -24,6 +24,7 @@ import Primos from './pages/Primos';
 import Docs from './pages/Docs';
 import Admin from './pages/Admin';
 import BetaRedeem from './components/BetaRedeem';
+import LoadingOverlay from './components/LoadingOverlay';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
@@ -223,6 +224,21 @@ const AppRoutes = () => {
   );
 };
 
+const AppContent = () => {
+  const { loading } = usePrimoHolder();
+  const { t } = useTranslation();
+  return (
+    <>
+      {loading && <LoadingOverlay message={t('checking_access')} />}
+      <Router>
+        <Header />
+        <BetaRedeem autoOpen />
+        <AppRoutes />
+      </Router>
+    </>
+  );
+};
+
 const App = () => {
   const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
   const endpoint = useMemo(
@@ -236,11 +252,7 @@ const App = () => {
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <PrimoHolderProvider>
-            <Router>
-              <Header />
-              <BetaRedeem autoOpen />
-              <AppRoutes />
-            </Router>
+            <AppContent />
           </PrimoHolderProvider>
         </WalletModalProvider>
       </WalletProvider>
