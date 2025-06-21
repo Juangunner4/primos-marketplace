@@ -126,5 +126,11 @@
   "list": "List",
   "go": "Go",
   "labs_meme_wars": "Meme Wars",
-  "labs_eliza_bot": "Eliza AI Trading Bot"
+  "labs_eliza_bot": "Eliza AI Trading Bot",
+  "redeem_beta": "Redeem Beta Code",
+  "enter_beta_code": "Enter Beta Code",
+  "admin_panel": "Admin",
+  "access_denied": "Access denied",
+  "beta_codes": "Beta Codes",
+  "create_code": "Create Code"
 }

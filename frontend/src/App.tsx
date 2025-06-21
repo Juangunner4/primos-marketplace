@@ -21,6 +21,10 @@ import Home from './pages/Home';
 import PrimoLabs from './pages/PrimoLabs';
 import Primos from './pages/Primos';
 import Docs from './pages/Docs';
+import Admin from './pages/Admin';
+
+const ADMIN_WALLET =
+  process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
 import { getNFTByTokenAddress } from './utils/helius';
 
@@ -182,6 +186,12 @@ const AppRoutes = () => {
     if ((!publicKey || !isHolder) && location.pathname === '/primos') {
       navigate('/', { replace: true });
     }
+    if (
+      (!publicKey || publicKey.toBase58() !== ADMIN_WALLET) &&
+      location.pathname === '/admin'
+    ) {
+      navigate('/', { replace: true });
+    }
   }, [publicKey, isHolder, location.pathname, navigate]);
 
   return (
@@ -197,6 +207,7 @@ const AppRoutes = () => {
           <Route path="/docs" element={<Docs />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/user/:publicKey" element={<UserProfile />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </Box>
     </Box>
