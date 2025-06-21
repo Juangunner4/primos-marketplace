@@ -48,16 +48,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
         } catch (err: any) {
           if (!redeemed && err.response && err.response.status === 403) {
-            betaCode = window.prompt('Enter beta code') ?? '';
-            if (betaCode) {
-              await axios.post(`${backendUrl}/api/user/login`, {
-                publicKey: publicKey.toBase58(),
-                primoHolder: holder,
-                betaCode,
-              });
-              localStorage.setItem('betaRedeemed', 'true');
-              localStorage.removeItem('betaCode');
-            }
+            // Invalid or missing beta code will be handled by the BetaRedeem dialog
           } else {
             throw err;
           }
