@@ -3,6 +3,7 @@ package com.primos.resource;
 import java.util.logging.Logger;
 
 import com.primos.model.User;
+import com.primos.model.BetaCode;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.ForbiddenException;
@@ -70,8 +71,7 @@ public class UserResource {
             LOGGER.info("[UserResource] Missing beta code for new user");
             throw new ForbiddenException();
         }
-        com.primos.model.BetaCode beta = io.quarkus.mongodb.panache.PanacheMongoEntityBase
-                .find("code", betaCode).firstResult();
+        BetaCode beta = BetaCode.find("code", betaCode).firstResult();
         if (beta == null) {
             if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
                 LOGGER.info(String.format("[UserResource] Invalid beta code: %s", betaCode));
