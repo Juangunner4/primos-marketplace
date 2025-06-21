@@ -26,9 +26,17 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return;
       }
       try {
+        const currentWallet = publicKey.toBase58();
+        const storedWallet = localStorage.getItem('betaWallet');
+        if (storedWallet !== currentWallet) {
+          localStorage.removeItem('betaRedeemed');
+          localStorage.removeItem('betaCode');
+          localStorage.setItem('betaWallet', currentWallet);
+        }
+
         const holder = await checkPrimoHolder(
           PRIMO_COLLECTION,
-          publicKey.toBase58()
+          currentWallet
         );
         setIsHolder(holder);
         const redeemed = localStorage.getItem('betaRedeemed') === 'true';

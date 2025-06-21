@@ -27,6 +27,9 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
   const handleRedeem = () => {
     localStorage.setItem('betaCode', code);
     localStorage.setItem('betaRedeemed', 'false');
+    if (publicKey) {
+      localStorage.setItem('betaWallet', publicKey.toBase58());
+    }
     setOpen(false);
     window.location.reload();
   };
