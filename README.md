@@ -11,6 +11,12 @@ The repository contains three applications:
   Solana blockchain.
 * **mobile** – a React Native application powered by Expo.
 
+### Beta Access
+
+The backend restricts logins to users with a valid beta code. Thirty beta codes
+are generated on startup. A code is required when a wallet logs in for the first
+time and is consumed afterwards.
+
 Both can be started independently during development or together using the
 `run-dev.sh` helper script. A PowerShell version is available as
 `run-dev.ps1` for Windows environments.
