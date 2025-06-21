@@ -11,12 +11,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class PointsResetJob {
 
-    // Run every day at 10AM server time (ensure server is set to Eastern Time if
-    // needed)
+    @SuppressWarnings("unused")
     @Scheduled(cron = "0 0 10 * * ?")
     void resetDailyPoints() {
         String today = LocalDate.now().toString();
-        List<User> users = User.listAll();
+        List<User> users = io.quarkus.mongodb.panache.PanacheMongoEntityBase.listAll();
         for (User user : users) {
             user.setPointsToday(0);
             user.setPointsDate(today);

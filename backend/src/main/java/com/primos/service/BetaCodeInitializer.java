@@ -9,8 +9,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class BetaCodeInitializer {
 
     @PostConstruct
+    @SuppressWarnings("unused")
     void init() {
-        if (BetaCode.count() == 0) {
+        if (io.quarkus.mongodb.panache.PanacheMongoEntityBase.count("BetaCode") == 0) {
             for (int i = 1; i <= 30; i++) {
                 BetaCode code = new BetaCode();
                 code.setCode("BETA" + i);
