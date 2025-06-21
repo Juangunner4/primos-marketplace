@@ -11,11 +11,13 @@ export const PrimoHolderContext = React.createContext<{
   setIsHolder: (v: boolean) => void;
   betaRedeemed: boolean;
   setBetaRedeemed: (v: boolean) => void;
+  loading: boolean;
 }>({
   isHolder: false,
   setIsHolder: () => {},
   betaRedeemed: false,
   setBetaRedeemed: () => {},
+  loading: true,
 });
 
 export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -24,13 +26,16 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [betaRedeemed, setBetaRedeemed] = React.useState(
     localStorage.getItem('betaRedeemed') === 'true'
   );
+  const [loading, setLoading] = React.useState(true);
   const backendUrl = getBackendUrl();
 
   useEffect(() => {
     const loginAndCheckHolder = async () => {
+      setLoading(true);
       if (!publicKey) {
         setIsHolder(false);
         setBetaRedeemed(false);
+        setLoading(false);
         return;
       }
       try {
@@ -75,14 +80,16 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         console.error('Failed to check Primo holder status:', e);
         setIsHolder(false);
         setBetaRedeemed(false);
+      } finally {
+        setLoading(false);
       }
     };
     loginAndCheckHolder();
   }, [publicKey, backendUrl]);
 
   const contextValue = React.useMemo(
-    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed }),
-    [isHolder, setIsHolder, betaRedeemed, setBetaRedeemed]
+    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading }),
+    [isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading]
   );
 
   return (
