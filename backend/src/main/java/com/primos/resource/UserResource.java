@@ -53,6 +53,13 @@ public class UserResource {
             }
         }
         user.persistOrUpdate();
+        if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
+            if (user.isPrimoHolder()) {
+                LOGGER.info(String.format("[UserResource] Primo holder login for publicKey: %s", req.publicKey));
+            } else {
+                LOGGER.info(String.format("[UserResource] Non-primo login for publicKey: %s", req.publicKey));
+            }
+        }
         return user;
     }
 
