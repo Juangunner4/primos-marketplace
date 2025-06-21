@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { fetchCollectionNFTsForOwner } from '../utils/helius';
 import './Primos.css';
+import { getBackendUrl } from '../utils/env';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -27,7 +28,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
-  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
+  const backendUrl = getBackendUrl();
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
 

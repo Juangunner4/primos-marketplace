@@ -3,6 +3,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { getAssetsByCollection, getNFTByTokenAddress } from "../utils/helius";
 import { getMagicEdenStats } from "../utils/magiceden";
 import { getPythSolPrice } from "../utils/pyth";
+import { getNftRank } from "../utils/nft";
 import logo from "../images/primoslogo.png";
 import { useTranslation } from "react-i18next";
 import { CARD_VARIANTS, getRandomCardVariantName } from "../utils/cardVariants";
@@ -38,26 +39,6 @@ const NFTGallery: React.FC = () => {
     setCardOpen(false);
   };
 
-  // Helper function to extract rank, copied from PrimosMarketGallery
-  function getNftRank(listing: any, metaAttrs: any): number | null {
-    if (typeof listing.rarityRank === 'number') {
-      return listing.rarityRank;
-    }
-    if (typeof listing.rank === 'number') {
-      return listing.rank;
-    }
-    if (metaAttrs) {
-      const attr = metaAttrs.find(
-        (a: any) =>
-          a.trait_type?.toLowerCase() === 'rank' ||
-          a.trait_type?.toLowerCase() === 'rarity rank'
-      );
-      if (attr && !isNaN(Number(attr.value))) {
-        return Number(attr.value);
-      }
-    }
-    return null;
-  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,7 +58,6 @@ const NFTGallery: React.FC = () => {
           getPythSolPrice(),
         ]);
 
-        // Use the same logic as PrimosMarketGallery to fetch metadata and rank
         const pageNFTs = await Promise.all(
           assets.map(async (asset: any) => {
             const meta = await getNFTByTokenAddress(asset.id);
@@ -109,7 +89,6 @@ const NFTGallery: React.FC = () => {
       }
     };
     fetchData();
-    // eslint-disable-next-line
   }, [publicKey]);
 
   if (!publicKey) {
@@ -121,7 +100,6 @@ const NFTGallery: React.FC = () => {
     );
   }
 
-  // Calculate total value in USD (if you have solPrice)
   const totalValueUSD =
     floorPrice && solPrice
       ? (nfts.length * (floorPrice / 1e9) * solPrice).toLocaleString(
@@ -148,7 +126,6 @@ const NFTGallery: React.FC = () => {
           const priceSol = nft.price ? nft.price.toFixed(3) : null;
           const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
 
-          // Determine rank variant
           let rankVariant = CARD_VARIANTS.find(v => v.name === 'bronze');
           if (nft.rank !== null && nft.rank <= 100) {
             rankVariant = CARD_VARIANTS.find(v => v.name === 'gold');
@@ -322,22 +299,7 @@ const NFTGallery: React.FC = () => {
           transition: "opacity 0.2s, filter 0.2s",
         }}
       >
-        {/* Something for Primos here */}
-        {/* {!filterOpen && (
-        <IconButton
-          aria-label={t('open_filters')}
-          onClick={() => setFilterOpen(true)}
-          sx={{
-            border: '1px solid #bbb',
-            borderRadius: 3,
-            boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
-            background: '#f5f5f8',
-            margin: '0 10px 0 10px',
-          }}
-        >
-          <CompareArrowsIcon />
-        </IconButton>
-      )} */}
+        
         <div className="market-gallery" style={{ flex: 1 }}>
           <div className="market-header-row">
             <h2 className="market-title">{t("your_primos_nfts")}</h2>

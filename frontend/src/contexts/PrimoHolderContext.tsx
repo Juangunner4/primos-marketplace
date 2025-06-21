@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
 import { checkPrimoHolder } from '../utils/helius';
+import { getBackendUrl } from '../utils/env';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -16,7 +17,7 @@ export const PrimoHolderContext = React.createContext<{
 export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { publicKey } = useWallet();
   const [isHolder, setIsHolder] = React.useState(false);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:8080";
+  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     const loginAndCheckHolder = async () => {

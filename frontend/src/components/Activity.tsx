@@ -41,7 +41,6 @@ const Activity: React.FC = () => {
     setMounted(true);
   }, []);
 
-  // Close the activity drawer when clicking outside on mobile
   useEffect(() => {
     if (!isMobile || !open) return;
     const handleClick = (e: MouseEvent) => {
@@ -224,7 +223,6 @@ const Activity: React.FC = () => {
           >
             <HistoryIcon />
           </IconButton>
-          {/* Only render Drawer after mount */}
           {mounted && (
             <Drawer
               anchor="right"

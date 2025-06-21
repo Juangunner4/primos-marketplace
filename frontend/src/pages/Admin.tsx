@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
+import { getBackendUrl } from '../utils/env';
 import { Box, Button, Typography, List, ListItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -13,7 +14,7 @@ const Admin: React.FC = () => {
   const { publicKey } = useWallet();
   const { t } = useTranslation();
   const [codes, setCodes] = useState<BetaCode[]>([]);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
+  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     if (publicKey?.toBase58() === ADMIN_WALLET) {

@@ -22,7 +22,7 @@ interface NFTCardProps {
   open: boolean;
   onClose: () => void;
   onBuy?: () => void;
-  solPriceUsd?: number; // Optionally pass SOL price in USD for conversion
+  solPriceUsd?: number;
   buyLabel?: string;
 }
 
@@ -38,7 +38,6 @@ const NFTCard: React.FC<NFTCardProps> = ({
   if (!nft) return null;
   const variant =
     CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
-  // Add rankVariant logic
   let rankVariant = CARD_VARIANTS.find((v) => v.name === "bronze");
   if (nft.rank !== null && nft.rank <= 100) {
     rankVariant = CARD_VARIANTS.find((v) => v.name === "gold");

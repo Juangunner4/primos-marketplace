@@ -4,6 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { getPythSolPrice } from '../utils/pyth';
 import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
+import { getNftRank } from '../utils/nft';
 import { useTranslation } from 'react-i18next';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
@@ -38,7 +39,6 @@ const PrimosMarketGallery: React.FC = () => {
   const { t } = useTranslation();
 
 
-  // Fetch stats and SOL price once
   useEffect(() => {
     let isMounted = true;
     async function fetchStats() {
@@ -63,28 +63,7 @@ const PrimosMarketGallery: React.FC = () => {
     return () => { isMounted = false; };
   }, []);
 
-  // Helper function moved out to avoid deep nesting
-  function getNftRank(listing: any, metaAttrs: any): number | null {
-    if (typeof listing.rarityRank === 'number') {
-      return listing.rarityRank;
-    }
-    if (typeof listing.rank === 'number') {
-      return listing.rank;
-    }
-    if (metaAttrs) {
-      const attr = metaAttrs.find(
-        (a: any) =>
-          a.trait_type?.toLowerCase() === 'rank' ||
-          a.trait_type?.toLowerCase() === 'rarity rank'
-      );
-      if (attr && !isNaN(Number(attr.value))) {
-        return Number(attr.value);
-      }
-    }
-    return null;
-  }
 
-  // Fetch listings for current page
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
@@ -98,7 +77,6 @@ const PrimosMarketGallery: React.FC = () => {
     return () => { isMounted = false; };
   }, [page]);
 
-  // Move fetchPage outside of the component function body
   async function fetchPage(
     page: number,
     setNfts: React.Dispatch<React.SetStateAction<MarketNFT[]>>,
@@ -117,7 +95,6 @@ const PrimosMarketGallery: React.FC = () => {
         }
       }
 
-      // Build NFT objects using listing data and fetch metadata for attributes
       const pageNFTs: MarketNFT[] = await Promise.all(
         listings.map(async (listing: any) => {
           const meta = await getNFTByTokenAddress(listing.tokenMint);
@@ -172,7 +149,6 @@ const PrimosMarketGallery: React.FC = () => {
           const priceSol = nft.price ? nft.price.toFixed(3) : null;
           const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
 
-          // Determine rank variant
           let rankVariant = CARD_VARIANTS.find(v => v.name === 'bronze');
           if (nft.rank !== null && nft.rank <= 100) {
             rankVariant = CARD_VARIANTS.find(v => v.name === 'gold');

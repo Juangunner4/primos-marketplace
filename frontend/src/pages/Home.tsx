@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import hero from '../images/primoslogo.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
+import { getBackendUrl } from '../utils/env';
 import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -37,7 +38,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL ?? 'http://localhost:8080';
+  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     async function fetchStats() {

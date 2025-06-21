@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
+import { getBackendUrl } from '../utils/env';
 import { keyframes } from '@emotion/react';
 
 import './UserProfile.css';
@@ -24,7 +25,7 @@ type UserDoc = {
   publicKey: string;
   bio: string;
   socials: SocialLinks;
-  pfp: string; // token address
+  pfp: string;
   points: number;
   pointsToday: number;
   pointsDate: string;
@@ -58,9 +59,8 @@ const UserProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [ballVisible, setBallVisible] = useState(true);
   const [ballAnimating, setBallAnimating] = useState(false);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+  const backendUrl = getBackendUrl();
 
-  // Fetch user info
   useEffect(() => {
     if (profileKey && publicKey) {
       axios
@@ -72,7 +72,6 @@ const UserProfile: React.FC = () => {
     }
   }, [profileKey, publicKey, backendUrl]);
 
-  // Fetch Primos NFTs
   useEffect(() => {
     if (profileKey) {
       getAssetsByCollection(PRIMO_COLLECTION, profileKey)
@@ -81,11 +80,10 @@ const UserProfile: React.FC = () => {
     }
   }, [profileKey]);
 
-  // Fetch PFP image from token address in DB
   useEffect(() => {
     async function fetchPFP() {
       if (user?.pfp) {
-        const nft = await getNFTByTokenAddress(user.pfp.replace(/"/g, '')); // Remove any accidental quotes
+        const nft = await getNFTByTokenAddress(user.pfp.replace(/"/g, ''));
         setPfpImage(nft?.image || null);
       } else {
         setPfpImage(null);
@@ -94,7 +92,6 @@ const UserProfile: React.FC = () => {
     fetchPFP();
   }, [user?.pfp]);
 
-  // Update PFP in DB (store token address)
   const handleSetPFP = (tokenAddress: string) => {
     if (user && publicKey && isOwner) {
       axios
@@ -141,7 +138,6 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  // Hide ball if limit reached
   useEffect(() => {
     if (user && user.pointsToday >= 4) {
       setBallVisible(false);
@@ -152,7 +148,7 @@ const UserProfile: React.FC = () => {
 
   const handleEarnPoint = () => {
     if (publicKey && user && isOwner && user.pointsToday < 4) {
-      setBallAnimating(true); // Start animation
+      setBallAnimating(true);
       axios
         .post(
           `${backendUrl}/api/user/${publicKey.toBase58()}/points`,
@@ -163,12 +159,11 @@ const UserProfile: React.FC = () => {
         .finally(() => {
           setTimeout(() => {
             setBallAnimating(false);
-            // Only show again if limit not reached
             if (user && user.pointsToday + 1 < 4) setBallVisible(true);
             else setBallVisible(false);
-          }, 800); // Animation duration
+          }, 800);
         });
-      setBallVisible(false); // Hide immediately
+      setBallVisible(false);
     }
   };
 
@@ -328,7 +323,6 @@ const fadeOut = keyframes`
                 <CircleIcon sx={{ fontSize: 32 }} />
               </Box>
             ) : (
-              // Empty box to preserve space
               <Box sx={{ width: 64, height: 64 }} />
             )}
           </Box>
