@@ -19,7 +19,7 @@ const Admin: React.FC = () => {
   useEffect(() => {
     if (publicKey?.toBase58() === ADMIN_WALLET) {
       axios
-        .get<BetaCode[]>(`${backendUrl}/api/admin/beta`, {
+        .get<BetaCode[]>(`${backendUrl}/api/admin/beta/active`, {
           headers: { 'X-Public-Key': publicKey.toBase58() },
         })
         .then((res) => setCodes(res.data))
