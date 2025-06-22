@@ -35,6 +35,13 @@ public class AdminResource {
         return BetaCode.listAll();
     }
 
+    @GET
+    @Path("/beta/active")
+    public List<BetaCode> listActiveCodes(@HeaderParam("X-Public-Key") String wallet) {
+        ensureAdmin(wallet);
+        return BetaCode.listAll();
+    }
+
     @POST
     @Path("/beta")
     public BetaCode createCode(@HeaderParam("X-Public-Key") String wallet) {

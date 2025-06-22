@@ -21,4 +21,13 @@ public class AdminResourceTest {
         assertFalse(code.getCode().isEmpty());
         assertTrue(BetaCode.count() > 0);
     }
+
+    @Test
+    public void testListActiveCodes() {
+        AdminResource res = new AdminResource();
+        BetaCode code = res.createCode(AdminResource.ADMIN_WALLET);
+        java.util.List<BetaCode> codes = res.listActiveCodes(AdminResource.ADMIN_WALLET);
+        assertFalse(codes.isEmpty());
+        assertTrue(codes.stream().anyMatch(c -> c.getCode().equals(code.getCode())));
+    }
 }
