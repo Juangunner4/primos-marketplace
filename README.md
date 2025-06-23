@@ -70,9 +70,13 @@ Translations for the web frontend are stored under `frontend/src/locales`. The m
 The repository includes a `docker-compose.yml` file that builds images for the
 frontend and backend and also starts a MongoDB instance. Environment values are
 read from a `.env` file. An example configuration for local development is
-provided in `.env` while `.env.test` contains placeholders for the test
-environment on Render. Use it with `docker compose --env-file .env.test` when
-running locally against the test setup.
+provided in `.env`, which uses the connection string `mongodb://mongodb:27017/primos-db`.
+The `.env.test` file contains placeholders for the test environment on Render.
+Use it with `docker compose --env-file .env.test` when running locally against
+the test setup.
+
+The `.env` files also specify a `CORS_ORIGINS` variable so the backend can
+respond to requests from the frontend in both local and hosted environments.
 
 Run the following command from the repository root to start the entire stack:
 
@@ -114,3 +118,13 @@ docker compose --env-file .env.test up
 ### Deploying to Render
 
 The repository includes a `render.yaml` file that defines Docker-based services for the backend and frontend. Create an environment group in Render named `primos-test` and supply values for variables such as `QUARKUS_MONGODB_CONNECTION_STRING`. When you connect the repository, Render will automatically create the services using the Dockerfiles under `backend` and `frontend`.
+
+### Production MongoDB
+
+Use the following MongoDB Atlas cluster for the initial production release:
+
+```
+mongodb+srv://<db_username>:<db_password>@cluster0.shjpril.mongodb.net/primos-db
+```
+
+Set this as the value of `QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated `.env.production` file so the backend uses the correct database. The `.env` file should keep the local `mongodb://mongodb:27017/primos-db` connection for development.
