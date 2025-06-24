@@ -1,13 +1,15 @@
-// Work In Progress service wrapper around the helius-sdk
-import { Helius } from 'helius-sdk';
+// Thin wrapper that re-exports the helper functions implemented under
+// `src/utils/helius.ts`. The original intent was to depend on the
+// `helius-sdk` package, but that dependency caused install issues during
+// Vercel deployments.  Re-exporting the already implemented utility
+// methods avoids pulling in the SDK while keeping the existing import
+// paths working.
 
-export interface HeliusNFT {
-  id: string;
-  image: string;
-  name: string;
-  listed: boolean;
-  attributes?: { trait_type: string; value: string }[];
-}
+export type { HeliusNFT } from '../utils/helius';
+export {
+  getAssetsByCollection,
+  getNFTByTokenAddress,
+  checkPrimoHolder,
+  fetchCollectionNFTsForOwner,
+} from '../utils/helius';
 
-// TODO: Implement HeliusService methods
-// This module currently only defines types and is subject to change.
