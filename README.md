@@ -71,6 +71,7 @@ The repository includes a `docker-compose.yml` file that builds images for the
 frontend and backend and also starts a MongoDB instance. Environment values are
 read from a `.env` file. An example configuration for local development is
 provided in `.env`, which uses the connection string `mongodb://mongodb:27017/primos-db`.
+It also sets `BACKEND_URL` to `http://localhost:8080` so the browser can reach the backend when running the containers locally.
 The `.env.test` file contains placeholders for the test environment on Render.
 Use it with `docker compose --env-file .env.test` when running locally against
 the test setup.
