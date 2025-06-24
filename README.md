@@ -116,6 +116,20 @@ Run the stack against the test configuration with:
 docker compose --env-file .env.test up
 ```
 
+### Combined Docker Image
+
+Build a single container that serves both the backend and frontend:
+
+```bash
+docker build -t primos-app .
+```
+
+Run it with:
+
+```bash
+docker run -p 8080:8080 -p 3000:3000 primos-app
+```
+
 ### Deploying to Render
 
 The repository includes a `render.yaml` file that defines Docker-based services for the backend and frontend. Create an environment group in Render named `primos-test` and supply values for variables such as `QUARKUS_MONGODB_CONNECTION_STRING`. When you connect the repository, Render will automatically create the services using the Dockerfiles under `backend` and `frontend`.

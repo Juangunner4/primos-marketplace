@@ -9,8 +9,7 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import axios from 'axios';
-import { getBackendUrl } from './utils/env';
+import api from './utils/api';
 
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './pages/NFTGallery';
@@ -42,7 +41,6 @@ const Header: React.FC = () => {
   const isProfilePage = location.pathname === '/profile';
 
   const [pfpImage, setPfpImage] = useState<string | null>(null);
-  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     const fetchPfp = async () => {
@@ -51,7 +49,7 @@ const Header: React.FC = () => {
         return;
       }
       try {
-        const res = await axios.get(`${backendUrl}/api/user/${publicKey.toBase58()}`, {
+        const res = await api.get(`/api/user/${publicKey.toBase58()}`, {
           headers: { 'X-Public-Key': publicKey.toBase58() },
         });
         const token = res.data?.pfp;
@@ -66,7 +64,7 @@ const Header: React.FC = () => {
       }
     };
     fetchPfp();
-  }, [publicKey, backendUrl]);
+  }, [publicKey]);
 
   return (
     <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>

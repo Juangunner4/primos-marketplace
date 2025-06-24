@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import axios from 'axios';
+import api from '../utils/api';
 import { checkPrimoHolder } from '../utils/helius';
-import { getBackendUrl } from '../utils/env';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -27,7 +26,6 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
     localStorage.getItem('betaRedeemed') === 'true'
   );
   const [loading, setLoading] = React.useState(true);
-  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     const loginAndCheckHolder = async () => {
@@ -62,7 +60,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           payload.betaCode = betaCode;
         }
         try {
-          const res = await axios.post(`${backendUrl}/api/user/login`, payload);
+          const res = await api.post('/api/user/login', payload);
           const serverRedeemed = res.data?.betaRedeemed ?? redeemed;
           setBetaRedeemed(serverRedeemed);
           if (!redeemed && serverRedeemed) {
@@ -85,7 +83,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }
     };
     loginAndCheckHolder();
-  }, [publicKey, backendUrl]);
+  }, [publicKey]);
 
   const contextValue = React.useMemo(
     () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading }),

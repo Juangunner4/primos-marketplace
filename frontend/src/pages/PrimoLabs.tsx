@@ -7,8 +7,7 @@ import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import LinearProgress from '@mui/material/LinearProgress';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
-import axios from 'axios';
-import { getBackendUrl } from '../utils/env';
+import api from '../utils/api';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
@@ -22,13 +21,12 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
-  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     if (!isConnected) return;
 
     const fetchData = async () => {
-      const membersRes = await axios.get<Member[]>(`${backendUrl}/api/user/primos`, {
+      const membersRes = await api.get<Member[]>('/api/user/primos', {
         headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
       });
       const enriched = await Promise.all(

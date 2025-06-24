@@ -4,14 +4,14 @@ import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import UserProfile from '../UserProfile';
 import i18n from '../../i18n';
-import axios from 'axios';
+import api from '../../utils/api';
 
 const mockUseWallet = jest.fn();
 jest.mock('@solana/wallet-adapter-react', () => ({
   useWallet: () => mockUseWallet()
 }));
 
-jest.mock('axios', () => ({
+jest.mock('../../utils/api', () => ({
   get: jest.fn(() => Promise.resolve({ data: {
     publicKey: 'pubkey123',
     bio: '',
@@ -124,7 +124,7 @@ describe('UserProfile', () => {
 
     await findByText(/Wallet/i);
     fireEvent.click(screen.getByText(/Earn Point/i));
-    await waitFor(() => expect((axios.post as jest.Mock).mock.calls.length).toBe(1));
+    await waitFor(() => expect((api.post as jest.Mock).mock.calls.length).toBe(1));
     expect(await screen.findByText(/Points: 1/i)).toBeTruthy();
   });
 });
