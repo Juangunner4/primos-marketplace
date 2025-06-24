@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import axios from 'axios';
-import { getBackendUrl } from '../utils/env';
+import api from '../utils/api';
 import { Box, Button, Typography, List, ListItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -14,23 +13,22 @@ const Admin: React.FC = () => {
   const { publicKey } = useWallet();
   const { t } = useTranslation();
   const [codes, setCodes] = useState<BetaCode[]>([]);
-  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     if (publicKey?.toBase58() === ADMIN_WALLET) {
-      axios
-        .get<BetaCode[]>(`${backendUrl}/api/admin/beta/active`, {
+      api
+        .get<BetaCode[]>('/api/admin/beta/active', {
           headers: { 'X-Public-Key': publicKey.toBase58() },
         })
         .then((res) => setCodes(res.data))
         .catch(() => setCodes([]));
     }
-  }, [publicKey, backendUrl]);
+  }, [publicKey]);
 
   const createCode = () => {
     if (!publicKey) return;
-    axios
-      .post<BetaCode>(`${backendUrl}/api/admin/beta`, {}, {
+    api
+      .post<BetaCode>('/api/admin/beta', {}, {
         headers: { 'X-Public-Key': publicKey.toBase58() },
       })
       .then((res) => setCodes((c) => [...c, res.data]));

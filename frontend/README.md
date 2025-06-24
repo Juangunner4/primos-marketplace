@@ -16,3 +16,17 @@ Run the test suite with:
 npm test -- --watchAll=false
 ```
 
+### Docker
+
+Build the frontend image (set the backend URL as needed):
+
+```bash
+docker build -t primos-frontend --build-arg BACKEND_URL=http://localhost:8080 .
+```
+
+Run it with:
+
+```bash
+docker run -p 3000:3000 primos-frontend
+```
+

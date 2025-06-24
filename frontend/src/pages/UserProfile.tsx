@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
-import { getBackendUrl } from '../utils/env';
 import { keyframes } from '@emotion/react';
 
 import './UserProfile.css';
@@ -59,18 +58,17 @@ const UserProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [ballVisible, setBallVisible] = useState(true);
   const [ballAnimating, setBallAnimating] = useState(false);
-  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     if (profileKey && publicKey) {
-      axios
-        .get(`${backendUrl}/api/user/${profileKey}`, {
+      api
+        .get(`/api/user/${profileKey}`, {
           headers: { 'X-Public-Key': publicKey.toBase58() },
         })
         .then((res) => setUser(res.data))
         .catch(() => setUser(null));
     }
-  }, [profileKey, publicKey, backendUrl]);
+  }, [profileKey, publicKey]);
 
   useEffect(() => {
     if (profileKey) {
@@ -94,9 +92,9 @@ const UserProfile: React.FC = () => {
 
   const handleSetPFP = (tokenAddress: string) => {
     if (user && publicKey && isOwner) {
-      axios
+      api
         .put(
-          `${backendUrl}/api/user/${publicKey.toBase58()}/pfp`,
+          `/api/user/${publicKey.toBase58()}/pfp`,
           tokenAddress,
           { headers: { 'Content-Type': 'text/plain', 'X-Public-Key': publicKey.toBase58() } }
         )
@@ -124,9 +122,9 @@ const UserProfile: React.FC = () => {
   const handleSaveProfile = () => {
     setSaveDialogOpen(false);
     if (publicKey && user && isOwner) {
-      axios
+      api
         .put(
-          `${backendUrl}/api/user/${publicKey.toBase58()}`,
+          `/api/user/${publicKey.toBase58()}`,
           user,
           { headers: { 'X-Public-Key': publicKey.toBase58() } }
         )
@@ -149,9 +147,9 @@ const UserProfile: React.FC = () => {
   const handleEarnPoint = () => {
     if (publicKey && user && isOwner && user.pointsToday < 4) {
       setBallAnimating(true);
-      axios
+      api
         .post(
-          `${backendUrl}/api/user/${publicKey.toBase58()}/points`,
+          `/api/user/${publicKey.toBase58()}/points`,
           {},
           { headers: { 'Content-Type': 'application/json', 'X-Public-Key': publicKey.toBase58() } }
         )

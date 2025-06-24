@@ -4,7 +4,7 @@ import { I18nextProvider } from 'react-i18next';
 import Home from '../Home';
 import i18n from '../../i18n';
 
-jest.mock('axios', () => ({ get: jest.fn(() => Promise.resolve({ data: [] })) }));
+jest.mock('../../utils/api', () => ({ get: jest.fn(() => Promise.resolve({ data: [] })) }));
 jest.mock('../../utils/magiceden', () => ({
   getMagicEdenStats: jest.fn(() => Promise.resolve({ listedCount: 1, volume24hr: 2, floorPrice: 3 })),
   getMagicEdenHolderStats: jest.fn(() => Promise.resolve({ uniqueHolders: 1, totalSupply: 2 })),

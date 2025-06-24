@@ -7,12 +7,11 @@ import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { useTranslation } from 'react-i18next';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { fetchCollectionNFTsForOwner } from '../utils/helius';
 import './Primos.css';
-import { getBackendUrl } from '../utils/env';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -28,7 +27,6 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
-  const backendUrl = getBackendUrl();
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
 
@@ -37,7 +35,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
     async function fetchMembers() {
       try {
-        const res = await axios.get<Member[]>(`${backendUrl}/api/user/primos`, {
+        const res = await api.get<Member[]>('/api/user/primos', {
           headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
         });
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);

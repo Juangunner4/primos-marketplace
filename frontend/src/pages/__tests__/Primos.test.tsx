@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Primos from '../Primos';
 
-jest.mock('axios', () => ({
+jest.mock('../../utils/api', () => ({
   get: jest.fn(() =>
     Promise.resolve({
       data: [

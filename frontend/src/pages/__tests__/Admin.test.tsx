@@ -6,7 +6,7 @@ import Admin from '../Admin';
 
 const mockUseWallet = jest.fn();
 jest.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => mockUseWallet() }));
-jest.mock('axios', () => ({
+jest.mock('../../utils/api', () => ({
   get: jest.fn(() => Promise.resolve({ data: [{ code: 'BETA1' }] })),
   post: jest.fn(() => Promise.resolve({ data: { code: 'B1' } }))
 }));

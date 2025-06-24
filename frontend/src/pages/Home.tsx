@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next';
 import hero from '../images/primoslogo.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
-import { getBackendUrl } from '../utils/env';
-import axios from 'axios';
+import api from '../utils/api';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
@@ -38,7 +37,6 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
-  const backendUrl = getBackendUrl();
 
   useEffect(() => {
     async function fetchStats() {
@@ -73,10 +71,9 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
     if (!isConnected) return;
     const fetchMembers = async () => {
       try {
-        const res = await axios.get<DaoMember[]>(
-          `${backendUrl}/api/user/primos`,
-          { headers: { 'X-Public-Key': wallet.publicKey?.toBase58() } }
-        );
+        const res = await api.get<DaoMember[]>('/api/user/primos', {
+          headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
+        });
         const enriched = await Promise.all(
           res.data.slice(0, 5).map(async (m) => {
             let image = '';
@@ -96,7 +93,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }
     };
     fetchMembers();
-  }, [isConnected, backendUrl]);
+  }, [isConnected]);
 
   return (
     <Box

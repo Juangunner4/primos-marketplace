@@ -11,6 +11,23 @@ Run the API locally with:
 mvn quarkus:dev
 ```
 
+### Docker
+
+Build the backend image:
+
+```bash
+docker build -t primos-backend .
+```
+
+Run the container (replace the Mongo connection string if needed):
+
+```bash
+docker run -p 8080:8080 \
+  -e QUARKUS_MONGODB_CONNECTION_STRING=mongodb://localhost:27017/primos-db \
+  -e CORS_ORIGINS=http://localhost:3000 \
+  primos-backend
+```
+
 ### Tests
 
 Execute the test suite using:
