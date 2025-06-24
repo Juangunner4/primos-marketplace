@@ -24,6 +24,7 @@ public class UserResource {
 
     private static final Logger LOGGER = Logger.getLogger(UserResource.class.getName());
     private static final String PUBLIC_KEY_FIELD = "publicKey";
+    private static final String ADMIN_WALLET = AdminResource.ADMIN_WALLET;
 
     @POST
     @Path("/login")
@@ -31,11 +32,14 @@ public class UserResource {
         validateLoginRequest(req);
 
         boolean holder = req.primoHolder;
+        boolean isAdminWallet = ADMIN_WALLET.equals(req.publicKey);
 
         User user = User.find(PUBLIC_KEY_FIELD, req.publicKey)
                 .firstResult();
         if (user == null) {
-            validateBetaCodeOrThrow(req.betaCode);
+            if (!isAdminWallet) {
+                validateBetaCodeOrThrow(req.betaCode);
+            }
             user = createNewUser(req.publicKey, holder);
             user.setBetaRedeemed(true);
             user.persist();
@@ -44,7 +48,9 @@ public class UserResource {
             }
         } else {
             updateHolderStatus(user, holder);
-            if (!user.isBetaRedeemed() && req.betaCode != null && !req.betaCode.isEmpty()) {
+            if (isAdminWallet) {
+                user.setBetaRedeemed(true);
+            } else if (!user.isBetaRedeemed() && req.betaCode != null && !req.betaCode.isEmpty()) {
                 validateBetaCodeOrThrow(req.betaCode);
                 user.setBetaRedeemed(true);
             }
