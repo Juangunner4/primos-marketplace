@@ -13,6 +13,8 @@ services:
       - fromGroup: primos-test
       - key: BACKEND_URL
         value: https://primos-marketplace.onrender.com
+      - key: REACT_APP_PRIMOS_COLLECTION
+        value: primos
       - key: CORS_ORIGINS
         value: https://primos-marketplace.vercel.app
       - key: QUARKUS_PROFILE

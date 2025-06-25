@@ -81,6 +81,9 @@ setup.
 
 The `.env` files also specify a `CORS_ORIGINS` variable so the backend can
 respond to requests from the frontend in both local and hosted environments.
+Both files also include a `REACT_APP_PRIMOS_COLLECTION` setting which the
+frontend uses to identify the Primos NFT collection. The value defaults to
+`primos` and generally does not need to be changed.
 
 Run the following command from the repository root to start the entire stack:
 
