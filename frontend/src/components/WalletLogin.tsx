@@ -27,11 +27,13 @@ const WalletLogin: React.FC = () => {
   const handleDisconnect = async () => {
     await disconnect();
     handleMenuClose();
+    window.location.reload();
   };
 
   const handleChangeWallet = () => {
     select(null);
     handleMenuClose();
+    window.location.reload();
   };
 
   return (

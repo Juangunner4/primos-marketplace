@@ -184,18 +184,18 @@ const AppRoutes = () => {
 
   useEffect(() => {
     if (
-      (!publicKey || !isHolder || !betaRedeemed) &&
+      (!publicKey || (!isHolder && !betaRedeemed)) &&
       (location.pathname === '/profile' || location.pathname.startsWith('/user'))
     ) {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/collected') {
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/collected') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/labs') {
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/labs') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/primos') {
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/primos') {
       navigate('/', { replace: true });
     }
     if (
@@ -204,10 +204,10 @@ const AppRoutes = () => {
     ) {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname === '/profile') {
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/profile') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || !isHolder || !betaRedeemed) && location.pathname.startsWith('/user')) {
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname.startsWith('/user')) {
       navigate('/', { replace: true });
     }
   }, [publicKey, isHolder, betaRedeemed, location.pathname, navigate]);
@@ -219,7 +219,7 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<PrimosMarketGallery />} />
-          {publicKey && isHolder && betaRedeemed && (
+          {publicKey && (isHolder || betaRedeemed) && (
             <>  {/* Protected routes for valid Primo holders */}
               <Route path="/collected" element={<NFTGallery />} />
               <Route path="/labs" element={<PrimoLabs />} />
@@ -227,7 +227,7 @@ const AppRoutes = () => {
             </>
           )}
           <Route path="/docs" element={<Docs />} />
-          {publicKey && isHolder && betaRedeemed && (
+          {publicKey && (isHolder || betaRedeemed) && (
             <>  {/* Profile routes for authenticated Primo holders */}
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />
