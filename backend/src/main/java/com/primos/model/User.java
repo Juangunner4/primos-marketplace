@@ -12,7 +12,7 @@ public class User extends PanacheMongoEntity {
     private int points = 0;
     private int pointsToday = 0;
     private String pointsDate = java.time.LocalDate.now().toString();
-    private int pesos = 1000;
+    private int pesos = 1;
     private boolean primoHolder = false;
     private boolean daoMember = true;
     private String betaCode;
