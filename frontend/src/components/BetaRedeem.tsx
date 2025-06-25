@@ -30,7 +30,7 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
     }
   }, [showRedeemDialog]);
 
-  // auto-open when parent says so (e.g. !userExists)
+  // auto-open when parent signals (e.g. new user without beta code)
   useEffect(() => {
     if (autoOpen) {
       setOpen(true);
