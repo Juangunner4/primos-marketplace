@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button, TextField, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import Snackbar from '@mui/material/Snackbar';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './BetaRedeem.css';
 
@@ -15,10 +16,15 @@ const ADMIN_WALLET =
 
 const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, setBetaRedeemed } = usePrimoHolder();
-  const [open, setOpen] = useState(autoOpen);
+  const { isHolder, betaRedeemed, showRedeemDialog, setShowRedeemDialog, redeemBetaCode } = usePrimoHolder();
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [open, setOpen] = useState(autoOpen || showRedeemDialog);
   const [code, setCode] = useState('');
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (showRedeemDialog) setOpen(true);
+  }, [showRedeemDialog]);
 
   useEffect(() => {
     if (
@@ -32,54 +38,52 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
     }
   }, [autoOpen, betaRedeemed, publicKey, isHolder]);
 
-  if (
-    !publicKey ||
-    !isHolder ||
-    publicKey.toBase58() === ADMIN_WALLET ||
-    betaRedeemed
-  )
-    return null;
+  // Only hide if no wallet, admin, or already redeemed (holders & non-holders with 403 can see dialog)
+  if (!publicKey || publicKey.toBase58() === ADMIN_WALLET || betaRedeemed) return null;
 
-  const handleRedeem = () => {
-    localStorage.setItem('betaCode', code);
-    localStorage.setItem('betaRedeemed', 'false');
-    if (publicKey) {
-      localStorage.setItem('betaWallet', publicKey.toBase58());
-    }
-    setBetaRedeemed(false);
+  const handleRedeem = async () => {
+    await redeemBetaCode(code);
     setOpen(false);
-    window.location.reload();
+    setShowWelcome(true);
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      {!autoOpen && (
-        <Dialog.Trigger asChild>
-          <Button variant="outlined" sx={{ mt: 2 }}>
-            {t('redeem_beta')}
-          </Button>
-        </Dialog.Trigger>
-      )}
-      <Dialog.Overlay className="dialog-overlay" />
-      <Dialog.Content className="dialog-content">
-        <Dialog.Title>{t('enter_beta_code')}</Dialog.Title>
-        <TextField
-          label={t('enter_beta_code')}
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          fullWidth
-          sx={{ mt: 2 }}
-        />
-        <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
-          <Button variant="contained" onClick={handleRedeem}>
-            {t('redeem_beta')}
-          </Button>
-          <Button variant="outlined" onClick={() => setOpen(false)}>
-            {t('cancel')}
-          </Button>
-        </Box>
-      </Dialog.Content>
-    </Dialog.Root>
+    <>
+      <Dialog.Root open={open} onOpenChange={(o) => { setOpen(o); if (!o) setShowRedeemDialog(false); }}>
+        {!autoOpen && (
+          <Dialog.Trigger asChild>
+            <Button variant="outlined" sx={{ mt: 2 }}>
+              {t('redeem_beta')}
+            </Button>
+          </Dialog.Trigger>
+        )}
+        <Dialog.Overlay className="dialog-overlay" />
+        <Dialog.Content className="dialog-content">
+          <Dialog.Title>{t('enter_beta_code')}</Dialog.Title>
+          <TextField
+            label={t('enter_beta_code')}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            fullWidth
+            sx={{ mt: 2 }}
+          />
+          <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
+            <Button variant="contained" onClick={handleRedeem}>
+              {t('redeem_beta')}
+            </Button>
+            <Button variant="outlined" onClick={() => setOpen(false)}>
+              {t('cancel')}
+            </Button>
+          </Box>
+        </Dialog.Content>
+      </Dialog.Root>
+      <Snackbar
+        open={showWelcome}
+        autoHideDuration={3000}
+        onClose={() => setShowWelcome(false)}
+        message={t('welcome_message') || 'Welcome to Primos Marketplace!'}
+      />
+    </>
   );
 };
 

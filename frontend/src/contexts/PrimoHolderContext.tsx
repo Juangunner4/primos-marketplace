@@ -11,12 +11,18 @@ export const PrimoHolderContext = React.createContext<{
   betaRedeemed: boolean;
   setBetaRedeemed: (v: boolean) => void;
   loading: boolean;
+  showRedeemDialog: boolean;
+  setShowRedeemDialog: (v: boolean) => void;
+  redeemBetaCode: (code: string) => Promise<void>;
 }>({
   isHolder: false,
   setIsHolder: () => {},
   betaRedeemed: false,
   setBetaRedeemed: () => {},
   loading: true,
+  showRedeemDialog: false,
+  setShowRedeemDialog: () => {},
+  redeemBetaCode: async () => {},
 });
 
 export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -26,6 +32,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
     localStorage.getItem('betaRedeemed') === 'true'
   );
   const [loading, setLoading] = React.useState(true);
+  const [showRedeemDialog, setShowRedeemDialog] = React.useState(false);
 
   useEffect(() => {
     const loginAndCheckHolder = async () => {
@@ -69,7 +76,8 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
         } catch (err: any) {
           if (!redeemed && err.response && err.response.status === 403) {
-            // Invalid or missing beta code will be handled by the BetaRedeem dialog
+            // Trigger BetaRedeem dialog when backend indicates missing/invalid beta code
+            setShowRedeemDialog(true);
           } else {
             throw err;
           }
@@ -85,9 +93,31 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
     loginAndCheckHolder();
   }, [publicKey]);
 
+  // Redeem beta code and login
+  const redeemBetaCode = async (code: string) => {
+    if (!publicKey) return;
+    setLoading(true);
+    try {
+      const currentWallet = publicKey.toBase58();
+      const holder = await checkPrimoHolder(PRIMO_COLLECTION, currentWallet);
+      setIsHolder(holder);
+      const res = await api.post('/api/user/login', { publicKey: currentWallet, primoHolder: holder, betaCode: code });
+      if (res.data?.betaRedeemed) {
+        setBetaRedeemed(true);
+        localStorage.setItem('betaRedeemed', 'true');
+        localStorage.removeItem('betaCode');
+        setShowRedeemDialog(false);
+      }
+    } catch (e) {
+      console.error('Beta redeem failed:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const contextValue = React.useMemo(
-    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading }),
-    [isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading]
+    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading, showRedeemDialog, setShowRedeemDialog, redeemBetaCode }),
+    [isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading, showRedeemDialog, setShowRedeemDialog, redeemBetaCode]
   );
 
   return (
