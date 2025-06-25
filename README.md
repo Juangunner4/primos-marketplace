@@ -165,8 +165,10 @@ The `vercel.json` file configures Vercel to build the React application from the
 set the build command to `npm run build` and the output folder to `build`.
 Add the environment variables from `frontend/.env.test`, in particular
 `REACT_APP_BACKEND_URL`, so the site can communicate with the backend hosted on
-Render. Once deployed it will be accessible at
-`https://primos-marketplace.vercel.app`.
+Render. The `frontend/api/proxy.js` file provides a serverless function that
+forwards requests to Magic&nbsp;Eden, so make sure it is present in your frontend
+repository and set `REACT_APP_MAGICEDEN_BASE` to `/api/proxy`. Once deployed the
+site will be accessible at `https://primos-marketplace.vercel.app`.
 
 ### Production MongoDB
 
