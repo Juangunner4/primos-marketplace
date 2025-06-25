@@ -14,11 +14,13 @@ services:
     environment:
       QUARKUS_MONGODB_CONNECTION_STRING: ${QUARKUS_MONGODB_CONNECTION_STRING}
       CORS_ORIGINS: ${CORS_ORIGINS}
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
   frontend:
     build:
       context: ./frontend
       args:
         BACKEND_URL: ${BACKEND_URL}
+        PRIMOS_COLLECTION: ${REACT_APP_PRIMOS_COLLECTION}
     ports:
       - '3000:3000'
     depends_on:

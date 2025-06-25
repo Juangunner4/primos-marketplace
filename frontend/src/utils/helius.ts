@@ -58,7 +58,7 @@ export const getAssetsByCollection = async (
   collectionAddress: string,
   ownerPubkey: string
 ): Promise<HeliusNFT[]> => {
-  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
 
   const cacheKey = `${collectionAddress}-${ownerPubkey}`;
   const cached = collectionCache[cacheKey];
@@ -139,7 +139,7 @@ export const getNFTByTokenAddress = async (
     return nftCache[tokenAddress];
   }
 
-  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
 
   try {
     const response = await heliusFetch(
@@ -205,7 +205,7 @@ export async function fetchCollectionNFTsForOwner(
   ownerAddress: string,
   collectionAddress: string
 ): Promise<HeliusNFT[]> {
-  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
   const limit = 100;
   let page = 1;
   let hasMore = true;

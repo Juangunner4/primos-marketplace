@@ -5,17 +5,17 @@ envVarGroups:
         value: mongodb+srv://<db_username>:<db_password>@cluster0.shjpril.mongodb.net/primos-db
 services:
   - type: web
-    name: primos-backend-test
+    name: primos-marketplace
     env: docker
     plan: free
-    dockerfilePath: backend/Dockerfile
+    dockerfilePath: Dockerfile
     envVars:
       - fromGroup: primos-test
-  - type: web
-    name: primos-frontend-test
-    env: docker
-    plan: free
-    dockerfilePath: frontend/Dockerfile
-    envVars:
       - key: BACKEND_URL
-        value: https://primos-backend-test.onrender.com
+        value: https://primos-marketplace.onrender.com
+      - key: REACT_APP_PRIMOS_COLLECTION
+        value: primos
+      - key: CORS_ORIGINS
+        value: https://primos-marketplace.vercel.app
+      - key: QUARKUS_PROFILE
+        value: test
