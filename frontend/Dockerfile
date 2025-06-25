@@ -4,7 +4,9 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 ARG BACKEND_URL=http://localhost:8080
+ARG PRIMOS_COLLECTION=primos
 ENV REACT_APP_BACKEND_URL=$BACKEND_URL
+ENV REACT_APP_PRIMOS_COLLECTION=$PRIMOS_COLLECTION
 RUN npm run build
 
 FROM node:18-alpine
