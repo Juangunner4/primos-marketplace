@@ -35,19 +35,19 @@ const SidebarNav: React.FC = () => {
       to: '/collected',
       icon: <WorkIcon />,
       label: t('your_primos_nfts'),
-      show: publicKey && isHolder && betaRedeemed,
+      show: publicKey && (isHolder || betaRedeemed),
     },
     {
       to: '/labs',
       icon: <ScienceIcon />,
       label: t('primo_labs'),
-      show: publicKey && isHolder && betaRedeemed,
+      show: publicKey && (isHolder || betaRedeemed),
     },
     {
       to: '/primos',
       icon: <PeopleIcon />,
       label: t('primos_title'),
-      show: publicKey && isHolder && betaRedeemed,
+      show: publicKey && (isHolder || betaRedeemed),
     },
   ];
 

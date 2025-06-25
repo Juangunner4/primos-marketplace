@@ -35,6 +35,8 @@ export const PrimoHolderContext = React.createContext<{
 export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { publicKey } = useWallet();
 
+  const prevWallet = React.useRef<string | null>(null);
+
   const [isHolder, setIsHolder] = React.useState(false);
   const [betaRedeemed, setBetaRedeemed] = React.useState(
     localStorage.getItem('betaRedeemed') === 'true'
@@ -42,6 +44,15 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [loading, setLoading] = React.useState(true);
   const [showRedeemDialog, setShowRedeemDialog] = React.useState(false);
   const [loginError, setLoginError] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    const current = publicKey ? publicKey.toBase58() : null;
+    if (prevWallet.current && current !== prevWallet.current) {
+      window.location.reload();
+      return;
+    }
+    prevWallet.current = current;
+  }, [publicKey]);
 
   useEffect(() => {
     const loginAndCheckHolder = async () => {
