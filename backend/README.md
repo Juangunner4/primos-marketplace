@@ -11,8 +11,9 @@ Run the API locally with:
 mvn quarkus:dev
 ```
 
-Environment variables for local development live in `.env` while `.env.test`
-contains settings for the hosted test environment.
+Environment variables for both the backend and frontend live in
+`../frontend/.env`. A `../frontend/.env.test` file provides settings for the
+hosted test environment.
 
 ### Docker
 
@@ -22,10 +23,10 @@ Build the backend image:
 docker build -t primos-backend .
 ```
 
-Run the container using the values from `.env`:
+Run the container using the values from `../frontend/.env`:
 
 ```bash
-docker run --env-file .env -p 8080:8080 primos-backend
+docker run --env-file ../frontend/.env -p 8080:8080 primos-backend
 ```
 
 ### Tests
