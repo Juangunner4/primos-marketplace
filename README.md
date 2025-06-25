@@ -173,6 +173,16 @@ requests to Magic&nbsp;Eden, so make sure it is present in your frontend
 repository and set `REACT_APP_MAGICEDEN_BASE` to `/api/proxy`. Once deployed the
 site will be accessible at `https://primos-marketplace.vercel.app`.
 
+### Troubleshooting Vercel Deploys
+
+If `manifest.json` returns a `401` status or the Magic Eden routes under
+`/api/proxy` respond with `502`, the most likely cause is missing environment
+variables. Verify that all keys from `frontend/.env.test` are defined in your
+Vercel project. In particular `REACT_APP_BACKEND_URL` and
+`REACT_APP_MAGICEDEN_BASE` must be set so the React app can reach the backend
+and proxy functions. When these values are absent the client falls back to
+`localhost` and requests fail during page loads.
+
 ### Production MongoDB
 
 Use the following MongoDB Atlas cluster for the initial production release:
