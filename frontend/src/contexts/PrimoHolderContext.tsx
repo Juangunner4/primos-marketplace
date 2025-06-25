@@ -14,25 +14,34 @@ export const PrimoHolderContext = React.createContext<{
   showRedeemDialog: boolean;
   setShowRedeemDialog: (v: boolean) => void;
   redeemBetaCode: (code: string) => Promise<void>;
-}>({
-  isHolder: false,
-  setIsHolder: () => {},
-  betaRedeemed: false,
-  setBetaRedeemed: () => {},
-  loading: true,
-  showRedeemDialog: false,
-  setShowRedeemDialog: () => {},
-  redeemBetaCode: async () => {},
-});
+  loginError: string | null;
+  setLoginError: (msg: string | null) => void;
+}>(
+  // default values
+  {
+    isHolder: false,
+    setIsHolder: () => {},
+    betaRedeemed: false,
+    setBetaRedeemed: () => {},
+    loading: true,
+    showRedeemDialog: false,
+    setShowRedeemDialog: () => {},
+    redeemBetaCode: async () => {},
+    loginError: null,
+    setLoginError: () => {},
+  }
+);
 
 export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { publicKey } = useWallet();
+
   const [isHolder, setIsHolder] = React.useState(false);
   const [betaRedeemed, setBetaRedeemed] = React.useState(
     localStorage.getItem('betaRedeemed') === 'true'
   );
   const [loading, setLoading] = React.useState(true);
   const [showRedeemDialog, setShowRedeemDialog] = React.useState(false);
+  const [loginError, setLoginError] = React.useState<string | null>(null);
 
   useEffect(() => {
     const loginAndCheckHolder = async () => {
@@ -54,10 +63,12 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // Check if user owns a Primo NFT
         const holder = await checkPrimoHolder(PRIMO_COLLECTION, currentWallet);
         setIsHolder(holder);
-        // Attempt login with any stored betaCode
+        // Attempt login for any user (will 403 new users without beta code)
         const storedCode = localStorage.getItem('betaCode') ?? '';
         const payload: any = { publicKey: currentWallet, primoHolder: holder };
-        if (storedCode) payload.betaCode = storedCode;
+        if (storedCode) {
+          payload.betaCode = storedCode;
+        }
         try {
           const res = await api.post('/api/user/login', payload);
           const serverRedeemed = res.data?.betaRedeemed ?? false;
@@ -68,10 +79,13 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
         } catch (err: any) {
           if (err.response && err.response.status === 403) {
+            // Show beta dialog for new or invalid-code users without reloading
+            const msg = err.response.data?.message || 'Forbidden: beta code required';
+            setLoginError(msg);
             setShowRedeemDialog(true);
-          } else {
-            console.error('Login failed:', err);
+            return;
           }
+          console.error('Login failed:', err);
         }
       } catch (e) {
         console.error('Failed during holder check or login:', e);
@@ -98,6 +112,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         localStorage.setItem('betaRedeemed', 'true');
         localStorage.removeItem('betaCode');
         setShowRedeemDialog(false);
+        setLoginError(null);
       }
     } catch (e) {
       console.error('Beta redeem failed:', e);
@@ -107,8 +122,8 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   const contextValue = React.useMemo(
-    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading, showRedeemDialog, setShowRedeemDialog, redeemBetaCode }),
-    [isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading, showRedeemDialog, setShowRedeemDialog, redeemBetaCode]
+    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading, showRedeemDialog, setShowRedeemDialog, redeemBetaCode, loginError, setLoginError }),
+    [isHolder, betaRedeemed, loading, showRedeemDialog, loginError]
   );
 
   return (

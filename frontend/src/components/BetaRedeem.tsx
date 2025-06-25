@@ -57,28 +57,30 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
             </Button>
           </Dialog.Trigger>
         )}
-        <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="dialog-content">
-          <Dialog.Title>{t('enter_beta_code')}</Dialog.Title>
-          <Dialog.Description style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-            {t('beta_dialog_message')}
-          </Dialog.Description>
-          <TextField
-            label={t('enter_beta_code')}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            fullWidth
-            sx={{ mt: 2 }}
-          />
-          <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
-            <Button variant="contained" onClick={handleRedeem}>
-              {t('redeem_beta')}
-            </Button>
-            <Button variant="outlined" onClick={() => setOpen(false)}>
-              {t('cancel')}
-            </Button>
-          </Box>
-        </Dialog.Content>
+        <Dialog.Portal>
+          <Dialog.Overlay className="dialog-overlay" />
+          <Dialog.Content className="dialog-content">
+            <Dialog.Title>{t('enter_beta_code')}</Dialog.Title>
+            <Dialog.Description style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+              {t('beta_dialog_message')}
+            </Dialog.Description>
+            <TextField
+              label={t('enter_beta_code')}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+            <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
+              <Button variant="contained" onClick={handleRedeem}>
+                {t('redeem_beta')}
+              </Button>
+              <Button variant="outlined" onClick={() => setOpen(false)}>
+                {t('cancel')}
+              </Button>
+            </Box>
+          </Dialog.Content>
+        </Dialog.Portal>
       </Dialog.Root>
       <Snackbar
         open={showWelcome}

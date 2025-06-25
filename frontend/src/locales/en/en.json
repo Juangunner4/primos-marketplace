@@ -135,5 +135,8 @@
   "access_denied": "Access denied",
   "beta_codes": "Beta Codes",
   "create_code": "Create Code",
+  "beta_code": "Beta Code",
+  "redeemed": "Redeemed",
+  "not_redeemed": "Not Redeemed",
   "checking_access": "Checking access..."
 }

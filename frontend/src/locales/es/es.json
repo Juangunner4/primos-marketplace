@@ -133,5 +133,8 @@
   "access_denied": "Acceso denegado",
   "beta_codes": "Códigos Beta",
   "create_code": "Crear Código",
+  "beta_code": "Código Beta",
+  "redeemed": "Canjeado",
+  "not_redeemed": "No canjeado",
   "checking_access": "Verificando acceso..."
 }
