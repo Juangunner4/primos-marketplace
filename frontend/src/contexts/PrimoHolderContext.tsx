@@ -16,6 +16,8 @@ export const PrimoHolderContext = React.createContext<{
   redeemBetaCode: (code: string) => Promise<void>;
   loginError: string | null;
   setLoginError: (msg: string | null) => void;
+  userExists: boolean;
+  setUserExists: (v: boolean) => void;
 }>(
   // default values
   {
@@ -29,6 +31,8 @@ export const PrimoHolderContext = React.createContext<{
     redeemBetaCode: async () => {},
     loginError: null,
     setLoginError: () => {},
+    userExists: false,
+    setUserExists: () => {},
   }
 );
 
@@ -44,6 +48,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [loading, setLoading] = React.useState(true);
   const [showRedeemDialog, setShowRedeemDialog] = React.useState(false);
   const [loginError, setLoginError] = React.useState<string | null>(null);
+  const [userExists, setUserExists] = React.useState(false);
 
   useEffect(() => {
     const current = publicKey ? publicKey.toBase58() : null;
@@ -59,6 +64,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setLoading(true);
       if (!publicKey) {
         setIsHolder(false);
+        setUserExists(false);
         setLoading(false);
         return;
       }
@@ -86,6 +92,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
         try {
           const res = await api.post('/api/user/login', payload);
+          setUserExists(true);                  // ← mark that user doc exists
           const serverRedeemed = res.data?.betaRedeemed ?? false;
           setBetaRedeemed(serverRedeemed);
           if (serverRedeemed) {
@@ -93,14 +100,15 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
             localStorage.removeItem('betaCode');
           }
         } catch (err: any) {
-          if (err.response && err.response.status === 403) {
+          if (err.response?.status === 403) {
+            setUserExists(false);               // ← no user doc
             // Show beta dialog for new or invalid-code users without reloading
             const msg = err.response.data?.message ?? 'Forbidden: beta code required';
             setLoginError(msg);
             setShowRedeemDialog(true);
             return;
           }
-          console.error('Login failed:', err);
+          console.error(err);
         }
       } catch (e) {
         console.error('Failed during holder check or login:', e);
@@ -137,8 +145,8 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   const contextValue = React.useMemo(
-    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading, showRedeemDialog, setShowRedeemDialog, redeemBetaCode, loginError, setLoginError }),
-    [isHolder, betaRedeemed, loading, showRedeemDialog, loginError]
+    () => ({ isHolder, setIsHolder, betaRedeemed, setBetaRedeemed, loading, showRedeemDialog, setShowRedeemDialog, redeemBetaCode, loginError, setLoginError, userExists, setUserExists }),
+    [isHolder, betaRedeemed, loading, showRedeemDialog, loginError, userExists]
   );
 
   return (

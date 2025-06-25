@@ -178,7 +178,7 @@ const Header: React.FC = () => {
 
 const AppRoutes = () => {
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -219,21 +219,17 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<PrimosMarketGallery />} />
-          {publicKey && (isHolder || betaRedeemed) && (
+          {publicKey && (isHolder || betaRedeemed) && userExists && (
             <>  {/* Protected routes for valid Primo holders */}
               <Route path="/collected" element={<NFTGallery />} />
               <Route path="/labs" element={<PrimoLabs />} />
               <Route path="/primos" element={<Primos />} />
-            </>
-          )}
-          <Route path="/docs" element={<Docs />} />
-          {publicKey && (isHolder || betaRedeemed) && (
-            <>  {/* Profile routes for authenticated Primo holders */}
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />
             </>
           )}
-          {publicKey && publicKey.toBase58() === ADMIN_WALLET && (
+          <Route path="/docs" element={<Docs />} />
+          {publicKey?.toBase58() === ADMIN_WALLET && (
             <Route path="/admin" element={<Admin />} />
           )}
         </Routes>
