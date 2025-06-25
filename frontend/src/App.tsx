@@ -215,8 +215,8 @@ const AppRoutes = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <SidebarNav />
-      {/* auto‐open if userExists===false */}
-      <BetaRedeem autoOpen={!userExists} />
+      {/* auto-open for new users without a redeemed beta code */}
+      <BetaRedeem autoOpen={!userExists && !betaRedeemed} />
 
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Routes>
