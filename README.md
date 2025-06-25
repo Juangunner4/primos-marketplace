@@ -72,9 +72,12 @@ frontend and backend and also starts a MongoDB instance. Environment values are
 read from a `.env` file. An example configuration for local development is
 provided in `.env`, which uses the connection string `mongodb://mongodb:27017/primos-db`.
 It also sets `BACKEND_URL` to `http://localhost:8080` so the browser can reach the backend when running the containers locally.
-The `.env.test` file contains placeholders for the test environment on Render.
-Use it with `docker compose --env-file .env.test` when running locally against
-the test setup.
+The `.env.test` file contains placeholders for the hosted test environment and
+is used by both Render and Vercel deployments. It also sets
+`QUARKUS_PROFILE=test` so the backend loads the `application-test.properties`
+configuration. Use it with
+`docker compose --env-file .env.test` when running locally against the test
+setup.
 
 The `.env` files also specify a `CORS_ORIGINS` variable so the backend can
 respond to requests from the frontend in both local and hosted environments.
@@ -130,9 +133,34 @@ Run it with:
 docker run -p 8080:8080 -p 3000:3000 primos-app
 ```
 
+### Separate Repositories for Hosting
+
+For deployment, push the `frontend` directory to its own GitHub repository for
+Vercel. Render should use this entire repository so it can build a combined
+container with both the backend and frontend. The backend API will be reachable
+at `https://primos-marketplace.onrender.com` while the Vercel frontend is served
+from `https://primos-marketplace.vercel.app`.
+
 ### Deploying to Render
 
-The repository includes a `render.yaml` file that defines Docker-based services for the backend and frontend. Create an environment group in Render named `primos-test` and supply values for variables such as `QUARKUS_MONGODB_CONNECTION_STRING`. When you connect the repository, Render will automatically create the services using the Dockerfiles under `backend` and `frontend`.
+The repository includes a `render.yaml` file that defines a Docker-based
+service using the root `Dockerfile`. This image builds both applications so the
+entire site is served from Render. Create an environment group in Render named
+`primos-test` and populate it with the variables from `.env.test`. Set
+`QUARKUS_PROFILE` to `test` so the backend loads `application-test.properties`.
+When you connect the repository, Render will automatically build the container.
+After deployment the site and API will be available at
+`https://primos-marketplace.onrender.com`.
+
+### Deploying to Vercel
+
+The `vercel.json` file configures Vercel to build the React application from the
+`frontend` directory. Create a new Vercel project using the frontend repository,
+set the build command to `npm run build` and the output folder to `build`.
+Add the environment variables from `.env.test`, in particular
+`REACT_APP_BACKEND_URL`, so the site can communicate with the backend hosted on
+Render. Once deployed it will be accessible at
+`https://primos-marketplace.vercel.app`.
 
 ### Production MongoDB
 
