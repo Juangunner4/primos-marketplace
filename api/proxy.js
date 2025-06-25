@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const targetPath = req.url.replace(/^\/proxy/, '');
+  const targetPath = req.url.replace(/^\/api\/proxy/, '');
   const url = `https://api-mainnet.magiceden.dev${targetPath}`;
   
   try {
