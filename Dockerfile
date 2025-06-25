@@ -24,7 +24,6 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 # install node for serve
 RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/* && npm install -g serve
-
 # copy backend
 COPY --from=backend-build /backend/target/quarkus-app/lib/ ./backend/lib/
 COPY --from=backend-build /backend/target/quarkus-app/*.jar ./backend/
