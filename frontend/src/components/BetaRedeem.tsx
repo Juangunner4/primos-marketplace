@@ -17,6 +17,7 @@ const BetaRedeem: React.FC<{ autoOpen?: boolean }> = ({ autoOpen = false }) => {
     showRedeemDialog,
     setShowRedeemDialog,
     redeemBetaCode,
+    isHolder, // <-- add this
   } = usePrimoHolder();
 
   const [open, setOpen] = useState(autoOpen);
@@ -56,44 +57,52 @@ const BetaRedeem: React.FC<{ autoOpen?: boolean }> = ({ autoOpen = false }) => {
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
           <Dialog.Content className="dialog-content">
-            <Dialog.Title className="dialog-title">{t('enter_beta_code')}</Dialog.Title>
-            <Dialog.Description className="dialog-desc">
-              {t('beta_dialog_message')}
-            </Dialog.Description>
-            <TextField
-              label={t('enter_beta_code')}
-              value={code}
-              onChange={handleInput}
-              error={code !== '' && !isValid}
-              helperText={code !== '' && !isValid ? t('invalid_code_format') || 'Must be BETA-XXXXXXXX' : ''}
-              fullWidth
-              sx={{
-                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#000' },
-                '& .MuiOutlinedInput-input': { color: '#000' },
-                '& .MuiInputLabel-root': { color: '#000' }
-              }}
-            />
-            <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
-              <Button
-                variant="contained"
-                onClick={handleRedeem}
-                disabled={!isValid}
-                sx={{
-                  backgroundColor: '#000',
-                  color: '#fff',
-                  '&:hover': { backgroundColor: '#333' }
-                }}
-              >
-                {t('redeem_beta')}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => setOpen(false)}
-                sx={{ borderColor: '#000', color: '#000' }}
-              >
-                {t('cancel')}
-              </Button>
-            </Box>
+            {isHolder ? (
+              <>
+                <Dialog.Title className="dialog-title">{t('enter_beta_code')}</Dialog.Title>
+                <Dialog.Description className="dialog-desc">
+                  {t('beta_dialog_message')}
+                </Dialog.Description>
+                <TextField
+                  label={t('enter_beta_code')}
+                  value={code}
+                  onChange={handleInput}
+                  error={code !== '' && !isValid}
+                  helperText={code !== '' && !isValid ? t('invalid_code_format') || 'Must be BETA-XXXXXXXX' : ''}
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#000' },
+                    '& .MuiOutlinedInput-input': { color: '#000' },
+                    '& .MuiInputLabel-root': { color: '#000' }
+                  }}
+                />
+                <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
+                  <Button
+                    variant="contained"
+                    onClick={handleRedeem}
+                    disabled={!isValid}
+                    sx={{
+                      backgroundColor: '#000',
+                      color: '#fff',
+                      '&:hover': { backgroundColor: '#333' }
+                    }}
+                  >
+                    {t('redeem_beta')}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setOpen(false)}
+                    sx={{ borderColor: '#000', color: '#000' }}
+                  >
+                    {t('cancel')}
+                  </Button>
+                </Box>
+              </>
+            ) : (
+              <Dialog.Description className="dialog-desc" style={{ textAlign: 'center', fontSize: 18 }}>
+                {t('not_holder_message')}
+              </Dialog.Description>
+            )}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>

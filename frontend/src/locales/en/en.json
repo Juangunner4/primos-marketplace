@@ -141,5 +141,7 @@
   "beta_code": "Beta Code",
   "redeemed": "Redeemed",
   "not_redeemed": "Not Redeemed",
-  "checking_access": "Checking access..."
+  "checking_access": "Checking access...",
+  "not_holder_message": "You’re not a Primo NFT holder! Lerolero",
+  "invalid_code_format": "Invalid code format. Must be BETA-XXXXXXXX"
 }

@@ -140,5 +140,8 @@
   "redeemed": "Canjeado",
   "not_redeemed": "No canjeado",
   "checking_access": "Verificando acceso...",
-  "beta_dialog_message": "¡Eres poseedor de un Primo NFT! Ingresa tu código beta para completar el acceso."
+  "beta_dialog_message": "¡Eres poseedor de un Primo NFT! Ingresa tu código beta para completar el acceso.",
+  "not_holder_message": "¡No eres poseedor de un Primo NFT! Lerolero",
+  "welcome_message": "¡Bienvenido a Primos Marketplace!",
+  "invalid_code_format": "El formato del código es inválido. Debe ser BETA-XXXXXXXX"
 }
