@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "framework": "create-react-app",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://primos-marketplace.onrender.com/api/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0, s-maxage=0, must-revalidate" },
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
+      ]
+    }
+  ],
+  "env": {
+    "QUARKUS_MONGODB_CONNECTION_STRING": "mongodb+srv://<db_username>:<db_password>@cluster0.shjpril.mongodb.net/primos-db",
+    "BACKEND_URL": "https://primos-marketplace.onrender.com",
+    "CORS_ORIGINS": "https://primos-marketplace.vercel.app",
+    "REACT_APP_BACKEND_URL": "https://primos-marketplace.onrender.com",
+    "REACT_APP_PRIMOS_COLLECTION": "2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb",
+    "REACT_APP_MAGICEDEN_BASE": "/api/proxy",
+    "QUARKUS_PROFILE": "test"
+  }
+}
