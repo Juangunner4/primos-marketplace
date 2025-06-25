@@ -2,6 +2,13 @@
 # Starts backend and frontend servers for development.
 # Requires Maven and Node.js installed locally.
 
+# Load environment variables from .env if present
+if [ -f .env ]; then
+  set -a
+  . ./.env
+  set +a
+fi
+
 mvn -f backend/pom.xml quarkus:dev &
 backend_pid=$!
 

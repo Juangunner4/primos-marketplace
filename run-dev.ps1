@@ -2,6 +2,15 @@
 # Starts backend and frontend servers for development.
 # Requires Maven and Node.js installed locally.
 
+# Load environment variables from .env if present
+if (Test-Path ".env") {
+    Get-Content .env | ForEach-Object {
+        if ($_ -match '^(?<name>[^#=]+)=(?<value>.*)$') {
+            [System.Environment]::SetEnvironmentVariable($Matches.name, $Matches.value)
+        }
+    }
+}
+
 $backend = Start-Process "mvn" "-f backend/pom.xml quarkus:dev" -PassThru -NoNewWindow
 $frontend = Start-Process "npm.cmd" "--prefix frontend start" -PassThru -NoNewWindow
 
@@ -12,6 +21,6 @@ try {
         Write-Host "One or both processes failed to start."
     }
 } finally {
-        if ($backend -and -not $backend.HasExited) { Stop-Process -Id $backend.Id }
-        if ($frontend -and -not $frontend.HasExited) { Stop-Process -Id $frontend.Id }
-    }
+    if ($backend -and -not $backend.HasExited) { Stop-Process -Id $backend.Id }
+    if ($frontend -and -not $frontend.HasExited) { Stop-Process -Id $frontend.Id }
+}

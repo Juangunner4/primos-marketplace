@@ -11,6 +11,9 @@ Run the API locally with:
 mvn quarkus:dev
 ```
 
+Environment variables for local development live in `.env` while `.env.test`
+contains settings for the hosted test environment.
+
 ### Docker
 
 Build the backend image:
@@ -19,13 +22,10 @@ Build the backend image:
 docker build -t primos-backend .
 ```
 
-Run the container (replace the Mongo connection string if needed):
+Run the container using the values from `.env`:
 
 ```bash
-docker run -p 8080:8080 \
-  -e QUARKUS_MONGODB_CONNECTION_STRING=mongodb://localhost:27017/primos-db \
-  -e CORS_ORIGINS=http://localhost:3000 \
-  primos-backend
+docker run --env-file .env -p 8080:8080 primos-backend
 ```
 
 ### Tests
