@@ -22,10 +22,5 @@
         { "key": "Expires", "value": "0" }
       ]
     }
-  ],
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  }
+  ]
 }
