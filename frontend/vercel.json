@@ -5,6 +5,10 @@
   "framework": "create-react-app",
   "rewrites": [
     {
+      "source": "/api/proxy/:path*",
+      "destination": "/api/proxy/:path*"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://primos-marketplace.onrender.com/api/:path*"
     }
