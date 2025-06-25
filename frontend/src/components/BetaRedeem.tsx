@@ -16,29 +16,28 @@ const ADMIN_WALLET =
 
 const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, showRedeemDialog, setShowRedeemDialog, redeemBetaCode } = usePrimoHolder();
+  const { betaRedeemed, showRedeemDialog, setShowRedeemDialog, redeemBetaCode } = usePrimoHolder();
   const [showWelcome, setShowWelcome] = useState(false);
-  const [open, setOpen] = useState(autoOpen || showRedeemDialog);
+  // initialize from prop:
+  const [open, setOpen] = useState(autoOpen);
   const [code, setCode] = useState('');
   const { t } = useTranslation();
 
+  // parent‐ or context‐triggered opens
   useEffect(() => {
-    if (showRedeemDialog) setOpen(true);
-  }, [showRedeemDialog]);
-
-  useEffect(() => {
-    if (
-      autoOpen &&
-      !betaRedeemed &&
-      publicKey &&
-      isHolder &&
-      publicKey.toBase58() !== ADMIN_WALLET
-    ) {
+    if (showRedeemDialog) {
       setOpen(true);
     }
-  }, [autoOpen, betaRedeemed, publicKey, isHolder]);
+  }, [showRedeemDialog]);
 
-  // Only hide if no wallet, admin, or already redeemed (holders & non-holders with 403 can see dialog)
+  // auto-open when parent says so (e.g. !userExists)
+  useEffect(() => {
+    if (autoOpen) {
+      setOpen(true);
+    }
+  }, [autoOpen]);
+
+  // hide completely for no‐wallet, admin or already redeemed
   if (!publicKey || publicKey.toBase58() === ADMIN_WALLET || betaRedeemed) return null;
 
   const handleRedeem = async () => {
@@ -49,44 +48,51 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
 
   return (
     <>
-      <Dialog.Root open={open} onOpenChange={(o) => { setOpen(o); if (!o) setShowRedeemDialog(false); }}>
-        {!autoOpen && (
-          <Dialog.Trigger asChild>
-            <Button variant="outlined" sx={{ mt: 2 }}>
-              {t('redeem_beta')}
-            </Button>
-          </Dialog.Trigger>
-        )}
+      <Dialog.Root
+        open={open}
+        onOpenChange={o => {
+          setOpen(o);
+          if (!o) setShowRedeemDialog(false);
+        }}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
           <Dialog.Content className="dialog-content">
-            <Dialog.Title>{t('enter_beta_code')}</Dialog.Title>
-            <Dialog.Description style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+            <Dialog.Title style={{ color: '#fff' }}>{t('enter_beta_code')}</Dialog.Title>
+            <Dialog.Description style={{ color: '#fff', margin: '0.5rem 0 1rem' }}>
               {t('beta_dialog_message')}
             </Dialog.Description>
             <TextField
               label={t('enter_beta_code')}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={e => setCode(e.target.value)}
               fullWidth
-              sx={{ mt: 2 }}
+              InputLabelProps={{ style: { color: '#fff' } }}
+              sx={{
+                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#fff' },
+                '& .MuiOutlinedInput-input': { color: '#fff' }
+              }}
             />
             <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
               <Button variant="contained" onClick={handleRedeem}>
                 {t('redeem_beta')}
               </Button>
-              <Button variant="outlined" onClick={() => setOpen(false)}>
+              <Button variant="outlined" onClick={() => setOpen(false)} sx={{ color: '#fff', borderColor: '#fff' }}>
                 {t('cancel')}
               </Button>
             </Box>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
       <Snackbar
         open={showWelcome}
-        autoHideDuration={3000}
-        onClose={() => setShowWelcome(false)}
         message={t('welcome_message') || 'Welcome to Primos Marketplace!'}
+        action={
+          <Button color="inherit" size="small" onClick={() => { setShowWelcome(false); window.location.reload(); }}>
+            {t('ok') || 'OK'}
+          </Button>
+        }
       />
     </>
   );

@@ -1,17 +1,17 @@
 .dialog-overlay {
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.8);
   position: fixed;
   inset: 0;
   z-index: 1300;
 }
 
 .dialog-content {
-  background: #fff;
-  border: 2px solid #000;
-  border-radius: 0.75rem;
+  background: #000;
+  color: #fff;
+  border-radius: 6px;
   padding: 1.5rem;
+  max-width: 400px;
   width: 90%;
-  max-width: 360px;
   position: fixed;
   top: 50%;
   left: 50%;

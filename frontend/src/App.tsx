@@ -215,20 +215,25 @@ const AppRoutes = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <SidebarNav />
+      {/* auto‐open if userExists===false */}
+      <BetaRedeem autoOpen={!userExists} />
+
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<PrimosMarketGallery />} />
+          <Route path="/docs" element={<Docs />} />
+
           {publicKey && (isHolder || betaRedeemed) && userExists && (
-            <>  {/* Protected routes for valid Primo holders */}
+            <>
               <Route path="/collected" element={<NFTGallery />} />
-              <Route path="/labs" element={<PrimoLabs />} />
-              <Route path="/primos" element={<Primos />} />
-              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/labs"      element={<PrimoLabs />} />
+              <Route path="/primos"    element={<Primos />} />
+              <Route path="/profile"   element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />
             </>
           )}
-          <Route path="/docs" element={<Docs />} />
+
           {publicKey?.toBase58() === ADMIN_WALLET && (
             <Route path="/admin" element={<Admin />} />
           )}
@@ -246,7 +251,6 @@ const AppContent = () => {
       {loading && <LoadingOverlay message={t('checking_access')} />}
       <Router>
         <Header />
-        <BetaRedeem autoOpen />
         <AppRoutes />
       </Router>
     </>
