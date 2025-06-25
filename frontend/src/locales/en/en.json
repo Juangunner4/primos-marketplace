@@ -129,6 +129,8 @@
   "labs_eliza_bot": "Eliza AI Trading Bot",
   "redeem_beta": "Redeem Beta Code",
   "enter_beta_code": "Enter Beta Code",
+  "beta_dialog_message": "You’re a Primo NFT holder! Enter your beta code to complete access.",
+  "welcome_message": "Welcome to Primos Marketplace!",
   "admin_panel": "Admin",
   "access_denied": "Access denied",
   "beta_codes": "Beta Codes",

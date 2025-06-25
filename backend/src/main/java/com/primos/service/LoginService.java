@@ -29,9 +29,13 @@ public class LoginService {
             if (!isAdminWallet) {
                 validateBetaCodeOrThrow(req.betaCode);
             }
-            user = createNewUser(req.publicKey, holder);
+            // If beta code was provided, treat user as primo holder
+            boolean newHolder = holder || (req.betaCode != null && !req.betaCode.isEmpty());
+            user = createNewUser(req.publicKey, newHolder);
             user.setBetaRedeemed(true);
-            user.persist();
+            if (req.betaCode != null && !req.betaCode.isEmpty()) {
+                user.setBetaCode(req.betaCode);
+            }
             if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
                 LOGGER.info(String.format("[LoginService] Created new user for publicKey: %s", req.publicKey));
             }
@@ -40,8 +44,11 @@ public class LoginService {
             if (isAdminWallet) {
                 user.setBetaRedeemed(true);
             } else if (!user.isBetaRedeemed() && req.betaCode != null && !req.betaCode.isEmpty()) {
+                // Redeemed a beta code: grant betaRedeemed, primoHolder, and store code
                 validateBetaCodeOrThrow(req.betaCode);
                 user.setBetaRedeemed(true);
+                user.setPrimoHolder(true);
+                user.setBetaCode(req.betaCode);
             }
             if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
                 LOGGER.info(String.format("[LoginService] User already exists for publicKey: %s", req.publicKey));
@@ -80,7 +87,9 @@ public class LoginService {
             }
             throw new ForbiddenException();
         }
-        beta.delete();
+        // Mark beta code as redeemed
+        beta.setRedeemed(true);
+        beta.persistOrUpdate();
     }
 
     private User createNewUser(String publicKey, boolean holder) {
@@ -94,7 +103,6 @@ public class LoginService {
         user.setCreatedAt(System.currentTimeMillis());
         user.setDaoMember(holder);
         user.setPrimoHolder(holder);
-        user.persist();
         return user;
     }
 

@@ -3,7 +3,7 @@ package com.primos.model;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 
-@MongoEntity(collection="primo")
+@MongoEntity(collection = "primo")
 public class User extends PanacheMongoEntity {
     private String publicKey;
     private String bio;
@@ -15,58 +15,142 @@ public class User extends PanacheMongoEntity {
     private int pesos = 1000;
     private boolean primoHolder = false;
     private boolean daoMember = true;
+    private String betaCode;
     private boolean betaRedeemed = false;
     private long createdAt = System.currentTimeMillis();
 
     // Getters and Setters
-    public String getPublicKey() { return publicKey; }
-    public void setPublicKey(String publicKey) { this.publicKey = publicKey; }
+    public String getPublicKey() {
+        return publicKey;
+    }
 
-    public String getBio() { return bio; }
-    public void setBio(String bio) { this.bio = bio; }
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
 
-    public SocialLinks getSocials() { return socials; }
-    public void setSocials(SocialLinks socials) { this.socials = socials; }
+    public String getBio() {
+        return bio;
+    }
 
-    public String getPfp() { return pfp; }
-    public void setPfp(String pfp) { this.pfp = pfp; }
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
 
-    public int getPoints() { return points; }
-    public void setPoints(int points) { this.points = points; }
+    public SocialLinks getSocials() {
+        return socials;
+    }
 
-    public int getPointsToday() { return pointsToday; }
-    public void setPointsToday(int pointsToday) { this.pointsToday = pointsToday; }
+    public void setSocials(SocialLinks socials) {
+        this.socials = socials;
+    }
 
-    public String getPointsDate() { return pointsDate; }
-    public void setPointsDate(String pointsDate) { this.pointsDate = pointsDate; }
+    public String getPfp() {
+        return pfp;
+    }
 
-    public int getPesos() { return pesos; }
-    public void setPesos(int pesos) { this.pesos = pesos; }
+    public void setPfp(String pfp) {
+        this.pfp = pfp;
+    }
 
-    public boolean isPrimoHolder() { return primoHolder; }
-    public void setPrimoHolder(boolean primoHolder) { this.primoHolder = primoHolder; }
+    public int getPoints() {
+        return points;
+    }
 
-    public boolean isDaoMember() { return daoMember; }
-    public void setDaoMember(boolean daoMember) { this.daoMember = daoMember; }
+    public void setPoints(int points) {
+        this.points = points;
+    }
 
-    public boolean isBetaRedeemed() { return betaRedeemed; }
-    public void setBetaRedeemed(boolean betaRedeemed) { this.betaRedeemed = betaRedeemed; }
+    public int getPointsToday() {
+        return pointsToday;
+    }
 
-    public long getCreatedAt() { return createdAt; }
-    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public void setPointsToday(int pointsToday) {
+        this.pointsToday = pointsToday;
+    }
+
+    public String getPointsDate() {
+        return pointsDate;
+    }
+
+    public void setPointsDate(String pointsDate) {
+        this.pointsDate = pointsDate;
+    }
+
+    public int getPesos() {
+        return pesos;
+    }
+
+    public void setPesos(int pesos) {
+        this.pesos = pesos;
+    }
+
+    public boolean isPrimoHolder() {
+        return primoHolder;
+    }
+
+    public void setPrimoHolder(boolean primoHolder) {
+        this.primoHolder = primoHolder;
+    }
+
+    public boolean isDaoMember() {
+        return daoMember;
+    }
+
+    public void setDaoMember(boolean daoMember) {
+        this.daoMember = daoMember;
+    }
+
+    public String getBetaCode() {
+        return betaCode;
+    }
+
+    public void setBetaCode(String betaCode) {
+        this.betaCode = betaCode;
+    }
+
+    public boolean isBetaRedeemed() {
+        return betaRedeemed;
+    }
+
+    public void setBetaRedeemed(boolean betaRedeemed) {
+        this.betaRedeemed = betaRedeemed;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public static class SocialLinks {
         private String twitter = "";
         private String discord = "";
         private String website = "";
 
-        public String getTwitter() { return twitter; }
-        public void setTwitter(String twitter) { this.twitter = twitter; }
+        public String getTwitter() {
+            return twitter;
+        }
 
-        public String getDiscord() { return discord; }
-        public void setDiscord(String discord) { this.discord = discord; }
+        public void setTwitter(String twitter) {
+            this.twitter = twitter;
+        }
 
-        public String getWebsite() { return website; }
-        public void setWebsite(String website) { this.website = website; }
+        public String getDiscord() {
+            return discord;
+        }
+
+        public void setDiscord(String discord) {
+            this.discord = discord;
+        }
+
+        public String getWebsite() {
+            return website;
+        }
+
+        public void setWebsite(String website) {
+            this.website = website;
+        }
     }
 }

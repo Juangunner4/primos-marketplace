@@ -39,11 +39,11 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setLoading(true);
       if (!publicKey) {
         setIsHolder(false);
-        setBetaRedeemed(false);
         setLoading(false);
         return;
       }
       try {
+        // Manage local storage for wallet change
         const currentWallet = publicKey.toBase58();
         const storedWallet = localStorage.getItem('betaWallet');
         if (storedWallet !== currentWallet) {
@@ -51,39 +51,20 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           localStorage.removeItem('betaCode');
           localStorage.setItem('betaWallet', currentWallet);
         }
-
-        const holder = await checkPrimoHolder(
-          PRIMO_COLLECTION,
-          currentWallet
-        );
+        // Check if user owns a Primo NFT
+        const holder = await checkPrimoHolder(PRIMO_COLLECTION, currentWallet);
         setIsHolder(holder);
         const redeemed = localStorage.getItem('betaRedeemed') === 'true';
-        let betaCode = localStorage.getItem('betaCode') ?? '';
-        const payload: any = {
-          publicKey: publicKey.toBase58(),
-          primoHolder: holder,
-        };
-        if (!redeemed && betaCode) {
-          payload.betaCode = betaCode;
-        }
-        try {
-          const res = await api.post('/api/user/login', payload);
-          const serverRedeemed = res.data?.betaRedeemed ?? redeemed;
-          setBetaRedeemed(serverRedeemed);
-          if (!redeemed && serverRedeemed) {
-            localStorage.setItem('betaRedeemed', 'true');
-            localStorage.removeItem('betaCode');
-          }
-        } catch (err: any) {
-          if (!redeemed && err.response && err.response.status === 403) {
-            // Trigger BetaRedeem dialog when backend indicates missing/invalid beta code
-            setShowRedeemDialog(true);
-          } else {
-            throw err;
-          }
+        if (redeemed) {
+          // Perform login for returning user
+          await api.post('/api/user/login', { publicKey: currentWallet, primoHolder: holder });
+          setBetaRedeemed(true);
+        } else {
+          // Prompt for beta code to complete login
+          setShowRedeemDialog(true);
         }
       } catch (e) {
-        console.error('Failed to check Primo holder status:', e);
+        console.error('Failed during holder check or login:', e);
         setIsHolder(false);
         setBetaRedeemed(false);
       } finally {

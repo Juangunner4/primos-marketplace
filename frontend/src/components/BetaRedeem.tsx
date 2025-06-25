@@ -60,6 +60,9 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
           <Dialog.Title>{t('enter_beta_code')}</Dialog.Title>
+          <Dialog.Description style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+            {t('beta_dialog_message')}
+          </Dialog.Description>
           <TextField
             label={t('enter_beta_code')}
             value={code}
