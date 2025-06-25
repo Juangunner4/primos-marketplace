@@ -68,16 +68,17 @@ Translations for the web frontend are stored under `frontend/src/locales`. The m
 ## Docker Setup
 
 The repository includes a `docker-compose.yml` file that builds images for the
-frontend and backend and also starts a MongoDB instance. Environment values are
-read from a `.env` file. An example configuration for local development is
-provided in `.env`, which uses the connection string `mongodb://mongodb:27017/primos-db`.
+frontend and backend and also starts a MongoDB instance. Environment values for
+the React application are stored under `frontend/.env`. An example configuration
+for local development is provided in `frontend/.env`, which uses the connection
+string `mongodb://mongodb:27017/primos-db`.
 It also sets `BACKEND_URL` to `http://localhost:8080` so the browser can reach the backend when running the containers locally.
-The `.env.test` file contains placeholders for the hosted test environment and
-is used by both Render and Vercel deployments. It also sets
+The `frontend/.env.test` file contains placeholders for the hosted test
+environment and is used by both Render and Vercel deployments. It also sets
 `QUARKUS_PROFILE=test` so the backend loads the `application-test.properties`
 configuration. Use it with
-`docker compose --env-file .env.test` when running locally against the test
-setup.
+`docker compose --env-file frontend/.env.test` when running locally against the
+test setup.
 
 The `.env` files also specify a `CORS_ORIGINS` variable so the backend can
 respond to requests from the frontend in both local and hosted environments.
@@ -98,28 +99,28 @@ The frontend will be available on [http://localhost:3000](http://localhost:3000)
 Build the Docker images using the local development settings defined in `.env`:
 
 ```bash
-docker compose --env-file .env build
+docker compose --env-file frontend/.env build
 ```
 
 After building, start the containers with:
 
 ```bash
-docker compose --env-file .env up
+docker compose --env-file frontend/.env up
 ```
 
 ### Test Docker Image
 
-You can also build images using the settings in `.env.test` which mirror the
+You can also build images using the settings in `frontend/.env.test` which mirror the
 Render test environment:
 
 ```bash
-docker compose --env-file .env.test build
+docker compose --env-file frontend/.env.test build
 ```
 
 Run the stack against the test configuration with:
 
 ```bash
-docker compose --env-file .env.test up
+docker compose --env-file frontend/.env.test up
 ```
 
 ### Combined Docker Image
@@ -149,7 +150,7 @@ from `https://primos-marketplace.vercel.app`.
 The repository includes a `render.yaml` file that defines a Docker-based
 service using the root `Dockerfile`. This image builds both applications so the
 entire site is served from Render. Create an environment group in Render named
-`primos-test` and populate it with the variables from `.env.test`. Set
+`primos-test` and populate it with the variables from `frontend/.env.test`. Set
 `QUARKUS_PROFILE` to `test` so the backend loads `application-test.properties`.
 When you connect the repository, Render will automatically build the container.
 After deployment the site and API will be available at
@@ -160,7 +161,7 @@ After deployment the site and API will be available at
 The `vercel.json` file configures Vercel to build the React application from the
 `frontend` directory. Create a new Vercel project using the frontend repository,
 set the build command to `npm run build` and the output folder to `build`.
-Add the environment variables from `.env.test`, in particular
+Add the environment variables from `frontend/.env.test`, in particular
 `REACT_APP_BACKEND_URL`, so the site can communicate with the backend hosted on
 Render. Once deployed it will be accessible at
 `https://primos-marketplace.vercel.app`.
