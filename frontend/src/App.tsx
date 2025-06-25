@@ -33,6 +33,57 @@ import { getNFTByTokenAddress } from './utils/helius';
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
+// LanguageButtons extracted to reduce complexity
+const LanguageButtons: React.FC = () => {
+  const { i18n } = useTranslation();
+  return (
+    <Box sx={{ display: 'flex', gap: 1 }}>
+      <Button
+        variant={i18n.language === 'en' ? 'contained' : 'outlined'}
+        size="small"
+        onClick={() => i18n.changeLanguage('en')}
+        sx={{
+          minWidth: 28,
+          height: 26,
+          fontSize: '0.75rem',
+          px: 1,
+          py: 0,
+          background: i18n.language === 'en' ? '#111' : '#fff',
+          color: i18n.language === 'en' ? '#fff' : '#111',
+          borderColor: '#111',
+          '&:hover': {
+            background: i18n.language === 'en' ? '#222' : '#f0f0f0',
+            color: i18n.language === 'en' ? '#e2e8f0' : '#111',
+          },
+        }}
+      >
+        EN
+      </Button>
+      <Button
+        variant={i18n.language === 'es' ? 'contained' : 'outlined'}
+        size="small"
+        onClick={() => i18n.changeLanguage('es')}
+        sx={{
+          minWidth: 28,
+          height: 26,
+          fontSize: '0.75rem',
+          px: 1,
+          py: 0,
+          background: i18n.language === 'es' ? '#111' : '#fff',
+          color: i18n.language === 'es' ? '#fff' : '#111',
+          borderColor: '#111',
+          '&:hover': {
+            background: i18n.language === 'es' ? '#222' : '#f0f0f0',
+            color: i18n.language === 'es' ? '#e2e8f0' : '#111',
+          },
+        }}
+      >
+        ES
+      </Button>
+    </Box>
+  );
+};
+
 const Header: React.FC = () => {
   const { publicKey } = useWallet();
   const { i18n, t } = useTranslation();
@@ -66,6 +117,16 @@ const Header: React.FC = () => {
     fetchPfp();
   }, [publicKey]);
 
+  const renderProfileButtonContent = () => {
+    if (isProfilePage) {
+      return t('home');
+    } else if (pfpImage) {
+      return <Avatar src={pfpImage} />;
+    } else {
+      return t('profile');
+    }
+  };
+
   return (
     <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar sx={{ minHeight: 64, display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
@@ -81,50 +142,7 @@ const Header: React.FC = () => {
             zIndex: 10,
           }}
         >
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              variant={i18n.language === 'en' ? 'contained' : 'outlined'}
-              size="small"
-              onClick={() => i18n.changeLanguage('en')}
-              sx={{
-                minWidth: 28,
-                height: 26,
-                fontSize: '0.75rem',
-                px: 1,
-                py: 0,
-                background: i18n.language === 'en' ? '#111' : '#fff',
-                color: i18n.language === 'en' ? '#fff' : '#111',
-                borderColor: '#111',
-                '&:hover': {
-                  background: i18n.language === 'en' ? '#222' : '#f0f0f0',
-                  color: i18n.language === 'en' ? '#e2e8f0' : '#111',
-                },
-              }}
-            >
-              EN
-            </Button>
-            <Button
-              variant={i18n.language === 'es' ? 'contained' : 'outlined'}
-              size="small"
-              onClick={() => i18n.changeLanguage('es')}
-              sx={{
-                minWidth: 28,
-                height: 26,
-                fontSize: '0.75rem',
-                px: 1,
-                py: 0,
-                background: i18n.language === 'es' ? '#111' : '#fff',
-                color: i18n.language === 'es' ? '#fff' : '#111',
-                borderColor: '#111',
-                '&:hover': {
-                  background: i18n.language === 'es' ? '#222' : '#f0f0f0',
-                  color: i18n.language === 'es' ? '#e2e8f0' : '#111',
-                },
-              }}
-            >
-              ES
-            </Button>
-          </Box>
+          <LanguageButtons />
         </Box>
         <span className="beta-text">{t('beta')}</span>
         <Box sx={{ ml: 8 }}>
@@ -148,15 +166,7 @@ const Header: React.FC = () => {
                 padding: isProfilePage ? undefined : 0,
               }}
             >
-              {(() => {
-                if (isProfilePage) {
-                  return t('home');
-                } else if (pfpImage) {
-                  return <Avatar src={pfpImage} />;
-                } else {
-                  return t('profile');
-                }
-              })()}
+              {renderProfileButtonContent()}
             </Button>
           )}
           <WalletLogin />
@@ -209,13 +219,23 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<PrimosMarketGallery />} />
-          <Route path="/collected" element={<NFTGallery />} />
-          <Route path="/labs" element={<PrimoLabs />} />
-          <Route path="/primos" element={<Primos />} />
+          {publicKey && isHolder && betaRedeemed && (
+            <>  {/* Protected routes for valid Primo holders */}
+              <Route path="/collected" element={<NFTGallery />} />
+              <Route path="/labs" element={<PrimoLabs />} />
+              <Route path="/primos" element={<Primos />} />
+            </>
+          )}
           <Route path="/docs" element={<Docs />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/user/:publicKey" element={<UserProfile />} />
-          <Route path="/admin" element={<Admin />} />
+          {publicKey && isHolder && betaRedeemed && (
+            <>  {/* Profile routes for authenticated Primo holders */}
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/user/:publicKey" element={<UserProfile />} />
+            </>
+          )}
+          {publicKey && publicKey.toBase58() === ADMIN_WALLET && (
+            <Route path="/admin" element={<Admin />} />
+          )}
         </Routes>
       </Box>
     </Box>

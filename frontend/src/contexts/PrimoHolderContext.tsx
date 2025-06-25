@@ -59,6 +59,10 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
           localStorage.removeItem('betaRedeemed');
           localStorage.removeItem('betaCode');
           localStorage.setItem('betaWallet', currentWallet);
+          // reset context state when wallet changes
+          setBetaRedeemed(false);
+          setShowRedeemDialog(false);
+          setLoginError(null);
         }
         // Check if user owns a Primo NFT
         const holder = await checkPrimoHolder(PRIMO_COLLECTION, currentWallet);
