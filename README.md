@@ -11,6 +11,10 @@ The repository contains three applications:
   Solana blockchain.
 * **mobile** – a React Native application powered by Expo.
 
+Environment variables for all services are stored under `frontend/.env`. A
+`frontend/.env.test` file contains sample settings for the hosted test
+environment.
+
 ### Beta Access
 
 The backend restricts logins to users with a valid beta code. Thirty beta codes
@@ -25,7 +29,8 @@ The admin can create and view beta codes which are stored in MongoDB.
 
 Both can be started independently during development or together using the
 `run-dev.sh` helper script. A PowerShell version is available as
-`run-dev.ps1` for Windows environments.
+`run-dev.ps1` for Windows environments. These scripts load environment
+variables from `frontend/.env` by default.
 
 ### Backend
 
@@ -68,21 +73,18 @@ Translations for the web frontend are stored under `frontend/src/locales`. The m
 ## Docker Setup
 
 The repository includes a `docker-compose.yml` file that builds images for the
-frontend and backend and also starts a MongoDB instance. Environment values for
-running the stack locally are stored in `.env`. This file uses the connection
+frontend and backend and also starts a MongoDB instance. Environment values
+for development live under `frontend/.env`. This file uses the connection
 string `mongodb://mongodb:27017/primos-db` and sets `BACKEND_URL` to
 `http://localhost:8080` so the browser can reach the backend when running the
-containers locally. The same values are duplicated in `frontend/.env` and
-`backend/.env` so each project can run on its own.
-The `.env.test` file contains placeholders for the hosted test environment and
-is used by both Render and Vercel deployments. It also sets
-`QUARKUS_PROFILE=test` so the backend loads the `application-test.properties`
-configuration. Run `docker compose --env-file .env.test` when testing against
+containers locally. A `frontend/.env.test` file contains placeholders for the
+hosted test environment and sets `QUARKUS_PROFILE=test` so the backend loads the
+`application-test.properties` configuration. Run `docker compose --env-file frontend/.env.test` when testing against
 that setup.
 
-The `.env` files also specify a `CORS_ORIGINS` variable so the backend can
+The environment files also specify a `CORS_ORIGINS` variable so the backend can
 respond to requests from the frontend in both local and hosted environments.
-Both files also include a `REACT_APP_PRIMOS_COLLECTION` setting which the
+Both files include a `REACT_APP_PRIMOS_COLLECTION` setting which the
 frontend uses to identify the Primos NFT collection. The value defaults to
 `primos` and generally does not need to be changed.
 
@@ -96,31 +98,31 @@ The frontend will be available on [http://localhost:3000](http://localhost:3000)
 
 ### Local Docker Image
 
-Build the Docker images using the local development settings defined in `.env`:
+Build the Docker images using the local development settings defined in `frontend/.env`:
 
 ```bash
-docker compose --env-file .env build
+docker compose --env-file frontend/.env build
 ```
 
 After building, start the containers with:
 
 ```bash
-docker compose --env-file .env up
+docker compose --env-file frontend/.env up
 ```
 
 ### Test Docker Image
 
-You can also build images using the settings in `.env.test` which mirror the
+You can also build images using the settings in `frontend/.env.test` which mirror the
 Render test environment:
 
 ```bash
-docker compose --env-file .env.test build
+docker compose --env-file frontend/.env.test build
 ```
 
 Run the stack against the test configuration with:
 
 ```bash
-docker compose --env-file .env.test up
+docker compose --env-file frontend/.env.test up
 ```
 
 ### Combined Docker Image
@@ -150,7 +152,7 @@ from `https://primos-marketplace.vercel.app`.
 The repository includes a `render.yaml` file that defines a Docker-based
 service using the root `Dockerfile`. This image builds both applications so the
 entire site is served from Render. Create an environment group in Render named
-`primos-test` and populate it with the variables from `.env.test`. Set
+`primos-test` and populate it with the variables from `frontend/.env.test`. Set
 `QUARKUS_PROFILE` to `test` so the backend loads `application-test.properties`.
 When you connect the repository, Render will automatically build the container.
 After deployment the site and API will be available at
@@ -161,7 +163,7 @@ After deployment the site and API will be available at
 The `vercel.json` file configures Vercel to build the React application from the
 `frontend` directory. Create a new Vercel project using the frontend repository,
 set the build command to `npm run build` and the output folder to `build`.
-Add the environment variables from `.env.test`, in particular
+Add the environment variables from `frontend/.env.test`, in particular
 `REACT_APP_BACKEND_URL`, so the site can communicate with the backend hosted on
 Render. Once deployed it will be accessible at
 `https://primos-marketplace.vercel.app`.
@@ -174,4 +176,4 @@ Use the following MongoDB Atlas cluster for the initial production release:
 mongodb+srv://<db_username>:<db_password>@cluster0.shjpril.mongodb.net/primos-db
 ```
 
-Set this as the value of `QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated `.env.production` file so the backend uses the correct database. The `.env` file should keep the local `mongodb://mongodb:27017/primos-db` connection for development.
+Set this as the value of `QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated `.env.production` file so the backend uses the correct database. The `frontend/.env` file should keep the local `mongodb://mongodb:27017/primos-db` connection for development.

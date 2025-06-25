@@ -2,9 +2,9 @@
 # Starts backend and frontend servers for development.
 # Requires Maven and Node.js installed locally.
 
-# Load environment variables from .env if present
-if (Test-Path ".env") {
-    Get-Content .env | ForEach-Object {
+# Load environment variables from frontend/.env if present
+if (Test-Path "frontend/.env") {
+    Get-Content frontend/.env | ForEach-Object {
         if ($_ -match '^(?<name>[^#=]+)=(?<value>.*)$') {
             [System.Environment]::SetEnvironmentVariable($Matches.name, $Matches.value)
         }

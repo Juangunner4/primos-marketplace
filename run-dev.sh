@@ -2,10 +2,10 @@
 # Starts backend and frontend servers for development.
 # Requires Maven and Node.js installed locally.
 
-# Load environment variables from .env if present
-if [ -f .env ]; then
+# Load environment variables from frontend/.env if present
+if [ -f frontend/.env ]; then
   set -a
-  . ./.env
+  . ./frontend/.env
   set +a
 fi
 
