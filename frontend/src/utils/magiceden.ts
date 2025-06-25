@@ -10,6 +10,9 @@ export interface MagicEdenStats {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+const API_BASE =
+  process.env.REACT_APP_MAGICEDEN_BASE ?? 'https://api-mainnet.magiceden.dev';
+
 const fetchWithRetry = async (
   url: string,
   options?: RequestInit,
@@ -67,7 +70,7 @@ export const getMagicEdenStats = async (
   if (cached) return cached;
   try {
     const res = await fetchWithRetry(
-      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/stats`
+      `${API_BASE}/v2/collections/${symbol}/stats`
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -114,7 +117,7 @@ export const getMagicEdenHolderStats = async (
   if (cached) return cached;
   try {
     const res = await fetchWithRetry(
-      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/holder_stats`
+      `${API_BASE}/v2/collections/${symbol}/holder_stats`
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -142,7 +145,7 @@ export const fetchMagicEdenListings = async (
   if (cached) return cached;
   try {
     const res = await fetchWithRetry(
-      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/listings?offset=${offset}&limit=${limit}`
+      `${API_BASE}/v2/collections/${symbol}/listings?offset=${offset}&limit=${limit}`
     );
     if (!res.ok) return [];
     const data = await res.json();
@@ -174,7 +177,7 @@ export const fetchMagicEdenActivity = async (
   if (cached) return cached;
   try {
     const res = await fetchWithRetry(
-      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`
+      `${API_BASE}/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`
     );
     if (!res.ok) return [];
     const data = await res.json();
@@ -199,7 +202,7 @@ export const getCollectionAttributes = async (
   if (cached) return cached;
   try {
     const res = await fetchWithRetry(
-      `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/attributes`
+      `${API_BASE}/v2/collections/${symbol}/attributes`
     );
     if (!res.ok) return null;
     const data = await res.json();
