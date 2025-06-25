@@ -139,5 +139,6 @@
   "beta_code": "Código Beta",
   "redeemed": "Canjeado",
   "not_redeemed": "No canjeado",
-  "checking_access": "Verificando acceso..."
+  "checking_access": "Verificando acceso...",
+  "beta_dialog_message": "¡Eres poseedor de un Primo NFT! Ingresa tu código beta para completar el acceso."
 }

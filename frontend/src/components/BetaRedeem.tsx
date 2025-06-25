@@ -7,40 +7,44 @@ import Snackbar from '@mui/material/Snackbar';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './BetaRedeem.css';
 
-interface BetaRedeemProps {
-  autoOpen?: boolean;
-}
+const CODE_REGEX = /^BETA-[A-Za-z0-9]{8}$/;
 
-const ADMIN_WALLET =
-  process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
-
-const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
+const BetaRedeem: React.FC<{ autoOpen?: boolean }> = ({ autoOpen = false }) => {
   const { publicKey } = useWallet();
-  const { betaRedeemed, showRedeemDialog, setShowRedeemDialog, redeemBetaCode } = usePrimoHolder();
-  const [showWelcome, setShowWelcome] = useState(false);
-  // initialize from prop:
+  const {
+    betaRedeemed,
+    userExists,
+    showRedeemDialog,
+    setShowRedeemDialog,
+    redeemBetaCode,
+  } = usePrimoHolder();
+
   const [open, setOpen] = useState(autoOpen);
   const [code, setCode] = useState('');
+  const [isValid, setIsValid] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const { t } = useTranslation();
 
-  // parent‐ or context‐triggered opens
   useEffect(() => {
-    if (showRedeemDialog) {
-      setOpen(true);
-    }
+    if (showRedeemDialog) setOpen(true);
   }, [showRedeemDialog]);
 
-  // auto-open when parent signals (e.g. new user without beta code)
   useEffect(() => {
-    if (autoOpen) {
-      setOpen(true);
-    }
+    if (autoOpen) setOpen(true);
   }, [autoOpen]);
 
-  // hide completely for no‐wallet, admin or already redeemed
-  if (!publicKey || publicKey.toBase58() === ADMIN_WALLET || betaRedeemed) return null;
+  // nothing to show for no-wallet or admin, or once they both exist+redeemed
+  if (!publicKey || publicKey.toBase58() === process.env.REACT_APP_ADMIN_WALLET) return null;
+  if (betaRedeemed && userExists) return null;
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value.toUpperCase();
+    setCode(v);
+    setIsValid(CODE_REGEX.test(v));
+  };
 
   const handleRedeem = async () => {
+    if (!isValid) return;
     await redeemBetaCode(code);
     setOpen(false);
     setShowWelcome(true);
@@ -48,36 +52,45 @@ const BetaRedeem: React.FC<BetaRedeemProps> = ({ autoOpen = false }) => {
 
   return (
     <>
-      <Dialog.Root
-        open={open}
-        onOpenChange={o => {
-          setOpen(o);
-          if (!o) setShowRedeemDialog(false);
-        }}
-      >
+      <Dialog.Root open={open} onOpenChange={o => { setOpen(o); if (!o) setShowRedeemDialog(false); }}>
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
           <Dialog.Content className="dialog-content">
-            <Dialog.Title style={{ color: '#fff' }}>{t('enter_beta_code')}</Dialog.Title>
-            <Dialog.Description style={{ color: '#fff', margin: '0.5rem 0 1rem' }}>
+            <Dialog.Title className="dialog-title">{t('enter_beta_code')}</Dialog.Title>
+            <Dialog.Description className="dialog-desc">
               {t('beta_dialog_message')}
             </Dialog.Description>
             <TextField
               label={t('enter_beta_code')}
               value={code}
-              onChange={e => setCode(e.target.value)}
+              onChange={handleInput}
+              error={code !== '' && !isValid}
+              helperText={code !== '' && !isValid ? t('invalid_code_format') || 'Must be BETA-XXXXXXXX' : ''}
               fullWidth
-              InputLabelProps={{ style: { color: '#fff' } }}
               sx={{
-                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#fff' },
-                '& .MuiOutlinedInput-input': { color: '#fff' }
+                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#000' },
+                '& .MuiOutlinedInput-input': { color: '#000' },
+                '& .MuiInputLabel-root': { color: '#000' }
               }}
             />
             <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
-              <Button variant="contained" onClick={handleRedeem}>
+              <Button
+                variant="contained"
+                onClick={handleRedeem}
+                disabled={!isValid}
+                sx={{
+                  backgroundColor: '#000',
+                  color: '#fff',
+                  '&:hover': { backgroundColor: '#333' }
+                }}
+              >
                 {t('redeem_beta')}
               </Button>
-              <Button variant="outlined" onClick={() => setOpen(false)} sx={{ color: '#fff', borderColor: '#fff' }}>
+              <Button
+                variant="outlined"
+                onClick={() => setOpen(false)}
+                sx={{ borderColor: '#000', color: '#000' }}
+              >
                 {t('cancel')}
               </Button>
             </Box>

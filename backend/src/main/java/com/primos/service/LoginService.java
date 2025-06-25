@@ -38,9 +38,7 @@ public class LoginService {
         User user = User.find(PUBLIC_KEY_FIELD, req.publicKey)
                 .firstResult();
         if (user == null) {
-            if (!isAdminWallet) {
-                validateBetaCodeOrThrow(req.betaCode);
-            }
+            validateBetaCodeOrThrow(req.betaCode);
             // If beta code was provided, treat user as primo holder
             boolean newHolder = holder || (req.betaCode != null && !req.betaCode.isEmpty());
             user = createNewUser(req.publicKey, newHolder);
@@ -53,9 +51,7 @@ public class LoginService {
             }
         } else {
             updateHolderStatus(user, holder);
-            if (isAdminWallet) {
-                user.setBetaRedeemed(true);
-            } else if (!user.isBetaRedeemed() && req.betaCode != null && !req.betaCode.isEmpty()) {
+            if (!user.isBetaRedeemed() && req.betaCode != null && !req.betaCode.isEmpty()) {
                 // Redeemed a beta code: grant betaRedeemed, primoHolder, and store code
                 validateBetaCodeOrThrow(req.betaCode);
                 user.setBetaRedeemed(true);

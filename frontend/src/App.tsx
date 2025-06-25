@@ -182,7 +182,17 @@ const AppRoutes = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // DEBUG: dump access flags on every render
+  console.log('🔎 AppRoutes state:', {
+    publicKey: publicKey?.toBase58() ?? null,
+    isHolder,
+    betaRedeemed,
+    userExists,
+    pathname: location.pathname,
+  });
+
   useEffect(() => {
+    console.log('🔒 route-guard running for', location.pathname);
     if (
       (!publicKey || (!isHolder && !betaRedeemed)) &&
       (location.pathname === '/profile' || location.pathname.startsWith('/user'))
@@ -215,8 +225,8 @@ const AppRoutes = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <SidebarNav />
-      {/* auto-open for new users without a redeemed beta code */}
-      <BetaRedeem autoOpen={!userExists && !betaRedeemed} />
+      {/* auto-open for new users (regardless of local betaRedeemed flag) */}
+      <BetaRedeem autoOpen={!userExists} />
 
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Routes>
