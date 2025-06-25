@@ -80,7 +80,7 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         } catch (err: any) {
           if (err.response && err.response.status === 403) {
             // Show beta dialog for new or invalid-code users without reloading
-            const msg = err.response.data?.message || 'Forbidden: beta code required';
+            const msg = err.response.data?.message ?? 'Forbidden: beta code required';
             setLoginError(msg);
             setShowRedeemDialog(true);
             return;
