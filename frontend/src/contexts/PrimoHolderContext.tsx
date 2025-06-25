@@ -54,14 +54,24 @@ export const PrimoHolderProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // Check if user owns a Primo NFT
         const holder = await checkPrimoHolder(PRIMO_COLLECTION, currentWallet);
         setIsHolder(holder);
-        const redeemed = localStorage.getItem('betaRedeemed') === 'true';
-        if (redeemed) {
-          // Perform login for returning user
-          await api.post('/api/user/login', { publicKey: currentWallet, primoHolder: holder });
-          setBetaRedeemed(true);
-        } else {
-          // Prompt for beta code to complete login
-          setShowRedeemDialog(true);
+        // Attempt login with any stored betaCode
+        const storedCode = localStorage.getItem('betaCode') ?? '';
+        const payload: any = { publicKey: currentWallet, primoHolder: holder };
+        if (storedCode) payload.betaCode = storedCode;
+        try {
+          const res = await api.post('/api/user/login', payload);
+          const serverRedeemed = res.data?.betaRedeemed ?? false;
+          setBetaRedeemed(serverRedeemed);
+          if (serverRedeemed) {
+            localStorage.setItem('betaRedeemed', 'true');
+            localStorage.removeItem('betaCode');
+          }
+        } catch (err: any) {
+          if (err.response && err.response.status === 403) {
+            setShowRedeemDialog(true);
+          } else {
+            console.error('Login failed:', err);
+          }
         }
       } catch (e) {
         console.error('Failed during holder check or login:', e);

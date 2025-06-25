@@ -1,7 +1,10 @@
 package com.primos.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest {
     @Test
@@ -10,7 +13,7 @@ public class UserTest {
         assertEquals(0, user.getPoints());
         assertEquals(0, user.getPointsToday());
         assertNotNull(user.getPointsDate());
-        assertEquals(1000, user.getPesos());
+        assertEquals(1, user.getPesos());
         assertNotNull(user.getSocials());
         assertFalse(user.isPrimoHolder());
         assertTrue(user.isDaoMember());

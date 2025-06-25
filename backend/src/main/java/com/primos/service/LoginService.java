@@ -111,7 +111,7 @@ public class LoginService {
         user.setSocials(new User.SocialLinks());
         user.setPfp("");
         user.setPoints(0);
-        user.setPesos(1000);
+        user.setPesos(1);
         user.setCreatedAt(System.currentTimeMillis());
         user.setDaoMember(holder);
         user.setPrimoHolder(holder);
