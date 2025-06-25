@@ -6,12 +6,12 @@ import java.util.UUID;
 import com.primos.model.BetaCode;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/api/admin")
@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AdminResource {
 
-    static final String ADMIN_WALLET = System.getenv().getOrDefault("ADMIN_WALLET",
+    public static final String ADMIN_WALLET = System.getenv().getOrDefault("ADMIN_WALLET",
             "EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6");
 
     private void ensureAdmin(String wallet) {

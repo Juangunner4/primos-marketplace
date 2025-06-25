@@ -60,13 +60,6 @@ export const getAssetsByCollection = async (
 ): Promise<HeliusNFT[]> => {
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
 
-  // Simple debug logging
-  if (!apiKey) {
-    console.error('❌ Helius API key is missing! Please set REACT_APP_HELIUS_API_KEY');
-  } else {
-    console.log('✅ Helius API key is configured');
-  }
-
   if (!apiKey) {
     console.error('Helius API key is not configured. Please set REACT_APP_HELIUS_API_KEY environment variable.');
     return [];
