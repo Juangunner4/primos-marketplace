@@ -22,6 +22,18 @@ public class LoginService {
 
         boolean holder = req.primoHolder;
         boolean isAdminWallet = ADMIN_WALLET.equals(req.publicKey);
+        // Admin wallet bypass: always created and logged in without beta code
+        if (isAdminWallet) {
+            User adminUser = User.find(PUBLIC_KEY_FIELD, req.publicKey).firstResult();
+            if (adminUser == null) {
+                adminUser = createNewUser(req.publicKey, true);
+                adminUser.setBetaRedeemed(true);
+            } else {
+                adminUser.setBetaRedeemed(true);
+            }
+            adminUser.persistOrUpdate();
+            return adminUser;
+        }
 
         User user = User.find(PUBLIC_KEY_FIELD, req.publicKey)
                 .firstResult();
