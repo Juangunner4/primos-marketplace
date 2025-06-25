@@ -12,7 +12,8 @@ WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend /frontend
-ARG BACKEND_URL=http://localhost:8080
+# URL of the backend API used by the React build
+ARG BACKEND_URL=https://primos-marketplace.onrender.com
 ENV REACT_APP_BACKEND_URL=$BACKEND_URL
 RUN npm run build
 
