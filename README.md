@@ -191,7 +191,7 @@ and proxy functions. When these values are absent the client falls back to
 Use the following MongoDB Atlas cluster for the initial production release:
 
 ```
-mongodb+srv://<db_username>:<db_password>@cluster0.shjpril.mongodb.net/primos-db
+mongodb+srv://primos-client:yiNVTV7b6lHGCePd@cluster0.shjpril.mongodb.net/?authMechanism=SCRAM-SHA-1
 ```
 
-Set this as the value of `QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated `.env.production` file so the backend uses the correct database. The `frontend/.env` file should keep the local `mongodb://mongodb:27017/primos-db` connection for development.
+Set this as the value of `QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated `.env.production` file so the backend uses the correct database. The application.properties file already specifies `primos-db` as the default database name, so you only need the cluster connection string here. The `frontend/.env` file should keep the local `mongodb://mongodb:27017/primos-db` connection for development.

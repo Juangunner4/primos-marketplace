@@ -2,7 +2,7 @@ envVarGroups:
   - name: primos-test
     envVars:
       - key: QUARKUS_MONGODB_CONNECTION_STRING
-        value: mongodb+srv://<db_username>:<db_password>@cluster0.shjpril.mongodb.net/primos-db
+        value: mongodb+srv://primos-client:yiNVTV7b6lHGCePd@cluster0.shjpril.mongodb.net/?authMechanism=SCRAM-SHA-1
 services:
   - type: web
     name: primos-marketplace
