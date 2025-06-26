@@ -10,8 +10,13 @@ export interface MagicEdenStats {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-const API_BASE =
-  process.env.REACT_APP_MAGICEDEN_BASE ?? 'https://api-mainnet.magiceden.dev';
+// Default to the backend proxy when running outside localhost to avoid CORS
+const defaultApiBase =
+  typeof window !== 'undefined' && !window.location.hostname.match(/^localhost/)
+    ? '/api/proxy'
+    : 'https://api-mainnet.magiceden.dev';
+
+const API_BASE = process.env.REACT_APP_MAGICEDEN_BASE ?? defaultApiBase;
 
 // Debug logging
 console.log('MagicEden API Configuration:', {
