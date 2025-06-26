@@ -23,16 +23,16 @@ RUN npm run build
 # Final image
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-# install node for serve
-RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/* && npm install -g serve
+RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 # copy backend
 COPY --from=backend-build /backend/target/quarkus-app/lib/ ./backend/lib/
 COPY --from=backend-build /backend/target/quarkus-app/*.jar ./backend/
 COPY --from=backend-build /backend/target/quarkus-app/app/ ./backend/app/
 COPY --from=backend-build /backend/target/quarkus-app/quarkus/ ./backend/quarkus/
-# copy frontend
-COPY --from=frontend-build /frontend/build ./frontend/build
+# copy frontend to nginx html directory
+COPY --from=frontend-build /frontend/build /usr/share/nginx/html
 
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-EXPOSE 8080 3000
+EXPOSE 8080
 ENTRYPOINT ["/bin/sh","/docker-entrypoint.sh"]
