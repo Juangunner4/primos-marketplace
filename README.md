@@ -154,8 +154,11 @@ service using the root `Dockerfile`. This image builds both applications so the
 entire site is served from Render. Create an environment group in Render named
 `primos-test` and populate it with the variables from `frontend/.env.test`. Set
 `QUARKUS_PROFILE` to `test` so the backend loads `application-test.properties`.
-When you connect the repository, Render will automatically build the container.
-After deployment the site and API will be available at
+This file also defines `REACT_APP_MAGICEDEN_BASE=/api/proxy` so the React build
+uses the backend proxy for Magic Eden requests. Without that value browsers will
+block direct calls to the Magic Eden API due to CORS restrictions. When you
+connect the repository, Render will automatically build the container. After
+deployment the site and API will be available at
 `https://primos-marketplace.onrender.com`.
 
 ### Deploying to Vercel
