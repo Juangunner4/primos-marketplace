@@ -80,27 +80,6 @@ const LanguageButtons: React.FC = () => {
       >
         ES
       </Button>
-      <Button
-        variant={i18n.language === 'pt' ? 'contained' : 'outlined'}
-        size="small"
-        onClick={() => i18n.changeLanguage('pt')}
-        sx={{
-          minWidth: 28,
-          height: 26,
-          fontSize: '0.75rem',
-          px: 1,
-          py: 0,
-          background: i18n.language === 'pt' ? '#111' : '#fff',
-          color: i18n.language === 'pt' ? '#fff' : '#111',
-          borderColor: '#111',
-          '&:hover': {
-            background: i18n.language === 'pt' ? '#222' : '#f0f0f0',
-            color: i18n.language === 'pt' ? '#e2e8f0' : '#111',
-          },
-        }}
-      >
-        PT
-      </Button>
     </Box>
   );
 };
