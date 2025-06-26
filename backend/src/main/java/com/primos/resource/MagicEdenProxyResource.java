@@ -11,6 +11,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.ProxySelector;
+import java.net.InetSocketAddress;
 
 /**
  * Simple proxy endpoint that forwards requests to the Magic Eden API. This is
@@ -22,7 +24,24 @@ import java.net.http.HttpResponse;
 public class MagicEdenProxyResource {
 
     private static final String API_BASE = "https://api-mainnet.magiceden.dev";
-    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    private static final HttpClient CLIENT = createClient();
+
+    private static HttpClient createClient() {
+        String proxy = System.getenv("https_proxy");
+        if (proxy == null || proxy.isEmpty()) {
+            proxy = System.getenv("HTTPS_PROXY");
+        }
+        if (proxy != null && !proxy.isEmpty()) {
+            try {
+                URI uri = URI.create(proxy);
+                return HttpClient.newBuilder()
+                        .proxy(ProxySelector.of(new InetSocketAddress(uri.getHost(), uri.getPort())))
+                        .build();
+            } catch (Exception ignored) {
+            }
+        }
+        return HttpClient.newHttpClient();
+    }
 
     @GET
     @Path("{path: .+}")
