@@ -136,7 +136,7 @@ docker build -t primos-app .
 Run it with:
 
 ```bash
-docker run -p 8080:8080 -p 3000:3000 primos-app
+docker run -p 8080:8080 -p 3000:3000 -e CORS_ORIGINS=http://localhost:3000 primos-app
 ```
 
 ### Separate Repositories for Hosting
