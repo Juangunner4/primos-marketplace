@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { checkPrimoHolder } from '../utils/helius'; // <-- import checkPrimoHolder
 
 interface PrimoHolderContextValue {
   isHolder: boolean;
@@ -22,41 +23,51 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
   const [betaRedeemed, setBetaRedeemed] = useState(false);
   const [showRedeemDialog, setShowRedeemDialog] = useState(false);
 
-  // whenever publicKey changes, fetch user record
+  // whenever publicKey changes, fetch user record and check blockchain holder status
   useEffect(() => {
-    if (!publicKey) {
-      setLoading(false);
-      setUserExists(false);
-      setBetaRedeemed(false);
-      setIsHolder(false);
-      return;
-    }
-
-    setLoading(true);
-    api
-      .get(`/api/user/${publicKey.toBase58()}`, {
-        headers: { 'X-Public-Key': publicKey.toBase58() },
-      })
-      .then(res => {
-        const user = res.data;
-        // If user is found, set flags from user object
-        if (user?.publicKey) {
-          setUserExists(true);
-          setBetaRedeemed(!!user.betaRedeemed);
-          setIsHolder(!!user.primoHolder);
-        } else {
-          setUserExists(false);
-          setBetaRedeemed(false);
-          setIsHolder(false);
-        }
-      })
-      .catch(() => {
-        // on error, assume new user
+    const fetchData = async () => {
+      if (!publicKey) {
+        setLoading(false);
         setUserExists(false);
         setBetaRedeemed(false);
         setIsHolder(false);
-      })
-      .finally(() => setLoading(false));
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // 1. Check blockchain first
+        const holderStatus = await checkPrimoHolder(
+          process.env.REACT_APP_PRIMO_COLLECTION as string,
+          publicKey.toBase58()
+        );
+        setIsHolder(!!holderStatus);
+
+        if (!holderStatus) {
+          // Not a holder: skip API, set states accordingly
+          setUserExists(false);
+          setBetaRedeemed(false);
+          setLoading(false);
+          return;
+        }
+
+        // 2. If holder, fetch user info
+        const userRes = await api.get(`/api/user/${publicKey.toBase58()}`, {
+          headers: { 'X-Public-Key': publicKey.toBase58() },
+        });
+        const user = userRes.data;
+        setUserExists(!!user?.publicKey);
+        setBetaRedeemed(!!user?.betaRedeemed);
+      } catch {
+        setUserExists(false);
+        setBetaRedeemed(false);
+        setIsHolder(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [publicKey]);
 
   const redeemBetaCode = async (code: string) => {
@@ -72,7 +83,10 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
     const user = res.data;
     setBetaRedeemed(!!user.betaRedeemed);
     setUserExists(!!user.publicKey);
-    setIsHolder(!!user.primoHolder);
+
+    // Always check blockchain for isHolder
+    const holderStatus = await checkPrimoHolder(process.env.REACT_APP_PRIMO_COLLECTION as string, publicKey!.toBase58());
+    setIsHolder(!!holderStatus);
   };
 
   const contextValue = React.useMemo(

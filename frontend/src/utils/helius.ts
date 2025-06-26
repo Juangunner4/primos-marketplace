@@ -76,6 +76,8 @@ export const getAssetsByCollection = async (
   const allItems: any[] = [];
   let hasMore = true;
 
+  console.log('getAssetsByCollection', { collectionAddress, ownerPubkey }); // <-- Add this
+
   while (hasMore) {
     try {
       const response = await heliusFetch(
