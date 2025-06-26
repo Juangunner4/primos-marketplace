@@ -23,7 +23,9 @@ RUN npm run build
 # Final image
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y nginx gettext-base \
+    && rm -rf /var/lib/apt/lists/*
 # copy backend
 COPY --from=backend-build /backend/target/quarkus-app/lib/ ./backend/lib/
 COPY --from=backend-build /backend/target/quarkus-app/*.jar ./backend/
