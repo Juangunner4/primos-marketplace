@@ -1,8 +1,23 @@
 envVarGroups:
-  - name: primos-test
+  - name: primos-env
     envVars:
+      - key: BACKEND_URL
+        value: ${BACKEND_URL}
+      - key: REACT_APP_BACKEND_URL
+        value: ${REACT_APP_BACKEND_URL}
+      - key: CORS_ORIGINS
+        value: ${CORS_ORIGINS}
+      - key: REACT_APP_PRIMOS_COLLECTION
+        value: ${REACT_APP_PRIMOS_COLLECTION}
+      - key: REACT_APP_MAGICEDEN_BASE
+        value: ${REACT_APP_MAGICEDEN_BASE}
+      - key: REACT_APP_HELIUS_API_KEY
+        value: ${REACT_APP_HELIUS_API_KEY}
+      - key: QUARKUS_PROFILE
+        value: ${QUARKUS_PROFILE}
       - key: QUARKUS_MONGODB_CONNECTION_STRING
         value: ${QUARKUS_MONGODB_CONNECTION_STRING}
+
 services:
   - type: web
     name: primos-marketplace
@@ -10,14 +25,6 @@ services:
     plan: free
     dockerfilePath: Dockerfile
     envVars:
-      - fromGroup: primos-test
-      - key: BACKEND_URL
-        value: https://primos-marketplace.onrender.com
-      - key: REACT_APP_PRIMOS_COLLECTION
-        value: primos
-      - key: CORS_ORIGINS
-        value: https://primos-marketplace.vercel.app
-      - key: QUARKUS_PROFILE
-        value: test
+      - fromGroup: primos-env
       - key: PORT
         value: "8080"
