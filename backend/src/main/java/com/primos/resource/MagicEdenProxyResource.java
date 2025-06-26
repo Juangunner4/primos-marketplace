@@ -1,0 +1,40 @@
+package com.primos.resource;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+/**
+ * Simple proxy endpoint that forwards requests to the Magic Eden API. This is
+ * used when the frontend is deployed on the same host as the backend (e.g.
+ * Render) and serverless functions are unavailable.
+ */
+@Path("/api/proxy")
+@Produces(MediaType.APPLICATION_JSON)
+public class MagicEdenProxyResource {
+
+    private static final String API_BASE = "https://api-mainnet.magiceden.dev";
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+
+    @GET
+    @Path("{path: .+}")
+    public Response proxy(@PathParam("path") String path) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(API_BASE + "/" + path))
+                .GET()
+                .build();
+        HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+
+        // Some platforms strip CORS headers from 304 responses, so return 200 instead
+        int status = resp.statusCode() == 304 ? 200 : resp.statusCode();
+        return Response.status(status).entity(resp.body()).build();
+    }
+}
