@@ -11,9 +11,10 @@ The repository contains three applications:
   Solana blockchain.
 * **mobile** – a React Native application powered by Expo.
 
-Environment variables for all services are stored under `frontend/.env`. A
-`frontend/.env.test` file contains sample settings for the hosted test
-environment.
+Environment variables for all services are stored under `frontend/.env` for
+local development. The `frontend/.env.test` file provides settings for the test
+deployment on Vercel while `frontend/.env.production` contains the variables
+used when deploying the full stack to Render.
 
 ### Beta Access
 
@@ -78,8 +79,10 @@ for development live under `frontend/.env`. This file uses the connection
 string `mongodb://mongodb:27017/primos-db` and sets `BACKEND_URL` to
 `http://localhost:8080` so the browser can reach the backend when running the
 containers locally. A `frontend/.env.test` file contains placeholders for the
-hosted test environment and sets `QUARKUS_PROFILE=test` so the backend loads the
-`application-test.properties` configuration. Run `docker compose --env-file frontend/.env.test` when testing against
+Vercel test deployment and sets `QUARKUS_PROFILE=test` so the backend loads the
+`application-test.properties` configuration. A separate
+`frontend/.env.production` file defines the values used on Render.
+Run `docker compose --env-file frontend/.env.test` when testing against
 that setup.
 
 The environment files also specify a `CORS_ORIGINS` variable so the backend can
@@ -113,7 +116,7 @@ docker compose --env-file frontend/.env up
 ### Test Docker Image
 
 You can also build images using the settings in `frontend/.env.test` which mirror the
-Render test environment:
+Vercel test environment:
 
 ```bash
 docker compose --env-file frontend/.env.test build
@@ -151,15 +154,12 @@ from `https://primos-marketplace.vercel.app`.
 
 The repository includes a `render.yaml` file that defines a Docker-based
 service using the root `Dockerfile`. This image builds both applications so the
-entire site is served from Render. Create an environment group in Render named
-`primos-test` and populate it with the variables from `frontend/.env.test`. Set
-`QUARKUS_PROFILE` to `test` so the backend loads `application-test.properties`.
-This file also defines `REACT_APP_MAGICEDEN_BASE=/api/proxy` so the React build
-uses the backend proxy for Magic Eden requests. Without that value browsers will
-block direct calls to the Magic Eden API due to CORS restrictions. When you
-connect the repository, Render will automatically build the container. After
-deployment the site and API will be available at
-`https://primos-marketplace.onrender.com`.
+entire site is served from Render. Create an environment group in Render and
+populate it with the variables from `frontend/.env.production`.
+`REACT_APP_MAGICEDEN_BASE=/api/proxy` must be provided so the React build uses
+the backend proxy for Magic Eden requests. When you connect the repository,
+Render will automatically build the container. After deployment the site and API
+will be available at `https://primos-marketplace.onrender.com`.
 
 ### Deploying to Vercel
 
