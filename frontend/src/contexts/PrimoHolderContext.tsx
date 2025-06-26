@@ -38,7 +38,7 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
       try {
         // 1. Check blockchain first
         const holderStatus = await checkPrimoHolder(
-          process.env.REACT_APP_PRIMO_COLLECTION as string,
+          process.env.REACT_APP_PRIMOS_COLLECTION as string,
           publicKey.toBase58()
         );
         setIsHolder(!!holderStatus);
@@ -85,7 +85,10 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
     setUserExists(!!user.publicKey);
 
     // Always check blockchain for isHolder
-    const holderStatus = await checkPrimoHolder(process.env.REACT_APP_PRIMO_COLLECTION as string, publicKey!.toBase58());
+    const holderStatus = await checkPrimoHolder(
+      process.env.REACT_APP_PRIMOS_COLLECTION as string,
+      publicKey!.toBase58()
+    );
     setIsHolder(!!holderStatus);
   };
 
