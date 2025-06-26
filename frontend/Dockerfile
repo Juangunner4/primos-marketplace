@@ -4,7 +4,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
 COPY . .
 ARG BACKEND_URL=http://localhost:8080
-ARG PRIMOS_COLLECTION=primos
+ARG PRIMOS_COLLECTION=2gHxjKwWvgek6zjBmgxF9NiNZET3VHsSYwj2Afs2U1Mb
 ENV REACT_APP_BACKEND_URL=$BACKEND_URL
 ENV REACT_APP_PRIMOS_COLLECTION=$PRIMOS_COLLECTION
 RUN npm run build
