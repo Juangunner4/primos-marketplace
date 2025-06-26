@@ -19,3 +19,5 @@ services:
         value: https://primos-marketplace.vercel.app
       - key: QUARKUS_PROFILE
         value: test
+      - key: PORT
+        value: "8080"
