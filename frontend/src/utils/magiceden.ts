@@ -189,7 +189,7 @@ export const fetchMagicEdenActivity = async (
   if (cached) return cached;
   try {
     const res = await fetchWithRetry(
-      `${API_BASE}/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`
+      `/api/magiceden/activities?offset=${offset}&limit=${limit}`
     );
     if (!res.ok) return [];
     const data = await res.json();
