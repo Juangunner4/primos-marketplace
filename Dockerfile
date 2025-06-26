@@ -10,7 +10,7 @@ RUN mvn -q package -DskipTests
 FROM node:18 AS frontend-build
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 COPY frontend /frontend
 # URL of the backend API used by the React build
 ARG BACKEND_URL=https://primos-marketplace.onrender.com

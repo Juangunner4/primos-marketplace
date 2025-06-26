@@ -1,7 +1,7 @@
 FROM node:18 AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 COPY . .
 ARG BACKEND_URL=http://localhost:8080
 ARG PRIMOS_COLLECTION=primos
