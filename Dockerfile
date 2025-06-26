@@ -1,7 +1,8 @@
 # Build backend
 FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
 WORKDIR /backend
-COPY backend/pom.xml backend/pom.xml
+# Copy only the POM first so Maven can cache dependencies
+COPY backend/pom.xml ./pom.xml
 RUN mvn -q dependency:go-offline
 COPY backend /backend
 RUN mvn -q package -DskipTests
