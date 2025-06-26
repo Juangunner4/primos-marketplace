@@ -14,16 +14,10 @@ export default async function handler(req, res) {
   const url = `https://api-mainnet.magiceden.dev${targetPath}`;
   
   try {
-    // Forward headers from the original request (especially caching headers)
-    const headers = {};
-    if (req.headers['if-none-match']) {
-      headers['if-none-match'] = req.headers['if-none-match'];
-    }
-    if (req.headers['if-modified-since']) {
-      headers['if-modified-since'] = req.headers['if-modified-since'];
-    }
-
-    const apiRes = await fetch(url, { headers });
+    // We intentionally do not forward conditional request headers to avoid 304
+    // responses from the Magic Eden API which can break CORS handling on some
+    // browsers and hosting platforms.
+    const apiRes = await fetch(url);
     
     // Set CORS headers for actual requests
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -44,9 +38,11 @@ export default async function handler(req, res) {
       res.setHeader('content-type', apiRes.headers.get('content-type'));
     }
 
-    // Handle 304 Not Modified responses
+    // Some hosting platforms strip CORS headers from 304 responses. If we
+    // encounter a 304 status, return an empty response with a 200 status instead
+    // so browsers do not treat it as a CORS failure.
     if (apiRes.status === 304) {
-      return res.status(304).end();
+      return res.status(200).end();
     }
 
     // For other successful responses, parse JSON
