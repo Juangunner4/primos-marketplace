@@ -268,7 +268,7 @@ const AppContent = () => {
 };
 
 const App = () => {
-  const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
+  const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY
   const endpoint = useMemo(
     () => `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
     [heliusApiKey]

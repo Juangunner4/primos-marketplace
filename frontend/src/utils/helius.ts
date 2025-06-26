@@ -58,7 +58,7 @@ export const getAssetsByCollection = async (
   collectionAddress: string,
   ownerPubkey: string
 ): Promise<HeliusNFT[]> => {
-  const apiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
     console.error('Helius API key is not configured. Please set REACT_APP_HELIUS_API_KEY environment variable.');
@@ -146,7 +146,7 @@ export const getNFTByTokenAddress = async (
     return nftCache[tokenAddress];
   }
 
-  const apiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
     console.error('❌ Helius API key is missing for getNFTByTokenAddress!');
@@ -217,7 +217,7 @@ export async function fetchCollectionNFTsForOwner(
   ownerAddress: string,
   collectionAddress: string
 ): Promise<HeliusNFT[]> {
-  const apiKey = process.env.REACT_APP_HELIUS_API_KEY ?? process.env.HELIUS_API_KEY;
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
   const limit = 100;
   let page = 1;
   let hasMore = true;
