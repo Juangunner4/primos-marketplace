@@ -68,7 +68,7 @@ on‑chain logic in the client and makes the server lightweight.
 
 ## Internationalization
 
-Translations for the web frontend are stored under `frontend/src/locales`. The mobile app uses the same `i18next` setup with JSON files located in `mobile/locales`. English and Spanish translations are provided by default and the project now includes Portuguese examples under `pt`.
+Translations for the web frontend are stored under `frontend/src/locales`. The mobile app uses the same `i18next` setup with JSON files located in `mobile/locales`. English and Spanish translations are provided by default.
 
 ## Docker Setup
 
