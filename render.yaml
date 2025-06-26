@@ -2,7 +2,7 @@ envVarGroups:
   - name: primos-test
     envVars:
       - key: QUARKUS_MONGODB_CONNECTION_STRING
-        value: <your-connection-string>
+        value: ${QUARKUS_MONGODB_CONNECTION_STRING}
 services:
   - type: web
     name: primos-marketplace
