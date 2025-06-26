@@ -15,6 +15,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.ProxySelector;
+import java.net.InetSocketAddress;
 
 /**
  * Proxy endpoint that fetches collection activity from the Magic Eden API.
@@ -25,7 +27,24 @@ public class ActivityResource {
 
     private static final String API_BASE = "https://api-mainnet.magiceden.dev";
     private static final String COLLECTION = System.getenv().getOrDefault("REACT_APP_PRIMOS_COLLECTION", "primos");
-    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    private static final HttpClient CLIENT = createClient();
+
+    private static HttpClient createClient() {
+        String proxy = System.getenv("https_proxy");
+        if (proxy == null || proxy.isEmpty()) {
+            proxy = System.getenv("HTTPS_PROXY");
+        }
+        if (proxy != null && !proxy.isEmpty()) {
+            try {
+                URI uri = URI.create(proxy);
+                return HttpClient.newBuilder()
+                        .proxy(ProxySelector.of(new InetSocketAddress(uri.getHost(), uri.getPort())))
+                        .build();
+            } catch (Exception ignored) {
+            }
+        }
+        return HttpClient.newHttpClient();
+    }
 
     @GET
     public Response getActivities(@QueryParam("offset") int offset,
@@ -41,9 +60,14 @@ public class ActivityResource {
                 .GET()
                 .build();
         HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
-        String body = resp.body() == null ? "[]" : resp.body();
+        String body = resp.body();
+        if (resp.statusCode() != 200 || body == null || body.isBlank()) {
+            return Json.createArrayBuilder().build();
+        }
         try (JsonReader reader = Json.createReader(new StringReader(body))) {
             return reader.readArray();
+        } catch (Exception e) {
+            return Json.createArrayBuilder().build();
         }
     }
 }
