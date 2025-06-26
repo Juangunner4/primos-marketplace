@@ -3,6 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { PrimoHolderProvider, usePrimoHolder } from '../PrimoHolderContext';
 import { useWallet } from '@solana/wallet-adapter-react';
 import api from '../../utils/api';
+import { checkPrimoHolder } from '../../utils/helius';
 
 jest.mock('@solana/wallet-adapter-react', () => ({
   useWallet: jest.fn(),
@@ -10,15 +11,18 @@ jest.mock('@solana/wallet-adapter-react', () => ({
 
 
 jest.mock('../../utils/api');
+jest.mock('../../utils/helius');
 
 const mockUseWallet = useWallet as jest.Mock;
 const mockApiGet = (api.get as unknown) as jest.Mock;
 const mockApiPost = (api.post as unknown) as jest.Mock;
+const mockCheckPrimoHolder = (checkPrimoHolder as unknown) as jest.Mock;
 
 describe('PrimoHolderContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockApiPost.mockResolvedValue({});
+    mockCheckPrimoHolder.mockResolvedValue(false);
   });
 
   test('returns false when wallet not connected', () => {
@@ -31,7 +35,8 @@ describe('PrimoHolderContext', () => {
 
   test('returns true when NFTs found', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'abc' } });
-    mockApiGet.mockResolvedValue({ data: { abc: 1 } });
+    mockCheckPrimoHolder.mockResolvedValue(true);
+    mockApiGet.mockResolvedValue({ data: { publicKey: 'abc', betaRedeemed: false } });
     const { result } = renderHook(() => usePrimoHolder(), {
       wrapper: ({ children }) => <PrimoHolderProvider>{children}</PrimoHolderProvider>,
     });
@@ -40,7 +45,7 @@ describe('PrimoHolderContext', () => {
 
   test('handles fetch error gracefully', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'abc' } });
-    mockApiGet.mockRejectedValue(new Error('fail'));
+    mockCheckPrimoHolder.mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => usePrimoHolder(), {
       wrapper: ({ children }) => <PrimoHolderProvider>{children}</PrimoHolderProvider>,
     });
