@@ -11,10 +11,9 @@ The repository contains three applications:
   Solana blockchain.
 * **mobile** – a React Native application powered by Expo.
 
-Environment variables for all services are stored under `frontend/.env` for
-local development. The `frontend/.env.test` file provides settings for the test
-deployment on Vercel while `frontend/.env.production` contains the variables
-used when deploying the full stack to Render.
+Copy `frontend/.env.example` to `.env` and update the values for local
+development. Vercel should use environment variables defined in the project
+settings while Render can load values from a `.env.production` file.
 
 ### Beta Access
 
@@ -69,13 +68,14 @@ on‑chain logic in the client and makes the server lightweight.
 
 ## Internationalization
 
-Translations for the web frontend are stored under `frontend/src/locales`. The mobile app uses the same `i18next` setup with JSON files located in `mobile/locales`.
+Translations for the web frontend are stored under `frontend/src/locales`. The mobile app uses the same `i18next` setup with JSON files located in `mobile/locales`. English and Spanish translations are provided by default and the project now includes Portuguese examples under `pt`.
 
 ## Docker Setup
 
 The repository includes a `docker-compose.yml` file that builds images for the
-frontend and backend and also starts a MongoDB instance. Environment values
-for development live under `frontend/.env`. This file uses the connection
+frontend and backend and also starts a MongoDB instance. Copy
+`frontend/.env.example` to `frontend/.env` and adjust the values for development.
+This file uses the connection
 string `mongodb://mongodb:27017/primos-db` and sets `BACKEND_URL` to
 `http://localhost:8080` so the browser can reach the backend when running the
 containers locally. A `frontend/.env.test` file contains placeholders for the
@@ -188,10 +188,10 @@ and proxy functions. When these values are absent the client falls back to
 
 ### Production MongoDB
 
-Use the following MongoDB Atlas cluster for the initial production release:
-
-```
-mongodb+srv://primos-client:yiNVTV7b6lHGCePd@cluster0.shjpril.mongodb.net/?authMechanism=SCRAM-SHA-1
-```
-
-Set this as the value of `QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated `.env.production` file so the backend uses the correct database. The application.properties file already specifies `primos-db` as the default database name, so you only need the cluster connection string here. The `frontend/.env` file should keep the local `mongodb://mongodb:27017/primos-db` connection for development.
+Provide your MongoDB Atlas connection string as the value of
+`QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated
+`.env.production` file so the backend uses the correct database. The
+`application.properties` file already specifies `primos-db` as the default
+database name, so you only need the cluster connection string here. The
+`frontend/.env` example keeps the local `mongodb://localhost:27017/primos-db`
+connection for development.
