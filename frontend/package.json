@@ -2,6 +2,7 @@
   "name": "primos-marketplace-frontend",
   "version": "1.0.0",
   "private": true,
+  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "craco start",
     "build": "craco build",
