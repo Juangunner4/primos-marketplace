@@ -110,7 +110,7 @@ const SidebarNav: React.FC = () => {
             onClick={() => setOpen(true)}
             sx={{
               position: 'fixed',
-              bottom: 16,
+              bottom: 30,
               left: 16,
               zIndex: 1301,
               background: '#000',
