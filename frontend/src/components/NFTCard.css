@@ -199,9 +199,9 @@
   }
 
   .nft-modal-vertical {
-    padding: 2rem 2.5rem;
-    flex-direction: row;
-    align-items: center;
+    padding: 2rem 1.2rem;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .nft-dialog-content {

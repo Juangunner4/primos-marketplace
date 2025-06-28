@@ -45,6 +45,7 @@ const WalletLogin: React.FC = () => {
         className="login-button"
         sx={{
           minWidth: 40,
+          height: 40,
           ml: 1,
           background: '#111',
           color: '#fff',
@@ -53,7 +54,7 @@ const WalletLogin: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '1.1rem',
+          fontSize: '0.85rem',
           fontWeight: 600,
           boxShadow: 'none',
           transition: 'transform 0.18s',
