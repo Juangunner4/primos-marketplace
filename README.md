@@ -195,3 +195,7 @@ Provide your MongoDB Atlas connection string as the value of
 database name, so you only need the cluster connection string here. The
 `frontend/.env` example keeps the local `mongodb://localhost:27017/primos-db`
 connection for development.
+
+## Future State
+
+Additional notes for the upcoming production release are provided in [FUTURE_STATE.md](./FUTURE_STATE.md).

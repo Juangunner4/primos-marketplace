@@ -30,3 +30,5 @@ Run it with:
 docker run -p 3000:3000 primos-frontend
 ```
 
+
+See [FUTURE_STATE.md](../FUTURE_STATE.md) for the release checklist.
