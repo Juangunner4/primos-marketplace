@@ -182,18 +182,8 @@ const Activity: React.FC = () => {
     <>
       {cardOpen && (
         <div
-          style={{
-            position: 'fixed',
-            zIndex: 1400,
-            top: 15,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.55)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className="nft-modal-wrapper activity-modal"
+          style={{ zIndex: 1400 }}
         >
           <NFTCard
             nft={selectedNft}

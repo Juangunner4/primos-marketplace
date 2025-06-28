@@ -19,6 +19,37 @@
   overflow-y: auto;
 }
 
+/* Generic modal overlay wrapper used on multiple pages */
+.nft-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Offset slightly on desktop when used in the activity panel */
+.activity-modal {
+  top: 15px;
+}
+
+@media (max-width: 700px) {
+  .nft-modal-wrapper {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .activity-modal {
+    top: 0;
+  }
+}
+
 .nft-modal-vertical {
   width: 100%;
   padding: 2rem 1.2rem 2rem 1.2rem;
