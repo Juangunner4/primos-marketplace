@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.primos.model.BetaCode;
+import com.primos.model.User;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.ForbiddenException;
@@ -39,7 +40,30 @@ public class AdminResource {
     @Path("/beta/active")
     public List<BetaCode> listActiveCodes(@HeaderParam("X-Public-Key") String wallet) {
         ensureAdmin(wallet);
-        return BetaCode.listAll();
+        return BetaCode.list("redeemed", false);
+    }
+
+    @GET
+    @Path("/beta/inactive")
+    public List<BetaCode> listInactiveCodes(@HeaderParam("X-Public-Key") String wallet) {
+        ensureAdmin(wallet);
+        return BetaCode.list("redeemed", true);
+    }
+
+    public record Stats(long totalWallets, long totalPoints, long primoHolders,
+            long betaCodes, long betaCodesRedeemed) {
+    }
+
+    @GET
+    @Path("/stats")
+    public Stats getStats(@HeaderParam("X-Public-Key") String wallet) {
+        ensureAdmin(wallet);
+        long totalWallets = User.count();
+        long totalPoints = User.streamAll().mapToLong(User::getPoints).sum();
+        long primoHolders = User.count("primoHolder", true);
+        long betaCodes = BetaCode.count();
+        long betaCodesRedeemed = BetaCode.count("redeemed", true);
+        return new Stats(totalWallets, totalPoints, primoHolders, betaCodes, betaCodesRedeemed);
     }
 
     @POST

@@ -144,4 +144,12 @@
   "checking_access": "Checking access...",
   "not_holder_message": "You’re not a Primo NFT holder! Lerolero",
   "invalid_code_format": "Invalid code format. Must be BETA-XXXXXXXX"
+  ,"active_codes": "Active Codes"
+  ,"redeemed_codes": "Redeemed Codes"
+  ,"stats": "Stats"
+  ,"total_wallets": "Total Wallets"
+  ,"total_points": "Total Points"
+  ,"primo_holders": "Primo Holders"
+  ,"total_beta": "Total Beta Codes"
+  ,"total_beta_redeemed": "Redeemed Beta Codes"
 }

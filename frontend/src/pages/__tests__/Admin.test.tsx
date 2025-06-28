@@ -7,7 +7,12 @@ import Admin from '../Admin';
 const mockUseWallet = jest.fn();
 jest.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => mockUseWallet() }));
 jest.mock('../../utils/api', () => ({
-  get: jest.fn(() => Promise.resolve({ data: [{ code: 'BETA1' }] })),
+  get: jest.fn((url: string) => {
+    if (url.includes('/stats')) {
+      return Promise.resolve({ data: { totalWallets: 1, totalPoints: 2, primoHolders: 1, betaCodes: 1, betaCodesRedeemed: 0 } });
+    }
+    return Promise.resolve({ data: [{ code: 'BETA1', redeemed: false }] });
+  }),
   post: jest.fn(() => Promise.resolve({ data: { code: 'B1' } }))
 }));
 
