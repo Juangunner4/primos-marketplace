@@ -144,4 +144,12 @@
   "not_holder_message": "¡No eres poseedor de un Primo NFT! Lerolero",
   "welcome_message": "¡Bienvenido a Primos Marketplace!",
   "invalid_code_format": "El formato del código es inválido. Debe ser BETA-XXXXXXXX"
+  ,"active_codes": "Códigos Activos"
+  ,"redeemed_codes": "Códigos Canjeados"
+  ,"stats": "Estadísticas"
+  ,"total_wallets": "Billeteras Únicas"
+  ,"total_points": "Puntos Totales"
+  ,"primo_holders": "Primo Holders"
+  ,"total_beta": "Total de Códigos Beta"
+  ,"total_beta_redeemed": "Códigos Beta Canjeados"
 }
