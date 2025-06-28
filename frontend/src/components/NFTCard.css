@@ -1,3 +1,8 @@
+
+:root {
+  --navbar-height: 64px;
+}
+
 .nft-dialog-overlay {
   background: rgba(0, 0, 0, 0.6);
   position: fixed;
@@ -15,17 +20,17 @@
   width: 98vw;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
   position: relative;
-  max-height: 95vh;
+  max-height: calc(95vh - var(--navbar-height));
   overflow-y: auto;
 }
 
 /* Generic modal overlay wrapper used on multiple pages */
 .nft-modal-wrapper {
   position: fixed;
-  top: 0;
+  top: var(--navbar-height);
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - var(--navbar-height));
   background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
@@ -39,6 +44,8 @@
 
 @media (max-width: 700px) {
   .nft-modal-wrapper {
+    top: var(--navbar-height);
+    height: calc(100vh - var(--navbar-height));
     align-items: flex-start;
     overflow-y: auto;
     padding-top: 15px;
