@@ -12,6 +12,8 @@ import {
   TableCell,
   TableBody,
   Tooltip,
+  Avatar,
+  TextField,
 } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -19,9 +21,14 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { useTranslation } from 'react-i18next';
 import * as Tabs from '@radix-ui/react-tabs';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import { getMagicEdenStats } from '../utils/magiceden';
+import { getPythSolPrice } from '../utils/pyth';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
+const MAGICEDEN_SYMBOL = 'primos';
 
 interface BetaCode {
   code: string;
@@ -40,12 +47,29 @@ interface AdminStats {
   floorPrice: number;
 }
 
+interface Member {
+  publicKey: string;
+  pfp: string;
+  points: number;
+  pesos: number;
+}
+
+interface AdminMember extends Member {
+  owned: number;
+  solPrice: number | null;
+  totalValue: number;
+  sold: number;
+  pnl: number | null;
+}
+
 const Admin: React.FC = () => {
   const { publicKey } = useWallet();
   const { t } = useTranslation();
   const [codes, setCodes] = useState<BetaCode[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [filter, setFilter] = useState<'active' | 'inactive'>('active');
+  const [members, setMembers] = useState<AdminMember[]>([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (publicKey?.toBase58() === ADMIN_WALLET) {
@@ -64,6 +88,63 @@ const Admin: React.FC = () => {
     }
   }, [publicKey, filter]);
 
+  useEffect(() => {
+    if (publicKey?.toBase58() !== ADMIN_WALLET) return;
+
+    async function fetchMembers() {
+      try {
+        const res = await api.get<Member[]>("/api/user/primos", {
+          headers: { "X-Public-Key": publicKey.toBase58() },
+        });
+        const sorted = res.data
+          .slice()
+          .sort((a: Member, b: Member) => b.pesos - a.pesos);
+        const [solPrice, meStats] = await Promise.all([
+          getPythSolPrice(),
+          getMagicEdenStats(MAGICEDEN_SYMBOL),
+        ]);
+        const floor = meStats?.floorPrice ?? 0;
+        const enriched = await Promise.all(
+          sorted.map(async (m) => {
+            let image = "";
+            if (m.pfp) {
+              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ""));
+              image = nft?.image || "";
+            } else {
+              const nfts = await fetchCollectionNFTsForOwner(
+                m.publicKey,
+                PRIMO_COLLECTION
+              );
+              image = nfts[0]?.image || "";
+            }
+            let owned = 0;
+            try {
+              const nfts = await fetchCollectionNFTsForOwner(
+                m.publicKey,
+                PRIMO_COLLECTION
+              );
+              owned = nfts.length;
+            } catch {}
+            return {
+              ...m,
+              pfp: image,
+              owned,
+              solPrice,
+              totalValue: owned * floor,
+              sold: 0,
+              pnl: null,
+            } as AdminMember;
+          })
+        );
+        setMembers(enriched);
+      } catch {
+        setMembers([]);
+      }
+    }
+
+    fetchMembers();
+  }, [publicKey]);
+
   const createCode = () => {
     if (!publicKey) return;
     api
@@ -76,6 +157,10 @@ const Admin: React.FC = () => {
   if (publicKey?.toBase58() !== ADMIN_WALLET) {
     return <Typography>{t('access_denied')}</Typography>;
   }
+
+  const filtered = members.filter((m) =>
+    m.publicKey.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Tabs.Root defaultValue="codes">
@@ -109,6 +194,20 @@ const Admin: React.FC = () => {
         >
           <BarChartIcon fontSize="small" style={{ marginRight: 4 }} />
           {t('stats')}
+        </Tabs.Trigger>
+        <Tabs.Trigger
+          value="members"
+          style={{
+            all: 'unset',
+            cursor: 'pointer',
+            padding: '6px 12px',
+            background: '#000',
+            color: '#fff',
+            border: '1px solid #000',
+            borderRadius: 4,
+          }}
+        >
+          {t('primos_title')}
         </Tabs.Trigger>
       </Tabs.List>
 
@@ -207,6 +306,48 @@ const Admin: React.FC = () => {
             </TableBody>
           </Table>
         )}
+      </Tabs.Content>
+
+      <Tabs.Content value="members">
+        <TextField
+          placeholder={t('primos_search')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <Box className="primos-list">
+          {filtered.map((m) => (
+            <Box key={m.publicKey} className="primos-card">
+              <Avatar src={m.pfp || undefined} sx={{ width: 56, height: 56 }} />
+              <Box ml={1}>
+                <Typography>
+                  {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
+                </Typography>
+                <Box className="primos-pills">
+                  <span className="primos-pill">{t('points')}: {m.points}</span>
+                  <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
+                  <span className="primos-pill">{t('owned')}: {m.owned}</span>
+                  <span className="primos-pill">
+                    {t('sol_price')}: {m.solPrice ? m.solPrice.toFixed(2) : 'N/A'}
+                  </span>
+                  <span className="primos-pill">
+                    {t('total_value')}: {(m.totalValue / 1e9).toFixed(2)} SOL
+                  </span>
+                  <span className="primos-pill">{t('sold')}: {m.sold}</span>
+                  <span className="primos-pill">
+                    {t('pnl')}: {m.pnl !== null ? m.pnl.toFixed(2) : 'N/A'}
+                  </span>
+                </Box>
+              </Box>
+            </Box>
+          ))}
+          {filtered.length === 0 && (
+            <Typography className="no-members">
+              {t('primos_no_members')}
+            </Typography>
+          )}
+        </Box>
       </Tabs.Content>
     </Tabs.Root>
   );

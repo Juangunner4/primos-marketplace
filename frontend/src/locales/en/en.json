@@ -24,6 +24,8 @@
   "owned": "Owned",
   "total_value": "Total Value",
   "sol_price": "SOL Price",
+  "sold": "Sold",
+  "pnl": "PNL",
   "wallet": "Wallet:",
   "connect_wallet_button": "Connect Wallet",
   "change_wallet": "Change Wallet",
