@@ -15,6 +15,7 @@ import {
   Avatar,
   TextField,
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -319,29 +320,35 @@ const Admin: React.FC = () => {
         />
         <Box className="primos-list">
           {filtered.map((m) => (
-            <Box key={m.publicKey} className="primos-card">
-              <Avatar src={m.pfp || undefined} sx={{ width: 56, height: 56 }} />
-              <Box ml={1}>
-                <Typography>
-                  {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
-                </Typography>
-                <Box className="primos-pills">
-                  <span className="primos-pill">{t('points')}: {m.points}</span>
-                  <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
-                  <span className="primos-pill">{t('owned')}: {m.owned}</span>
-                  <span className="primos-pill">
-                    {t('sol_price')}: {m.solPrice ? m.solPrice.toFixed(2) : 'N/A'}
-                  </span>
-                  <span className="primos-pill">
-                    {t('total_value')}: {(m.totalValue / 1e9).toFixed(2)} SOL
-                  </span>
-                  <span className="primos-pill">{t('sold')}: {m.sold}</span>
-                  <span className="primos-pill">
-                    {t('pnl')}: {m.pnl !== null ? m.pnl.toFixed(2) : 'N/A'}
-                  </span>
+            <Link
+              key={m.publicKey}
+              to={`/user/${m.publicKey}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <Box className="primos-card">
+                <Avatar src={m.pfp || undefined} sx={{ width: 56, height: 56 }} />
+                <Box ml={1}>
+                  <Typography>
+                    {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
+                  </Typography>
+                  <Box className="primos-pills">
+                    <span className="primos-pill">{t('points')}: {m.points}</span>
+                    <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
+                    <span className="primos-pill">{t('owned')}: {m.owned}</span>
+                    <span className="primos-pill">
+                      {t('sol_price')}: {m.solPrice ? `$${m.solPrice.toFixed(2)}` : 'N/A'}
+                    </span>
+                    <span className="primos-pill">
+                      {t('total_value')}: {m.solPrice ? `$${((m.totalValue / 1e9) * m.solPrice).toFixed(2)}` : 'N/A'}
+                    </span>
+                    <span className="primos-pill">{t('sold')}: {m.sold}</span>
+                    <span className="primos-pill">
+                      {t('pnl')}: {m.pnl !== null ? m.pnl.toFixed(2) : 'N/A'}
+                    </span>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
+            </Link>
           ))}
           {filtered.length === 0 && (
             <Typography className="no-members">
