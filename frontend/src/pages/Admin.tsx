@@ -34,6 +34,10 @@ interface AdminStats {
   primoHolders: number;
   betaCodes: number;
   betaCodesRedeemed: number;
+  primosHeld: number;
+  walletsWithPrimos: number;
+  dbMarketCap: number;
+  floorPrice: number;
 }
 
 const Admin: React.FC = () => {
@@ -183,6 +187,22 @@ const Admin: React.FC = () => {
               <TableRow>
                 <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('total_beta_redeemed')}</TableCell>
                 <TableCell sx={{ border: '1px solid #000' }}>{stats.betaCodesRedeemed}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('nfts_held')}</TableCell>
+                <TableCell sx={{ border: '1px solid #000' }}>{stats.primosHeld}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('wallets_with_nfts')}</TableCell>
+                <TableCell sx={{ border: '1px solid #000' }}>{stats.walletsWithPrimos}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('db_market_cap')}</TableCell>
+                <TableCell sx={{ border: '1px solid #000' }}>{(stats.dbMarketCap / 1e9).toFixed(2)} SOL</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('floor_price')}</TableCell>
+                <TableCell sx={{ border: '1px solid #000' }}>{(stats.floorPrice / 1e9).toFixed(2)} SOL</TableCell>
               </TableRow>
             </TableBody>
           </Table>

@@ -9,7 +9,7 @@ jest.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => mockUseWalle
 jest.mock('../../utils/api', () => ({
   get: jest.fn((url: string) => {
     if (url.includes('/stats')) {
-      return Promise.resolve({ data: { totalWallets: 1, totalPoints: 2, primoHolders: 1, betaCodes: 1, betaCodesRedeemed: 0 } });
+      return Promise.resolve({ data: { totalWallets: 1, totalPoints: 2, primoHolders: 1, betaCodes: 1, betaCodesRedeemed: 0, primosHeld: 1, walletsWithPrimos: 1, dbMarketCap: 1, floorPrice: 1 } });
     }
     return Promise.resolve({ data: [{ code: 'BETA1', redeemed: false }] });
   }),
