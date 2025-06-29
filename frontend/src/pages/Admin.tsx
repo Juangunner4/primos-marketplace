@@ -93,6 +93,7 @@ const Admin: React.FC = () => {
 
     async function fetchMembers() {
       try {
+        if (!publicKey) return;
         const res = await api.get<Member[]>("/api/user/primos", {
           headers: { "X-Public-Key": publicKey.toBase58() },
         });
@@ -109,7 +110,7 @@ const Admin: React.FC = () => {
             let image = "";
             if (m.pfp) {
               const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ""));
-              image = nft?.image || "";
+              image = nft?.image ?? "";
             } else {
               const nfts = await fetchCollectionNFTsForOwner(
                 m.publicKey,
@@ -247,8 +248,8 @@ const Admin: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {codes.map((c, i) => (
-              <TableRow key={i}>
+            {codes.map((c) => (
+              <TableRow key={c.code}>
                 <TableCell sx={{ border: '1px solid #000', padding: '8px', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
                   {c.code}
                 </TableCell>
