@@ -59,7 +59,7 @@ public class AdminResource {
     public Stats getStats(@HeaderParam("X-Public-Key") String wallet) {
         ensureAdmin(wallet);
         long totalWallets = User.count();
-        long totalPoints = User.streamAll().mapToLong(User::getPoints).sum();
+        long totalPoints = User.streamAll().mapToInt(User::getPoints).sum();
         long primoHolders = User.count("primoHolder", true);
         long betaCodes = BetaCode.count();
         long betaCodesRedeemed = BetaCode.count("redeemed", true);
