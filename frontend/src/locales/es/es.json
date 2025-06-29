@@ -24,6 +24,8 @@
   "owned": "En posesión",
   "total_value": "Valor total",
   "sol_price": "Precio SOL",
+  "sold": "Vendido",
+  "pnl": "PNL",
   "wallet": "Billetera:",
   "connect_wallet_button": "Conectar billetera",
   "change_wallet": "Cambiar billetera",
