@@ -4,6 +4,8 @@ import { I18nextProvider } from "react-i18next";
 import TransactionCard from "../TransactionCard";
 import i18n from "../../i18n";
 
+jest.mock("@mui/material/useMediaQuery", () => () => true);
+
 describe("TransactionCard", () => {
   test("renders price and buttons", () => {
     const onBuy = jest.fn();
