@@ -39,6 +39,14 @@ cd backend
 mvn quarkus:dev
 ```
 
+### Next.js Transaction Server
+
+If you prefer to keep Web3 logic in JavaScript, you can build the transaction
+APIs with a small Next.js server. Create API routes under `pages/api` that
+prepare and submit Solana instructions. Running `npm run dev` in that server
+will expose the endpoints on <http://localhost:3000/api> for the frontend to
+consume.
+
 ### Frontend
 
 ```bash
