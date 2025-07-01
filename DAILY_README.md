@@ -2,22 +2,22 @@
 
 This file tracks the daily tasks for the project. Update it each day with the goals you plan to accomplish.
 
-## TODO for 2025-07-01
+## TODO for 2025-07-02
 
 - **Marketplace Transactions**
-  - Review the current frontend and backend code to understand how NFT listings are fetched.
-  - Research Solana transaction libraries compatible with React and Quarkus.
-  - Add a backend service that can build and submit marketplace transactions.
-  - Write tests for the transaction flow and verify wallet integration.
+  - Start building a Next.js API route for submitting marketplace transactions.
+  - Compare this implementation against the Quarkus service and decide which approach to keep.
+  - Deploy the Next.js server locally and test Solana transfers.
+  - Update unit tests to cover the new API route.
 
 - **Mobile Transaction Card**
-  - Fix layout issues on smaller screens.
-  - Ensure the purchase flow works end to end on mobile devices.
+  - Verify the layout fixes on small screens.
+  - Ensure purchases complete successfully using the Next.js API.
 
 - **Meshy AI Integration**
-  - Create a new backend endpoint for requesting 3D model generation.
-  - Store the Meshy API key in `frontend/.env` and reference it from the backend.
-  - Begin wiring the new endpoint into the frontend so items can display rendered models.
+  - Implement the generation endpoint and begin storing model URLs in MongoDB.
+  - Pass the `MESHY_API_KEY` to the Next.js server via environment variables.
+  - Display generated models on item pages using a 3D viewer.
 
 ## Enabling Marketplace Transactions
 
