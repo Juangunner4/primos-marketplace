@@ -10,6 +10,8 @@ The repository contains three applications:
 * **frontend** – a React interface that communicates with the backend and the
   Solana blockchain.
 * **mobile** – a React Native application powered by Expo.
+Use Node 18 for development (see .nvmrc).
+
 
 Copy `frontend/.env.example` to `.env` and update the values for local
 development. Vercel should use environment variables defined in the project
