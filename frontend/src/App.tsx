@@ -1,6 +1,9 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { ConnectionProvider } from '@solana/wallet-adapter-react';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import '@solana/wallet-adapter-react-ui/styles.css';
 import { usePrivyWallet } from './hooks/usePrivyWallet';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
@@ -271,11 +274,19 @@ const App = () => {
     () => `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
     [heliusApiKey]
   );
+  const wallets = useMemo(
+    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
+    []
+  );
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <PrimoHolderProvider>
-        <AppContent />
-      </PrimoHolderProvider>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <PrimoHolderProvider>
+            <AppContent />
+          </PrimoHolderProvider>
+        </WalletModalProvider>
+      </WalletProvider>
     </ConnectionProvider>
   );
 };
