@@ -5,7 +5,7 @@ import i18n from '../../i18n';
 import Admin from '../Admin';
 
 const mockUseWallet = jest.fn();
-jest.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => mockUseWallet() }));
+jest.mock('../../hooks/usePrivyWallet', () => ({ usePrivyWallet: () => mockUseWallet() }));
 jest.mock('../../utils/api', () => ({
   get: jest.fn((url: string) => {
     if (url.includes('/stats')) {

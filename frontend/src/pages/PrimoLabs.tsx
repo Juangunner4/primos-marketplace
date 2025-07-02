@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -16,7 +16,7 @@ const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 type Member = { publicKey: string; pfp: string };
 
 const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
-  const wallet = useWallet();
+  const wallet = usePrivyWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();

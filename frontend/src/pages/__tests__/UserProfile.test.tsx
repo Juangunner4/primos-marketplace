@@ -7,8 +7,8 @@ import i18n from '../../i18n';
 import api from '../../utils/api';
 
 const mockUseWallet = jest.fn();
-jest.mock('@solana/wallet-adapter-react', () => ({
-  useWallet: () => mockUseWallet()
+jest.mock('../../hooks/usePrivyWallet', () => ({
+  usePrivyWallet: () => mockUseWallet()
 }));
 
 jest.mock('../../utils/api', () => ({

@@ -4,8 +4,8 @@ import { I18nextProvider } from "react-i18next";
 import NFTGallery from "../NFTGallery";
 import i18n from "../../i18n";
 
-jest.mock("@solana/wallet-adapter-react", () => ({
-  useWallet: jest.fn(),
+jest.mock("../../hooks/usePrivyWallet", () => ({
+  usePrivyWallet: jest.fn(),
 }));
 
 jest.mock("../../utils/helius", () => ({
@@ -26,8 +26,8 @@ jest.mock("../../utils/pyth", () => ({
 
 describe("NFTGallery", () => {
   test("prompts to connect wallet when no wallet is connected", () => {
-    const { useWallet } = require("@solana/wallet-adapter-react");
-    (useWallet as jest.Mock).mockReturnValue({ publicKey: null });
+    const { usePrivyWallet } = require("../../hooks/usePrivyWallet");
+    (usePrivyWallet as jest.Mock).mockReturnValue({ publicKey: null });
     render(
       <I18nextProvider i18n={i18n}>
         <NFTGallery />
@@ -37,8 +37,8 @@ describe("NFTGallery", () => {
   });
 
   test("opens NFTCard when nft clicked", async () => {
-    const { useWallet } = require("@solana/wallet-adapter-react");
-    (useWallet as jest.Mock).mockReturnValue({
+    const { usePrivyWallet } = require("../../hooks/usePrivyWallet");
+    (usePrivyWallet as jest.Mock).mockReturnValue({
       publicKey: { toBase58: () => "wallet1" },
     });
     render(

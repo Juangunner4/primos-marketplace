@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import { checkPrimoHolder } from '../utils/helius'; // <-- import checkPrimoHolder
 
 interface PrimoHolderContextValue {
@@ -16,7 +16,7 @@ interface PrimoHolderContextValue {
 const PrimoHolderContext = createContext<PrimoHolderContextValue>(null!);
 
 export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [loading, setLoading] = useState(true);
   const [isHolder, setIsHolder] = useState(false);
   const [userExists, setUserExists] = useState(false);
