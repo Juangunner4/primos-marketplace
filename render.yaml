@@ -13,6 +13,10 @@ envVarGroups:
         value: ${REACT_APP_MAGICEDEN_BASE}
       - key: REACT_APP_HELIUS_API_KEY
         value: ${REACT_APP_HELIUS_API_KEY}
+      - key: REACT_APP_PRIVY_APP_ID
+        value: ${REACT_APP_PRIVY_APP_ID}
+      - key: REACT_APP_ADMIN_WALLET
+        value: ${REACT_APP_ADMIN_WALLET}
       - key: QUARKUS_PROFILE
         value: ${QUARKUS_PROFILE}
       - key: QUARKUS_MONGODB_CONNECTION_STRING
@@ -21,7 +25,7 @@ envVarGroups:
 services:
   - type: web
     name: primos-marketplace
-    env: docker
+    runtime: docker
     plan: free
     dockerfilePath: Dockerfile
     envVars:

@@ -11,5 +11,11 @@ envsubst '$PORT $QUARKUS_HTTP_PORT' < /etc/nginx/conf.d/default.conf \
 mv /etc/nginx/conf.d/default.conf.tmp /etc/nginx/conf.d/default.conf
 
 # Start the backend and nginx
+echo "Starting Quarkus backend on port $QUARKUS_HTTP_PORT..."
 java -jar /app/backend/quarkus-run.jar &
+
+echo "Starting nginx on port $PORT..."
+echo "Nginx config:"
+cat /etc/nginx/conf.d/default.conf
+
 exec nginx -g 'daemon off;'
