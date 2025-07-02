@@ -30,7 +30,19 @@ if (!privyAppId) {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
         <React.StrictMode>
-            <PrivyProvider appId={privyAppId}>
+            <PrivyProvider 
+                appId={privyAppId}
+                config={{
+                    // Disable Ethereum wallets and enable Solana
+                    loginMethods: ['wallet'],
+                    appearance: {
+                        theme: 'dark',
+                        accentColor: '#676FFF',
+                    },
+                    // Configure for Solana network - remove Ethereum chains
+                    supportedChains: [],
+                }}
+            >
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
                     <App />
