@@ -13,7 +13,16 @@ const WalletLogin: React.FC = () => {
 
   if (!publicKey) {
     return (
-      <Button variant="contained" onClick={() => login()}>
+      <Button
+        variant="contained"
+        onClick={() =>
+          login({
+            loginMethods: ['wallet'],
+            walletChainType: 'solana-only',
+            disableSignup: false,
+          })
+        }
+      >
         {t('connect_wallet_button')}
       </Button>
     );
