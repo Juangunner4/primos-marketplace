@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import api from '../utils/api';
 import {
   Box,
@@ -64,7 +64,7 @@ interface AdminMember extends Member {
 }
 
 const Admin: React.FC = () => {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const { t } = useTranslation();
   const [codes, setCodes] = useState<BetaCode[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);

@@ -8,7 +8,7 @@ import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import api from '../utils/api';
 import Avatar from '@mui/material/Avatar';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 
@@ -34,7 +34,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
   const [members, setMembers] = useState<DaoMember[]>([]);
-  const wallet = useWallet();
+  const wallet = usePrivyWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
 

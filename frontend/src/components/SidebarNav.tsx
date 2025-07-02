@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -21,7 +21,7 @@ import { useTheme } from '@mui/material/styles';
 const SidebarNav: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));

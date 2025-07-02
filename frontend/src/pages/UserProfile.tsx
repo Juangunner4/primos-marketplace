@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
@@ -42,7 +42,7 @@ const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
 const UserProfile: React.FC = () => {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const params = useParams<{ publicKey?: string }>();
   const profileKey = params.publicKey || publicKey?.toBase58();
   const isOwner = publicKey && profileKey === publicKey.toBase58();

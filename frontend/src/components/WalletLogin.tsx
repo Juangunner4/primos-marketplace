@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
@@ -9,11 +8,15 @@ import './WalletLogin.css';
 
 const WalletLogin: React.FC = () => {
   const { t } = useTranslation();
-  const { publicKey, disconnect, select } = useWallet();
+  const { publicKey, login, logout } = usePrivyWallet();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   if (!publicKey) {
-    return <WalletMultiButton>{t('connect_wallet_button')}</WalletMultiButton>;
+    return (
+      <Button variant="contained" onClick={() => login()}>
+        {t('connect_wallet_button')}
+      </Button>
+    );
   }
 
   const shortKey = publicKey.toBase58().slice(0, 4) + '...';
@@ -27,13 +30,7 @@ const WalletLogin: React.FC = () => {
   };
 
   const handleDisconnect = async () => {
-    await disconnect();
-    handleMenuClose();
-    window.location.reload();
-  };
-
-  const handleChangeWallet = () => {
-    select(null);
+    await logout();
     handleMenuClose();
     window.location.reload();
   };
@@ -76,7 +73,6 @@ const WalletLogin: React.FC = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={handleChangeWallet}>{t('change_wallet')}</MenuItem>
         <MenuItem onClick={handleDisconnect}>{t('disconnect_wallet')}</MenuItem>
       </Menu>
     </>

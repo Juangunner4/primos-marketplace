@@ -1,19 +1,19 @@
 import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { PrimoHolderProvider, usePrimoHolder } from '../PrimoHolderContext';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../../hooks/usePrivyWallet';
 import api from '../../utils/api';
 import { checkPrimoHolder } from '../../utils/helius';
 
-jest.mock('@solana/wallet-adapter-react', () => ({
-  useWallet: jest.fn(),
+jest.mock('../../hooks/usePrivyWallet', () => ({
+  usePrivyWallet: jest.fn(),
 }));
 
 
 jest.mock('../../utils/api');
 jest.mock('../../utils/helius');
 
-const mockUseWallet = useWallet as jest.Mock;
+const mockUseWallet = usePrivyWallet as jest.Mock;
 const mockApiGet = (api.get as unknown) as jest.Mock;
 const mockApiPost = (api.post as unknown) as jest.Mock;
 const mockCheckPrimoHolder = (checkPrimoHolder as unknown) as jest.Mock;

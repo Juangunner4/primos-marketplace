@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button, TextField, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import './BetaRedeem.css';
 const CODE_REGEX = /^BETA-[A-Za-z0-9]{8}$/;
 
 const BetaRedeem: React.FC<{ autoOpen?: boolean }> = ({ autoOpen = false }) => {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const {
     betaRedeemed,
     userExists,

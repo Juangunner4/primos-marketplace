@@ -1,8 +1,7 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { ConnectionProvider } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from './hooks/usePrivyWallet';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
@@ -31,7 +30,6 @@ import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderConte
 import { getNFTByTokenAddress } from './utils/helius';
 
 import './App.css';
-import '@solana/wallet-adapter-react-ui/styles.css';
 
 // LanguageButtons extracted to reduce complexity
 const LanguageButtons: React.FC = () => {
@@ -85,7 +83,7 @@ const LanguageButtons: React.FC = () => {
 };
 
 const Header: React.FC = () => {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -177,7 +175,7 @@ const Header: React.FC = () => {
 };
 
 const AppRoutes = () => {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
   const navigate = useNavigate();
   const location = useLocation();
@@ -273,17 +271,11 @@ const App = () => {
     () => `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
     [heliusApiKey]
   );
-  const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], []);
-
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets}>
-        <WalletModalProvider>
-          <PrimoHolderProvider>
-            <AppContent />
-          </PrimoHolderProvider>
-        </WalletModalProvider>
-      </WalletProvider>
+      <PrimoHolderProvider>
+        <AppContent />
+      </PrimoHolderProvider>
     </ConnectionProvider>
   );
 };

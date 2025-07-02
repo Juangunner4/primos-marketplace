@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { usePrivyWallet } from "../hooks/usePrivyWallet";
 import { getAssetsByCollection, getNFTByTokenAddress } from "../utils/helius";
 import { getMagicEdenStats } from "../utils/magiceden";
 import { getPythSolPrice } from "../utils/pyth";
@@ -26,7 +26,7 @@ type GalleryNFT = {
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 const MAGICEDEN_SYMBOL = "primos";
 const NFTGallery: React.FC = () => {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePrivyWallet();
   const [nfts, setNfts] = useState<GalleryNFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [solPrice, setSolPrice] = useState<number | null>(null);

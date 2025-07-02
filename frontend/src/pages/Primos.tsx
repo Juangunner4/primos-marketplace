@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivyWallet } from '../hooks/usePrivyWallet';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
@@ -22,7 +22,7 @@ interface Member {
 }
 
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
-  const wallet = useWallet();
+  const wallet = usePrivyWallet();
   const { isHolder } = usePrimoHolder();
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
