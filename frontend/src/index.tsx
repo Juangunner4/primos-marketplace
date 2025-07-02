@@ -39,8 +39,8 @@ if (!privyAppId) {
                         theme: 'dark',
                         accentColor: '#676FFF',
                     },
-                    // Configure for Solana network - remove Ethereum chains
-                    supportedChains: [],
+                    // Configure for Solana mainnet
+                    supportedChains: ['solana:mainnet'],
                 }}
             >
                 <ThemeProvider theme={theme}>

@@ -13,7 +13,9 @@ The repository contains three applications:
 
 Copy `frontend/.env.example` to `.env` and update the values for local
 development. Vercel should use environment variables defined in the project
-settings while Render can load values from a `.env.production` file.
+settings while Render can load values from a `.env.production` file. These files
+include `REACT_APP_PRIVY_APP_ID` which must be populated with your Privy
+application ID so the login flow can initialize correctly.
 
 ### Beta Access
 
@@ -97,7 +99,10 @@ The environment files also specify a `CORS_ORIGINS` variable so the backend can
 respond to requests from the frontend in both local and hosted environments.
 Both files include a `REACT_APP_PRIMOS_COLLECTION` setting which the
 frontend uses to identify the Primos NFT collection. The value defaults to
-`primos` and generally does not need to be changed.
+`primos` and generally does not need to be changed. The frontend integrates
+Privy for wallet authentication; `src/index.tsx` configures the provider with
+`supportedChains: ['solana:mainnet']`. Update this if you wish to target a
+different Solana cluster.
 
 Run the following command from the repository root to start the entire stack:
 
