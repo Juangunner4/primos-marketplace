@@ -11,7 +11,10 @@ RUN mvn -q package -DskipTests
 FROM node:18 AS frontend-build
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --legacy-peer-deps
+# Using `npm install` instead of `npm ci` allows the build to
+# succeed even when `package-lock.json` is out of sync with
+# `package.json`.
+RUN npm install --legacy-peer-deps
 COPY frontend /frontend
 # URL of the backend API used by the React build
 ARG BACKEND_URL=https://primos-marketplace.onrender.com
