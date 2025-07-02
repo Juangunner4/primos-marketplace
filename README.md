@@ -103,8 +103,10 @@ Both files include a `REACT_APP_PRIMOS_COLLECTION` setting which the
 frontend uses to identify the Primos NFT collection. The value defaults to
 `primos` and generally does not need to be changed. The frontend integrates
 Privy for wallet authentication; `src/index.tsx` configures the provider with
-`supportedChains: [mainnet]` and `solanaClusters: [{ name: 'mainnet-beta' }]`.
-Adjust the cluster if you wish to target devnet or testnet.
+`walletConnectors: toSolanaWalletConnectors()`, `supportedChains: [mainnet]`, and
+`solanaClusters: [{ name: 'mainnet-beta' }]`. This exposes Phantom and other
+Solana wallets in the login dialog. Adjust the cluster if you wish to target
+devnet or testnet.
 
 Run the following command from the repository root to start the entire stack:
 

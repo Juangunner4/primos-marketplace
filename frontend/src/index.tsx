@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import { PrivyProvider } from '@privy-io/react-auth';
+import { PrivyProvider, toSolanaWalletConnectors } from '@privy-io/react-auth';
 import { mainnet } from '@privy-io/chains';
 import './i18n';
 import { ThemeProvider, CssBaseline } from '@mui/material';
@@ -31,16 +31,15 @@ if (!privyAppId) {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
         <React.StrictMode>
-            <PrivyProvider 
+            <PrivyProvider
                 appId={privyAppId}
                 config={{
-                    // Disable Ethereum wallets and enable Solana
                     loginMethods: ['wallet'],
                     appearance: {
                         theme: 'dark',
                         accentColor: '#676FFF',
                     },
-                    // Configure Privy to use Solana only
+                    walletConnectors: toSolanaWalletConnectors(),
                     supportedChains: [mainnet],
                     solanaClusters: [{ name: 'mainnet-beta' }],
                 }}
