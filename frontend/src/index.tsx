@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { PrivyProvider } from '@privy-io/react-auth';
+import { mainnet } from '@privy-io/chains';
 import './i18n';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
@@ -39,8 +40,9 @@ if (!privyAppId) {
                         theme: 'dark',
                         accentColor: '#676FFF',
                     },
-                    // Configure for Solana mainnet
-                    supportedChains: ['solana:mainnet'],
+                    // Configure Privy to use Solana only
+                    supportedChains: [mainnet],
+                    solanaClusters: [{ name: 'mainnet-beta' }],
                 }}
             >
                 <ThemeProvider theme={theme}>
