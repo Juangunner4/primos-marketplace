@@ -30,17 +30,14 @@ if (!privyAppId) {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
         <React.StrictMode>
-            <PrivyProvider 
+            <PrivyProvider
                 appId={privyAppId}
                 config={{
-                    // Disable Ethereum wallets and enable Solana
                     loginMethods: ['wallet'],
                     appearance: {
                         theme: 'dark',
                         accentColor: '#676FFF',
                     },
-                    // Configure for Solana network - remove Ethereum chains
-                    supportedChains: [],
                 }}
             >
                 <ThemeProvider theme={theme}>
@@ -51,3 +48,5 @@ if (!privyAppId) {
         </React.StrictMode>
     );
 }
+
+// WalletLogin component is provided in App/Header for login UI
