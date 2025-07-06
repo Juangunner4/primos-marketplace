@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 @Path("/api/notifications")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,7 +23,7 @@ public class NotificationResource {
 
     @PUT
     @Path("/{id}/read")
-    public Notification markRead(@PathParam("id") Long id) {
-        return service.markRead(id);
+    public Notification markRead(@PathParam("id") String id) {
+        return service.markRead(new ObjectId(id));
     }
 }
