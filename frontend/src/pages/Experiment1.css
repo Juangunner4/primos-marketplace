@@ -28,3 +28,18 @@
 .nft.selected {
   border-color: #1976d2;
 }
+
+.nft-wrapper {
+  position: relative;
+}
+
+.status-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 2px 4px;
+  font-size: 0.6rem;
+  border-radius: 4px;
+}

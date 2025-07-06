@@ -9,6 +9,8 @@ public class Primo3D extends PanacheMongoEntity {
     private String name;
     private String image;
     private String stlUrl;
+    private String jobId;
+    private String status;
 
     public String getTokenAddress() {
         return tokenAddress;
@@ -40,5 +42,21 @@ public class Primo3D extends PanacheMongoEntity {
 
     public void setStlUrl(String stlUrl) {
         this.stlUrl = stlUrl;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

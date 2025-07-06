@@ -15,6 +15,13 @@ interface Primo3D {
   name: string;
   image: string;
   stlUrl: string;
+  status: string;
+  jobId: string;
+}
+
+interface StatusInfo {
+  status: string;
+  stlUrl?: string;
 }
 
 const Experiment1: React.FC = () => {
@@ -24,6 +31,7 @@ const Experiment1: React.FC = () => {
   const [selected, setSelected] = useState<HeliusNFT | null>(null);
   const [rendered, setRendered] = useState<Primo3D | null>(null);
   const [rendering, setRendering] = useState(false);
+  const [statuses, setStatuses] = useState<Record<string, StatusInfo>>({});
 
   useEffect(() => {
     const fetchNfts = async () => {
@@ -37,16 +45,38 @@ const Experiment1: React.FC = () => {
     fetchNfts();
   }, [wallet.publicKey]);
 
+  useEffect(() => {
+    const loadStatus = async () => {
+      const map: Record<string, StatusInfo> = {};
+      for (const nft of nfts) {
+        try {
+          const res = await api.get<Primo3D>(`/api/primo3d/${nft.id}`);
+          if (res.data) {
+            map[nft.id] = { status: res.data.status, stlUrl: res.data.stlUrl };
+          }
+        } catch {}
+      }
+      setStatuses(map);
+    };
+    if (nfts.length) loadStatus();
+  }, [nfts]);
+
   const handleRender = async () => {
     if (!selected) return;
+    if (!window.confirm(t('render_confirm'))) return;
     setRendering(true);
     try {
-      const res = await api.post<Primo3D>('/api/primo3d', {
-        tokenAddress: selected.id,
-        name: selected.name,
-        image: selected.image,
-      });
+      const res = await api.post<Primo3D>(
+        '/api/primo3d',
+        {
+          tokenAddress: selected.id,
+          name: selected.name,
+          image: selected.image,
+        },
+        { headers: { 'X-Public-Key': wallet.publicKey?.toBase58() } }
+      );
       setRendered(res.data);
+      alert(t('render_thanks'));
     } finally {
       setRendering(false);
     }
@@ -63,15 +93,27 @@ const Experiment1: React.FC = () => {
             {t('experiment1_select')}
           </Typography>
           <Box className="nft-grid">
-            {nfts.map((nft) => (
-              <img
-                key={nft.id}
-                src={nft.image}
-                alt={nft.name}
-                className={selected?.id === nft.id ? 'nft selected' : 'nft'}
-                onClick={() => setSelected(nft)}
-              />
-            ))}
+            {nfts.map((nft) => {
+              const s = statuses[nft.id]?.status;
+              let label = '';
+              if (s === 'IN_PROGRESS') label = t('render_status_in_progress');
+              else if (s === 'COMPLETED') label = t('render_status_done');
+              else if (s) label = t('render_status_not_started');
+              return (
+                <div
+                  key={nft.id}
+                  className="nft-wrapper"
+                  onClick={() => setSelected(nft)}
+                >
+                  <img
+                    src={nft.image}
+                    alt={nft.name}
+                    className={selected?.id === nft.id ? 'nft selected' : 'nft'}
+                  />
+                  {label && <span className="status-badge">{label}</span>}
+                </div>
+              );
+            })}
           </Box>
           <Button
             variant="contained"

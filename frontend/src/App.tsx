@@ -14,6 +14,8 @@ import api from './utils/api';
 import logo from './images/primosheadlogo.png';
 import NFTGallery from './pages/NFTGallery';
 import WalletLogin from './components/WalletLogin';
+import Badge from '@mui/material/Badge';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import UserProfile from './pages/UserProfile';
 import SidebarNav from './components/SidebarNav';
 import PrimosMarketGallery from './pages/PrimosMarketGallery';
@@ -93,11 +95,13 @@ const Header: React.FC = () => {
   const isProfilePage = location.pathname === '/profile';
 
   const [pfpImage, setPfpImage] = useState<string | null>(null);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {
     const fetchPfp = async () => {
       if (!publicKey) {
         setPfpImage(null);
+        setNotificationCount(0);
         return;
       }
       try {
@@ -116,6 +120,17 @@ const Header: React.FC = () => {
       }
     };
     fetchPfp();
+    if (publicKey) {
+      api
+        .get('/api/notifications', {
+          headers: { 'X-Public-Key': publicKey.toBase58() },
+        })
+        .then((res) => {
+          const unread = res.data.filter((n: any) => !n.read).length;
+          setNotificationCount(unread);
+        })
+        .catch(() => setNotificationCount(0));
+    }
   }, [publicKey]);
 
   const renderProfileButtonContent = () => {
@@ -169,6 +184,17 @@ const Header: React.FC = () => {
             >
               {renderProfileButtonContent()}
             </Button>
+          )}
+          {publicKey && (
+            <Badge
+              color="error"
+              variant="dot"
+              invisible={notificationCount === 0}
+              sx={{ cursor: 'pointer' }}
+              onClick={() => navigate('/profile#notifications')}
+            >
+              <NotificationsIcon />
+            </Badge>
           )}
           <WalletLogin />
         </Box>
