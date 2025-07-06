@@ -21,8 +21,8 @@ public class Primo3DResource {
     Primo3DService service;
 
     @POST
-    public Primo3D renderPrimo(Primo3D req) {
-        return service.create(req);
+    public Primo3D renderPrimo(@HeaderParam("X-Public-Key") String publicKey, Primo3D req) {
+        return service.create(publicKey, req);
     }
 
     @GET

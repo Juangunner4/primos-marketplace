@@ -12,8 +12,7 @@ public class Primo3DResourceTest {
         req.setTokenAddress("tok1");
         req.setName("Primo #1");
         req.setImage("img");
-        req.setStlUrl("url");
-        Primo3D created = res.renderPrimo(req);
+        Primo3D created = res.renderPrimo("user", req);
         assertNotNull(created);
         Primo3D fetched = res.get("tok1");
         assertEquals("tok1", fetched.getTokenAddress());

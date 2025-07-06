@@ -13,6 +13,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
+import { Notification } from '../types';
 
 type SocialLinks = {
   twitter: string;
@@ -58,6 +59,7 @@ const UserProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [ballVisible, setBallVisible] = useState(true);
   const [ballAnimating, setBallAnimating] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     if (profileKey && publicKey) {
@@ -69,6 +71,17 @@ const UserProfile: React.FC = () => {
         .catch(() => setUser(null));
     }
   }, [profileKey, publicKey]);
+
+  useEffect(() => {
+    if (isOwner && publicKey) {
+      api
+        .get('/api/notifications', {
+          headers: { 'X-Public-Key': publicKey.toBase58() },
+        })
+        .then((res) => setNotifications(res.data))
+        .catch(() => setNotifications([]));
+    }
+  }, [isOwner, publicKey]);
 
   useEffect(() => {
     if (profileKey) {
@@ -341,6 +354,22 @@ const fadeOut = keyframes`
           </Button>
         )}
       </Box>
+      {isOwner && (
+        <Box sx={{ mt: 2 }} id="notifications">
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            {t('notifications')}
+          </Typography>
+          {notifications.length === 0 ? (
+            <Typography>{t('no_notifications')}</Typography>
+          ) : (
+            notifications.map((n) => (
+              <Typography key={n.id} sx={{ fontSize: '0.9rem' }}>
+                {n.message}
+              </Typography>
+            ))
+          )}
+        </Box>
+      )}
       {isOwner && <BetaRedeem />}
       {isOwner && (
       <>

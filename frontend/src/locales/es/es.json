@@ -146,16 +146,25 @@
   "beta_dialog_message": "¡Eres poseedor de un Primo NFT! Ingresa tu código beta para completar el acceso.",
   "not_holder_message": "¡No eres poseedor de un Primo NFT! Lerolero",
   "welcome_message": "¡Bienvenido a Primos Marketplace!",
-  "invalid_code_format": "El formato del código es inválido. Debe ser BETA-XXXXXXXX"
-  ,"active_codes": "Códigos Activos"
-  ,"redeemed_codes": "Códigos Canjeados"
-  ,"stats": "Estadísticas"
-  ,"total_wallets": "Billeteras Únicas"
-  ,"total_points": "Puntos Totales"
-  ,"primo_holders": "Primo Holders"
-  ,"total_beta": "Total de Códigos Beta"
-  ,"total_beta_redeemed": "Códigos Beta Canjeados"
-  ,"nfts_held": "Primos en BD"
-  ,"wallets_with_nfts": "Billeteras con Primos"
-  ,"db_market_cap": "Capitalización BD"
+  "invalid_code_format": "El formato del código es inválido. Debe ser BETA-XXXXXXXX",
+  "active_codes": "Códigos Activos",
+  "redeemed_codes": "Códigos Canjeados",
+  "stats": "Estadísticas",
+  "total_wallets": "Billeteras Únicas",
+  "total_points": "Puntos Totales",
+  "primo_holders": "Primo Holders",
+  "total_beta": "Total de Códigos Beta",
+  "total_beta_redeemed": "Códigos Beta Canjeados",
+  "nfts_held": "Primos en BD",
+  "wallets_with_nfts": "Billeteras con Primos",
+  "db_market_cap": "Capitalización BD",
+  "render_started": "Renderizado 3D iniciado",
+  "render_complete": "Renderizado 3D completo",
+  "notifications": "Notificaciones",
+  "no_notifications": "Sin notificaciones",
+  "render_confirm": "¿Estás seguro de renderizar este NFT en 3D?",
+  "render_thanks": "Renderizado iniciado, gracias. Espera el resultado.",
+  "render_status_not_started": "Renderizado 3D no iniciado",
+  "render_status_in_progress": "Renderizado 3D en progreso",
+  "render_status_done": "Renderizado 3D listo"
 }
