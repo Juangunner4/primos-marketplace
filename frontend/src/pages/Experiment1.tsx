@@ -6,7 +6,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'react-i18next';
 import { fetchCollectionNFTsForOwner, HeliusNFT } from '../utils/helius';
 import api from '../utils/api';
-import Spline from '@splinetool/react-spline';
 import './Experiment1.css';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
@@ -85,7 +84,11 @@ const Experiment1: React.FC = () => {
         </>
       ) : (
         <Box sx={{ mt: 3 }}>
-          <Spline scene={rendered.stlUrl} className="experiment-iframe" />
+          <iframe
+            src={rendered.stlUrl}
+            className="experiment-iframe"
+            title="Primo 3D model"
+          />
         </Box>
       )}
     </Box>
