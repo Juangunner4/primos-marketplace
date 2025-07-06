@@ -146,16 +146,18 @@
   "not_redeemed": "Not Redeemed",
   "checking_access": "Checking access...",
   "not_holder_message": "You’re not a Primo NFT holder! Lerolero",
-  "invalid_code_format": "Invalid code format. Must be BETA-XXXXXXXX"
-  ,"active_codes": "Active Codes"
-  ,"redeemed_codes": "Redeemed Codes"
-  ,"stats": "Stats"
-  ,"total_wallets": "Total Wallets"
-  ,"total_points": "Total Points"
-  ,"primo_holders": "Primo Holders"
-  ,"total_beta": "Total Beta Codes"
-  ,"total_beta_redeemed": "Redeemed Beta Codes"
-  ,"nfts_held": "Primos Held"
-  ,"wallets_with_nfts": "Wallets with Primos"
-  ,"db_market_cap": "DB Market Cap"
+  "invalid_code_format": "Invalid code format. Must be BETA-XXXXXXXX",
+  "active_codes": "Active Codes",
+  "redeemed_codes": "Redeemed Codes",
+  "stats": "Stats",
+  "total_wallets": "Total Wallets",
+  "total_points": "Total Points",
+  "primo_holders": "Primo Holders",
+  "total_beta": "Total Beta Codes",
+  "total_beta_redeemed": "Redeemed Beta Codes",
+  "nfts_held": "Primos Held",
+  "wallets_with_nfts": "Wallets with Primos",
+  "db_market_cap": "DB Market Cap",
+  "experiment1_select": "Select one of your Primo NFTs to render a 3D model.",
+  "experiment1_rendering": "Rendering..."
 }

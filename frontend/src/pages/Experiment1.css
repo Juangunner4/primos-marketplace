@@ -10,3 +10,21 @@
   border-radius: 0.75rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
+.nft-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.nft {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.nft.selected {
+  border-color: #1976d2;
+}
