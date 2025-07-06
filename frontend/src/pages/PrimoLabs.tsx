@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import LinearProgress from '@mui/material/LinearProgress';
+import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
+import { Link } from 'react-router-dom';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import api from '../utils/api';
 import './PrimoLabs.css';
@@ -64,15 +66,13 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   return (
     <Box className="labs-container">
       <Box className="labs-grid">
-        <Card className="lab-card meme-wars">
-          <Typography variant="h6" sx={{ mt: 1 }}>
-            {t('labs_meme_wars')}
-          </Typography>
-        </Card>
-        <Card className="lab-card eliza-bot">
-          <Typography variant="h6" sx={{ mt: 1 }}>
-            {t('labs_eliza_bot')}
-          </Typography>
+        <Card className="lab-card" component={Link} to="/experiment1" sx={{ textDecoration: 'none' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <ThreeDRotationIcon sx={{ fontSize: 40 }} />
+            <Typography variant="h6" sx={{ mt: 1 }}>
+              {t('experiment1_title')}
+            </Typography>
+          </Box>
         </Card>
         <Card className="lab-card">
           <Typography variant="h6" sx={{ mt: 1 }}>
