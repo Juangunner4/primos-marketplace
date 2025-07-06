@@ -3,6 +3,7 @@ package com.primos.service;
 import com.primos.model.Notification;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 @ApplicationScoped
 public class NotificationService {
@@ -18,7 +19,7 @@ public class NotificationService {
         return Notification.list("publicKey = ?1 order by createdAt desc", publicKey);
     }
 
-    public Notification markRead(Long id) {
+    public Notification markRead(ObjectId id) {
         Notification n = Notification.findById(id);
         if (n != null) {
             n.setRead(true);
