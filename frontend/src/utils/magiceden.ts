@@ -18,12 +18,6 @@ const defaultApiBase =
 
 const API_BASE = process.env.REACT_APP_MAGICEDEN_BASE ?? defaultApiBase;
 
-// Debug logging
-console.log('MagicEden API Configuration:', {
-  REACT_APP_MAGICEDEN_BASE: process.env.REACT_APP_MAGICEDEN_BASE,
-  API_BASE,
-  NODE_ENV: process.env.NODE_ENV
-});
 
 const fetchWithRetry = async (
   url: string,

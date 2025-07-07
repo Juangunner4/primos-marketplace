@@ -160,7 +160,7 @@
   "db_market_cap": "DB Market Cap",
   "experiment1_select": "Select one of your Primo NFTs to render a 3D model.",
   "experiment1_rendering": "Rendering...",
-  "render_started": "3D rendering started",
+  "render_started": "3D rendering started for Primo",
   "render_complete": "3D rendering complete",
   "notifications": "Notifications",
   "no_notifications": "No notifications",

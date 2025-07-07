@@ -209,17 +209,7 @@ const AppRoutes = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // DEBUG: dump access flags on every render
-  console.log('🔎 AppRoutes state:', {
-    publicKey: publicKey?.toBase58() ?? null,
-    isHolder,
-    betaRedeemed,
-    userExists,
-    pathname: location.pathname,
-  });
-
   useEffect(() => {
-    console.log('🔒 route-guard running for', location.pathname);
     if (
       (!publicKey || (!isHolder && !betaRedeemed)) &&
       (location.pathname === '/profile' || location.pathname.startsWith('/user'))
