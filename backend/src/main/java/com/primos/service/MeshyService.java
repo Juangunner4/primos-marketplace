@@ -30,6 +30,9 @@ public class MeshyService {
         // Build request payload with required and default optional parameters
         JsonObject payloadJson = Json.createObjectBuilder()
                 .add("image_url", imageUrl)
+                // Explicitly enable physically based rendering as shown in the
+                // Meshy API docs
+                .add("enable_pbr", true)
                 .add("ai_model", "meshy-4") // default model
                 .add("topology", "triangle") // default topology
                 .add("target_polycount", 30000) // default polycount
@@ -41,6 +44,7 @@ public class MeshyService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_BASE + "/openapi/v1/image-to-3d"))
                 .header("Authorization", "Bearer " + API_KEY)
+                .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(payload))
                 .build();
@@ -78,13 +82,25 @@ public class MeshyService {
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(API_BASE + "/openapi/v1/image-to-3d/" + jobId))
                     .header("Authorization", "Bearer " + API_KEY)
+                    .header("Accept", "application/json")
                     .build();
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
             if (res.statusCode() == 200) {
                 try (JsonReader reader = Json.createReader(new StringReader(res.body()))) {
                     JsonObject obj = reader.readObject();
                     String status = obj.getString("status", "");
-                    String url = obj.containsKey("output_url") ? obj.getString("output_url", null) : null;
+                    String url = null;
+                    if (obj.containsKey("model_urls")) {
+                        JsonObject models = obj.getJsonObject("model_urls");
+                        // Prefer GLB but fall back to other formats
+                        if (models.containsKey("glb")) {
+                            url = models.getString("glb", null);
+                        } else if (models.containsKey("obj")) {
+                            url = models.getString("obj", null);
+                        } else if (models.containsKey("usdz")) {
+                            url = models.getString("usdz", null);
+                        }
+                    }
                     return new RenderStatus(status, url);
                 }
             } else if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
