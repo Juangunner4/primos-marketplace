@@ -133,7 +133,7 @@ const UserProfile: React.FC = () => {
     setEditDialogOpen(false);
   };
 
-  const handleDismiss = (id: string) => {
+  const handleDismiss = (id: number) => {
     if (!publicKey) return;
     api
       .delete(`/api/notifications/${id}`, {
