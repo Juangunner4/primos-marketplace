@@ -15,6 +15,10 @@ Copy `frontend/.env.example` to `.env` and update the values for local
 development. Vercel should use environment variables defined in the project
 settings while Render can load values from a `.env.production` file.
 
+The project integrates with Meshy.ai for converting images to 3D models. Provide
+your API key via the `MESHY_API_KEY` variable in `.env` so the backend can
+authenticate requests.
+
 ### Beta Access
 
 The backend restricts logins to users with a valid beta code. Thirty beta codes

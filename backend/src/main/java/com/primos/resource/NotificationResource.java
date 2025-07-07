@@ -26,4 +26,15 @@ public class NotificationResource {
     public Notification markRead(@PathParam("id") String id) {
         return service.markRead(new ObjectId(id));
     }
+
+    @DELETE
+    @Path("/{id}")
+    public void delete(@PathParam("id") String id) {
+        service.delete(new ObjectId(id));
+    }
+
+    @DELETE
+    public void deleteAll(@HeaderParam("X-Public-Key") String publicKey) {
+        service.deleteAll(publicKey);
+    }
 }

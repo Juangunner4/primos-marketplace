@@ -168,5 +168,9 @@
   "render_thanks": "Rendering started, thank you! Please wait for completion.",
   "render_status_not_started": "3D rendering not started",
   "render_status_in_progress": "3D rendering in progress",
-  "render_status_done": "3D rendered"
+  "render_status_done": "3D rendered",
+  "dismiss": "Dismiss",
+  "dismiss_all": "Dismiss All",
+  "download_3d": "Download 3D",
+  "has_3d": "3D available"
 }

@@ -11,7 +11,8 @@ import TraitStats from "../components/TraitStats";
 import NFTCard, { MarketNFT } from "../components/NFTCard";
 import "./PrimosMarketGallery.css";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box } from "@mui/material";
+import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box, Tooltip, IconButton } from "@mui/material";
+import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
 
 type GalleryNFT = {
   id: string;
@@ -33,6 +34,7 @@ const NFTGallery: React.FC = () => {
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
+  const [statuses, setStatuses] = useState<Record<string, { stlUrl?: string }>>({});
   const { t } = useTranslation();
 
   const handleList = () => {
@@ -90,6 +92,20 @@ const NFTGallery: React.FC = () => {
     };
     fetchData();
   }, [publicKey]);
+
+  useEffect(() => {
+    const load = async () => {
+      const map: Record<string, { stlUrl?: string }> = {};
+      for (const nft of nfts) {
+        try {
+          const res = await api.get(`/api/primo3d/${nft.id}`);
+          if (res.data?.stlUrl) map[nft.id] = { stlUrl: res.data.stlUrl };
+        } catch {}
+      }
+      setStatuses(map);
+    };
+    if (nfts.length) load();
+  }, [nfts]);
 
   if (!publicKey) {
     return (
@@ -162,6 +178,18 @@ const NFTGallery: React.FC = () => {
                     }}>
                       {nft.id.slice(0, 4)}
                     </Box>
+                    {statuses[nft.id]?.stlUrl && (
+                      <Tooltip title={t('download_3d')}>
+                        <IconButton
+                          size="small"
+                          sx={{ position: 'absolute', top: 14, right: 50, zIndex: 2, background: '#fff' }}
+                          aria-label="3d-download"
+                          onClick={(e) => { e.stopPropagation(); window.open(statuses[nft.id]!.stlUrl, '_blank'); }}
+                        >
+                          <ThreeDRotationIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                     {/* NFT Image */}
                     <CardMedia
                       component="img"

@@ -166,5 +166,9 @@
   "render_thanks": "Renderizado iniciado, gracias. Espera el resultado.",
   "render_status_not_started": "Renderizado 3D no iniciado",
   "render_status_in_progress": "Renderizado 3D en progreso",
-  "render_status_done": "Renderizado 3D listo"
+  "render_status_done": "Renderizado 3D listo",
+  "dismiss": "Descartar",
+  "dismiss_all": "Descartar todo",
+  "download_3d": "Descargar 3D",
+  "has_3d": "3D disponible"
 }

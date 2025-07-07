@@ -24,6 +24,10 @@ jest.mock("../../utils/pyth", () => ({
   getPythSolPrice: jest.fn(() => Promise.resolve(0)),
 }));
 
+jest.mock("../../utils/api", () => ({
+  get: jest.fn(() => Promise.resolve({ data: { stlUrl: "url", status: "COMPLETED" } })),
+}));
+
 describe("NFTGallery", () => {
   test("prompts to connect wallet when no wallet is connected", () => {
     const { useWallet } = require("@solana/wallet-adapter-react");
@@ -51,5 +55,19 @@ describe("NFTGallery", () => {
     await waitFor(() => {
       expect(screen.getByText("Primo")).toBeTruthy();
     });
+  });
+
+  test("shows 3D indicator when STL available", async () => {
+    const { useWallet } = require("@solana/wallet-adapter-react");
+    (useWallet as jest.Mock).mockReturnValue({
+      publicKey: { toBase58: () => "wallet1" },
+    });
+    render(
+      <I18nextProvider i18n={i18n}>
+        <NFTGallery />
+      </I18nextProvider>,
+    );
+    const icon = await screen.findByLabelText("3d-download");
+    expect(icon).toBeTruthy();
   });
 });

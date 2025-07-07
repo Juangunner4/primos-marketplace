@@ -19,5 +19,13 @@ public class NotificationServiceTest {
         svc.markRead(n.id);
         Notification updated = Notification.findById(n.id);
         assertTrue(updated.isRead());
+
+        svc.delete(n.id);
+        assertNull(Notification.findById(n.id));
+
+        svc.add("user", "msg1");
+        svc.add("user", "msg2");
+        svc.deleteAll("user");
+        assertEquals(0, svc.forUser("user").size());
     }
 }
