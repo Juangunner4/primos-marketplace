@@ -15,6 +15,7 @@ services:
       QUARKUS_MONGODB_CONNECTION_STRING: ${QUARKUS_MONGODB_CONNECTION_STRING}
       CORS_ORIGINS: ${CORS_ORIGINS}
       QUARKUS_PROFILE: ${QUARKUS_PROFILE}
+      MESHY_API_KEY: ${MESHY_API_KEY}
   frontend:
     build:
       context: ./frontend

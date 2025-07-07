@@ -9,6 +9,7 @@ import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Box, Typography, TextField, Button, Avatar, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link } from 'react-router-dom';
@@ -130,6 +131,26 @@ const UserProfile: React.FC = () => {
   const confirmEditProfile = () => {
     setIsEditing(true);
     setEditDialogOpen(false);
+  };
+
+  const handleDismiss = (id: string) => {
+    if (!publicKey) return;
+    api
+      .delete(`/api/notifications/${id}`, {
+        headers: { 'X-Public-Key': publicKey.toBase58() },
+      })
+      .finally(() => {
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+      });
+  };
+
+  const handleDismissAll = () => {
+    if (!publicKey) return;
+    api
+      .delete('/api/notifications', {
+        headers: { 'X-Public-Key': publicKey.toBase58() },
+      })
+      .finally(() => setNotifications([]));
   };
 
   const handleSaveProfile = () => {
@@ -362,11 +383,19 @@ const fadeOut = keyframes`
           {notifications.length === 0 ? (
             <Typography>{t('no_notifications')}</Typography>
           ) : (
-            notifications.map((n) => (
-              <Typography key={n.id} sx={{ fontSize: '0.9rem' }}>
-                {n.message}
-              </Typography>
-            ))
+            <>
+              <Button size="small" onClick={handleDismissAll} sx={{ mb: 1 }}>
+                {t('dismiss_all')}
+              </Button>
+              {notifications.map((n) => (
+                <Box key={n.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography sx={{ fontSize: '0.9rem' }}>{n.message}</Typography>
+                  <IconButton size="small" onClick={() => handleDismiss(n.id)}>
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+            </>
           )}
         </Box>
       )}

@@ -29,7 +29,6 @@ const Experiment1: React.FC = () => {
   const wallet = useWallet();
   const [nfts, setNfts] = useState<HeliusNFT[]>([]);
   const [selected, setSelected] = useState<HeliusNFT | null>(null);
-  const [rendered, setRendered] = useState<Primo3D | null>(null);
   const [rendering, setRendering] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, StatusInfo>>({});
 
@@ -75,8 +74,11 @@ const Experiment1: React.FC = () => {
         },
         { headers: { 'X-Public-Key': wallet.publicKey?.toBase58() } }
       );
-      setRendered(res.data);
       alert(t('render_thanks'));
+      setStatuses((prev) => ({
+        ...prev,
+        [selected.id]: { status: res.data.status, stlUrl: res.data.stlUrl },
+      }));
     } finally {
       setRendering(false);
     }
@@ -87,12 +89,10 @@ const Experiment1: React.FC = () => {
       <Typography variant="h4" sx={{ mb: 2 }}>
         {t('experiment1_title')}
       </Typography>
-      {!rendered ? (
-        <>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            {t('experiment1_select')}
-          </Typography>
-          <Box className="nft-grid">
+      <Typography variant="body1" sx={{ mb: 2 }}>
+        {t('experiment1_select')}
+      </Typography>
+      <Box className="nft-grid">
             {nfts.map((nft) => {
               const s = statuses[nft.id]?.status;
               let label = '';
@@ -115,24 +115,19 @@ const Experiment1: React.FC = () => {
               );
             })}
           </Box>
-          <Button
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={!selected || rendering}
-            onClick={handleRender}
-          >
-            {rendering ? t('experiment1_rendering') : t('experiment1_render')}
-          </Button>
-        </>
-      ) : (
-        <Box sx={{ mt: 3 }}>
-          <iframe
-            src={rendered.stlUrl}
-            className="experiment-iframe"
-            title="Primo 3D model"
-          />
-        </Box>
+      {selected && statuses[selected.id]?.stlUrl && (
+        <Button sx={{ mt: 2 }} onClick={() => window.open(statuses[selected.id]!.stlUrl, '_blank')}>
+          {t('download_3d')}
+        </Button>
       )}
+      <Button
+        variant="contained"
+        sx={{ mt: 2, ml: 2 }}
+        disabled={!selected || rendering}
+        onClick={handleRender}
+      >
+        {rendering ? t('experiment1_rendering') : t('experiment1_render')}
+      </Button>
     </Box>
   );
 };

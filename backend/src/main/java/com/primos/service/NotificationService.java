@@ -27,4 +27,12 @@ public class NotificationService {
         }
         return n;
     }
+
+    public void delete(ObjectId id) {
+        Notification.deleteById(id);
+    }
+
+    public void deleteAll(String publicKey) {
+        Notification.delete("publicKey", publicKey);
+    }
 }
