@@ -19,48 +19,64 @@ public class MeshyService {
     private static final String API_KEY = System.getenv().getOrDefault("MESHY_API_KEY", "");
     private final HttpClient client = HttpClient.newHttpClient();
 
+    // Refactor startRender to properly catch interrupts and IO separately, use
+    // try-with-resources, and return task ID
     public String startRender(String imageUrl) {
+        // Ensure API key is set
+        if (API_KEY.isBlank()) {
+            LOG.warning("Meshy startRender failed: no API key configured");
+            return null;
+        }
+        // Build request payload with required and default optional parameters
+        JsonObject payloadJson = Json.createObjectBuilder()
+                .add("image_url", imageUrl)
+                .add("ai_model", "meshy-4") // default model
+                .add("topology", "triangle") // default topology
+                .add("target_polycount", 30000) // default polycount
+                .add("symmetry_mode", "auto") // default symmetry
+                .add("should_remesh", true)
+                .add("should_texture", true)
+                .build();
+        String payload = payloadJson.toString();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_BASE + "/openapi/v1/image-to-3d"))
+                .header("Authorization", "Bearer " + API_KEY)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(payload))
+                .build();
         try {
-            // ...
-            String payload = Json.createObjectBuilder().add("image_url", imageUrl).build().toString();
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(API_BASE + "/openapi/v1/image-to-3d"))
-                    .header("Authorization", "Bearer " + API_KEY)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(payload))
-                    .build();
-            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-            if (res.statusCode() == 200) {
-                try (JsonReader reader = Json.createReader(new StringReader(res.body()))) {
-                    JsonObject obj = reader.readObject();
-                    // Meshy docs: response has "job_id" field
-                    return obj.getString("job_id", null);
-                }
-            } else if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
-                LOG.log(java.util.logging.Level.WARNING, "Meshy startRender failed: HTTP {0} - {1}",
-                        new Object[] { res.statusCode(), res.body() });
+            // Send request and get response
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int status = response.statusCode();
+            if (status < 200 || status >= 300) {
+                LOG.log(java.util.logging.Level.WARNING, "Meshy startRender HTTP {0}: {1}",
+                        new Object[] { status, response.body() });
+                return null;
             }
-        } catch (java.io.IOException e) {
-            if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
-                LOG.log(java.util.logging.Level.WARNING, "Meshy startRender IOException: {0}", e.getMessage());
+            // Parse JSON and extract 'result' field
+            try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+                JsonObject json = reader.readObject();
+                String taskId = json.getString("result", null);
+                if (taskId == null && LOG.isLoggable(java.util.logging.Level.WARNING)) {
+                    LOG.log(java.util.logging.Level.WARNING, "Meshy startRender missing 'result' in response: {0}",
+                            response.body());
+                }
+                return taskId;
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
-                LOG.log(java.util.logging.Level.WARNING, "Meshy startRender InterruptedException: {0}", e.getMessage());
-            }
-        } catch (Exception e) {
-            if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
-                LOG.log(java.util.logging.Level.WARNING, "Meshy startRender Exception: {0}", e.getMessage());
-            }
+            LOG.log(java.util.logging.Level.WARNING, "Meshy startRender interrupted: {0}", e.getMessage());
+        } catch (java.io.IOException e) {
+            LOG.log(java.util.logging.Level.WARNING, "Meshy startRender failed: {0}", e.getMessage());
         }
         return null;
     }
 
     public RenderStatus checkStatus(String jobId) {
         try {
+            // Meshy image-to-3d status endpoint: /openapi/v1/image-to-3d/:id
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(API_BASE + "/v1/jobs/" + jobId))
+                    .uri(URI.create(API_BASE + "/openapi/v1/image-to-3d/" + jobId))
                     .header("Authorization", "Bearer " + API_KEY)
                     .build();
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
@@ -68,7 +84,7 @@ public class MeshyService {
                 try (JsonReader reader = Json.createReader(new StringReader(res.body()))) {
                     JsonObject obj = reader.readObject();
                     String status = obj.getString("status", "");
-                    String url = obj.getString("output_url", null);
+                    String url = obj.containsKey("output_url") ? obj.getString("output_url", null) : null;
                     return new RenderStatus(status, url);
                 }
             } else if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
