@@ -185,11 +185,10 @@ const Header: React.FC = () => {
               {renderProfileButtonContent()}
             </Button>
           )}
-          {publicKey && (
+          {publicKey && notificationCount > 0 && (
             <Badge
               color="error"
               variant="dot"
-              invisible={notificationCount === 0}
               sx={{ cursor: 'pointer' }}
               onClick={() => navigate('/profile#notifications')}
             >

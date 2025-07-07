@@ -62,6 +62,8 @@ const Experiment1: React.FC = () => {
 
   const handleRender = async () => {
     if (!selected) return;
+    const status = statuses[selected.id]?.status;
+    if (status === 'IN_PROGRESS' || status === 'COMPLETED') return;
     if (!window.confirm(t('render_confirm'))) return;
     setRendering(true);
     try {
@@ -123,7 +125,10 @@ const Experiment1: React.FC = () => {
       <Button
         variant="contained"
         sx={{ mt: 2, ml: 2 }}
-        disabled={!selected || rendering}
+        disabled={
+          !selected || rendering ||
+          (selected && (statuses[selected.id]?.status === 'IN_PROGRESS' || statuses[selected.id]?.status === 'COMPLETED'))
+        }
         onClick={handleRender}
       >
         {rendering ? t('experiment1_rendering') : t('experiment1_render')}

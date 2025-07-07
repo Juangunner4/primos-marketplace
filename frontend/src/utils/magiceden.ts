@@ -10,13 +10,8 @@ export interface MagicEdenStats {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// Default to the backend proxy when running outside localhost to avoid CORS
-const defaultApiBase =
-  typeof window !== 'undefined' && !window.location.hostname.match(/^localhost/)
-    ? '/api/proxy'
-    : 'https://api-mainnet.magiceden.dev';
-
-const API_BASE = process.env.REACT_APP_MAGICEDEN_BASE ?? defaultApiBase;
+// Always use the backend proxy for all Magic Eden requests
+const API_BASE = '/api/proxy';
 
 
 const fetchWithRetry = async (
@@ -183,7 +178,7 @@ export const fetchMagicEdenActivity = async (
   if (cached) return cached;
   try {
     const res = await fetchWithRetry(
-      `/api/magiceden/activities?offset=${offset}&limit=${limit}`
+      `${API_BASE}/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`
     );
     if (!res.ok) return [];
     const data = await res.json();

@@ -12,7 +12,7 @@ if (Test-Path "frontend/.env") {
 }
 
 $backend = Start-Process "mvn" "-f backend/pom.xml quarkus:dev" -PassThru -NoNewWindow
-$frontend = Start-Process "npm.cmd" "--prefix frontend start" -PassThru -NoNewWindow
+$frontend = Start-Process "npm.cmd" "start" -PassThru -NoNewWindow -WorkingDirectory "frontend"
 
 try {
     if ($backend -and $frontend) {

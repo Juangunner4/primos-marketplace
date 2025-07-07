@@ -77,14 +77,19 @@ const Activity: React.FC = () => {
               image = nft.image;
             }
           }
+          let time: string;
+          if (typeof item.blockTime === 'number' && !isNaN(item.blockTime)) {
+            const date = new Date(item.blockTime * 1000);
+            time = isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+          } else {
+            time = new Date().toISOString();
+          }
           return {
             id: item.signature ?? item.txId ?? Math.random().toString(),
             type: item.type,
             nftName,
             price: item.price,
-            time: item.blockTime
-              ? new Date(item.blockTime * 1000).toISOString()
-              : new Date().toISOString(),
+            time,
             image,
           } as ActivityItem;
         })
