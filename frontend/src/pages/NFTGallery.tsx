@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { CARD_VARIANTS, getRandomCardVariantName } from "../utils/cardVariants";
 import TraitStats from "../components/TraitStats";
 import NFTCard, { MarketNFT } from "../components/NFTCard";
+import api from '../utils/api';
 import "./PrimosMarketGallery.css";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box, Tooltip, IconButton } from "@mui/material";
