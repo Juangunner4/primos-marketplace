@@ -15,6 +15,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification } from '../types';
+import { verifyDomainOwnership } from '../utils/sns';
 
 type SocialLinks = {
   twitter: string;
@@ -27,6 +28,7 @@ type UserDoc = {
   bio: string;
   socials: SocialLinks;
   pfp: string;
+  domain?: string;
   points: number;
   pointsToday: number;
   pointsDate: string;
@@ -156,17 +158,28 @@ const UserProfile: React.FC = () => {
   const handleSaveProfile = () => {
     setSaveDialogOpen(false);
     if (publicKey && user && isOwner) {
-      api
-        .put(
-          `/api/user/${publicKey.toBase58()}`,
-          user,
-          { headers: { 'X-Public-Key': publicKey.toBase58() } }
-        )
-        .then((res) => setUser(res.data))
-        .finally(() => {
-          setIsEditing(false);
-          setShowNFTs(false);
-        });
+      const save = async () => {
+        if (user.domain) {
+          const owns = await verifyDomainOwnership(
+            user.domain,
+            publicKey.toBase58()
+          );
+          if (!owns) {
+            alert(t('sns_owner_error'));
+            return;
+          }
+        }
+        api
+          .put(`/api/user/${publicKey.toBase58()}`, user, {
+            headers: { 'X-Public-Key': publicKey.toBase58() },
+          })
+          .then((res) => setUser(res.data))
+          .finally(() => {
+            setIsEditing(false);
+            setShowNFTs(false);
+          });
+      };
+      save();
     }
   };
 
@@ -224,6 +237,7 @@ const fadeOut = keyframes`
           <Typography className="wallet-info" sx={{ mb: 0 }}>
             <strong>{t('wallet')}</strong>{' '}
             {profileKey ? `${profileKey.slice(0, 4)}...${profileKey.slice(-3)}` : ''}
+            {user.domain ? ` (${user.domain})` : ''}
           </Typography>
           {isOwner && (
             <Button
@@ -310,6 +324,14 @@ const fadeOut = keyframes`
           onChange={(e) =>
             setUser({ ...user, socials: { ...user.socials, website: e.target.value } })
           }
+          fullWidth
+          margin="normal"
+          disabled={!isOwner || !isEditing}
+        />
+        <TextField
+          label={t('sns_domain')}
+          value={user.domain || ''}
+          onChange={(e) => setUser({ ...user, domain: e.target.value })}
           fullWidth
           margin="normal"
           disabled={!isOwner || !isEditing}

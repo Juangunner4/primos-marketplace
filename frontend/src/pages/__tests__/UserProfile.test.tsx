@@ -17,6 +17,7 @@ jest.mock('../../utils/api', () => ({
     bio: '',
     socials: { twitter: '', discord: '', website: '' },
     pfp: '',
+    domain: 'my.sol',
     points: 0,
     pointsToday: 0,
     pointsDate: 'today',
@@ -28,6 +29,7 @@ jest.mock('../../utils/api', () => ({
     bio: '',
     socials: { twitter: '', discord: '', website: '' },
     pfp: '',
+    domain: 'my.sol',
     points: 1,
     pointsToday: 1,
     pointsDate: 'today',
@@ -49,6 +51,18 @@ describe('UserProfile', () => {
       </I18nextProvider>
     );
     expect(container.firstChild).toBeNull();
+  });
+
+  test('shows domain next to wallet', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    render(
+      <I18nextProvider i18n={i18n}>
+        <UserProfile />
+      </I18nextProvider>
+    );
+
+    const walletText = await screen.findByText(/Wallet/i);
+    expect(walletText.textContent).toContain('my.sol');
   });
 
   test('shows cancel button and NFT selector when entering edit mode', async () => {

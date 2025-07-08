@@ -9,6 +9,7 @@ public class User extends PanacheMongoEntity {
     private String bio;
     private SocialLinks socials = new SocialLinks();
     private String pfp;
+    private String domain = "";
     private int points = 0;
     private int pointsToday = 0;
     private String pointsDate = java.time.LocalDate.now().toString();
@@ -50,6 +51,14 @@ public class User extends PanacheMongoEntity {
 
     public void setPfp(String pfp) {
         this.pfp = pfp;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
     public int getPoints() {

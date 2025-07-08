@@ -21,6 +21,14 @@ public class ProfileService {
             if (updated.getSocials() != null) {
                 user.setSocials(updated.getSocials());
             }
+            if (updated.getDomain() != null) {
+                String lower = updated.getDomain().toLowerCase();
+                User taken = User.find("domain", lower).firstResult();
+                if (taken != null && !publicKey.equals(taken.getPublicKey())) {
+                    throw new jakarta.ws.rs.BadRequestException();
+                }
+                user.setDomain(lower);
+            }
             user.persistOrUpdate();
         }
         return user;
