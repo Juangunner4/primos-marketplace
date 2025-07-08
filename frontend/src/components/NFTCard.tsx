@@ -70,7 +70,6 @@ const NFTCard: React.FC<NFTCardProps> = ({
             maxWidth: "100%",
           }}
         >
-          {/* 1. NFT Image */}
           <Box
             className="nft-modal-image-container"
             sx={{
@@ -87,38 +86,10 @@ const NFTCard: React.FC<NFTCardProps> = ({
           >
             <img src={nft.image} alt={nft.name} className="modal-nft-img" />
           </Box>
-          {/* 2. Action Buttons */}
-          <Box
-            className="nft-modal-actions-panel"
-            sx={{
-              width: { xs: "100%", md: "32%" },
-              maxWidth: { xs: "100%", md: 320 },
-              display: "flex",
-            }}
-          >
-            <TransactionCard
-              priceSol={priceSol}
-              priceUsd={priceUsd}
-              onBuy={onBuy || onClose}
-              variantBg={variant.bg}
-              variantBorder={variant.border}
-              buyLabel={buyLabel}
-            />
-          </Box>
-          {/* 3. Attributes & Info */}
           <Box
             className="nft-modal-attributes-panel"
-            sx={{
-              width: { xs: "100%", md: "36%" },
-              maxWidth: { xs: "100%", md: 340 },
-              padding: { xs: 0, md: "0 1rem" },
-              display: "flex",
-              flexDirection: "column",
-              gap: 1.2,
-              mb: { xs: 2, md: 0 },
-            }}
           >
-            <div className="nft-info-pills">
+            <div className="nft-info-pill-group">
               <span
                 className="nft-info-pill rank"
                 style={{
@@ -150,13 +121,30 @@ const NFTCard: React.FC<NFTCardProps> = ({
             </div>
             {nft.attributes && nft.attributes.length > 0 && (
               <ul className="nft-attributes">
-                {nft.attributes.map((attr, i) => (
-                  <li key={i}>
+                {nft.attributes.map((attr) => (
+                  <li key={`${attr.trait_type}-${attr.value}`}>
                     <strong>{attr.trait_type}:</strong> {attr.value}
                   </li>
                 ))}
               </ul>
             )}
+          </Box>
+          <Box
+            className="nft-modal-actions-panel"
+            sx={{
+              width: { xs: "100%", md: "32%" },
+              maxWidth: { xs: "100%", md: 320 },
+              display: "flex",
+            }}
+          >
+            <TransactionCard
+              priceSol={priceSol}
+              priceUsd={priceUsd}
+              onBuy={onBuy || onClose}
+              variantBg={variant.bg}
+              variantBorder={variant.border}
+              buyLabel={buyLabel}
+            />
           </Box>
         </Box>
       </Dialog.Content>

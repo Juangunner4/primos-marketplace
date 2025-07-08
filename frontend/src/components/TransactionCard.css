@@ -39,18 +39,7 @@
 }
 
 @media (max-width: 700px) {
-  .transaction-card-floating {
-    margin-left: 0;
-    width: 98vw;
-    max-width: 340px;
-    padding: 1rem 0.5rem;
-  }
-
-  .buy-button,
-  .paywith-button,
-  .offer-button {
-    font-size: 1.18rem;
-    padding: 1rem 0;
-    min-height: 48px;
+  .transaction-card-mobile-content {
+    flex-direction: row;
   }
 }

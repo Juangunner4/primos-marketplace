@@ -1,4 +1,3 @@
-
 :root {
   --navbar-height: 64px;
 }
@@ -24,7 +23,6 @@
   overflow-y: auto;
 }
 
-/* Generic modal overlay wrapper used on multiple pages */
 .nft-modal-wrapper {
   position: fixed;
   top: var(--navbar-height);
@@ -37,24 +35,8 @@
   justify-content: center;
 }
 
-/* Offset slightly on desktop when used in the activity panel */
 .activity-modal {
   top: 15px;
-}
-
-@media (max-width: 700px) {
-  .nft-modal-wrapper {
-    top: var(--navbar-height);
-    height: calc(100vh - var(--navbar-height));
-    align-items: flex-start;
-    overflow-y: auto;
-    padding-top: 15px;
-    padding-bottom: 15px;
-  }
-
-  .activity-modal {
-    top: 0;
-  }
 }
 
 .nft-modal-vertical {
@@ -64,7 +46,6 @@
   gap: 1.1rem;
 }
 
-/* New: Info section next to image */
 .nft-modal-info {
   display: flex;
   flex-direction: column;
@@ -74,17 +55,6 @@
   width: 100%;
   gap: 1.1rem;
   margin-top: 0.2rem;
-}
-
-/* Info pills styling */
-.nft-info-pills {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.7rem;
-  margin-bottom: 0.2rem;
-  width: 100%;
-  justify-content: flex-start;
-  overflow-x: auto;
 }
 
 .nft-info-pill {
@@ -119,7 +89,6 @@
   letter-spacing: 0.04em;
 }
 
-/* Attributes styling */
 .nft-attributes {
   list-style: none;
   padding: 0;
@@ -197,30 +166,28 @@
   }
 
   .modal-nft-img {
-    width: 98vw;
-    max-width: 98vw;
-    height: auto;
-    min-height: 160px;
+    height: 48vh;
   }
 
-  .nft-modal-vertical {
-    padding: 2rem 1.2rem;
-    flex-direction: column;
-    align-items: stretch;
+  .nft-info-pill {
+    font-size: 0.9rem;
+    text-align: left;
+    min-width: 0 !important;
+    width: auto !important;
   }
 
-  .nft-dialog-content {
-    width: 100%;
-    padding: 2rem 1.2rem 2rem 1.2rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
-    position: relative;
+  .nft-info-pill.rank, .nft-info-pill.id, .nft-info-pill.name {
+    max-width: fit-content;
   }
 
-  .nft-info-pills {
-    flex-wrap: wrap;
-    justify-content: center;
-    overflow-x: visible;
+  .nft-info-pill-group {
+    display: flex;
+    flex-direction: row;
+  }
+
+  /* Disable attribute list on mobile to conserve space */
+  .nft-attributes {
+    display: none;
   }
 }
 
