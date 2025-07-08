@@ -5,7 +5,7 @@ import PrimosMarketGallery from '../PrimosMarketGallery';
 import i18n from '../../i18n';
 import * as magiceden from '../utils/magiceden';
 
-jest.mock('../Activity', () => () => <div />);
+jest.mock('../../components/Activity', () => () => <div />);
 
 jest.mock('../utils/magiceden', () => ({
   fetchMagicEdenListings: jest.fn(() => Promise.resolve([])),
