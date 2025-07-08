@@ -14,7 +14,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification } from '../types';
-import { verifyDomainOwnership, getOwnedDomains } from '../utils/sns';
+import { verifyDomainOwnership, getPrimaryDomainName } from '../utils/sns';
 
 type SocialLinks = {
   twitter: string;
@@ -62,7 +62,7 @@ const UserProfile: React.FC = () => {
   const [ballVisible, setBallVisible] = useState(true);
   const [ballAnimating, setBallAnimating] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [ownedDomains, setOwnedDomains] = useState<string[]>([]);
+  const [primaryDomain, setPrimaryDomain] = useState<string | null>(null);
 
   useEffect(() => {
     if (profileKey && publicKey) {
@@ -75,17 +75,14 @@ const UserProfile: React.FC = () => {
     }
   }, [profileKey, publicKey]);
 
-  // fetch SNS domains owned by this wallet
+  // fetch primary SNS domain for this profile
   useEffect(() => {
-    if (isOwner && publicKey) {
-      getOwnedDomains(publicKey.toBase58())
-        .then((domains) => {
-          console.log('Owned SNS domains:', domains);
-          setOwnedDomains(domains);
-        })
-        .catch(() => setOwnedDomains([]));
+    if (profileKey) {
+      getPrimaryDomainName(profileKey)
+        .then(setPrimaryDomain)
+        .catch(() => setPrimaryDomain(null));
     }
-  }, [isOwner, publicKey]);
+  }, [profileKey]);
 
   useEffect(() => {
     if (isOwner && publicKey) {
@@ -249,7 +246,7 @@ const fadeOut = keyframes`
           <Typography className="wallet-info" sx={{ mb: 0 }}>
             <strong>{t('wallet')}</strong>{' '}
             {profileKey ? `${profileKey.slice(0, 4)}...${profileKey.slice(-3)}` : ''}
-            {user.domain ? ` (${user.domain})` : ''}
+            {primaryDomain ? ` (${primaryDomain})` : ''}
           </Typography>
           {isOwner && (
             <Button
@@ -340,30 +337,13 @@ const fadeOut = keyframes`
           margin="normal"
           disabled={!isOwner || !isEditing}
         />
-        {isEditing && isOwner ? (
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="sns-domain-label">{t('sns_domain')}</InputLabel>
-            <Select
-              labelId="sns-domain-label"
-              value={user.domain || ''}
-              label={t('sns_domain')}
-              onChange={(e) => setUser({ ...user, domain: e.target.value })}
-            >
-              <MenuItem value="">—</MenuItem>
-              {ownedDomains.map((d) => (
-                <MenuItem key={d} value={d}>{d}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : (
-          <TextField
-            label={t('sns_domain')}
-            value={user.domain || ''}
-            fullWidth
-            margin="normal"
-            disabled
-          />
-        )}
+        <TextField
+          label={t('sns_domain')}
+          value={primaryDomain || ''}
+          fullWidth
+          margin="normal"
+          disabled
+        />
         <Typography mt={2}>
           <strong>{t('status')}</strong> {t(getStatus(nfts.length))}
         </Typography>

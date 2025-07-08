@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useTranslation } from 'react-i18next';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import { getPrimaryDomainName } from '../utils/sns';
 import './Primos.css';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
@@ -49,7 +50,9 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
               const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
               image = nfts[0]?.image || '';
             }
-            return { ...m, pfp: image, domain: m.domain };
+            // fetch on-chain primary domain for each member
+            const primary = await getPrimaryDomainName(m.publicKey);
+            return { ...m, pfp: image, domain: primary || m.domain };
           })
         );
         setMembers(enriched);
@@ -73,7 +76,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
   const filtered = members.filter((m) =>
     m.publicKey.toLowerCase().includes(search.toLowerCase()) ||
-    (m.domain && m.domain.toLowerCase().includes(search.toLowerCase()))
+    m.domain?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -102,7 +105,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
               />
               <Box ml={1}>
                 <Typography>
-                  {m.domain ? m.domain : `${m.publicKey.slice(0, 4)}...${m.publicKey.slice(-3)}`}
+                  {(m.domain ? m.domain + ' ' : '') + m.publicKey.slice(0, 4) + '...' + m.publicKey.slice(-3)}
                 </Typography>
                 <Box className="primos-pills">
                   <span className="primos-pill">{t('points')}: {m.points}</span>

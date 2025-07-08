@@ -1,20 +1,12 @@
-import { Connection } from '@solana/web3.js';
-import { resolve } from '@bonfida/spl-name-service';
+import { resolve, getPrimaryDomain as sdkGetPrimaryDomain } from '@bonfida/spl-name-service';
+import { Connection, PublicKey } from '@solana/web3.js';
 
-// use Helius RPC if API key is provided, otherwise fallback to default Solana RPC
 const HELIUS_API_KEY = process.env.REACT_APP_HELIUS_API_KEY;
-if (!HELIUS_API_KEY) {
-  console.error('Helius API key is missing; using default Solana RPC');
-}
 const RPC_URL = HELIUS_API_KEY
   ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
   : 'https://api.mainnet-beta.solana.com';
 
-// SNS RPC needs a provider that supports SNS methods (e.g. QuickNode)
-const SNS_RPC_URL = process.env.REACT_APP_SNS_RPC_URL;
-if (!SNS_RPC_URL) {
-  console.error('SNS RPC URL is not configured; set REACT_APP_SNS_RPC_URL to a provider supporting SNS methods');
-}
+const SNS_RPC_URL = process.env.REACT_APP_SNS_RPC_URL || RPC_URL;
 
 export const getDomainOwner = async (domain: string): Promise<string | null> => {
   try {
@@ -35,9 +27,6 @@ export const verifyDomainOwnership = async (
 };
 
 export const getOwnedDomains = async (owner: string): Promise<string[]> => {
-  if (!SNS_RPC_URL) {
-    return [];
-  }
   try {
     const response = await fetch(SNS_RPC_URL, {
       method: 'POST',
@@ -55,8 +44,18 @@ export const getOwnedDomains = async (owner: string): Promise<string[]> => {
       const name = d.name;
       return name.endsWith('.sol') ? name : `${name}.sol`;
     });
-  } catch (e) {
-    console.error('Failed to fetch SNS domains via RPC', e);
+  } catch {
     return [];
+  }
+};
+
+export const getPrimaryDomainName = async (owner: string): Promise<string | null> => {
+  try {
+    const connection = new Connection(RPC_URL);
+    const { reverse } = await sdkGetPrimaryDomain(connection, new PublicKey(owner));
+    if (!reverse) return null;
+    return reverse.endsWith('.sol') ? reverse : `${reverse}.sol`;
+  } catch {
+    return null;
   }
 };
