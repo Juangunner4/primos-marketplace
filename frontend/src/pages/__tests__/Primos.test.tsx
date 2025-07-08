@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Primos from '../Primos';
 
@@ -7,7 +7,7 @@ jest.mock('../../utils/api', () => ({
   get: jest.fn(() =>
     Promise.resolve({
       data: [
-        { publicKey: 'abcdef123456', pfp: '', points: 1, pesos: 2 },
+        { publicKey: 'abcdef123456', pfp: '', points: 1, pesos: 2, domain: 'cool.sol' },
       ],
     })
   ),
@@ -46,5 +46,18 @@ describe('Primos component', () => {
     renderPrimos(true);
     const pill = await screen.findByText(/Pesos: 2/i);
     expect(pill).toBeTruthy();
+  });
+
+  test('filters by domain name', async () => {
+    renderPrimos(true);
+    const input = screen.getByPlaceholderText(/domain/i);
+    screen.getByText(/cool.sol/); // ensure member rendered with domain
+    expect(screen.getByText(/cool.sol/)).toBeTruthy();
+    // filter for unmatched domain
+    input.focus();
+    input.setSelectionRange(0,0);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fireEvent.change(input, { target: { value: 'zzz' } });
+    expect(screen.queryByText(/cool.sol/)).toBeNull();
   });
 });

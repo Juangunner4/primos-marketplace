@@ -106,6 +106,7 @@ public class LoginService {
         user.setBio("");
         user.setSocials(new User.SocialLinks());
         user.setPfp("");
+        user.setDomain("");
         user.setPoints(0);
         user.setPesos(1);
         user.setCreatedAt(System.currentTimeMillis());

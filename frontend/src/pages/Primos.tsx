@@ -17,6 +17,7 @@ const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 interface Member {
   publicKey: string;
   pfp: string;
+  domain?: string;
   points: number;
   pesos: number;
 }
@@ -48,7 +49,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
               const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
               image = nfts[0]?.image || '';
             }
-            return { ...m, pfp: image };
+            return { ...m, pfp: image, domain: m.domain };
           })
         );
         setMembers(enriched);
@@ -71,7 +72,8 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   }
 
   const filtered = members.filter((m) =>
-    m.publicKey.toLowerCase().includes(search.toLowerCase())
+    m.publicKey.toLowerCase().includes(search.toLowerCase()) ||
+    (m.domain && m.domain.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -100,7 +102,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
               />
               <Box ml={1}>
                 <Typography>
-                  {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
+                  {m.domain ? m.domain : `${m.publicKey.slice(0, 4)}...${m.publicKey.slice(-3)}`}
                 </Typography>
                 <Box className="primos-pills">
                   <span className="primos-pill">{t('points')}: {m.points}</span>

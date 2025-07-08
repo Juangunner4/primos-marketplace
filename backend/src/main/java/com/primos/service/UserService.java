@@ -28,4 +28,11 @@ public class UserService {
         }
         return User.list("primoHolder", true);
     }
+
+    public User getByDomain(String domain) {
+        if (domain == null || domain.isEmpty()) {
+            throw new NotFoundException();
+        }
+        return User.find("domain", domain.toLowerCase()).firstResult();
+    }
 }

@@ -10,6 +10,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@bonfida/spl-name-service": "^3.0.12",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@metaplex-foundation/js": "^0.20.1",

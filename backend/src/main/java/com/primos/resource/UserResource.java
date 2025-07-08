@@ -78,4 +78,10 @@ public class UserResource {
         return userService.getDaoMembers(walletKey);
     }
 
+    @GET
+    @Path("/domain/{name}")
+    public User getByDomain(@PathParam("name") String name) {
+        return userService.getByDomain(name);
+    }
+
 }
