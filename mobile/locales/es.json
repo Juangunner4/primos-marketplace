@@ -1,4 +1,6 @@
 {
-  "mobile_welcome": "\u00a1Bienvenido a la app m\u00f3vil de Primos!",
-  "render_started": "Renderizado 3D iniciado para Primo"
+  "mobile_welcome": "¡Bienvenido a la app móvil de Primos!",
+  "render_started": "Renderizado 3D iniciado para Primo",
+  "home": "Inicio",
+  "profile": "Perfil"
 }

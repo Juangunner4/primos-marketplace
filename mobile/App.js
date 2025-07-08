@@ -1,23 +1,25 @@
 import React from 'react';
-import { SafeAreaView, Text, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import './i18n';
 
+import HomeScreen from './screens/HomeScreen';
+import ProfileScreen from './screens/ProfileScreen';
+
+const Tab = createBottomTabNavigator();
+
 export default function App() {
   const { t } = useTranslation();
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>{t('mobile_welcome')}</Text>
+    <NavigationContainer>
       <StatusBar style="auto" />
-    </SafeAreaView>
+      <Tab.Navigator>
+        <Tab.Screen name="Home" component={HomeScreen} options={{ title: t('home') }} />
+        <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: t('profile') }} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  }
-});
