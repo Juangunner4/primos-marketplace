@@ -80,13 +80,11 @@
 .nft-info-pills {
   display: flex;
   flex-wrap: nowrap;
-  /* Prevent wrapping */
   gap: 0.7rem;
   margin-bottom: 0.2rem;
   width: 100%;
   justify-content: flex-start;
   overflow-x: auto;
-  /* Allow horizontal scroll if needed */
 }
 
 .nft-info-pill {
@@ -217,6 +215,12 @@
     border-radius: 0.75rem;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
     position: relative;
+  }
+
+  .nft-info-pills {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
   }
 }
 
