@@ -15,8 +15,9 @@ import jakarta.json.JsonReader;
 @ApplicationScoped
 public class MeshyService {
     private static final Logger LOG = Logger.getLogger(MeshyService.class.getName());
-    private static final String API_BASE = System.getenv().getOrDefault("MESHY_API_BASE", "https://api.meshy.ai");
     private static final String API_KEY = System.getenv().getOrDefault("MESHY_API_KEY", "");
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String MESHY_API_URL = "https://api.meshy.xyz/openapi/v1/image-to-3d";
     private final HttpClient client = HttpClient.newHttpClient();
 
     // Refactor startRender to properly catch interrupts and IO separately, use
@@ -27,9 +28,15 @@ public class MeshyService {
             LOG.warning("Meshy startRender failed: no API key configured");
             return null;
         }
+        // Normalize IPFS URLs to include a .png filename for Meshy API
+        String normalizedUrl = imageUrl;
+        if (normalizedUrl.contains("/ipfs/") && !normalizedUrl.matches("(?i).+\\.(png|jpe?g)$")) {
+            normalizedUrl = normalizedUrl
+                    + (normalizedUrl.contains("?") ? "&filename=image.png" : "?filename=image.png");
+        }
         // Build request payload with required and default optional parameters
         JsonObject payloadJson = Json.createObjectBuilder()
-                .add("image_url", imageUrl)
+                .add("image_url", normalizedUrl)
                 // Explicitly enable physically based rendering as shown in the
                 // Meshy API docs
                 .add("enable_pbr", true)
@@ -42,10 +49,10 @@ public class MeshyService {
                 .build();
         String payload = payloadJson.toString();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_BASE + "/openapi/v1/image-to-3d"))
+                .uri(URI.create(MESHY_API_URL))
                 .header("Authorization", "Bearer " + API_KEY)
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .header("Accept", APPLICATION_JSON)
+                .header("Content-Type", APPLICATION_JSON)
                 .POST(HttpRequest.BodyPublishers.ofString(payload))
                 .build();
         try {
@@ -80,27 +87,16 @@ public class MeshyService {
         try {
             // Meshy image-to-3d status endpoint: /openapi/v1/image-to-3d/:id
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(API_BASE + "/openapi/v1/image-to-3d/" + jobId))
+                    .uri(URI.create(MESHY_API_URL + "/" + jobId))
                     .header("Authorization", "Bearer " + API_KEY)
-                    .header("Accept", "application/json")
+                    .header("Accept", APPLICATION_JSON)
                     .build();
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
             if (res.statusCode() == 200) {
                 try (JsonReader reader = Json.createReader(new StringReader(res.body()))) {
                     JsonObject obj = reader.readObject();
                     String status = obj.getString("status", "");
-                    String url = null;
-                    if (obj.containsKey("model_urls")) {
-                        JsonObject models = obj.getJsonObject("model_urls");
-                        // Prefer GLB but fall back to other formats
-                        if (models.containsKey("glb")) {
-                            url = models.getString("glb", null);
-                        } else if (models.containsKey("obj")) {
-                            url = models.getString("obj", null);
-                        } else if (models.containsKey("usdz")) {
-                            url = models.getString("usdz", null);
-                        }
-                    }
+                    String url = extractModelUrl(obj);
                     return new RenderStatus(status, url);
                 }
             } else if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
@@ -119,6 +115,21 @@ public class MeshyService {
         } catch (Exception e) {
             if (LOG.isLoggable(java.util.logging.Level.WARNING)) {
                 LOG.log(java.util.logging.Level.WARNING, "Meshy checkStatus Exception: {0}", e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private String extractModelUrl(JsonObject obj) {
+        if (obj.containsKey("model_urls")) {
+            JsonObject models = obj.getJsonObject("model_urls");
+            // Prefer GLB but fall back to other formats
+            if (models.containsKey("glb")) {
+                return models.getString("glb", null);
+            } else if (models.containsKey("obj")) {
+                return models.getString("obj", null);
+            } else if (models.containsKey("usdz")) {
+                return models.getString("usdz", null);
             }
         }
         return null;
