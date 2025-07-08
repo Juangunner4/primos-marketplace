@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
 import { keyframes } from '@emotion/react';
@@ -8,14 +7,14 @@ import { keyframes } from '@emotion/react';
 import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Box, Typography, TextField, Button, Avatar, IconButton } from '@mui/material';
+import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification } from '../types';
-import { verifyDomainOwnership } from '../utils/sns';
+import { verifyDomainOwnership, getOwnedDomains } from '../utils/sns';
 
 type SocialLinks = {
   twitter: string;
@@ -63,6 +62,7 @@ const UserProfile: React.FC = () => {
   const [ballVisible, setBallVisible] = useState(true);
   const [ballAnimating, setBallAnimating] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [ownedDomains, setOwnedDomains] = useState<string[]>([]);
 
   useEffect(() => {
     if (profileKey && publicKey) {
@@ -74,6 +74,18 @@ const UserProfile: React.FC = () => {
         .catch(() => setUser(null));
     }
   }, [profileKey, publicKey]);
+
+  // fetch SNS domains owned by this wallet
+  useEffect(() => {
+    if (isOwner && publicKey) {
+      getOwnedDomains(publicKey.toBase58())
+        .then((domains) => {
+          console.log('Owned SNS domains:', domains);
+          setOwnedDomains(domains);
+        })
+        .catch(() => setOwnedDomains([]));
+    }
+  }, [isOwner, publicKey]);
 
   useEffect(() => {
     if (isOwner && publicKey) {
@@ -328,14 +340,30 @@ const fadeOut = keyframes`
           margin="normal"
           disabled={!isOwner || !isEditing}
         />
-        <TextField
-          label={t('sns_domain')}
-          value={user.domain || ''}
-          onChange={(e) => setUser({ ...user, domain: e.target.value })}
-          fullWidth
-          margin="normal"
-          disabled={!isOwner || !isEditing}
-        />
+        {isEditing && isOwner ? (
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="sns-domain-label">{t('sns_domain')}</InputLabel>
+            <Select
+              labelId="sns-domain-label"
+              value={user.domain || ''}
+              label={t('sns_domain')}
+              onChange={(e) => setUser({ ...user, domain: e.target.value })}
+            >
+              <MenuItem value="">—</MenuItem>
+              {ownedDomains.map((d) => (
+                <MenuItem key={d} value={d}>{d}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : (
+          <TextField
+            label={t('sns_domain')}
+            value={user.domain || ''}
+            fullWidth
+            margin="normal"
+            disabled
+          />
+        )}
         <Typography mt={2}>
           <strong>{t('status')}</strong> {t(getStatus(nfts.length))}
         </Typography>
