@@ -15,6 +15,11 @@ export type MarketNFT = {
   variant: string;
   rank: number | null;
   attributes?: { trait_type: string; value: string }[];
+  tokenAta?: string;
+  seller?: string;
+  auctionHouse?: string;
+  sellerReferral?: string;
+  sellerExpiry?: number;
 };
 
 interface NFTCardProps {

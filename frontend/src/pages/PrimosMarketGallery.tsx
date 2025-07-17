@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box } from '@mui/material';
 import * as Dialog from '@radix-ui/react-dialog';
 import { getPythSolPrice } from '../utils/pyth';
@@ -10,6 +11,7 @@ import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
 import NFTCard from '../components/NFTCard';
+import { executeBuyNow } from '../utils/transaction';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -22,6 +24,11 @@ type MarketNFT = {
   variant: string;
   rank: number | null;
   attributes?: { trait_type: string; value: string }[];
+  tokenAta?: string;
+  seller?: string;
+  auctionHouse?: string;
+  sellerReferral?: string;
+  sellerExpiry?: number;
 };
 
 const PrimosMarketGallery: React.FC = () => {
@@ -37,6 +44,26 @@ const PrimosMarketGallery: React.FC = () => {
   const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
   const { t } = useTranslation();
+  const { connection } = useConnection();
+  const wallet = useWallet();
+
+  const handleBuy = async (nft: MarketNFT) => {
+    try {
+      await executeBuyNow(connection, wallet, {
+        tokenMint: nft.id,
+        tokenAta: nft.tokenAta!,
+        seller: nft.seller!,
+        price: nft.price,
+        auctionHouse: nft.auctionHouse!,
+        sellerReferral: nft.sellerReferral,
+        sellerExpiry: nft.sellerExpiry,
+      });
+      alert(t('tx_success'));
+    } catch (e) {
+      console.error('Buy now failed', e);
+      alert(t('tx_failed'));
+    }
+  };
 
 
   useEffect(() => {
@@ -110,6 +137,11 @@ const PrimosMarketGallery: React.FC = () => {
             variant: getRandomCardVariantName(),
             rank,
             attributes: metaAttrs,
+            tokenAta: listing.tokenAddress,
+            seller: listing.seller,
+            auctionHouse: listing.auctionHouse,
+            sellerReferral: listing.sellerReferral,
+            sellerExpiry: listing.expiry,
           } as MarketNFT;
         })
       );
@@ -161,8 +193,8 @@ const PrimosMarketGallery: React.FC = () => {
               setCardOpen(open);
               if (!open) setSelectedNft(null);
             }} key={nft.id}>
-              <Dialog.Trigger asChild>
-                <Card>
+              <Card>
+                <Dialog.Trigger asChild>
                   <CardActionArea
                     onClick={() => {
                       setSelectedNft(nft);
@@ -201,7 +233,8 @@ const PrimosMarketGallery: React.FC = () => {
                       {nft.name}
                     </Typography>
                   </CardActionArea>
-                  <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                </Dialog.Trigger>
+                <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                     {priceSol ? (
                       <Box
                         sx={{
@@ -262,12 +295,12 @@ const PrimosMarketGallery: React.FC = () => {
                           color: '#fff',
                         },
                       }}
+                      onClick={(e) => { e.stopPropagation(); handleBuy(nft); }}
                     >
                       {t('buy_now')}
                     </Button>
                   </CardActions>
                 </Card>
-              </Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Overlay style={{
                   background: 'rgba(0,0,0,0.55)',
@@ -297,6 +330,7 @@ const PrimosMarketGallery: React.FC = () => {
             nft={selectedNft}
             open={cardOpen}
             onClose={() => setCardOpen(false)}
+            onBuy={() => selectedNft && handleBuy(selectedNft)}
             buyLabel={t("buy_now")}
             solPriceUsd={solPrice ?? undefined}
           />
