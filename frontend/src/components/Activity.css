@@ -47,9 +47,9 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.7rem 0.2rem;
+  padding: 0.5rem 0.2rem;
   border-bottom: 1px solid #000;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #222;
   font-family: 'Segoe UI', sans-serif;
 }
@@ -61,7 +61,8 @@
 .activity-type {
   font-weight: bold;
   color: #000;
-  min-width: 60px;
+  min-width: 50px;
+  font-size: 0.75rem;
 }
 
 .activity-pill {
@@ -103,24 +104,25 @@
 .activity-nft {
   font-weight: 500;
   color: #333;
-  min-width: 90px;
+  min-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+  font-size: 0.75rem;
 }
 
 .activity-time {
   color: #555;
-  font-size: 0.8rem;
-  min-width: 110px;
+  font-size: 0.75rem;
+  min-width: 100px;
 }
 
 .activity-price {
   background: #fff;
-  border-radius: 0.28rem; 
-  padding: 0.02rem 0.18rem; 
-  font-size: 0.72rem; 
+  border-radius: 0.28rem;
+  padding: 0.02rem 0.18rem;
+  font-size: 0.7rem;
   font-weight: bold;
   color: #1a202c;
   display: inline-flex;
