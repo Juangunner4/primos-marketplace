@@ -29,6 +29,13 @@
   letter-spacing: 0.04em;
 }
 
+.activity-header {
+  position: sticky;
+  top: 0;
+  background: #f5f5f8;
+  z-index: 1;
+}
+
 .activity-list {
   list-style: none;
   padding: 0;
