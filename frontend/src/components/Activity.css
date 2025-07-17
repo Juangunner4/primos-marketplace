@@ -4,6 +4,7 @@
   box-shadow: -4px 0 24px rgba(226, 194, 117, 0.08);
   padding: 1.5rem 1rem 1rem 1.5rem;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -96,6 +97,10 @@
   font-weight: 500;
   color: #333;
   min-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .activity-time {
@@ -127,5 +132,26 @@
 @media (max-width: 1100px) {
   .activity-desktop {
     display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .activity-panel {
+    width: 100vw;
+  }
+
+  .activity-type,
+  .activity-nft,
+  .activity-time,
+  .activity-price {
+    min-width: 0;
+  }
+
+  .activity-type {
+    min-width: 40px;
+  }
+
+  .activity-time {
+    min-width: 90px;
   }
 }
