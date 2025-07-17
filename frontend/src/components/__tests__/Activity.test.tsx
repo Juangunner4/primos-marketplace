@@ -76,4 +76,33 @@ describe('Activity component', () => {
     const timeString = new Date(1000).toLocaleString();
     expect(await screen.findByText(timeString)).toBeTruthy();
   });
+
+  test('closes panel when close button clicked', async () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <Activity />
+      </I18nextProvider>
+    );
+    fireEvent.click(screen.getByLabelText(/open activity/i));
+    const closeBtn = await screen.findByLabelText(/close activity/i);
+    fireEvent.click(closeBtn);
+    await waitFor(() => {
+      expect(screen.queryByLabelText(/close activity/i)).toBeNull();
+    });
+  });
+
+  test('toggles panel with action icon', async () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <Activity />
+      </I18nextProvider>
+    );
+    const toggleBtn = screen.getByLabelText(/open activity/i);
+    fireEvent.click(toggleBtn);
+    expect(await screen.findByLabelText(/close activity/i)).toBeTruthy();
+    fireEvent.click(toggleBtn);
+    await waitFor(() => {
+      expect(screen.queryByLabelText(/close activity/i)).toBeNull();
+    });
+  });
 });

@@ -6,6 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
 import Drawer from '@mui/material/Drawer';
 import HistoryIcon from '@mui/icons-material/History';
+import CloseIcon from '@mui/icons-material/Close';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
@@ -124,10 +125,17 @@ const Activity: React.FC = () => {
   };
 
   const panelContent = (
-    <Box component="aside" className={`activity-panel${isMobile ? '' : ' activity-desktop'}`}> 
-      <Typography variant="h6" component="h3" className="activity-title">
-        {t('activity')}
-      </Typography>
+    <Box component="aside" className={`activity-panel${isMobile ? '' : ' activity-desktop'}`}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h6" component="h3" className="activity-title">
+          {t('activity')}
+        </Typography>
+        {isMobile && (
+          <IconButton aria-label="close activity" onClick={() => setOpen(false)} size="small">
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
       <List className="activity-list">
         {activity.map((item, idx) => (
           <ListItem
@@ -206,7 +214,7 @@ const Activity: React.FC = () => {
         <>
           <IconButton
             aria-label="open activity"
-            onClick={() => setOpen(true)}
+            onClick={() => setOpen((prev) => !prev)}
             className="activity-mobile-btn"
             sx={{
               position: 'fixed',
@@ -232,6 +240,8 @@ const Activity: React.FC = () => {
                 [`& .MuiDrawer-paper`]: {
                   width: isNarrow ? '100vw' : 340,
                   boxSizing: 'border-box',
+                  top: 80,
+                  height: 'calc(100vh - 80px)',
                 },
               }}
             >
