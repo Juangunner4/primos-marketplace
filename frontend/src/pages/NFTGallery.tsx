@@ -30,7 +30,8 @@ type GalleryNFT = {
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 const MAGICEDEN_SYMBOL = "primos";
 const NFTGallery: React.FC = () => {
-  const { publicKey } = useWallet();
+  const wallet = useWallet();
+  const { publicKey } = wallet;
   const [nfts, setNfts] = useState<GalleryNFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [solPrice, setSolPrice] = useState<number | null>(null);
@@ -41,7 +42,8 @@ const NFTGallery: React.FC = () => {
   const { t } = useTranslation();
   const [message, setMessage] = useState<AppMessage | null>(null);
 
-  const handleList = () => {
+  const handleList = (nft: MarketNFT) => {
+    setSelectedNft(nft);
     setCardOpen(false);
     setMessage({ text: t('coming_soon') });
   };
@@ -155,12 +157,16 @@ const NFTGallery: React.FC = () => {
           }
 
           return (
-            <Dialog.Root open={selectedNft?.id === nft.id && cardOpen} onOpenChange={(open) => {
-              setCardOpen(open);
-              if (!open) setSelectedNft(null);
-            }} key={nft.id}>
-              <Dialog.Trigger asChild>
-                <Card>
+            <Dialog.Root
+              open={selectedNft?.id === nft.id && cardOpen}
+              onOpenChange={(open) => {
+                setCardOpen(open);
+                if (!open) setSelectedNft(null);
+              }}
+              key={nft.id}
+            >
+              <Card>
+                <Dialog.Trigger asChild>
                   <CardActionArea
                     onClick={() => {
                       setSelectedNft(nft);
@@ -211,7 +217,8 @@ const NFTGallery: React.FC = () => {
                       {nft.name}
                     </Typography>
                   </CardActionArea>
-                  <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                </Dialog.Trigger>
+                <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                     {priceSol ? (
                       <Box
                         sx={{
@@ -272,12 +279,15 @@ const NFTGallery: React.FC = () => {
                           color: '#fff',
                         },
                       }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleList(nft);
+                      }}
                     >
                       {t('list')}
                     </Button>
                   </CardActions>
-                </Card>
-              </Dialog.Trigger>
+              </Card>
               <Dialog.Portal>
                 <Dialog.Overlay style={{
                   background: 'rgba(0,0,0,0.55)',
@@ -306,7 +316,7 @@ const NFTGallery: React.FC = () => {
             nft={selectedNft}
             open={cardOpen}
             onClose={() => setCardOpen(false)}
-            onBuy={handleList}
+            onBuy={() => selectedNft && handleList(selectedNft)}
             buyLabel={t("list")}
             solPriceUsd={solPrice ?? undefined}
           />
