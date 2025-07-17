@@ -12,6 +12,8 @@ import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
 import NFTCard from '../components/NFTCard';
 import { executeBuyNow } from '../utils/transaction';
+import MessageModal from '../components/MessageModal';
+import { AppMessage } from '../types';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -43,6 +45,7 @@ const PrimosMarketGallery: React.FC = () => {
   const [pageInput, setPageInput] = useState('1');
   const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
+  const [message, setMessage] = useState<AppMessage | null>(null);
   const { t } = useTranslation();
   const { connection } = useConnection();
   const wallet = useWallet();
@@ -58,10 +61,10 @@ const PrimosMarketGallery: React.FC = () => {
         sellerReferral: nft.sellerReferral,
         sellerExpiry: nft.sellerExpiry,
       });
-      alert(t('tx_success'));
+      setMessage({ text: t('tx_success'), type: 'success' });
     } catch (e) {
       console.error('Buy now failed', e);
-      alert(t('tx_failed'));
+      setMessage({ text: t('tx_failed'), type: 'error' });
     }
   };
 
@@ -429,10 +432,15 @@ const PrimosMarketGallery: React.FC = () => {
               {t('next') || 'Next'}
             </button>
           </div>
-        </div>
-        <Activity />
       </div>
-    </>
+      <Activity />
+    </div>
+    <MessageModal
+      open={!!message}
+      message={message}
+      onClose={() => setMessage(null)}
+    />
+  </>
   );
 };
 

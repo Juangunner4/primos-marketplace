@@ -13,7 +13,8 @@ import CircleIcon from '@mui/icons-material/Circle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
-import { Notification } from '../types';
+import { Notification, AppMessage } from '../types';
+import MessageModal from '../components/MessageModal';
 import { verifyDomainOwnership, getPrimaryDomainName } from '../utils/sns';
 
 type SocialLinks = {
@@ -63,6 +64,7 @@ const UserProfile: React.FC = () => {
   const [ballAnimating, setBallAnimating] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [primaryDomain, setPrimaryDomain] = useState<string | null>(null);
+  const [message, setMessage] = useState<AppMessage | null>(null);
 
   useEffect(() => {
     if (profileKey && publicKey) {
@@ -174,7 +176,7 @@ const UserProfile: React.FC = () => {
             publicKey.toBase58()
           );
           if (!owns) {
-            alert(t('sns_owner_error'));
+            setMessage({ text: t('sns_owner_error'), type: 'error' });
             return;
           }
         }
@@ -474,6 +476,11 @@ const fadeOut = keyframes`
           </Box>
         </Dialog.Content>
       </Dialog.Root>
+      <MessageModal
+        open={!!message}
+        message={message}
+        onClose={() => setMessage(null)}
+      />
       </>
       )}
     </>

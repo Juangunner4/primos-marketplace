@@ -10,6 +10,8 @@ import { CARD_VARIANTS, getRandomCardVariantName } from "../utils/cardVariants";
 import TraitStats from "../components/TraitStats";
 import NFTCard, { MarketNFT } from "../components/NFTCard";
 import api from '../utils/api';
+import MessageModal from '../components/MessageModal';
+import { AppMessage } from '../types';
 import "./PrimosMarketGallery.css";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box, Tooltip, IconButton } from "@mui/material";
@@ -37,9 +39,11 @@ const NFTGallery: React.FC = () => {
   const [cardOpen, setCardOpen] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, { stlUrl?: string }>>({});
   const { t } = useTranslation();
+  const [message, setMessage] = useState<AppMessage | null>(null);
 
   const handleList = () => {
     setCardOpen(false);
+    setMessage({ text: t('coming_soon') });
   };
 
 
@@ -343,10 +347,15 @@ const NFTGallery: React.FC = () => {
             </div>
           </div>
           {galleryContent}
-        </div>
-        <TraitStats nftIds={nfts.map((n) => n.id)} />
       </div>
-    </>
+      <TraitStats nftIds={nfts.map((n) => n.id)} />
+    </div>
+    <MessageModal
+      open={!!message}
+      message={message}
+      onClose={() => setMessage(null)}
+    />
+  </>
   );
 };
 
