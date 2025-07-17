@@ -98,6 +98,12 @@
   min-width: 90px;
 }
 
+.activity-time {
+  color: #555;
+  font-size: 0.8rem;
+  min-width: 110px;
+}
+
 .activity-price {
   background: #fff;
   border-radius: 0.28rem; 

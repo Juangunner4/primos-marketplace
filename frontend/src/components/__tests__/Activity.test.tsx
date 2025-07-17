@@ -56,4 +56,24 @@ describe('Activity component', () => {
       expect(screen.getByText('Primo 1')).toBeTruthy();
     });
   });
+
+  test('displays activity time', async () => {
+    const { fetchMagicEdenActivity } = require('../utils/magiceden');
+    (fetchMagicEdenActivity as jest.Mock).mockResolvedValueOnce([
+      {
+        tokenMint: 'mint2',
+        type: 'sale',
+        price: 1,
+        blockTime: 1,
+        signature: 'sig2',
+      },
+    ]);
+    render(
+      <I18nextProvider i18n={i18n}>
+        <Activity />
+      </I18nextProvider>
+    );
+    const timeString = new Date(1000).toLocaleString();
+    expect(await screen.findByText(timeString)).toBeTruthy();
+  });
 });
