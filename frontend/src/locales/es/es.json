@@ -177,5 +177,9 @@
   "download_3d": "Descargar 3D",
   "has_3d": "3D disponible",
   "tx_success": "¡Transacción enviada!",
-  "tx_failed": "Transacción fallida"
+  "tx_failed": "Transacción fallida",
+  "experiment2_title": "Experimento #2 - Calcomanías",
+  "experiment2_desc": "Ordena calcomanías de tus Primos NFTs con códigos QR que enlazan al marketplace y a tus redes. El 5% del costo apoya al DAO.",
+  "order_sticker": "Pedir calcomanía",
+  "stickers_order_thanks": "¡Pronto podrás completar tu pedido!"
 }
