@@ -11,6 +11,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @ApplicationScoped
 public class MeshyService {
@@ -18,7 +24,23 @@ public class MeshyService {
     private static final String API_KEY = System.getenv().getOrDefault("MESHY_API_KEY", "");
     private static final String APPLICATION_JSON = "application/json";
     private static final String MESHY_API_URL = "https://api.meshy.xyz/openapi/v1/image-to-3d";
-    private final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpClient client = HttpClient.newBuilder()
+            .sslContext(createSslContext())
+            .build();
+
+    private static javax.net.ssl.SSLContext createSslContext() {
+        try {
+            System.setProperty("jdk.tls.client.enableSNI", "false");
+            return javax.net.ssl.SSLContext.getDefault();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            LOG.log(java.util.logging.Level.SEVERE, "NoSuchAlgorithmException while creating SSLContext: {0}",
+                    e.getMessage());
+            throw new RuntimeException("Failed to create SSLContext: NoSuchAlgorithmException encountered", e);
+        } catch (Exception e) {
+            LOG.log(java.util.logging.Level.SEVERE, "Unexpected error creating SSLContext: {0}", e.getMessage());
+            throw new RuntimeException("Unexpected error creating SSLContext", e);
+        }
+    }
 
     // Refactor startRender to properly catch interrupts and IO separately, use
     // try-with-resources, and return task ID
@@ -96,6 +118,10 @@ public class MeshyService {
                 try (JsonReader reader = Json.createReader(new StringReader(res.body()))) {
                     JsonObject obj = reader.readObject();
                     String status = obj.getString("status", "");
+                    if ("ERROR".equalsIgnoreCase(status)) {
+                        LOG.log(java.util.logging.Level.WARNING, "Meshy checkStatus returned status ERROR: {0}",
+                                res.body());
+                    }
                     String url = extractModelUrl(obj);
                     return new RenderStatus(status, url);
                 }
@@ -136,5 +162,33 @@ public class MeshyService {
     }
 
     public record RenderStatus(String status, String url) {
+    }
+
+    @Path("/proxy/meshy")
+    @ApplicationScoped
+    public static class MeshyProxy {
+
+        @POST
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response proxyToMeshy(JsonObject payload) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(MESHY_API_URL))
+                    .header("Authorization", "Bearer " + API_KEY)
+                    .header("Content-Type", APPLICATION_JSON)
+                    .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                return Response.status(response.statusCode()).entity(response.body()).build();
+            } catch (java.io.IOException e) {
+                LOG.log(java.util.logging.Level.WARNING, "Meshy proxy IOException: {0}", e.getMessage());
+                return Response.status(500).entity("Error: " + e.getMessage()).build();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOG.log(java.util.logging.Level.WARNING, "Meshy proxy InterruptedException: {0}", e.getMessage());
+                return Response.status(500).entity("Error: " + e.getMessage()).build();
+            }
+        }
     }
 }
