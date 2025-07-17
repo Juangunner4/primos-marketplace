@@ -162,6 +162,7 @@
   "wallets_with_nfts": "Billeteras con Primos",
   "db_market_cap": "Capitalización BD",
   "experiment1_select": "Selecciona uno de tus Primo NFTs para renderizar un modelo 3D.",
+  "experiment1_rendering": "Renderizando...",
   "render_started": "Renderizado 3D iniciado para Primo",
   "render_complete": "Renderizado 3D completo",
   "notifications": "Notificaciones",

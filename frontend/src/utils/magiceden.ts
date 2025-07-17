@@ -263,3 +263,19 @@ export const getBuyNowInstructions = async (
   }
   return res.json();
 };
+
+/**
+ * Requests Magic Eden's listing instructions via the backend.
+ * @param params Query parameters for the instruction builder
+ * @returns JSON response from Magic Eden
+ */
+export const getListInstructions = async (
+  params: Record<string, string>
+): Promise<any> => {
+  const qs = new URLSearchParams(params).toString();
+  const res = await fetch(`/api/magiceden/list?${qs}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch list instructions');
+  }
+  return res.json();
+};

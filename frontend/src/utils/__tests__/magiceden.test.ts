@@ -1,4 +1,4 @@
-import { getMagicEdenStats, getMagicEdenHolderStats, fetchMagicEdenListings, fetchMagicEdenActivity, getTraitFloorPrice, getBuyNowInstructions } from '../magiceden';
+import { getMagicEdenStats, getMagicEdenHolderStats, fetchMagicEdenListings, fetchMagicEdenActivity, getTraitFloorPrice, getBuyNowInstructions, getListInstructions } from '../magiceden';
 
 describe('magiceden utilities', () => {
   afterEach(() => {
@@ -60,6 +60,16 @@ describe('magiceden utilities', () => {
     const params = { buyer: 'A', seller: 'B' };
     const data = await getBuyNowInstructions(params);
     expect(fetchMock).toHaveBeenCalledWith('/api/magiceden/buy_now?buyer=A&seller=B');
+    expect(data.txSigned.data[0]).toBe(1);
+  });
+
+  test('getListInstructions calls backend', async () => {
+    const response = { ok: true, json: async () => ({ txSigned: { data: [1] } }) };
+    const fetchMock = jest.fn().mockResolvedValue(response);
+    (global as any).fetch = fetchMock;
+    const params = { seller: 'A', tokenMint: 'B' };
+    const data = await getListInstructions(params);
+    expect(fetchMock).toHaveBeenCalledWith('/api/magiceden/list?seller=A&tokenMint=B');
     expect(data.txSigned.data[0]).toBe(1);
   });
 });
