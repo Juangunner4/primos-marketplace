@@ -1,0 +1,29 @@
+.experiment-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.nft-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.nft {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.nft.selected {
+  border-color: #1976d2;
+}
+
+.nft-wrapper {
+  position: relative;
+}

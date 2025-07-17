@@ -23,6 +23,7 @@ import Home from './pages/Home';
 import PrimoLabs from './pages/PrimoLabs';
 import Primos from './pages/Primos';
 import Experiment1 from './pages/Experiment1';
+import Stickers from './pages/Stickers';
 import Docs from './pages/Docs';
 import Admin from './pages/Admin';
 import BetaRedeem from './components/BetaRedeem';
@@ -224,6 +225,9 @@ const AppRoutes = () => {
     if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/experiment1') {
       navigate('/', { replace: true });
     }
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/stickers') {
+      navigate('/', { replace: true });
+    }
     if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/primos') {
       navigate('/', { replace: true });
     }
@@ -258,6 +262,7 @@ const AppRoutes = () => {
               <Route path="/collected" element={<NFTGallery />} />
               <Route path="/labs"      element={<PrimoLabs />} />
               <Route path="/experiment1" element={<Experiment1 />} />
+              <Route path="/stickers" element={<Stickers />} />
               <Route path="/primos"    element={<Primos />} />
               <Route path="/profile"   element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />

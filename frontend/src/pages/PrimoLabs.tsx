@@ -7,6 +7,7 @@ import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import LinearProgress from '@mui/material/LinearProgress';
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { Link } from 'react-router-dom';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import api from '../utils/api';
@@ -74,12 +75,13 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
             </Typography>
           </Box>
         </Card>
-        <Card className="lab-card">
-          <Typography variant="h6" sx={{ mt: 1 }}>
-            {t('coming_soon')}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#ffffff', mt: 1 }}>1 / 100</Typography>
-          <LinearProgress variant="determinate" value={1} sx={{ height: 8, borderRadius: 4, mt: 1, mb: 1 }} />
+        <Card className="lab-card" component={Link} to="/stickers" sx={{ textDecoration: 'none' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <LocalOfferIcon sx={{ fontSize: 40 }} />
+            <Typography variant="h6" sx={{ mt: 1 }}>
+              {t('experiment2_title')}
+            </Typography>
+          </Box>
         </Card>
         <Card className="lab-card">
           <Typography variant="h6" sx={{ mt: 1 }}>
