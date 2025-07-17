@@ -5,3 +5,8 @@ export interface Notification {
   read: boolean;
   createdAt: number;
 }
+
+export interface AppMessage {
+  text: string;
+  type?: 'info' | 'success' | 'error';
+}

@@ -5,6 +5,8 @@ import Button from '@mui/material/Button';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'react-i18next';
 import { fetchCollectionNFTsForOwner, HeliusNFT } from '../utils/helius';
+import MessageModal from '../components/MessageModal';
+import { AppMessage } from '../types';
 import './Stickers.css';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
@@ -14,6 +16,7 @@ const Stickers: React.FC = () => {
   const { t } = useTranslation();
   const [nfts, setNfts] = useState<HeliusNFT[]>([]);
   const [selected, setSelected] = useState<HeliusNFT | null>(null);
+  const [message, setMessage] = useState<AppMessage | null>(null);
 
   useEffect(() => {
     const fetchNfts = async () => {
@@ -29,7 +32,7 @@ const Stickers: React.FC = () => {
 
   const handleOrder = () => {
     if (!selected) return;
-    alert(t('stickers_order_thanks'));
+    setMessage({ text: t('stickers_order_thanks') });
   };
 
   return (
@@ -58,6 +61,11 @@ const Stickers: React.FC = () => {
       <Button variant="contained" sx={{ mt: 2 }} disabled={!selected} onClick={handleOrder}>
         {t('order_sticker')}
       </Button>
+      <MessageModal
+        open={!!message}
+        message={message}
+        onClose={() => setMessage(null)}
+      />
     </Box>
   );
 };

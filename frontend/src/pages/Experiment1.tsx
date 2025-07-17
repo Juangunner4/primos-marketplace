@@ -6,6 +6,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'react-i18next';
 import { fetchCollectionNFTsForOwner, HeliusNFT } from '../utils/helius';
 import api from '../utils/api';
+import MessageModal from '../components/MessageModal';
+import { AppMessage } from '../types';
 import './Experiment1.css';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
@@ -31,6 +33,8 @@ const Experiment1: React.FC = () => {
   const [selected, setSelected] = useState<HeliusNFT | null>(null);
   const [rendering, setRendering] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, StatusInfo>>({});
+  const [message, setMessage] = useState<AppMessage | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     const fetchNfts = async () => {
@@ -64,7 +68,12 @@ const Experiment1: React.FC = () => {
     if (!selected) return;
     const status = statuses[selected.id]?.status;
     if (status === 'IN_PROGRESS' || status === 'COMPLETED') return;
-    if (!window.confirm(t('render_confirm'))) return;
+    setConfirmOpen(true);
+  };
+
+  const confirmRender = async () => {
+    if (!selected) return;
+    setConfirmOpen(false);
     setRendering(true);
     try {
       const res = await api.post<Primo3D>(
@@ -76,7 +85,7 @@ const Experiment1: React.FC = () => {
         },
         { headers: { 'X-Public-Key': wallet.publicKey?.toBase58() } }
       );
-      alert(t('render_thanks'));
+      setMessage({ text: t('render_thanks'), type: 'info' });
       setStatuses((prev) => ({
         ...prev,
         [selected.id]: { status: res.data.status, stlUrl: res.data.stlUrl },
@@ -133,6 +142,18 @@ const Experiment1: React.FC = () => {
       >
         {rendering ? t('experiment1_rendering') : t('experiment1_render')}
       </Button>
+      <MessageModal
+        open={confirmOpen}
+        message={{ text: t('render_confirm') }}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={confirmRender}
+        confirmLabel={t('experiment1_render')}
+      />
+      <MessageModal
+        open={!!message}
+        message={message}
+        onClose={() => setMessage(null)}
+      />
     </Box>
   );
 };
