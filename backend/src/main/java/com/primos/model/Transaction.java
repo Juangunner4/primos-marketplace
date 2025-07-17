@@ -2,6 +2,7 @@ package com.primos.model;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
+import org.bson.types.ObjectId;
 
 @MongoEntity(collection = "transactions")
 public class Transaction extends PanacheMongoEntity {
@@ -14,6 +15,15 @@ public class Transaction extends PanacheMongoEntity {
     private String source;
     private String timestamp;
     private String status;
+
+    /**
+     * Expose the MongoDB generated identifier so tests can verify the
+     * entity was persisted correctly. PanacheMongoEntity provides the
+     * {@code id} field but not a getter, so we add one here.
+     */
+    public ObjectId getId() {
+        return id;
+    }
 
     public String getTxId() {
         return txId;
