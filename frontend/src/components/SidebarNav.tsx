@@ -47,7 +47,7 @@ const SidebarNav: React.FC = () => {
       to: '/primos',
       icon: <PeopleIcon />,
       label: t('primos_title'),
-      show: publicKey && (isHolder || betaRedeemed) && userExists,
+      show: true,
     },
   ];
 

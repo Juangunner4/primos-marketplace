@@ -48,7 +48,7 @@ public class UserResourceTest {
     }
 
     @Test
-    public void testGetUserForbiddenWithoutHeader() {
+    public void testGetUserWithoutHeader() {
         UserResource resource = new UserResource();
         LoginRequest req = new LoginRequest();
         req.publicKey = "dummy1";
@@ -57,8 +57,8 @@ public class UserResourceTest {
         code.persist();
         req.betaCode = "B2";
         resource.login(req);
-        assertThrows(jakarta.ws.rs.ForbiddenException.class,
-                () -> resource.getUser("dummy1", null));
+        com.primos.model.User user = resource.getUser("dummy1", null);
+        assertNotNull(user);
     }
 
     @Test
@@ -91,9 +91,18 @@ public class UserResourceTest {
     }
 
     @Test
-    public void testGetDaoMembersForbiddenWithoutHeader() {
+    public void testGetDaoMembersWithoutHeader() {
         UserResource resource = new UserResource();
-        assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> resource.getDaoMembers(null));
+        LoginRequest req = new LoginRequest();
+        req.publicKey = "member2";
+        req.primoHolder = true;
+        com.primos.model.BetaCode code = new com.primos.model.BetaCode();
+        code.setCode("B4a");
+        code.persist();
+        req.betaCode = "B4a";
+        resource.login(req);
+        java.util.List<com.primos.model.User> members = resource.getDaoMembers(null);
+        assertFalse(members.isEmpty());
     }
 
     @Test
