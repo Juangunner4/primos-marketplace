@@ -126,7 +126,10 @@ const Activity: React.FC = () => {
 
   const panelContent = (
     <Box component="aside" className={`activity-panel${isMobile ? '' : ' activity-desktop'}`}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Box
+        className="activity-header"
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
         <Typography variant="h6" component="h3" className="activity-title">
           {t('activity')}
         </Typography>
