@@ -169,6 +169,9 @@ const Activity: React.FC = () => {
               <span className="activity-type">{typeLabels[item.type] || item.type}</span>
             )}
             <span className="activity-nft">{item.nftName}</span>
+            <span className="activity-time">
+              {new Date(item.time).toLocaleString()}
+            </span>
             {item.price && (
               <span className="activity-price">
                 {item.price.toFixed(3)} SOL
