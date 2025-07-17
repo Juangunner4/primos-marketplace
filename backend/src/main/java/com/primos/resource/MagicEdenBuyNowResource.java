@@ -6,6 +6,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.jboss.logging.Logger;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -21,6 +22,8 @@ import java.net.InetSocketAddress;
 @Path("/api/magiceden/buy_now")
 @Produces(MediaType.APPLICATION_JSON)
 public class MagicEdenBuyNowResource {
+
+    private static final Logger LOG = Logger.getLogger(MagicEdenBuyNowResource.class);
 
     private static final String API_BASE = "https://api-mainnet.magiceden.dev";
     private static final String API_KEY = System.getenv("MAGICEDEN_API_KEY");
@@ -66,15 +69,23 @@ public class MagicEdenBuyNowResource {
         if (sellerExpiry != null && !sellerExpiry.isBlank()) {
             url.append("&sellerExpiry=").append(sellerExpiry);
         }
+        LOG.infof("Requesting buy now tx buyer=%s tokenMint=%s price=%s", buyer, tokenMint, price);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url.toString()))
                 .GET();
         if (API_KEY != null && !API_KEY.isBlank()) {
             builder.header("Authorization", "Bearer " + API_KEY);
         }
-        HttpResponse<String> resp = CLIENT.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> resp;
+        try {
+            resp = CLIENT.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            LOG.error("Failed to fetch buy now instructions", e);
+            throw e;
+        }
 
         int status = resp.statusCode() == 304 ? 200 : resp.statusCode();
+        LOG.debugf("Magic Eden response status: %d", status);
         return Response.status(status).entity(resp.body()).build();
     }
 }

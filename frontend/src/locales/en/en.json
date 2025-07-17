@@ -175,5 +175,7 @@
   "dismiss": "Dismiss",
   "dismiss_all": "Dismiss All",
   "download_3d": "Download 3D",
-  "has_3d": "3D available"
+  "has_3d": "3D available",
+  "tx_success": "Transaction sent!",
+  "tx_failed": "Transaction failed"
 }

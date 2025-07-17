@@ -174,5 +174,7 @@
   "dismiss": "Descartar",
   "dismiss_all": "Descartar todo",
   "download_3d": "Descargar 3D",
-  "has_3d": "3D disponible"
+  "has_3d": "3D disponible",
+  "tx_success": "¡Transacción enviada!",
+  "tx_failed": "Transacción fallida"
 }
