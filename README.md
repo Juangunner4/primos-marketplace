@@ -170,7 +170,9 @@ entire site is served from Render. Create an environment group in Render and
 populate it with the variables from `frontend/.env.production`.
 `REACT_APP_MAGICEDEN_BASE=/api/proxy` must be provided so the React build uses
 the backend proxy for Magic Eden requests. `REACT_APP_HELIUS_API_KEY` must also
-be set so the marketplace can query NFT metadata from Helius. When you connect the repository,
+be set so the marketplace can query NFT metadata from Helius. Additionally, define
+`MAGICEDEN_API_KEY` so the backend can request transaction instructions from
+Magic&nbsp;Eden's private API. When you connect the repository,
 Render will automatically build the container. After deployment the site and API
 will be available at `https://primos-marketplace.onrender.com`.
 
