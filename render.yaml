@@ -13,6 +13,8 @@ envVarGroups:
         value: ${REACT_APP_MAGICEDEN_BASE}
       - key: REACT_APP_HELIUS_API_KEY
         value: ${REACT_APP_HELIUS_API_KEY}
+      - key: MAGICEDEN_API_KEY
+        value: ${MAGICEDEN_API_KEY}
       - key: QUARKUS_PROFILE
         value: ${QUARKUS_PROFILE}
       - key: QUARKUS_MONGODB_CONNECTION_STRING

@@ -247,3 +247,19 @@ export const getTraitFloorPrice = async (
     return null;
   }
 };
+
+/**
+ * Requests Magic Eden's "buy now" instructions via the backend.
+ * @param params Query parameters for the instruction builder
+ * @returns JSON response from Magic Eden
+ */
+export const getBuyNowInstructions = async (
+  params: Record<string, string>
+): Promise<any> => {
+  const qs = new URLSearchParams(params).toString();
+  const res = await fetch(`/api/magiceden/buy_now?${qs}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch buy now instructions');
+  }
+  return res.json();
+};
