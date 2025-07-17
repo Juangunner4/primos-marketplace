@@ -66,6 +66,7 @@
   "activity_mint": "Minted",
   "activity_from": "From",
   "activity_to": "To",
+  "activity_time": "Time",
   "primo_labs": "Primo Labs",
   "primo_labs_login_prompt": "Please login to access Primo Labs",
   "primo_labs_desc": "Primo Labs will function as a launchpad and innovation hub for new features, NFT utilities, and community experiments. Stay tuned for exclusive tools and early access to upcoming projects.",
