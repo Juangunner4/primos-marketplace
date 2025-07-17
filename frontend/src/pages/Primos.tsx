@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { usePrimoHolder } from '../contexts/PrimoHolderContext';
-import * as Dialog from '@radix-ui/react-dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
@@ -25,20 +23,14 @@ interface Member {
 
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const wallet = useWallet();
-  const { isHolder } = usePrimoHolder();
-  const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    if (!isConnected) return;
-
     async function fetchMembers() {
       try {
-        const res = await api.get<Member[]>('/api/user/primos', {
-          headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
-        });
+        const res = await api.get<Member[]>('/api/user/primos');
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
         const enriched = await Promise.all(
           sorted.map(async (m) => {
@@ -61,18 +53,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }
     }
     fetchMembers();
-  }, [isConnected]);
-
-  if (!isConnected) {
-    return (
-      <Dialog.Root open>
-        <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="dialog-content">
-          <Typography variant="h6">{t('primos_login_prompt')}</Typography>
-        </Dialog.Content>
-      </Dialog.Root>
-    );
-  }
+  }, []);
 
   const filtered = members.filter((m) =>
     m.publicKey.toLowerCase().includes(search.toLowerCase()) ||

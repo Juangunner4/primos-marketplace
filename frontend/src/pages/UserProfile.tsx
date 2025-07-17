@@ -67,11 +67,10 @@ const UserProfile: React.FC = () => {
   const [message, setMessage] = useState<AppMessage | null>(null);
 
   useEffect(() => {
-    if (profileKey && publicKey) {
+    if (profileKey) {
       api
-        .get(`/api/user/${profileKey}`, {
-          headers: { 'X-Public-Key': publicKey.toBase58() },
-        })
+        .get(`/api/user/${profileKey}`,
+          publicKey ? { headers: { 'X-Public-Key': publicKey.toBase58() } } : undefined)
         .then((res) => setUser(res.data))
         .catch(() => setUser(null));
     }

@@ -18,38 +18,33 @@ jest.mock('../services/helius', () => ({
   fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([])),
 }));
 
-const renderPrimos = (connected: boolean) =>
+const renderPrimos = () =>
   render(
     <MemoryRouter>
-      <Primos connected={connected} />
+      <Primos />
     </MemoryRouter>
   );
 
 describe('Primos component', () => {
-  test('prompts login when not authenticated', () => {
-    renderPrimos(false);
-    expect(screen.getByText(/Please login to access Primos/i)).toBeTruthy();
-  });
-
-  test('shows members title when authenticated', () => {
-    renderPrimos(true);
+  test('shows members title', () => {
+    renderPrimos();
     expect(screen.getByText(/Primos/i)).toBeTruthy();
   });
 
   test('links each member to profile page', async () => {
-    renderPrimos(true);
+    renderPrimos();
     const link = await screen.findByRole('link');
     expect(link).toHaveAttribute('href', '/user/abcdef123456');
   });
 
   test('displays pesos pill', async () => {
-    renderPrimos(true);
+    renderPrimos();
     const pill = await screen.findByText(/Pesos: 2/i);
     expect(pill).toBeTruthy();
   });
 
   test('filters by domain name', async () => {
-    renderPrimos(true);
+    renderPrimos();
     const input = screen.getByPlaceholderText(/domain/i);
     screen.getByText(/cool.sol/); // ensure member rendered with domain
     expect(screen.getByText(/cool.sol/)).toBeTruthy();
