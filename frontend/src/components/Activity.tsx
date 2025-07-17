@@ -34,6 +34,7 @@ const Activity: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isNarrow = useMediaQuery('(max-width:700px)');
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -227,7 +228,12 @@ const Activity: React.FC = () => {
               open={open}
               onClose={() => setOpen(false)}
               ModalProps={{ keepMounted: true }}
-              sx={{ [`& .MuiDrawer-paper`]: { width: 340, boxSizing: 'border-box' } }}
+              sx={{
+                [`& .MuiDrawer-paper`]: {
+                  width: isNarrow ? '100vw' : 340,
+                  boxSizing: 'border-box',
+                },
+              }}
             >
               {panelContent}
             </Drawer>
