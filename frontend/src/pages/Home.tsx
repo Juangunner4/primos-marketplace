@@ -9,7 +9,6 @@ import { getPythSolPrice } from '../utils/pyth';
 import api from '../utils/api';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 
 interface Stats {
@@ -35,8 +34,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [members, setMembers] = useState<DaoMember[]>([]);
   const wallet = useWallet();
-  const { isHolder } = usePrimoHolder();
-  const isConnected = connected ?? (wallet.connected && isHolder);
+  const isConnected = connected ?? wallet.connected;
 
   useEffect(() => {
     async function fetchStats() {
@@ -68,12 +66,9 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   }, []);
 
   useEffect(() => {
-    if (!isConnected) return;
     const fetchMembers = async () => {
       try {
-        const res = await api.get<DaoMember[]>('/api/user/primos', {
-          headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
-        });
+        const res = await api.get<DaoMember[]>('/api/user/primos');
         const enriched = await Promise.all(
           res.data.slice(0, 5).map(async (m) => {
             let image = '';
@@ -93,7 +88,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }
     };
     fetchMembers();
-  }, [isConnected]);
+  }, []);
 
   return (
     <Box
