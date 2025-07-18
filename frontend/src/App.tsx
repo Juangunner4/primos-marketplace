@@ -228,9 +228,6 @@ const AppRoutes = () => {
     if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/stickers') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/primos') {
-      navigate('/', { replace: true });
-    }
     if (
       (!publicKey || publicKey.toBase58() !== ADMIN_WALLET) &&
       location.pathname === '/admin'
@@ -263,11 +260,11 @@ const AppRoutes = () => {
               <Route path="/labs"      element={<PrimoLabs />} />
               <Route path="/experiment1" element={<Experiment1 />} />
               <Route path="/stickers" element={<Stickers />} />
-              <Route path="/primos"    element={<Primos />} />
               <Route path="/profile"   element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />
             </>
           )}
+          <Route path="/primos" element={<Primos />} />
 
           {publicKey?.toBase58() === ADMIN_WALLET && (
             <Route path="/admin" element={<Admin />} />
