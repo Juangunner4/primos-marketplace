@@ -1,6 +1,24 @@
 import { Connection, Transaction } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import { getBuyNowInstructions, getListInstructions } from './magiceden';
+import api from './api';
+
+export interface TxRecord {
+  txId: string;
+  mint: string;
+  buyer: string;
+  collection: string;
+  source: string;
+  timestamp: string;
+}
+
+export const recordTransaction = async (tx: TxRecord) => {
+  try {
+    await api.post('/api/transactions', tx);
+  } catch (e) {
+    console.error('Failed to record transaction', e);
+  }
+};
 
 export interface BuyNowListing {
   tokenMint: string;
@@ -43,9 +61,21 @@ export const executeBuyNow = async (
   const encoded = resp.txSigned?.data;
   if (!encoded) throw new Error('Invalid response');
   const tx = Transaction.from(Buffer.from(encoded, 'base64'));
-  const sig = await wallet.sendTransaction(tx, connection);
-  await connection.confirmTransaction(sig, 'confirmed');
-  return sig;
+  let sig: string | null = null;
+  try {
+    sig = await wallet.sendTransaction(tx, connection);
+    await connection.confirmTransaction(sig, 'confirmed');
+    return sig;
+  } finally {
+    await recordTransaction({
+      txId: sig ?? '',
+      mint: listing.tokenMint,
+      buyer,
+      collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
+      source: 'magiceden',
+      timestamp: new Date().toISOString(),
+    });
+  }
 };
 
 export const executeList = async (
@@ -68,7 +98,19 @@ export const executeList = async (
   const encoded = resp.txSigned?.data;
   if (!encoded) throw new Error('Invalid response');
   const tx = Transaction.from(Buffer.from(encoded, 'base64'));
-  const sig = await wallet.sendTransaction(tx, connection);
-  await connection.confirmTransaction(sig, 'confirmed');
-  return sig;
+  let sig: string | null = null;
+  try {
+    sig = await wallet.sendTransaction(tx, connection);
+    await connection.confirmTransaction(sig, 'confirmed');
+    return sig;
+  } finally {
+    await recordTransaction({
+      txId: sig ?? '',
+      mint: nft.tokenMint,
+      buyer: seller,
+      collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
+      source: 'magiceden',
+      timestamp: new Date().toISOString(),
+    });
+  }
 };
