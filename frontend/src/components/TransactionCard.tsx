@@ -63,6 +63,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
             <Button
               fullWidth
               sx={{
+                marginTop: '1rem',
                 background: variantBg,
                 borderColor: variantBorder,
                 color: "#222",

@@ -42,4 +42,10 @@
   .transaction-card-mobile-content {
     flex-direction: row;
   }
+
+  .transaction-card-mobile {
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    margin: 0;
+  }
 }
