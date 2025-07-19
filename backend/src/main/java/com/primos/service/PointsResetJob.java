@@ -19,9 +19,11 @@ public class PointsResetJob {
         String today = LocalDate.now().toString();
         List<User> users = User.listAll();
         for (User user : users) {
-            user.setPointsToday(0);
-            user.setPointsDate(today);
-            user.persistOrUpdate();
+            if (!today.equals(user.getPointsDate())) {
+                user.setPointsToday(0);
+                user.setPointsDate(today);
+                user.persistOrUpdate();
+            }
         }
         LOG.info("Reset daily points for all users");
     }
