@@ -26,6 +26,7 @@ import Experiment1 from './pages/Experiment1';
 import Stickers from './pages/Stickers';
 import Trenches from './pages/Trenches';
 import Docs from './pages/Docs';
+import TokenScanner from './pages/TokenScanner';
 import Admin from './pages/Admin';
 import BetaRedeem from './components/BetaRedeem';
 import LoadingOverlay from './components/LoadingOverlay';
@@ -257,6 +258,7 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<PrimosMarketGallery />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/token-scanner" element={<TokenScanner />} />
 
           {publicKey && (isHolder || betaRedeemed) && userExists && (
             <>
