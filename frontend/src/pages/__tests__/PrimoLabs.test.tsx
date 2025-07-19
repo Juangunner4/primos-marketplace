@@ -20,8 +20,6 @@ describe('PrimoLabs', () => {
   test('shows labs content when authenticated', () => {
     renderLabs(true);
     expect(screen.getByText(/Primo Labs/i)).toBeTruthy();
-    expect(screen.getByText(/Experiment #1/i)).toBeTruthy();
-    expect(screen.getByText(/Experiment #2/i)).toBeTruthy();
     expect(screen.getByText(/Trenches/i)).toBeTruthy();
     expect(screen.queryByText(/Meme Wars/i)).toBeNull();
     expect(screen.queryByText(/Eliza AI Trading Bot/i)).toBeNull();

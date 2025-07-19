@@ -22,7 +22,7 @@ describe('Experiment1 page', () => {
         </I18nextProvider>
       </MemoryRouter>
     );
-    expect(screen.getByText(/Experiment #1/i)).toBeTruthy();
+    expect(screen.getByText(/Primo 3D/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /Render 3D/i })).toBeDisabled();
   });
 });
