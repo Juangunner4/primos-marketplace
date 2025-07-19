@@ -7,7 +7,7 @@ import { keyframes } from '@emotion/react';
 import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -33,6 +33,7 @@ type UserDoc = {
   pointsToday: number;
   pointsDate: string;
   pesos: number;
+  artTeam: boolean;
 };
 
 const getStatus = (count: number) => {
@@ -338,6 +339,18 @@ const fadeOut = keyframes`
           margin="normal"
           disabled={!isOwner || !isEditing}
         />
+        {isOwner && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={user.artTeam}
+                onChange={(e) => setUser({ ...user, artTeam: e.target.checked })}
+                disabled={!isEditing}
+              />
+            }
+            label={t('work_join_label')}
+          />
+        )}
         <TextField
           label={t('sns_domain')}
           value={primaryDomain || ''}

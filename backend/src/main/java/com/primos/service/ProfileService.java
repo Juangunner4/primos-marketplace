@@ -29,6 +29,7 @@ public class ProfileService {
                 }
                 user.setDomain(lower);
             }
+            user.setArtTeam(updated.isArtTeam());
             user.persistOrUpdate();
         }
         return user;

@@ -7,6 +7,7 @@ interface PrimoHolderContextValue {
   isHolder: boolean;
   userExists: boolean;
   betaRedeemed: boolean;
+  artTeam: boolean;
   showRedeemDialog: boolean;
   setShowRedeemDialog(open: boolean): void;
   redeemBetaCode(code: string): Promise<void>;
@@ -21,6 +22,7 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
   const [isHolder, setIsHolder] = useState(false);
   const [userExists, setUserExists] = useState(false);
   const [betaRedeemed, setBetaRedeemed] = useState(false);
+  const [artTeam, setArtTeam] = useState(false);
   const [showRedeemDialog, setShowRedeemDialog] = useState(false);
 
   // whenever publicKey changes, fetch user record and check blockchain holder status
@@ -58,6 +60,7 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
         const user = userRes.data;
         setUserExists(!!user?.publicKey);
         setBetaRedeemed(!!user?.betaRedeemed);
+        setArtTeam(!!user?.artTeam);
       } catch (err) {
         console.error('[PrimoHolderContext] Error in fetchData:', err);
         setUserExists(false);
@@ -97,6 +100,7 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
       isHolder,
       userExists,
       betaRedeemed,
+      artTeam,
       showRedeemDialog,
       setShowRedeemDialog,
       redeemBetaCode,
@@ -106,6 +110,7 @@ export const PrimoHolderProvider: React.FC<React.PropsWithChildren<{}>> = ({ chi
       isHolder,
       userExists,
       betaRedeemed,
+      artTeam,
       showRedeemDialog,
       setShowRedeemDialog,
       redeemBetaCode,

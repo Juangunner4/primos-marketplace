@@ -17,6 +17,7 @@ public class User extends PanacheMongoEntity {
     private int pesos = 1;
     private boolean primoHolder = false;
     private boolean daoMember = true;
+    private boolean artTeam = false;
     private String betaCode;
     private boolean betaRedeemed = false;
     private long createdAt = System.currentTimeMillis();
@@ -116,6 +117,14 @@ public class User extends PanacheMongoEntity {
 
     public void setDaoMember(boolean daoMember) {
         this.daoMember = daoMember;
+    }
+
+    public boolean isArtTeam() {
+        return artTeam;
+    }
+
+    public void setArtTeam(boolean artTeam) {
+        this.artTeam = artTeam;
     }
 
     public String getBetaCode() {

@@ -123,6 +123,7 @@ public class LoginService {
         user.setCreatedAt(System.currentTimeMillis());
         user.setDaoMember(holder);
         user.setPrimoHolder(holder);
+        user.setArtTeam(false);
         return user;
     }
 
