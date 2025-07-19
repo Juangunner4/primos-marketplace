@@ -8,6 +8,7 @@ import Card from '@mui/material/Card';
 import LinearProgress from '@mui/material/LinearProgress';
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { Link } from 'react-router-dom';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import api from '../utils/api';
@@ -80,6 +81,14 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
             <LocalOfferIcon sx={{ fontSize: 40 }} />
             <Typography variant="h6" sx={{ mt: 1 }}>
               {t('experiment2_title')}
+            </Typography>
+          </Box>
+        </Card>
+        <Card className="lab-card" component={Link} to="/trenches" sx={{ textDecoration: 'none' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <MilitaryTechIcon sx={{ fontSize: 40 }} />
+            <Typography variant="h6" sx={{ mt: 1 }}>
+              {t('experiment3_title')}
             </Typography>
           </Box>
         </Card>
