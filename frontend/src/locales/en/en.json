@@ -182,4 +182,8 @@
   "experiment2_desc": "Order stickers of your Primo NFTs with QR codes linking back to the marketplace and your socials. 5% of the cost goes to the DAO.",
   "order_sticker": "Order Sticker",
   "stickers_order_thanks": "Sticker ordering coming soon!"
+  ,"experiment3_title": "Trenches"
+  ,"experiment3_desc": "Enter contract addresses to grow the trenches. Bubbles expand as more users join."
+  ,"enter_contract": "Enter contract address"
+  ,"add_contract": "Add Contract"
 }
