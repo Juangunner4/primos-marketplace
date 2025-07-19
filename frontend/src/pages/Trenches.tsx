@@ -21,6 +21,7 @@ interface TrenchUser {
   publicKey: string;
   pfp: string;
   count: number;
+  contracts: string[];
 }
 
 interface TrenchData {
@@ -33,6 +34,8 @@ const Trenches: React.FC = () => {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [] });
+  const [viewAll, setViewAll] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<TrenchUser | null>(null);
 
   const load = async () => {
     const res = await api.get<TrenchData>('/api/trench');
@@ -87,41 +90,86 @@ const Trenches: React.FC = () => {
           {t('add_contract')}
         </Button>
       </Box>
-      <Box className="bubble-map">
-        {data.contracts.map((c) => {
-          const short =
-            c.contract.length > 7
-              ? `${c.contract.slice(0, 3)}...${c.contract.slice(-4)}`
-              : c.contract;
-          return (
-            <Box
-              key={c.contract}
-              className="bubble"
-              sx={{ width: 40 + c.count * 10, height: 40 + c.count * 10 }}
-            >
-              {short}
+      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
+        <Button
+          variant={!viewAll ? 'contained' : 'outlined'}
+          onClick={() => setViewAll(false)}
+        >
+          {t('my_contracts')}
+        </Button>
+        <Button
+          variant={viewAll ? 'contained' : 'outlined'}
+          onClick={() => {
+            setViewAll(true);
+            setSelectedUser(null);
+          }}
+        >
+          {t('all_users')}
+        </Button>
+      </Box>
+      {!viewAll && (
+        <Box className="bubble-map">
+          {(data.users.find((u) => u.publicKey === publicKey?.toBase58())?.
+            contracts || [])
+            .map((c) => {
+              const count =
+                data.contracts.find((cc) => cc.contract === c)?.count || 1;
+              const short =
+                c.length > 7 ? `${c.slice(0, 3)}...${c.slice(-4)}` : c;
+              return (
+                <Box
+                  key={c}
+                  className="bubble"
+                  sx={{ width: 40 + count * 10, height: 40 + count * 10 }}
+                >
+                  {short}
+                </Box>
+              );
+            })}
+        </Box>
+      )}
+      {viewAll && (
+        <>
+          <Box className="bubble-map">
+            {data.users.map((u) => {
+              const short =
+                u.publicKey.length > 7
+                  ? `${u.publicKey.slice(0, 3)}...${u.publicKey.slice(-4)}`
+                  : u.publicKey;
+              return (
+                <Avatar
+                  key={u.publicKey}
+                  src={u.pfp || undefined}
+                  alt={short}
+                  title={short}
+                  className="user-bubble"
+                  sx={{ width: 30 + u.count * 5, height: 30 + u.count * 5 }}
+                  onClick={() => setSelectedUser(u)}
+                />
+              );
+            })}
+          </Box>
+          {selectedUser && (
+            <Box className="bubble-map" sx={{ mt: 2 }}>
+              {selectedUser.contracts.map((c) => {
+                const count =
+                  data.contracts.find((cc) => cc.contract === c)?.count || 1;
+                const short =
+                  c.length > 7 ? `${c.slice(0, 3)}...${c.slice(-4)}` : c;
+                return (
+                  <Box
+                    key={c}
+                    className="bubble"
+                    sx={{ width: 40 + count * 10, height: 40 + count * 10 }}
+                  >
+                    {short}
+                  </Box>
+                );
+              })}
             </Box>
-          );
-        })}
-      </Box>
-      <Box className="bubble-map" sx={{ mt: 4 }}>
-        {data.users.map((u) => {
-          const short =
-            u.publicKey.length > 7
-              ? `${u.publicKey.slice(0, 3)}...${u.publicKey.slice(-4)}`
-              : u.publicKey;
-          return (
-            <Avatar
-              key={u.publicKey}
-              src={u.pfp || undefined}
-              alt={short}
-              title={short}
-              className="user-bubble"
-              sx={{ width: 30 + u.count * 5, height: 30 + u.count * 5 }}
-            />
-          );
-        })}
-      </Box>
+          )}
+        </>
+      )}
     </Box>
   );
 };

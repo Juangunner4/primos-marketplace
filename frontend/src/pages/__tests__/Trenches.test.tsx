@@ -6,7 +6,14 @@ import i18n from '../../i18n';
 import Trenches from '../Trenches';
 
 jest.mock('../utils/api', () => ({
-  get: jest.fn(() => Promise.resolve({ data: { contracts: [], users: [] } })),
+  get: jest.fn(() =>
+    Promise.resolve({
+      data: {
+        contracts: [{ contract: 'c1', count: 1 }],
+        users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
+      },
+    })
+  ),
   post: jest.fn(() => Promise.resolve()),
 }));
 
@@ -26,5 +33,6 @@ describe('Trenches page', () => {
     );
     expect(screen.getByText(/Trenches/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /Add Contract/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /My Contracts/i })).toBeTruthy();
   });
 });
