@@ -18,7 +18,7 @@ describe('Stickers page', () => {
         </I18nextProvider>
       </MemoryRouter>
     );
-    expect(screen.getByText(/Experiment #2/i)).toBeTruthy();
+    expect(screen.getByText(/Stickers/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /Order Sticker/i })).toBeDisabled();
   });
 });
