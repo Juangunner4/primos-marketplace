@@ -19,6 +19,7 @@ public class TrenchServiceTest {
 
         TrenchUser u1 = TrenchUser.find("publicKey", "u1").firstResult();
         assertEquals(1, u1.getCount());
+        assertTrue(u1.getContracts().contains("ca1"));
         TrenchUser u2 = TrenchUser.find("publicKey", "u2").firstResult();
         assertEquals(1, u2.getCount());
     }

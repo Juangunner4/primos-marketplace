@@ -5,6 +5,7 @@ import com.primos.model.TrenchUser;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import java.util.ArrayList;
 import jakarta.ws.rs.BadRequestException;
 
 @ApplicationScoped
@@ -28,6 +29,9 @@ public class TrenchService {
             tu = new TrenchUser();
             tu.setPublicKey(publicKey);
             tu.setCount(1);
+            java.util.List<String> list = new ArrayList<>();
+            list.add(contract);
+            tu.setContracts(list);
             tu.setLastSubmittedAt(now);
             tu.persist();
         } else {
@@ -36,6 +40,12 @@ public class TrenchService {
                 throw new BadRequestException();
             }
             tu.setCount(tu.getCount() + 1);
+            java.util.List<String> list = tu.getContracts();
+            if (list == null) list = new ArrayList<>();
+            if (!list.contains(contract)) {
+                list.add(contract);
+            }
+            tu.setContracts(list);
             tu.setLastSubmittedAt(now);
             tu.persistOrUpdate();
         }

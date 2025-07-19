@@ -16,5 +16,6 @@ public class TrenchResourceTest {
         assertEquals("ca1", data.contracts.get(0).getContract());
         assertEquals(1, data.users.size());
         assertEquals("w1", data.users.get(0).publicKey);
+        assertTrue(data.users.get(0).contracts.contains("ca1"));
     }
 }

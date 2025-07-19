@@ -29,6 +29,7 @@ public class TrenchResource {
         public String publicKey;
         public String pfp;
         public int count;
+        public java.util.List<String> contracts;
     }
 
     public static class TrenchData {
@@ -55,6 +56,7 @@ public class TrenchResource {
             info.count = u.getCount();
             User user = User.find("publicKey", u.getPublicKey()).firstResult();
             info.pfp = user != null ? user.getPfp() : "";
+            info.contracts = u.getContracts();
             return info;
         }).collect(Collectors.toList());
         return data;
