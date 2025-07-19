@@ -14,7 +14,7 @@ public class WorkResourceTest {
         WorkRequest req = new WorkRequest();
         req.setDescription("paint a primo");
         res.create("collector1", req);
-        List<WorkRequest> list = res.list();
+        List<WorkRequest> list = res.list(null);
         assertEquals(1, list.size());
         assertEquals("collector1", list.get(0).getRequester());
     }
