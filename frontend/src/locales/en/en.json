@@ -197,6 +197,7 @@
  ,"work_other": "Other"
  ,"work_request_placeholder": "Describe your request"
  ,"work_submit": "Submit"
- ,"work_pick": "Pick Up"
- ,"work_assigned_to": "Assigned to"
+  ,"work_pick": "Pick Up"
+  ,"work_assigned_to": "Assigned to"
+  ,"work_no_groups": "You are not part of any work groups. Join one in your profile."
 }

@@ -13,7 +13,7 @@ jest.mock('../../utils/api', () => ({
   ),
 }));
 
-jest.mock('../services/helius', () => ({
+jest.mock('../../services/helius', () => ({
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null)),
   fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([])),
 }));

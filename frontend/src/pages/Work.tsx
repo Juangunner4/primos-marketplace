@@ -104,8 +104,10 @@ const Work: React.FC = () => {
   return (
     <Box>
       <h2>{t('work_title')}</h2>
-      <Box mb={2}>
-        {workGroups.length > 0 && (
+      {workGroups.length === 0 ? (
+        <Typography sx={{ my: 2 }}>{t('work_no_groups')}</Typography>
+      ) : (
+        <Box mb={2}>
           <FormControl fullWidth sx={{ mb: 1 }}>
             <InputLabel id="group-label">{t('work_group_label')}</InputLabel>
             <Select
@@ -121,10 +123,17 @@ const Work: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-        )}
-        <TextField fullWidth value={desc} onChange={e => setDesc(e.target.value)} placeholder={t('work_request_placeholder') || ''} />
-        <Button variant="contained" sx={{ mt: 1 }} onClick={submit}>{t('work_submit')}</Button>
-      </Box>
+          <TextField
+            fullWidth
+            value={desc}
+            onChange={e => setDesc(e.target.value)}
+            placeholder={t('work_request_placeholder') || ''}
+          />
+          <Button variant="contained" sx={{ mt: 1 }} onClick={submit}>
+            {t('work_submit')}
+          </Button>
+        </Box>
+      )}
       {requests.map((r, i) => {
         const reqUser = users[r.requester];
         const workerUser = r.worker ? users[r.worker] : undefined;
