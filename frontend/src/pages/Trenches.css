@@ -9,6 +9,7 @@
   gap: 0.5rem;
   justify-content: center;
   margin-top: 1rem;
+  width: 100%;
 }
 
 .bubble {
@@ -19,8 +20,19 @@
   align-items: center;
   justify-content: center;
   padding: 4px;
+  flex: 0 0 auto;
+  word-break: break-word;
+  font-size: clamp(0.6rem, 2.5vw, 1rem);
 }
 
 .user-bubble {
   border: 2px solid #1976d2;
+  flex: 0 0 auto;
+  font-size: clamp(0.6rem, 2.5vw, 1rem);
+}
+
+@media (max-width: 600px) {
+  .bubble-map {
+    gap: 0.25rem;
+  }
 }

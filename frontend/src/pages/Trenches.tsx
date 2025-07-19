@@ -87,47 +87,68 @@ const Trenches: React.FC = () => {
         </Button>
       </Box>
       {!viewAll && (
-        <Box className="bubble-map">
-          {(data.users.find((u) => u.publicKey === publicKey?.toBase58())?.
-            contracts || [])
-            .map((c) => {
-              const count =
-                data.contracts.find((cc) => cc.contract === c)?.count || 1;
-              const short =
-                c.length > 7 ? `${c.slice(0, 3)}...${c.slice(-4)}` : c;
-              return (
-                <Box
-                  key={c}
-                  className="bubble"
-                  sx={{ width: 40 + count * 10, height: 40 + count * 10 }}
-                >
-                  {short}
-                </Box>
-              );
-            })}
-        </Box>
+        <>
+          {(
+            data.users.find((u) => u.publicKey === publicKey?.toBase58())?.
+              contracts || []
+          ).length === 0 ? (
+            <Typography sx={{ mt: 2 }}>{t('no_scans')}</Typography>
+          ) : (
+            <Box className="bubble-map">
+              {(data.users.find((u) => u.publicKey === publicKey?.toBase58())?.
+                contracts || [])
+                .map((c) => {
+                  const count =
+                    data.contracts.find((cc) => cc.contract === c)?.count || 1;
+                  const short =
+                    c.length > 7 ? `${c.slice(0, 3)}...${c.slice(-4)}` : c;
+                  const size = Math.max(
+                    40,
+                    Math.min(100, 40 + count * 10)
+                  );
+                  return (
+                    <Box
+                      key={c}
+                      className="bubble"
+                      sx={{ width: size, height: size, fontSize: size / 5 }}
+                    >
+                      {short}
+                    </Box>
+                  );
+                })}
+            </Box>
+          )}
+        </>
       )}
       {viewAll && (
         <>
-          <Box className="bubble-map">
-            {data.users.map((u) => {
-              const short =
-                u.publicKey.length > 7
-                  ? `${u.publicKey.slice(0, 3)}...${u.publicKey.slice(-4)}`
-                  : u.publicKey;
-              return (
-                <Avatar
-                  key={u.publicKey}
-                  src={u.pfp || undefined}
-                  alt={short}
-                  title={short}
-                  className="user-bubble"
-                  sx={{ width: 30 + u.count * 5, height: 30 + u.count * 5 }}
-                  onClick={() => setSelectedUser(u)}
-                />
-              );
-            })}
-          </Box>
+          {data.users.length === 0 ? (
+            <Typography sx={{ mt: 2 }}>{t('no_scans')}</Typography>
+          ) : (
+            <Box className="bubble-map">
+              {data.users.map((u) => {
+                const short =
+                  u.publicKey.length > 7
+                    ? `${u.publicKey.slice(0, 3)}...${u.publicKey.slice(-4)}`
+                    : u.publicKey;
+                const size = Math.max(
+                  30,
+                  Math.min(80, 30 + u.count * 5)
+                );
+                return (
+                  <Avatar
+                    key={u.publicKey}
+                    src={u.pfp || undefined}
+                    alt={short}
+                    title={short}
+                    className="user-bubble"
+                    sx={{ width: size, height: size }}
+                    onClick={() => setSelectedUser(u)}
+                  />
+                );
+              })}
+            </Box>
+          )}
           {selectedUser && (
             <Box className="bubble-map" sx={{ mt: 2 }}>
               {selectedUser.contracts.map((c) => {
@@ -135,11 +156,15 @@ const Trenches: React.FC = () => {
                   data.contracts.find((cc) => cc.contract === c)?.count || 1;
                 const short =
                   c.length > 7 ? `${c.slice(0, 3)}...${c.slice(-4)}` : c;
+                const size = Math.max(
+                  40,
+                  Math.min(100, 40 + count * 10)
+                );
                 return (
                   <Box
                     key={c}
                     className="bubble"
-                    sx={{ width: 40 + count * 10, height: 40 + count * 10 }}
+                    sx={{ width: size, height: size, fontSize: size / 5 }}
                   >
                     {short}
                   </Box>
