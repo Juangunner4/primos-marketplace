@@ -69,25 +69,39 @@ const Trenches: React.FC = () => {
         </Button>
       </Box>
       <Box className="bubble-map">
-        {data.contracts.map((c) => (
-          <Box
-            key={c.contract}
-            className="bubble"
-            sx={{ width: 40 + c.count * 10, height: 40 + c.count * 10 }}
-          >
-            {c.contract}
-          </Box>
-        ))}
+        {data.contracts.map((c) => {
+          const short =
+            c.contract.length > 7
+              ? `${c.contract.slice(0, 3)}...${c.contract.slice(-4)}`
+              : c.contract;
+          return (
+            <Box
+              key={c.contract}
+              className="bubble"
+              sx={{ width: 40 + c.count * 10, height: 40 + c.count * 10 }}
+            >
+              {short}
+            </Box>
+          );
+        })}
       </Box>
       <Box className="bubble-map" sx={{ mt: 4 }}>
-        {data.users.map((u) => (
-          <Avatar
-            key={u.publicKey}
-            src={u.pfp || undefined}
-            className="user-bubble"
-            sx={{ width: 30 + u.count * 5, height: 30 + u.count * 5 }}
-          />
-        ))}
+        {data.users.map((u) => {
+          const short =
+            u.publicKey.length > 7
+              ? `${u.publicKey.slice(0, 3)}...${u.publicKey.slice(-4)}`
+              : u.publicKey;
+          return (
+            <Avatar
+              key={u.publicKey}
+              src={u.pfp || undefined}
+              alt={short}
+              title={short}
+              className="user-bubble"
+              sx={{ width: 30 + u.count * 5, height: 30 + u.count * 5 }}
+            />
+          );
+        })}
       </Box>
     </Box>
   );
