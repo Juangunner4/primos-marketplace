@@ -124,6 +124,7 @@ public class LoginService {
         user.setDaoMember(holder);
         user.setPrimoHolder(holder);
         user.setArtTeam(false);
+        user.setWorkGroups(new java.util.ArrayList<>());
         return user;
     }
 

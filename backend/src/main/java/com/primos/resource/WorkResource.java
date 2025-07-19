@@ -16,8 +16,8 @@ public class WorkResource {
     WorkRequestService service;
 
     @GET
-    public List<WorkRequest> list() {
-        return service.list();
+    public List<WorkRequest> list(@QueryParam("group") String group) {
+        return service.list(group);
     }
 
     @POST
@@ -26,6 +26,17 @@ public class WorkResource {
             throw new BadRequestException();
         }
         String desc = req != null ? req.getDescription() : null;
-        return service.add(publicKey, desc == null ? "" : desc);
+        String group = req != null ? req.getGroup() : null;
+        return service.add(publicKey, group == null ? "" : group, desc == null ? "" : desc);
+    }
+
+    @PUT
+    @Path("/{id}/assign")
+    public WorkRequest assign(@PathParam("id") String id,
+            @HeaderParam("X-Public-Key") String worker) {
+        if (worker == null || worker.isEmpty()) {
+            throw new BadRequestException();
+        }
+        return service.assign(id, worker);
     }
 }

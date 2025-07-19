@@ -7,7 +7,7 @@ import { keyframes } from '@emotion/react';
 import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel } from '@mui/material';
+import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -34,6 +34,7 @@ type UserDoc = {
   pointsDate: string;
   pesos: number;
   artTeam: boolean;
+  workGroups: string[];
 };
 
 const getStatus = (count: number) => {
@@ -72,7 +73,7 @@ const UserProfile: React.FC = () => {
       api
         .get(`/api/user/${profileKey}`,
           publicKey ? { headers: { 'X-Public-Key': publicKey.toBase58() } } : undefined)
-        .then((res) => setUser(res.data))
+        .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }))
         .catch(() => setUser(null));
     }
   }, [profileKey, publicKey]);
@@ -125,7 +126,7 @@ const UserProfile: React.FC = () => {
           tokenAddress,
           { headers: { 'Content-Type': 'text/plain', 'X-Public-Key': publicKey.toBase58() } }
         )
-        .then((res) => setUser(res.data));
+        .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }));
     }
   };
 
@@ -184,7 +185,7 @@ const UserProfile: React.FC = () => {
           .put(`/api/user/${publicKey.toBase58()}`, user, {
             headers: { 'X-Public-Key': publicKey.toBase58() },
           })
-          .then((res) => setUser(res.data))
+          .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }))
           .finally(() => {
             setIsEditing(false);
             setShowNFTs(false);
@@ -211,7 +212,7 @@ const UserProfile: React.FC = () => {
           {},
           { headers: { 'Content-Type': 'application/json', 'X-Public-Key': publicKey.toBase58() } }
         )
-        .then((res) => setUser(res.data))
+        .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }))
         .finally(() => {
           setTimeout(() => {
             setBallAnimating(false);
@@ -339,18 +340,32 @@ const fadeOut = keyframes`
           margin="normal"
           disabled={!isOwner || !isEditing}
         />
-        {isOwner && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={user.artTeam}
-                onChange={(e) => setUser({ ...user, artTeam: e.target.checked })}
-                disabled={!isEditing}
-              />
-            }
-            label={t('work_join_label')}
-          />
-        )}
+        <Box mb={1}>
+          <Typography>{t('work_join_label')}</Typography>
+          <Box mt={1} sx={{ display: 'flex', gap: 1 }}>
+            {['art', 'dev', 'other'].map((g) => {
+              const selected = user.workGroups.includes(g);
+              return (
+                <Button
+                  key={g}
+                  variant={selected ? 'contained' : 'outlined'}
+                  size="small"
+                  onClick={() => {
+                      if (!isOwner || !isEditing) return;
+                      setUser((u) => {
+                        const groups = u.workGroups.includes(g)
+                          ? u.workGroups.filter((x) => x !== g)
+                          : [...u.workGroups, g];
+                        return { ...u, workGroups: groups, artTeam: groups.includes('art') };
+                      });
+                  }}
+                >
+                  {t(`work_${g}` as any)}
+                </Button>
+              );
+            })}
+          </Box>
+        </Box>
         <TextField
           label={t('sns_domain')}
           value={primaryDomain || ''}
