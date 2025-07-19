@@ -5,21 +5,14 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '../../i18n';
 import Trenches from '../Trenches';
 
-jest.mock('../utils/api', () => ({
-  get: jest.fn(() =>
+jest.mock('../../services/trench', () => ({
+  fetchTrenchData: jest.fn(() =>
     Promise.resolve({
-      data: {
-        contracts: [{ contract: 'c1', count: 1 }],
-        users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
-      },
+      contracts: [{ contract: 'c1', count: 1 }],
+      users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
     })
   ),
-  post: jest.fn(() => Promise.resolve()),
-}));
-
-jest.mock('../utils/helius', () => ({
-  getNFTByTokenAddress: jest.fn(() => Promise.resolve(null)),
-  fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([])),
+  submitTrenchContract: jest.fn(() => Promise.resolve()),
 }));
 
 describe('Trenches page', () => {
