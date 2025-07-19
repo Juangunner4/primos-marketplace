@@ -5,11 +5,11 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '../../i18n';
 import Experiment1 from '../Experiment1';
 
-jest.mock('../utils/helius', () => ({
+jest.mock('../../utils/helius', () => ({
   fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([]))
 }));
 
-jest.mock('../utils/api', () => ({
+jest.mock('../../utils/api', () => ({
   post: jest.fn(() => Promise.resolve({ data: { stlUrl: 'url', tokenAddress: 'x' } }))
 }));
 

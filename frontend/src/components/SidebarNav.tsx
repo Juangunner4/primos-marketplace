@@ -23,7 +23,7 @@ const SidebarNav: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists, artTeam } = usePrimoHolder();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
@@ -42,7 +42,7 @@ const SidebarNav: React.FC = () => {
       to: '/work',
       icon: <ConstructionIcon />,
       label: t('work_title'),
-      show: publicKey && (isHolder || betaRedeemed) && userExists,
+      show: publicKey && (isHolder || betaRedeemed) && userExists && artTeam,
     },
     {
       to: '/labs',

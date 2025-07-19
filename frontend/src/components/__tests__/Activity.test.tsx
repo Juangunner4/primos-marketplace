@@ -4,15 +4,15 @@ import { I18nextProvider } from 'react-i18next';
 import Activity from '../Activity';
 import i18n from '../../i18n';
 
-jest.mock('../utils/magiceden', () => ({
+jest.mock('../../utils/magiceden', () => ({
   fetchMagicEdenActivity: jest.fn(() => Promise.resolve([]))
 }));
 
-jest.mock('../services/helius', () => ({
+jest.mock('../../services/helius', () => ({
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));
 
-jest.mock('../utils/pyth', () => ({
+jest.mock('../../utils/pyth', () => ({
   getPythSolPrice: jest.fn(() => Promise.resolve(null))
 }));
 
@@ -29,8 +29,8 @@ describe('Activity component', () => {
   });
 
   test('opens NFTCard on image click', async () => {
-    const { fetchMagicEdenActivity } = require('../utils/magiceden');
-    const { getNFTByTokenAddress } = require('../services/helius');
+    const { fetchMagicEdenActivity } = require('../../utils/magiceden');
+    const { getNFTByTokenAddress } = require('../../services/helius');
     (fetchMagicEdenActivity as jest.Mock).mockResolvedValueOnce([
       {
         tokenMint: 'mint1',
@@ -58,7 +58,7 @@ describe('Activity component', () => {
   });
 
   test('displays activity time', async () => {
-    const { fetchMagicEdenActivity } = require('../utils/magiceden');
+    const { fetchMagicEdenActivity } = require('../../utils/magiceden');
     (fetchMagicEdenActivity as jest.Mock).mockResolvedValueOnce([
       {
         tokenMint: 'mint2',
