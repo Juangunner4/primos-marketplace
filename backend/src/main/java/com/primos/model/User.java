@@ -13,6 +13,7 @@ public class User extends PanacheMongoEntity {
     private int points = 0;
     private int pointsToday = 0;
     private String pointsDate = java.time.LocalDate.now().toString();
+    private int nftCount = 0;
     private int pesos = 1;
     private boolean primoHolder = false;
     private boolean daoMember = true;
@@ -83,6 +84,14 @@ public class User extends PanacheMongoEntity {
 
     public void setPointsDate(String pointsDate) {
         this.pointsDate = pointsDate;
+    }
+
+    public int getNftCount() {
+        return nftCount;
+    }
+
+    public void setNftCount(int nftCount) {
+        this.nftCount = nftCount;
     }
 
     public int getPesos() {

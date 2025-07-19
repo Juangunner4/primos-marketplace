@@ -11,6 +11,7 @@ public class PointsResetJobTest {
         User user = new User();
         user.setPublicKey("test");
         user.setPointsToday(3);
+        user.setPointsDate("2000-01-01");
         user.persist();
 
         PointsResetJob job = new PointsResetJob();
@@ -19,5 +20,6 @@ public class PointsResetJobTest {
         User updated = User.find("publicKey", "test").firstResult();
         assertNotNull(updated);
         assertEquals(0, updated.getPointsToday());
+        assertEquals(java.time.LocalDate.now().toString(), updated.getPointsDate());
     }
 }
