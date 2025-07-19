@@ -5,9 +5,11 @@ import com.primos.model.TrenchUser;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import jakarta.ws.rs.BadRequestException;
 
 @ApplicationScoped
 public class TrenchService {
+    private static final long MIN_SUBMIT_INTERVAL_MS = 60_000; // 1 minute cooldown
     public void add(String publicKey, String contract) {
         TrenchContract tc = TrenchContract.find("contract", contract).firstResult();
         if (tc == null) {
@@ -21,13 +23,20 @@ public class TrenchService {
         }
 
         TrenchUser tu = TrenchUser.find("publicKey", publicKey).firstResult();
+        long now = System.currentTimeMillis();
         if (tu == null) {
             tu = new TrenchUser();
             tu.setPublicKey(publicKey);
             tu.setCount(1);
+            tu.setLastSubmittedAt(now);
             tu.persist();
         } else {
+            long since = now - tu.getLastSubmittedAt();
+            if (since < MIN_SUBMIT_INTERVAL_MS) {
+                throw new BadRequestException();
+            }
             tu.setCount(tu.getCount() + 1);
+            tu.setLastSubmittedAt(now);
             tu.persistOrUpdate();
         }
     }

@@ -10,6 +10,11 @@ jest.mock('../utils/api', () => ({
   post: jest.fn(() => Promise.resolve()),
 }));
 
+jest.mock('../utils/helius', () => ({
+  getNFTByTokenAddress: jest.fn(() => Promise.resolve(null)),
+  fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([])),
+}));
+
 describe('Trenches page', () => {
   test('renders add button disabled', async () => {
     render(
