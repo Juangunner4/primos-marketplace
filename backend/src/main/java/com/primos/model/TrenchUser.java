@@ -7,6 +7,7 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 public class TrenchUser extends PanacheMongoEntity {
     private String publicKey;
     private int count;
+    private long lastSubmittedAt;
 
     public String getPublicKey() {
         return publicKey;
@@ -22,5 +23,13 @@ public class TrenchUser extends PanacheMongoEntity {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public long getLastSubmittedAt() {
+        return lastSubmittedAt;
+    }
+
+    public void setLastSubmittedAt(long lastSubmittedAt) {
+        this.lastSubmittedAt = lastSubmittedAt;
     }
 }

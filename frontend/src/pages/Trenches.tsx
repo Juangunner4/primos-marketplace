@@ -7,7 +7,10 @@ import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import './Trenches.css';
+
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 interface TrenchContract {
   contract: string;
@@ -33,7 +36,23 @@ const Trenches: React.FC = () => {
 
   const load = async () => {
     const res = await api.get<TrenchData>('/api/trench');
-    setData(res.data);
+    const enriched = await Promise.all(
+      res.data.users.map(async (u) => {
+        let image = '';
+        if (u.pfp) {
+          const nft = await getNFTByTokenAddress(u.pfp.replace(/"/g, ''));
+          image = nft?.image || '';
+        } else {
+          const nfts = await fetchCollectionNFTsForOwner(
+            u.publicKey,
+            PRIMO_COLLECTION
+          );
+          image = nfts[0]?.image || '';
+        }
+        return { ...u, pfp: image };
+      })
+    );
+    setData({ contracts: res.data.contracts, users: enriched });
   };
 
   useEffect(() => {
