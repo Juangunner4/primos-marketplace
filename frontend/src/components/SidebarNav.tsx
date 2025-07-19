@@ -15,6 +15,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
+import WorkIcon from '@mui/icons-material/Work';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
