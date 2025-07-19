@@ -28,6 +28,7 @@ import Trenches from './pages/Trenches';
 import Docs from './pages/Docs';
 import TokenScanner from './pages/TokenScanner';
 import Admin from './pages/Admin';
+import Work from './pages/Work';
 import BetaRedeem from './components/BetaRedeem';
 import LoadingOverlay from './components/LoadingOverlay';
 
@@ -207,7 +208,7 @@ const Header: React.FC = () => {
 
 const AppRoutes = () => {
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists, artTeam } = usePrimoHolder();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -231,6 +232,9 @@ const AppRoutes = () => {
       navigate('/', { replace: true });
     }
     if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/trenches') {
+      navigate('/', { replace: true });
+    }
+    if ((!publicKey || (!isHolder && !betaRedeemed) || !artTeam) && location.pathname === '/work') {
       navigate('/', { replace: true });
     }
     if (
@@ -267,6 +271,7 @@ const AppRoutes = () => {
               <Route path="/experiment1" element={<Experiment1 />} />
               <Route path="/stickers" element={<Stickers />} />
               <Route path="/trenches" element={<Trenches />} />
+              {artTeam && <Route path="/work" element={<Work />} />}
               <Route path="/profile"   element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />
             </>

@@ -182,10 +182,14 @@
   "experiment2_desc": "Ordena calcomanías de tus Primos NFTs con códigos QR que enlazan al marketplace y a tus redes. El 5% del costo apoya al DAO.",
   "order_sticker": "Pedir calcomanía",
   "stickers_order_thanks": "¡Pronto podrás completar tu pedido!"
-  ,"experiment3_title": "Trincheras"
-  ,"experiment3_desc": "Ingresa direcciones de contrato para hacer crecer las trincheras. Las burbujas aumentan al unirse más usuarios."
-  ,"enter_contract": "Ingresa dirección de contrato"
-  ,"add_contract": "Agregar Contrato"
-  ,"my_contracts": "Mis Contratos"
-  ,"all_users": "Todos los Usuarios"
+ ,"experiment3_title": "Trincheras"
+ ,"experiment3_desc": "Ingresa direcciones de contrato para hacer crecer las trincheras. Las burbujas aumentan al unirse más usuarios."
+ ,"enter_contract": "Ingresa dirección de contrato"
+ ,"add_contract": "Agregar Contrato"
+ ,"my_contracts": "Mis Contratos"
+ ,"all_users": "Todos los Usuarios"
+ ,"work_title": "Solicitudes de Arte"
+ ,"work_join_label": "Unirse al Equipo de Arte Primo"
+ ,"work_request_placeholder": "Describe tu solicitud"
+ ,"work_submit": "Enviar"
 }
