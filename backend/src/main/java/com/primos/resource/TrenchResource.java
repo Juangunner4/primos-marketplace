@@ -42,7 +42,9 @@ public class TrenchResource {
         if (publicKey == null || req == null || !req.containsKey("contract")) {
             throw new BadRequestException();
         }
-        service.add(publicKey, req.get("contract"));
+        String source = req.getOrDefault("source", "website");
+        String model = req.get("model");
+        service.add(publicKey, req.get("contract"), source, model);
     }
 
     @GET

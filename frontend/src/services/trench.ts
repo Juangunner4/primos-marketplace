@@ -7,6 +7,8 @@ const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 export interface TrenchContract {
   contract: string;
   count: number;
+  source?: string;
+  model?: string;
 }
 
 export interface TrenchUser {
@@ -44,11 +46,12 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
 
 export const submitTrenchContract = async (
   publicKey: string,
-  contract: string
+  contract: string,
+  model?: string
 ): Promise<void> => {
   await api.post(
     '/api/trench',
-    { contract },
+    { contract, source: 'website', model },
     { headers: { 'X-Public-Key': publicKey } }
   );
 };

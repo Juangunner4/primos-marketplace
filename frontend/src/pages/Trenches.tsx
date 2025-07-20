@@ -13,6 +13,8 @@ import './Trenches.css';
 interface TrenchContract {
   contract: string;
   count: number;
+  source?: string;
+  model?: string;
 }
 
 interface TrenchUser {
@@ -32,7 +34,7 @@ const Trenches: React.FC = () => {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [] });
-  const [tab, setTab] = useState<'my' | 'users' | 'contracts'>('my');
+  const [tab, setTab] = useState<'my' | 'users' | 'contracts' | 'scanner'>('my');
   const [selectedUser, setSelectedUser] = useState<TrenchUser | null>(null);
   const [openContract, setOpenContract] = useState<string | null>(null);
 
@@ -48,6 +50,11 @@ const Trenches: React.FC = () => {
       .map(([contract, c]) => ({ contract, count: c }));
   }, [data]);
 
+  const telegramContracts = useMemo(
+    () => data.contracts.filter((c) => c.source === 'telegram'),
+    [data]
+  );
+
   const load = async () => {
     const res = await fetchTrenchData();
     setData(res);
@@ -59,7 +66,7 @@ const Trenches: React.FC = () => {
 
   const handleAdd = async () => {
     if (!input || !publicKey) return;
-    await submitTrenchContract(publicKey.toBase58(), input);
+    await submitTrenchContract(publicKey.toBase58(), input, 'model1');
     setInput('');
     load();
   };
@@ -111,6 +118,15 @@ const Trenches: React.FC = () => {
         >
           {t('all_contracts')}
         </Button>
+        <Button
+          variant={tab === 'scanner' ? 'contained' : 'outlined'}
+          onClick={() => {
+            setTab('scanner');
+            setSelectedUser(null);
+          }}
+        >
+          {t('scanner')}
+        </Button>
       </Box>
       {tab === 'my' && (
         <>
@@ -132,6 +148,7 @@ const Trenches: React.FC = () => {
                     40,
                     Math.min(100, 40 + count * 10)
                   );
+                  const meta = data.contracts.find((cc) => cc.contract === c);
                   return (
                     <Box
                       key={c}
@@ -140,6 +157,9 @@ const Trenches: React.FC = () => {
                       onClick={() => setOpenContract(c)}
                     >
                       {short}
+                      {meta?.model && (
+                        <Box className="model-tag">{meta.model}</Box>
+                      )}
                     </Box>
                   );
                 })}
@@ -195,6 +215,11 @@ const Trenches: React.FC = () => {
                     onClick={() => setOpenContract(c)}
                   >
                     {short}
+                    {data.contracts.find((cc) => cc.contract === c)?.model && (
+                      <Box className="model-tag">
+                        {data.contracts.find((cc) => cc.contract === c)?.model}
+                      </Box>
+                    )}
                   </Box>
                 );
               })}
@@ -225,6 +250,39 @@ const Trenches: React.FC = () => {
                     onClick={() => setOpenContract(c.contract)}
                   >
                     {short}
+                    {data.contracts.find((cc) => cc.contract === c.contract)?.model && (
+                      <Box className="model-tag">
+                        {data.contracts.find((cc) => cc.contract === c.contract)?.model}
+                      </Box>
+                    )}
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
+        </>
+      )}
+      {tab === 'scanner' && (
+        <>
+          {telegramContracts.length === 0 ? (
+            <Typography sx={{ mt: 2 }}>{t('no_scans')}</Typography>
+          ) : (
+            <Box className="bubble-map">
+              {telegramContracts.map((c) => {
+                const short =
+                  c.contract.length > 7
+                    ? `${c.contract.slice(0, 3)}...${c.contract.slice(-4)}`
+                    : c.contract;
+                const size = 60;
+                return (
+                  <Box
+                    key={c.contract}
+                    className="bubble"
+                    sx={{ width: size, height: size, fontSize: size / 5 }}
+                    onClick={() => setOpenContract(c.contract)}
+                  >
+                    {short}
+                    {c.model && <Box className="model-tag">{c.model}</Box>}
                   </Box>
                 );
               })}

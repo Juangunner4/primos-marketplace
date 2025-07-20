@@ -23,10 +23,10 @@ describe('trench service', () => {
 
   test('submitTrenchContract posts to api', async () => {
     (api.post as jest.Mock).mockResolvedValue({});
-    await submitTrenchContract('w1', 'c1');
+    await submitTrenchContract('w1', 'c1', 'm1');
     expect(api.post).toHaveBeenCalledWith(
       '/api/trench',
-      { contract: 'c1' },
+      { contract: 'c1', source: 'website', model: 'm1' },
       { headers: { 'X-Public-Key': 'w1' } }
     );
   });

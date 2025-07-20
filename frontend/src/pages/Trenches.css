@@ -23,6 +23,20 @@
   flex: 0 0 auto;
   word-break: break-word;
   font-size: clamp(0.6rem, 2.5vw, 1rem);
+  position: relative;
+}
+
+.model-tag {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #fff;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-size: 10px;
+  line-height: 1;
 }
 
 .user-bubble {

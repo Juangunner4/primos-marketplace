@@ -33,6 +33,7 @@ describe('Trenches page', () => {
     expect(screen.getByRole('button', { name: /Add Contract/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /My Contracts/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /All Contracts/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Scanner/i })).toBeTruthy();
   });
 
   test('shows message when no contracts', async () => {

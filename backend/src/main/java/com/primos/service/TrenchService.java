@@ -11,12 +11,14 @@ import jakarta.ws.rs.BadRequestException;
 @ApplicationScoped
 public class TrenchService {
     private static final long MIN_SUBMIT_INTERVAL_MS = 60_000; // 1 minute cooldown
-    public void add(String publicKey, String contract) {
+    public void add(String publicKey, String contract, String source, String model) {
         TrenchContract tc = TrenchContract.find("contract", contract).firstResult();
         if (tc == null) {
             tc = new TrenchContract();
             tc.setContract(contract);
             tc.setCount(1);
+            tc.setSource(source);
+            tc.setModel(model);
             tc.persist();
         } else {
             tc.setCount(tc.getCount() + 1);
