@@ -7,6 +7,7 @@ import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'react-i18next';
 import { fetchTrenchData, submitTrenchContract } from '../services/trench';
+import TelegramPanel from '../components/TelegramPanel';
 import './Trenches.css';
 
 interface TrenchContract {
@@ -33,6 +34,7 @@ const Trenches: React.FC = () => {
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [] });
   const [tab, setTab] = useState<'my' | 'users' | 'contracts'>('my');
   const [selectedUser, setSelectedUser] = useState<TrenchUser | null>(null);
+  const [openContract, setOpenContract] = useState<string | null>(null);
 
   const multiContracts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -135,6 +137,7 @@ const Trenches: React.FC = () => {
                       key={c}
                       className="bubble"
                       sx={{ width: size, height: size, fontSize: size / 5 }}
+                      onClick={() => setOpenContract(c)}
                     >
                       {short}
                     </Box>
@@ -189,6 +192,7 @@ const Trenches: React.FC = () => {
                     key={c}
                     className="bubble"
                     sx={{ width: size, height: size, fontSize: size / 5 }}
+                    onClick={() => setOpenContract(c)}
                   >
                     {short}
                   </Box>
@@ -218,6 +222,7 @@ const Trenches: React.FC = () => {
                     key={c.contract}
                     className="bubble"
                     sx={{ width: size, height: size, fontSize: size / 5 }}
+                    onClick={() => setOpenContract(c.contract)}
                   >
                     {short}
                   </Box>
@@ -227,6 +232,11 @@ const Trenches: React.FC = () => {
           )}
         </>
       )}
+      <TelegramPanel
+        contract={openContract}
+        open={openContract !== null}
+        onClose={() => setOpenContract(null)}
+      />
     </Box>
   );
 };
