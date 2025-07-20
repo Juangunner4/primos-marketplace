@@ -197,9 +197,41 @@ export const checkPrimoHolder = async (
   collectionAddress: string,
   ownerPubkey: string
 ): Promise<boolean> => {
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+
+  if (!apiKey) {
+    console.error(
+      'Helius API key is not configured. Please set REACT_APP_HELIUS_API_KEY environment variable.'
+    );
+    return false;
+  }
+
   try {
-    const nfts = await getAssetsByCollection(collectionAddress, ownerPubkey);
-    return nfts.length > 0;
+    const response = await heliusFetch(
+      `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'searchAssets',
+          params: {
+            ownerAddress: ownerPubkey,
+            grouping: ['collection', collectionAddress],
+            tokenType: 'regularNft',
+            page: 1,
+            limit: 1,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) return false;
+
+    const data = await response.json();
+    const items = data.result?.items || [];
+    return items.length > 0;
   } catch (e) {
     console.error('Failed to check Primo holder status', e);
     return false;

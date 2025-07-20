@@ -65,9 +65,11 @@ describe('helius utilities', () => {
   });
 
   test('checkPrimoHolder returns true when collection has NFTs', async () => {
-    jest
-      .spyOn(require('../helius'), 'getAssetsByCollection')
-      .mockResolvedValueOnce([{ id: '1' }]);
+    const response = {
+      ok: true,
+      json: async () => ({ result: { items: [{ id: '1' }] } }),
+    };
+    (global as any).fetch = jest.fn().mockResolvedValue(response);
     const result = await checkPrimoHolder('col', 'owner');
     expect(result).toBe(true);
   });
