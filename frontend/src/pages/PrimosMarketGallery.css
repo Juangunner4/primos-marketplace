@@ -317,6 +317,12 @@
   gap: 0.5rem;
 }
 
+.market-filter-sticky {
+  position: sticky;
+  top: 80px;
+  z-index: 100;
+}
+
 .nft-gallery-grid.market-nft-list.nft-list>* {
   transition:
     transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),

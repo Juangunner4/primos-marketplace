@@ -409,24 +409,24 @@ const PrimosMarketGallery: React.FC = () => {
           transition: 'opacity 0.2s, filter 0.2s',
         }}
       >
-        <GallerySettings
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          minRank={minRank}
-          maxRank={maxRank}
-          attributeGroups={attributeGroups}
-          selectedAttributes={selectedAttributes}
-          setSelectedAttributes={setSelectedAttributes}
-          setMinPrice={setMinPrice}
-          setMaxPrice={setMaxPrice}
-          setMinRank={setMinRank}
-          setMaxRank={setMaxRank}
-          onClearFilters={handleClearFilters}
-          onApplyFilters={handleApplyFilters}
-          view={view}
-          onViewChange={setView}
-        />
         <div className="market-gallery" style={{ flex: 1 }}>
+          <GallerySettings
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            minRank={minRank}
+            maxRank={maxRank}
+            attributeGroups={attributeGroups}
+            selectedAttributes={selectedAttributes}
+            setSelectedAttributes={setSelectedAttributes}
+            setMinPrice={setMinPrice}
+            setMaxPrice={setMaxPrice}
+            setMinRank={setMinRank}
+            setMaxRank={setMaxRank}
+            onClearFilters={handleClearFilters}
+            onApplyFilters={handleApplyFilters}
+            view={view}
+            onViewChange={setView}
+          />
           <div className="market-header-row">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <h2 className="market-title">{t('market_title')}</h2>

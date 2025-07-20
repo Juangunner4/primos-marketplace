@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 export interface FilterPanelProps {
   open: boolean;
   onClose: () => void;
+  inline?: boolean;
   minPrice: string;
   maxPrice: string;
   minRank: string;
@@ -35,6 +36,7 @@ export interface FilterPanelProps {
 export function FilterPanel({
   open,
   onClose,
+  inline = false,
   minPrice,
   maxPrice,
   minRank,
@@ -68,20 +70,25 @@ export function FilterPanel({
   return (
     <Box
       p={2}
-      width={280}
+      width={inline ? '100%' : 280}
+      className={inline ? 'market-filter-sticky' : undefined}
       sx={{
         border: '1px solid #bbb',
         borderRadius: 3,
-        boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
+        boxShadow: inline
+          ? '0 2px 8px rgba(0,0,0,0.08)'
+          : '4px 0 24px rgba(226, 194, 117, 0.08)',
         background: '#f5f5f8',
-        margin: '0 10px 0 10px',
+        margin: inline ? '0 0 1rem 0' : '0 10px 0 10px',
       }}
     >
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button onClick={onClose} sx={{ minWidth: 0, p: 1, color: '#555' }}>
-          <CompareArrowsIcon />
-        </Button>
-      </Box>
+      {!inline && (
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <Button onClick={onClose} sx={{ minWidth: 0, p: 1, color: '#555' }}>
+            <CompareArrowsIcon />
+          </Button>
+        </Box>
+      )}
       <Typography variant="h6" gutterBottom>
         {t('filters')}
       </Typography>
@@ -198,7 +205,7 @@ export function FilterPanel({
           }}
           onClick={() => {
             onApply();
-            onClose();
+            if (!inline) onClose();
           }}
         >
           {t('apply_filters')}
