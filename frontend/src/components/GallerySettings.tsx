@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import FilterPanel from './Filter';
-import { IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewComfyIcon from '@mui/icons-material/ViewComfy';
 import ViewListIcon from '@mui/icons-material/ViewList';
@@ -45,20 +44,13 @@ const GallerySettings: React.FC<GallerySettingsProps> = ({
   onViewChange,
 }) => {
   const { t } = useTranslation();
-  const [filterOpen, setFilterOpen] = useState(false);
-
-  useEffect(() => {
-    if (!filterOpen) return;
-  }, [filterOpen]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-      <IconButton aria-label={t('open_filters')} onClick={() => setFilterOpen(true)}>
-        <CompareArrowsIcon />
-      </IconButton>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
       <FilterPanel
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
+        open={true}
+        onClose={() => {}}
+        inline
         minPrice={minPrice}
         maxPrice={maxPrice}
         minRank={minRank}
