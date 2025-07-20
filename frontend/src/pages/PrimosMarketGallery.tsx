@@ -53,7 +53,7 @@ const PrimosMarketGallery: React.FC = () => {
   const [maxRank, setMaxRank] = useState('');
   const [attributeGroups, setAttributeGroups] = useState<Record<string, string[]>>({});
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, Set<string>>>({});
-  const [view, setView] = useState<'full' | 'four' | 'list'>('full');
+  const [view, setView] = useState<'grid9' | 'grid4' | 'list'>('list');
   const { t } = useTranslation();
   const { connection } = useConnection();
   const wallet = useWallet();
@@ -346,7 +346,8 @@ const PrimosMarketGallery: React.FC = () => {
   };
 
   let displayNfts = filteredNfts;
-  if (view === 'four') displayNfts = filteredNfts.slice(0, 4);
+  if (view === 'grid4') displayNfts = filteredNfts.slice(0, 4);
+  if (view === 'grid9') displayNfts = filteredNfts.slice(0, 9);
   if (view === 'list') displayNfts = filteredNfts.slice(0, 10);
 
   let content;
@@ -362,17 +363,18 @@ const PrimosMarketGallery: React.FC = () => {
   } else if (view === 'list') {
     content = (
       <div>
-        <ul className="nft-gallery-grid market-nft-list nft-list">
+        <ul className="nft-gallery-grid market-nft-list nft-list gallery-list">
           {displayNfts.slice(0, 5).map(renderNft)}
         </ul>
-        <ul className="nft-gallery-grid market-nft-list nft-list" style={{ marginTop: '1rem' }}>
+        <ul className="nft-gallery-grid market-nft-list nft-list gallery-list" style={{ marginTop: '1rem' }}>
           {displayNfts.slice(5, 10).map(renderNft)}
         </ul>
       </div>
     );
   } else {
+    const gridClass = view === 'grid9' ? 'gallery-grid9' : 'gallery-grid4';
     content = (
-      <ul className="nft-gallery-grid market-nft-list nft-list">
+      <ul className={`nft-gallery-grid market-nft-list nft-list ${gridClass}`}>
         {displayNfts.map(renderNft)}
       </ul>
     );

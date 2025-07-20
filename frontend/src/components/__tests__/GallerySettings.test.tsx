@@ -25,12 +25,12 @@ describe('GallerySettings', () => {
           setMaxRank={noop}
           onClearFilters={noop}
           onApplyFilters={noop}
-          view="full"
+          view="grid9"
           onViewChange={onViewChange}
         />
       </I18nextProvider>
     );
     fireEvent.click(screen.getByLabelText('4 Cards'));
-    expect(onViewChange).toHaveBeenCalledWith('four');
+    expect(onViewChange).toHaveBeenCalledWith('grid4');
   });
 });

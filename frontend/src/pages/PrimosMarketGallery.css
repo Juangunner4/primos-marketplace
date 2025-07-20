@@ -67,6 +67,18 @@
   margin: 0;
 }
 
+.gallery-grid9 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.gallery-grid4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gallery-list {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
 .loading-wrapper {
   display: flex;
   flex-direction: column;
