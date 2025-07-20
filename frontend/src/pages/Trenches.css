@@ -50,3 +50,18 @@
     gap: 0.25rem;
   }
 }
+
+@media (max-width: 700px) {
+  .experiment-container {
+    margin-top: 1rem;
+    padding: 0 1rem;
+  }
+  .input-row,
+  .tab-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tab-row {
+    gap: 0.5rem;
+  }
+}
