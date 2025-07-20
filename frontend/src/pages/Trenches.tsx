@@ -79,7 +79,7 @@ const Trenches: React.FC = () => {
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t('experiment3_desc')}
       </Typography>
-      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
+      <Box className="input-row" sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
         <TextField
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -90,7 +90,7 @@ const Trenches: React.FC = () => {
           {t('add_contract')}
         </Button>
       </Box>
-      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
+      <Box className="tab-row" sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
         <Button
           variant={tab === 'my' ? 'contained' : 'outlined'}
           onClick={() => {
