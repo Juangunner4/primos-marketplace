@@ -45,4 +45,28 @@ describe('Trenches page', () => {
     );
     expect(await screen.findByText(/not scanned/i)).toBeTruthy();
   });
+
+  test('displays shared contracts bubble map', async () => {
+    (trenchService.fetchTrenchData as jest.Mock).mockResolvedValueOnce({
+      contracts: [{ contract: 'c1', count: 2 }],
+      users: [
+        { publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] },
+        { publicKey: 'u2', pfp: '', count: 1, contracts: ['c1'] },
+      ],
+    });
+
+    render(
+      <MemoryRouter>
+        <I18nextProvider i18n={i18n}>
+          <Trenches />
+        </I18nextProvider>
+      </MemoryRouter>
+    );
+
+    // Switch to All Contracts tab
+    const allContractsButton = screen.getByRole('button', { name: /All Contracts/i });
+    allContractsButton.click();
+
+    expect(await screen.findByText('c1')).toBeTruthy();
+  });
 });
