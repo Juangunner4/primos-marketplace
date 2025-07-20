@@ -346,6 +346,7 @@
   position: relative;
   border: 1px solid #222;
   background: #fff;
+  width: 100%;
 }
 
 .nft-gallery-grid.market-nft-list.nft-list>*:hover {
