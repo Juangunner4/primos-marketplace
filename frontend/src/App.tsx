@@ -234,7 +234,7 @@ const AppRoutes = () => {
     if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/trenches') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || (!isHolder && !betaRedeemed) || !artTeam) && location.pathname === '/work') {
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/work') {
       navigate('/', { replace: true });
     }
     if (
@@ -271,7 +271,7 @@ const AppRoutes = () => {
               <Route path="/experiment1" element={<Experiment1 />} />
               <Route path="/stickers" element={<Stickers />} />
               <Route path="/trenches" element={<Trenches />} />
-              {artTeam && <Route path="/work" element={<Work />} />}
+              <Route path="/work" element={<Work />} />
               <Route path="/profile"   element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />
             </>
