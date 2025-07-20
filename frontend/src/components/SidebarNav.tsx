@@ -42,7 +42,7 @@ const SidebarNav: React.FC = () => {
       to: '/work',
       icon: <ConstructionIcon />,
       label: t('work_title'),
-      show: publicKey && (isHolder || betaRedeemed) && userExists && artTeam,
+      show: publicKey && (isHolder || betaRedeemed) && userExists,
     },
     {
       to: '/labs',
