@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FilterPanel from './Filter';
-import { ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { ToggleButton, ToggleButtonGroup, IconButton } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CloseIcon from '@mui/icons-material/Close';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewComfyIcon from '@mui/icons-material/ViewComfy';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import { useTranslation } from 'react-i18next';
 
-export type GalleryView = 'full' | 'four' | 'list';
+export type GalleryView = 'grid9' | 'grid4' | 'list';
 
 interface GallerySettingsProps {
   minPrice: string;
@@ -44,12 +46,18 @@ const GallerySettings: React.FC<GallerySettingsProps> = ({
   onViewChange,
 }) => {
   const { t } = useTranslation();
+  const [filterOpen, setFilterOpen] = useState(true);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <IconButton onClick={() => setFilterOpen(o => !o)} size="small" aria-label={filterOpen ? t('close') : t('open_filters')}>
+          {filterOpen ? <CloseIcon /> : <FilterListIcon />}
+        </IconButton>
+      </div>
       <FilterPanel
-        open={true}
-        onClose={() => {}}
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
         inline
         minPrice={minPrice}
         maxPrice={maxPrice}
@@ -72,10 +80,10 @@ const GallerySettings: React.FC<GallerySettingsProps> = ({
         size="small"
         aria-label={t('gallery_settings')}
       >
-        <ToggleButton value="full" aria-label={t('gallery_view_full')}>
+        <ToggleButton value="grid9" aria-label={t('gallery_view_grid9')}>
           <ViewModuleIcon />
         </ToggleButton>
-        <ToggleButton value="four" aria-label={t('gallery_view_four')}>
+        <ToggleButton value="grid4" aria-label={t('gallery_view_grid4')}>
           <ViewComfyIcon />
         </ToggleButton>
         <ToggleButton value="list" aria-label={t('gallery_view_list')}>
