@@ -187,7 +187,8 @@
  ,"enter_contract": "Enter contract address"
  ,"add_contract": "Add Contract"
  ,"my_contracts": "My Contracts"
- ,"all_users": "All Users"
+ ,"all_users": "All Users",
+ ,"all_contracts": "All Contracts"
  ,"no_scans": "You have not scanned any contracts yet."
  ,"work_title": "Work Requests"
  ,"work_join_label": "Select Work Groups"
