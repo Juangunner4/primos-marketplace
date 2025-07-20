@@ -10,9 +10,9 @@ public class TrenchServiceTest {
     @Test
     public void testAddIncrementsCounts() {
         TrenchService svc = new TrenchService();
-        svc.add("u1", "ca1");
-        assertThrows(jakarta.ws.rs.BadRequestException.class, () -> svc.add("u1", "ca1"));
-        svc.add("u2", "ca1");
+        svc.add("u1", "ca1", "website", null);
+        assertThrows(jakarta.ws.rs.BadRequestException.class, () -> svc.add("u1", "ca1", "website", null));
+        svc.add("u2", "ca1", "website", null);
 
         TrenchContract tc = TrenchContract.find("contract", "ca1").firstResult();
         assertEquals(2, tc.getCount());
