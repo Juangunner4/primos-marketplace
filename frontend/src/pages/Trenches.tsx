@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -31,8 +31,20 @@ const Trenches: React.FC = () => {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [] });
-  const [viewAll, setViewAll] = useState(false);
+  const [tab, setTab] = useState<'my' | 'users' | 'contracts'>('my');
   const [selectedUser, setSelectedUser] = useState<TrenchUser | null>(null);
+
+  const multiContracts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    data.users.forEach((u) => {
+      u.contracts.forEach((c) => {
+        counts[c] = (counts[c] || 0) + 1;
+      });
+    });
+    return Object.entries(counts)
+      .filter(([, c]) => c > 1)
+      .map(([contract, c]) => ({ contract, count: c }));
+  }, [data]);
 
   const load = async () => {
     const res = await fetchTrenchData();
@@ -71,22 +83,34 @@ const Trenches: React.FC = () => {
       </Box>
       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
         <Button
-          variant={!viewAll ? 'contained' : 'outlined'}
-          onClick={() => setViewAll(false)}
+          variant={tab === 'my' ? 'contained' : 'outlined'}
+          onClick={() => {
+            setTab('my');
+            setSelectedUser(null);
+          }}
         >
           {t('my_contracts')}
         </Button>
         <Button
-          variant={viewAll ? 'contained' : 'outlined'}
+          variant={tab === 'users' ? 'contained' : 'outlined'}
           onClick={() => {
-            setViewAll(true);
+            setTab('users');
             setSelectedUser(null);
           }}
         >
           {t('all_users')}
         </Button>
+        <Button
+          variant={tab === 'contracts' ? 'contained' : 'outlined'}
+          onClick={() => {
+            setTab('contracts');
+            setSelectedUser(null);
+          }}
+        >
+          {t('all_contracts')}
+        </Button>
       </Box>
-      {!viewAll && (
+      {tab === 'my' && (
         <>
           {(
             data.users.find((u) => u.publicKey === publicKey?.toBase58())?.
@@ -120,7 +144,7 @@ const Trenches: React.FC = () => {
           )}
         </>
       )}
-      {viewAll && (
+      {tab === 'users' && (
         <>
           {data.users.length === 0 ? (
             <Typography sx={{ mt: 2 }}>{t('no_scans')}</Typography>
@@ -163,6 +187,35 @@ const Trenches: React.FC = () => {
                 return (
                   <Box
                     key={c}
+                    className="bubble"
+                    sx={{ width: size, height: size, fontSize: size / 5 }}
+                  >
+                    {short}
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
+        </>
+      )}
+      {tab === 'contracts' && (
+        <>
+          {multiContracts.length === 0 ? (
+            <Typography sx={{ mt: 2 }}>{t('no_scans')}</Typography>
+          ) : (
+            <Box className="bubble-map">
+              {multiContracts.map((c) => {
+                const short =
+                  c.contract.length > 7
+                    ? `${c.contract.slice(0, 3)}...${c.contract.slice(-4)}`
+                    : c.contract;
+                const size = Math.max(
+                  40,
+                  Math.min(100, 40 + c.count * 10)
+                );
+                return (
+                  <Box
+                    key={c.contract}
                     className="bubble"
                     sx={{ width: size, height: size, fontSize: size / 5 }}
                   >
