@@ -12,8 +12,8 @@ public class TelegramData {
     private String tickerMarketName;
     private String tickerMarketIdentifier;
     private Boolean hasTradingIncentive;
-    // Count of top holders
-    private Integer topHolders;
+    // Comma-separated percentages of top token holders
+    private String topHolderPercentages;
     // On-chain market cap from simple API
     private Double marketCap;
 
@@ -97,12 +97,12 @@ public class TelegramData {
         this.hasTradingIncentive = hasTradingIncentive;
     }
 
-    public Integer getTopHolders() {
-        return topHolders;
+    public String getTopHolderPercentages() {
+        return topHolderPercentages;
     }
 
-    public void setTopHolders(Integer topHolders) {
-        this.topHolders = topHolders;
+    public void setTopHolderPercentages(String topHolderPercentages) {
+        this.topHolderPercentages = topHolderPercentages;
     }
 
     public Double getMarketCap() {

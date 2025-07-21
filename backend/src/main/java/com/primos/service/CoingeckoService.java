@@ -112,23 +112,33 @@ public class CoingeckoService {
 
     // Helper to fetch and set top holders count
     private void populateTopHolders(TelegramData data, String contract) {
-        String holdersUrl = API_BASE + "/onchain/networks/solana/tokens/" + contract +
-                "/top_holders?x_cg_demo_api_key=" + COINGECKO_API_KEY;
-        HttpRequest holdersReq = HttpRequest.newBuilder()
+        String holdersUrl = API_BASE + "/onchain/networks/solana/tokens/" + contract
+                + "/top_holders?holders=10&x_cg_demo_api_key=" + COINGECKO_API_KEY;
+        HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(holdersUrl))
                 .header("Accept", "application/json")
                 .GET()
                 .build();
         try {
-            HttpResponse<String> holdersResp = CLIENT.send(holdersReq, HttpResponse.BodyHandlers.ofString());
-            if (holdersResp.statusCode() == 200) {
-                try (JsonReader hr = Json.createReader(new StringReader(holdersResp.body()))) {
-                    JsonObject hrObj = hr.readObject();
-                    JsonArray hArr = hrObj.getJsonArray("holders");
-                    if (hArr != null) {
-                        data.setTopHolders(hArr.size());
-                    }
+            HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200)
+                return;
+            // Parse JSON and extract top holder percentages
+            try (JsonReader jr = Json.createReader(new StringReader(resp.body()))) {
+                JsonObject root = jr.readObject();
+                JsonObject attrs = root.getJsonObject("data").getJsonObject("attributes");
+                if (attrs == null)
+                    return;
+                JsonArray holders = attrs.getJsonArray("holders");
+                if (holders == null || holders.isEmpty())
+                    return;
+                java.util.List<String> percents = new java.util.ArrayList<>();
+                for (int i = 0; i < holders.size(); i++) {
+                    String pct = holders.getJsonObject(i).getString("percentage", null);
+                    if (pct != null)
+                        percents.add(pct);
                 }
+                data.setTopHolderPercentages(String.join(", ", percents));
             }
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
