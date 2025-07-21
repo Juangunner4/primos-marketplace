@@ -21,6 +21,10 @@ The project integrates with Meshy.ai for converting images to 3D models. Provide
 your API key via the `MESHY_API_KEY` variable in `.env` so the backend can
 authenticate requests.
 
+Token stats shown in the Telegram panel come from the
+[CoinGecko API](https://docs.coingecko.com/v3.0.1/reference/coins-contract-address).
+Set `COINGECKO_API_BASE` if you need to override the default endpoint.
+
 ### Beta Access
 
 The backend restricts logins to users with a valid beta code. Thirty beta codes
