@@ -6,6 +6,16 @@ public class TelegramData {
     private Double fdvUsd;
     private Double volume24hUsd;
     private Double change1hPercent;
+    // First ticker info
+    private String tickerBase;
+    private String tickerTarget;
+    private String tickerMarketName;
+    private String tickerMarketIdentifier;
+    private Boolean hasTradingIncentive;
+    // Count of top holders
+    private Integer topHolders;
+    // On-chain market cap from simple API
+    private Double marketCap;
 
     public String getTokenAddress() {
         return tokenAddress;
@@ -45,5 +55,61 @@ public class TelegramData {
 
     public void setChange1hPercent(Double change1hPercent) {
         this.change1hPercent = change1hPercent;
+    }
+
+    public String getTickerBase() {
+        return tickerBase;
+    }
+
+    public void setTickerBase(String tickerBase) {
+        this.tickerBase = tickerBase;
+    }
+
+    public String getTickerTarget() {
+        return tickerTarget;
+    }
+
+    public void setTickerTarget(String tickerTarget) {
+        this.tickerTarget = tickerTarget;
+    }
+
+    public String getTickerMarketName() {
+        return tickerMarketName;
+    }
+
+    public void setTickerMarketName(String tickerMarketName) {
+        this.tickerMarketName = tickerMarketName;
+    }
+
+    public String getTickerMarketIdentifier() {
+        return tickerMarketIdentifier;
+    }
+
+    public void setTickerMarketIdentifier(String tickerMarketIdentifier) {
+        this.tickerMarketIdentifier = tickerMarketIdentifier;
+    }
+
+    public Boolean getHasTradingIncentive() {
+        return hasTradingIncentive;
+    }
+
+    public void setHasTradingIncentive(Boolean hasTradingIncentive) {
+        this.hasTradingIncentive = hasTradingIncentive;
+    }
+
+    public Integer getTopHolders() {
+        return topHolders;
+    }
+
+    public void setTopHolders(Integer topHolders) {
+        this.topHolders = topHolders;
+    }
+
+    public Double getMarketCap() {
+        return marketCap;
+    }
+
+    public void setMarketCap(Double marketCap) {
+        this.marketCap = marketCap;
     }
 }
