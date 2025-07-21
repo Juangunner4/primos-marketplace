@@ -44,21 +44,23 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
               {t('total_price')}
             </Typography>
             {priceSol ? (
-              <Box display="flex" alignItems="baseline" gap={1}>
-                <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="h5" fontWeight="bold">
-                  {priceSol} SOL
-                </Typography>
-                {priceUsd && (
-                  <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="body2" color="text.secondary">
-                    (${priceUsd})
+              <>
+                <Box display="flex" alignItems="baseline" gap={1}>
+                  <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="h5" fontWeight="bold">
+                    {priceSol} SOL
+                  </Typography>
+                  {priceUsd && (
+                    <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="body2" color="text.secondary">
+                      (${priceUsd})
+                    </Typography>
+                  )}
+                </Box>
+                {sellerAmount && (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    {t('seller_receives')}: {sellerAmount} SOL
                   </Typography>
                 )}
-              </Box>
-              {sellerAmount && (
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                  {t('seller_receives')}: {sellerAmount} SOL
-                </Typography>
-              )}
+              </>
             ) : (
               <Typography variant="h6">{t("market_no_price")}</Typography>
             )}
