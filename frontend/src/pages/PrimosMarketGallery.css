@@ -229,6 +229,18 @@
   opacity: 0.85;
 }
 
+.fee-details {
+  font-size: 0.75rem;
+  line-height: 1.1;
+  text-align: center;
+  color: #555;
+  margin-top: 0.25rem;
+}
+
+.fee-details span {
+  display: block;
+}
+
 .market-card .market-prefix {
   padding: 0.22rem 0.6rem;
   border-radius: 0.5rem;
