@@ -19,11 +19,13 @@ envVarGroups:
         value: ${QUARKUS_PROFILE}
       - key: QUARKUS_MONGODB_CONNECTION_STRING
         value: ${QUARKUS_MONGODB_CONNECTION_STRING}
+      - key: REACT_APP_COINGECKO_API_KEY
+        value: ${REACT_APP_COINGECKO_API_KEY}
 
 services:
   - type: web
     name: primos-marketplace
-    env: docker
+    runtime: docker
     plan: free
     dockerfilePath: Dockerfile
     envVars:
