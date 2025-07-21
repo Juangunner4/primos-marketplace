@@ -28,8 +28,10 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:700px)");
-  const sellerAmount = priceSol
-    ? calculateFees(parseFloat(priceSol)).sellerReceives.toFixed(3)
+  const feeDetails = priceSol ? calculateFees(parseFloat(priceSol)) : null;
+  const sellerAmount = feeDetails ? feeDetails.sellerReceives.toFixed(3) : null;
+  const totalPrice = feeDetails
+    ? (parseFloat(priceSol as string) + feeDetails.totalFees).toFixed(3)
     : null;
 
   if (isMobile) {
@@ -46,20 +48,25 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
             {priceSol ? (
               <>
                 <Box display="flex" alignItems="baseline" gap={1}>
-                  <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="h5" fontWeight="bold">
-                    {priceSol} SOL
+                  <Typography sx={{ fontSize: '1rem', textAlign: 'right' }} variant="h5" fontWeight="bold">
+                    {totalPrice} SOL
                   </Typography>
                   {priceUsd && (
-                    <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="body2" color="text.secondary">
+                    <Typography sx={{ fontSize: '1rem', textAlign: 'right' }} variant="body2" color="text.secondary">
                       (${priceUsd})
                     </Typography>
                   )}
                 </Box>
-                {sellerAmount && (
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                    {t('seller_receives')}: {sellerAmount} SOL
-                  </Typography>
-                )}
+                <div className="fee-details">
+                  <span>{t('list_price')}: {priceSol} SOL</span>
+                  <span>{t('market_taker_fee')} (2%): {feeDetails?.marketTaker.toFixed(4)} SOL</span>
+                  <span>{t('creator_royalty_fee')} (5%): {feeDetails?.creatorRoyalty.toFixed(4)} SOL</span>
+                  <span>{t('community_fee')} (3%): {feeDetails?.community.toFixed(4)} SOL</span>
+                  <span>{t('operations_fee')} (1.5%): {feeDetails?.operations.toFixed(4)} SOL</span>
+                  {sellerAmount && (
+                    <span>{t('seller_receives')}: {sellerAmount} SOL</span>
+                  )}
+                </div>
               </>
             ) : (
               <Typography variant="h6">{t("market_no_price")}</Typography>
@@ -100,13 +107,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
           className="market-nft-price-pill"
           style={{ background: variantBg, borderColor: variantBorder }}
         >
-          {priceSol} SOL
+          {totalPrice} SOL
           {priceUsd && <span className="usd"> (${priceUsd})</span>}
-          {sellerAmount && (
-            <span className="usd" style={{ display: 'block' }}>
-              {t('seller_receives')}: {sellerAmount} SOL
-            </span>
-          )}
         </span>
       ) : (
         <span
@@ -115,6 +117,18 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         >
           {t("market_no_price")}
         </span>
+      )}
+      {priceSol && (
+        <div className="fee-details">
+          <span>{t('list_price')}: {priceSol} SOL</span>
+          <span>{t('market_taker_fee')} (2%): {feeDetails?.marketTaker.toFixed(4)} SOL</span>
+          <span>{t('creator_royalty_fee')} (5%): {feeDetails?.creatorRoyalty.toFixed(4)} SOL</span>
+          <span>{t('community_fee')} (3%): {feeDetails?.community.toFixed(4)} SOL</span>
+          <span>{t('operations_fee')} (1.5%): {feeDetails?.operations.toFixed(4)} SOL</span>
+          {sellerAmount && (
+            <span>{t('seller_receives')}: {sellerAmount} SOL</span>
+          )}
+        </div>
       )}
       <div className="transaction-card-buttons">
         <button

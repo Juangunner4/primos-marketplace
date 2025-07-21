@@ -20,7 +20,8 @@ describe("TransactionCard", () => {
         />
       </I18nextProvider>,
     );
-    expect(screen.getByText("1.23 SOL")).toBeTruthy();
+    expect(screen.getByText("1.371 SOL")).toBeTruthy();
+    expect(screen.getByText(new RegExp(i18n.t('list_price')))).toBeTruthy();
     expect(
       screen.getByText(new RegExp(i18n.t('seller_receives')))
     ).toBeTruthy();
