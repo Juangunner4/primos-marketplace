@@ -10,7 +10,6 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import ConstructionIcon from '@mui/icons-material/Construction';
 import ScienceIcon from '@mui/icons-material/Science';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -23,7 +22,7 @@ const SidebarNav: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, userExists, artTeam } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
@@ -36,12 +35,6 @@ const SidebarNav: React.FC = () => {
       to: '/collected',
       icon: <WorkIcon />,
       label: t('your_primos_nfts'),
-      show: publicKey && (isHolder || betaRedeemed) && userExists,
-    },
-    {
-      to: '/work',
-      icon: <ConstructionIcon />,
-      label: t('work_title'),
       show: publicKey && (isHolder || betaRedeemed) && userExists,
     },
     {
