@@ -21,6 +21,9 @@ describe("TransactionCard", () => {
       </I18nextProvider>,
     );
     expect(screen.getByText("1.23 SOL")).toBeTruthy();
+    expect(
+      screen.getByText(new RegExp(i18n.t('seller_receives')))
+    ).toBeTruthy();
     expect(screen.getByText(i18n.t("buy_now"))).toBeTruthy();
     fireEvent.click(screen.getByText(i18n.t("buy_now")));
     expect(onBuy).toHaveBeenCalled();
