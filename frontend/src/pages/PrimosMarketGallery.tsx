@@ -12,6 +12,7 @@ import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
 import NFTCard from '../components/NFTCard';
 import GallerySettings from '../components/GallerySettings';
+import FilterPanel from '../components/Filter';
 import { executeBuyNow } from '../utils/transaction';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';

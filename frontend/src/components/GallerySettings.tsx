@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import FilterPanel from './Filter';
 import { ToggleButton, ToggleButtonGroup, IconButton } from '@mui/material';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import ExpandIcon from '@mui/icons-material/Expand';
 import CloseIcon from '@mui/icons-material/Close';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewComfyIcon from '@mui/icons-material/ViewComfy';
@@ -52,7 +52,7 @@ const GallerySettings: React.FC<GallerySettingsProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <IconButton onClick={() => setFilterOpen(o => !o)} size="small" aria-label={filterOpen ? t('close') : t('open_filters')}>
-          {filterOpen ? <CloseIcon /> : <FilterListIcon />}
+          {filterOpen ? <CloseIcon /> : <ExpandIcon />}
         </IconButton>
       </div>
       <FilterPanel

@@ -8,8 +8,8 @@ import {
   Chip,
   Button,
 } from "@mui/material";
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from 'react-i18next';
 
 
@@ -73,11 +73,6 @@ export function FilterPanel({
       width={inline ? '100%' : 280}
       className={inline ? 'market-filter-sticky' : undefined}
       sx={{
-        border: '1px solid #bbb',
-        borderRadius: 3,
-        boxShadow: inline
-          ? '0 2px 8px rgba(0,0,0,0.08)'
-          : '4px 0 24px rgba(226, 194, 117, 0.08)',
         background: '#f5f5f8',
         margin: inline ? '0 0 1rem 0' : '0 10px 0 10px',
       }}
@@ -85,7 +80,7 @@ export function FilterPanel({
       {!inline && (
         <Box display="flex" justifyContent="flex-end" mb={2}>
           <Button onClick={onClose} sx={{ minWidth: 0, p: 1, color: '#555' }}>
-            <CompareArrowsIcon />
+            <CloseIcon />
           </Button>
         </Box>
       )}
