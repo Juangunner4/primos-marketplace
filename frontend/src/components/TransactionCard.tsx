@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Button from "@mui/material/Button";
 import "./TransactionCard.css";
+import { calculateFees } from "../utils/fees";
 
 interface TransactionCardProps {
   priceSol: string | null;
@@ -27,6 +28,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:700px)");
+  const sellerAmount = priceSol
+    ? calculateFees(parseFloat(priceSol)).sellerReceives.toFixed(3)
+    : null;
 
   if (isMobile) {
     return (
@@ -37,7 +41,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         >
           <CardContent className="transaction-card-mobile-content">
             <Typography sx={{ fontWeight: 700, right: 0 }} variant="subtitle2" color="text.secondary">
-              Total Price
+              {t('total_price')}
             </Typography>
             {priceSol ? (
               <Box display="flex" alignItems="baseline" gap={1}>
@@ -50,6 +54,11 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
                   </Typography>
                 )}
               </Box>
+              {sellerAmount && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                  {t('seller_receives')}: {sellerAmount} SOL
+                </Typography>
+              )}
             ) : (
               <Typography variant="h6">{t("market_no_price")}</Typography>
             )}
@@ -91,6 +100,11 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         >
           {priceSol} SOL
           {priceUsd && <span className="usd"> (${priceUsd})</span>}
+          {sellerAmount && (
+            <span className="usd" style={{ display: 'block' }}>
+              {t('seller_receives')}: {sellerAmount} SOL
+            </span>
+          )}
         </span>
       ) : (
         <span
