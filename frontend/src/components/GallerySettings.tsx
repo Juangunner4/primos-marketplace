@@ -50,7 +50,7 @@ const GallerySettings: React.FC<GallerySettingsProps> = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <IconButton onClick={() => setFilterOpen(o => !o)} size="small" aria-label={filterOpen ? t('close') : t('open_filters')}>
           {filterOpen ? <CloseIcon /> : <ExpandIcon />}
         </IconButton>
