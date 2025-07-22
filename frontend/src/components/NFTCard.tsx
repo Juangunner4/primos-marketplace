@@ -50,8 +50,6 @@ const NFTCard: React.FC<NFTCardProps> = ({
     rankVariant = CARD_VARIANTS.find((v) => v.name === "silver");
   }
   const priceSol = nft.price ? nft.price.toFixed(3) : null;
-  const priceUsd =
-    nft.price && solPriceUsd ? (nft.price * solPriceUsd).toFixed(2) : null;
 
   return (
     <Dialog.Root open={open} onOpenChange={(val) => !val && onClose()}>
@@ -144,7 +142,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
           >
             <TransactionCard
               priceSol={priceSol}
-              priceUsd={priceUsd}
+              solPriceUsd={solPriceUsd}
               onBuy={onBuy || onClose}
               variantBg={variant.bg}
               variantBorder={variant.border}
