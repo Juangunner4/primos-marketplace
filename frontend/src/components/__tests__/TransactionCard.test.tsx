@@ -13,7 +13,7 @@ describe("TransactionCard", () => {
       <I18nextProvider i18n={i18n}>
         <TransactionCard
           priceSol="1.23"
-          priceUsd="2.34"
+          solPriceUsd={2}
           onBuy={onBuy}
           variantBg="#fff"
           variantBorder="#000"
@@ -21,6 +21,8 @@ describe("TransactionCard", () => {
       </I18nextProvider>,
     );
     expect(screen.getByText("1.371 SOL")).toBeTruthy();
+    expect(screen.queryByText(new RegExp(i18n.t('list_price')))).toBeNull();
+    fireEvent.click(screen.getByTestId('expand-arrow'));
     expect(screen.getByText(new RegExp(i18n.t('list_price')))).toBeTruthy();
     expect(
       screen.getByText(new RegExp(i18n.t('seller_receives')))
@@ -35,6 +37,7 @@ describe("TransactionCard", () => {
       <I18nextProvider i18n={i18n}>
         <TransactionCard
           priceSol="1.23"
+          solPriceUsd={2}
           onBuy={() => {}}
           variantBg="#fff"
           variantBorder="#000"
@@ -50,6 +53,7 @@ describe("TransactionCard", () => {
       <I18nextProvider i18n={i18n}>
         <TransactionCard
           priceSol={null}
+          solPriceUsd={2}
           onBuy={() => {}}
           variantBg="#fff"
           variantBorder="#000"

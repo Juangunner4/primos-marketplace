@@ -16,7 +16,7 @@ import FilterPanel from '../components/Filter';
 import { executeBuyNow } from '../utils/transaction';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
-import { calculateFees } from '../utils/fees';
+import PriceBreakdown from '../components/PriceBreakdown';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -220,9 +220,6 @@ const PrimosMarketGallery: React.FC = () => {
   const renderNft = (nft: MarketNFT) => {
     const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
     const priceSol = nft.price ? nft.price.toFixed(3) : null;
-    const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
-    const feeDetails = nft.price ? calculateFees(nft.price) : null;
-    const totalPrice = feeDetails ? (nft.price + feeDetails.totalFees).toFixed(3) : priceSol;
 
     let rankVariant = CARD_VARIANTS.find(v => v.name === 'bronze');
     if (nft.rank !== null && nft.rank <= 100) {
@@ -287,19 +284,7 @@ const PrimosMarketGallery: React.FC = () => {
                   alignSelf: 'center',
                 }}
               >
-                {totalPrice} SOL
-                {priceUsd && (
-                  <span style={{ fontSize: '0.92em', color: '#444', fontWeight: 500, marginLeft: '0.18em', opacity: 0.85 }}>
-                    (${priceUsd})
-                  </span>
-                )}
-                <div className="fee-details">
-                  <span>{t('list_price')}: {priceSol} SOL</span>
-                  <span>{t('market_taker_fee')} (2%): {feeDetails?.marketTaker.toFixed(4)} SOL</span>
-                  <span>{t('creator_royalty_fee')} (5%): {feeDetails?.creatorRoyalty.toFixed(4)} SOL</span>
-                  <span>{t('community_fee')} (3%): {feeDetails?.community.toFixed(4)} SOL</span>
-                  <span>{t('operations_fee')} (1.5%): {feeDetails?.operations.toFixed(4)} SOL</span>
-                </div>
+                <PriceBreakdown price={nft.price} solPriceUsd={solPrice} />
               </Box>
             ) : (
               <Box
