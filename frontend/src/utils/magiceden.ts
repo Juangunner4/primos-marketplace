@@ -134,7 +134,7 @@ export const getMagicEdenHolderStats = async (
  * @param symbol The collection symbol used by Magic Eden.
  * @param offset Pagination offset.
  * @param limit Maximum number of listings to return.
- * @returns Sorted list of listings or an empty array on failure.
+ * @returns List of listings or an empty array on failure.
  */
 export const fetchMagicEdenListings = async (
   symbol: string,
@@ -150,11 +150,8 @@ export const fetchMagicEdenListings = async (
     );
     if (!res.ok) return [];
     const data = await res.json();
-    const sorted = (data || []).sort(
-      (a: any, b: any) => (a.price ?? 0) - (b.price ?? 0)
-    );
-    setCached(key, sorted);
-    return sorted;
+    setCached(key, data);
+    return data;
   } catch (e) {
     console.error('Failed to fetch Magic Eden listings', e);
     return [];
