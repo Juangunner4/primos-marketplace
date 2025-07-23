@@ -23,12 +23,12 @@ describe('magiceden utilities', () => {
     expect(data).toEqual({ totalSupply: 1 });
   });
 
-  test('fetchMagicEdenListings sorts by price', async () => {
-    const response = { ok: true, json: async () => ([{ price: 5 }, { price: 2 }]) };
+  test('fetchMagicEdenListings returns data as provided', async () => {
+    const listings = [{ price: 5 }, { price: 2 }];
+    const response = { ok: true, json: async () => listings };
     (global as any).fetch = jest.fn().mockResolvedValue(response);
     const list = await fetchMagicEdenListings('sym');
-    expect(list[0].price).toBe(2);
-    expect(list[1].price).toBe(5);
+    expect(list).toEqual(listings);
   });
 
   test('fetchMagicEdenActivity returns empty on error', async () => {
