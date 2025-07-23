@@ -11,6 +11,7 @@ import TraitStats from "../components/TraitStats";
 import NFTCard, { MarketNFT } from "../components/NFTCard";
 import api from '../utils/api';
 import MessageModal from '../components/MessageModal';
+import ListItemModal from '../components/ListItemModal';
 import { AppMessage } from '../types';
 import "./PrimosMarketGallery.css";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -38,6 +39,7 @@ const NFTGallery: React.FC = () => {
   const [floorPrice, setFloorPrice] = useState<number | null>(null);
   const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, { stlUrl?: string }>>({});
   const { t } = useTranslation();
   const [message, setMessage] = useState<AppMessage | null>(null);
@@ -45,7 +47,7 @@ const NFTGallery: React.FC = () => {
   const handleList = (nft: MarketNFT) => {
     setSelectedNft(nft);
     setCardOpen(false);
-    setMessage({ text: t('coming_soon') });
+    setListOpen(true);
   };
 
 
@@ -360,6 +362,15 @@ const NFTGallery: React.FC = () => {
       </div>
       <TraitStats nftIds={nfts.map((n) => n.id)} />
     </div>
+    <ListItemModal
+      open={listOpen}
+      nft={selectedNft}
+      onClose={() => setListOpen(false)}
+      onConfirm={() => {
+        setListOpen(false);
+        setMessage({ text: t('coming_soon') });
+      }}
+    />
     <MessageModal
       open={!!message}
       message={message}
