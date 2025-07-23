@@ -37,6 +37,9 @@ export interface ListNFT {
   auctionHouse: string;
 }
 
+// Default Magic Eden AuctionHouse address
+const DEFAULT_AUCTION_HOUSE = 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe';
+
 export const executeBuyNow = async (
   connection: Connection,
   wallet: WalletContextState,
@@ -51,7 +54,8 @@ export const executeBuyNow = async (
     tokenMint: listing.tokenMint,
     tokenATA: listing.tokenAta,
     price: listing.price.toString(),
-    auctionHouseAddress: listing.auctionHouse,
+    // use provided auctionHouse or default
+    auctionHouseAddress: listing.auctionHouse || DEFAULT_AUCTION_HOUSE,
   };
   if (listing.sellerReferral) params.sellerReferral = listing.sellerReferral;
   if (listing.sellerExpiry !== undefined)
@@ -91,7 +95,8 @@ export const executeList = async (
     tokenMint: nft.tokenMint,
     tokenATA: nft.tokenAta,
     price: nft.price.toString(),
-    auctionHouseAddress: nft.auctionHouse,
+    // use provided auctionHouse or default
+    auctionHouseAddress: nft.auctionHouse || DEFAULT_AUCTION_HOUSE,
   };
 
   const resp = await getListInstructions(params);

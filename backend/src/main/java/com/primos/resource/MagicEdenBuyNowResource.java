@@ -1,19 +1,21 @@
 package com.primos.resource;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import org.jboss.logging.Logger;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.jboss.logging.Logger;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.ProxySelector;
-import java.net.InetSocketAddress;
 
 /**
  * Fetches "Buy Now" instructions from the Magic Eden API. The backend adds the
@@ -46,23 +48,26 @@ public class MagicEdenBuyNowResource {
         return HttpClient.newHttpClient();
     }
 
+    private static final String DEFAULT_AUCTION_HOUSE = "E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe";
+
     @GET
     public Response buyNow(@QueryParam("buyer") String buyer,
-                           @QueryParam("seller") String seller,
-                           @QueryParam("tokenMint") String tokenMint,
-                           @QueryParam("tokenATA") String tokenATA,
-                           @QueryParam("price") String price,
-                           @QueryParam("auctionHouseAddress") String auctionHouse,
-                           @QueryParam("sellerReferral") String sellerReferral,
-                           @QueryParam("sellerExpiry") String sellerExpiry)
+            @QueryParam("seller") String seller,
+            @QueryParam("tokenMint") String tokenMint,
+            @QueryParam("tokenATA") String tokenATA,
+            @QueryParam("price") String price,
+            @QueryParam("auctionHouseAddress") String auctionHouse,
+            @QueryParam("sellerReferral") String sellerReferral,
+            @QueryParam("sellerExpiry") String sellerExpiry)
             throws IOException, InterruptedException {
+        String ah = (auctionHouse == null || auctionHouse.isBlank()) ? DEFAULT_AUCTION_HOUSE : auctionHouse;
         StringBuilder url = new StringBuilder(API_BASE)
                 .append("/v2/instructions/buy_now?buyer=").append(buyer)
                 .append("&seller=").append(seller)
                 .append("&tokenMint=").append(tokenMint)
                 .append("&tokenATA=").append(tokenATA)
                 .append("&price=").append(price)
-                .append("&auctionHouseAddress=").append(auctionHouse);
+                .append("&auctionHouseAddress=").append(ah);
         if (sellerReferral != null && !sellerReferral.isBlank()) {
             url.append("&sellerReferral=").append(sellerReferral);
         }

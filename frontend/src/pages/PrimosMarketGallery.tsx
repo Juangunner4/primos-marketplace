@@ -12,7 +12,6 @@ import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
 import NFTCard from '../components/NFTCard';
 import GallerySettings from '../components/GallerySettings';
-import FilterPanel from '../components/Filter';
 import { executeBuyNow } from '../utils/transaction';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
@@ -20,6 +19,7 @@ import PriceBreakdown from '../components/PriceBreakdown';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
+const DEFAULT_AUCTION_HOUSE = 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe';
 
 type MarketNFT = {
   id: string;
@@ -193,7 +193,7 @@ const PrimosMarketGallery: React.FC = () => {
             attributes: metaAttrs,
             tokenAta: listing.tokenAddress,
             seller: listing.seller,
-            auctionHouse: listing.auctionHouse,
+            auctionHouse: listing.auctionHouse || DEFAULT_AUCTION_HOUSE,
             sellerReferral: listing.sellerReferral,
             sellerExpiry: listing.expiry,
           } as MarketNFT;
