@@ -87,10 +87,16 @@ const PrimosMarketGallery: React.FC = () => {
   };
 
   const handleApplyFilters = () => {
-    // filtering happens reactively via state; no further action needed
+    // filtering happens reactively via state; reset to first page
+    setPage(1);
   };
 
 
+  // Helper to clamp and set page number
+  const goToPage = (num: number) => {
+    const n = Math.max(1, Math.min(totalPages, num));
+    setPage(n);
+  };
   useEffect(() => {
     let isMounted = true;
     async function fetchStats() {
@@ -105,7 +111,12 @@ const PrimosMarketGallery: React.FC = () => {
           setFloorPrice(stats?.floorPrice ? stats.floorPrice / 1e9 : null);
           setSolPrice(solPriceVal ?? null);
           setUniqueHolders(holderStats?.uniqueHolders ?? null);
-          setUniqueHolders(holderStats?.uniqueHolders ?? null);
+          // Initialize totalPages for pagination based on listedCount
+          if (stats?.listedCount) {
+            setTotalPages(Math.ceil(stats.listedCount / PAGE_SIZE));
+          } else {
+            setTotalPages(1);
+          }
         }
       } catch (e) {
         console.error('Failed to fetch stats:', e);
@@ -438,8 +449,8 @@ const PrimosMarketGallery: React.FC = () => {
           </div>
           {content}
           <div className="market-pagination">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+          <button
+              onClick={() => goToPage(page - 1)}
               disabled={page === 1}
               style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
             >
@@ -452,19 +463,25 @@ const PrimosMarketGallery: React.FC = () => {
               max={totalPages}
               value={pageInput}
               onChange={(e) => setPageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const num = Math.max(1, Math.min(totalPages, parseInt(pageInput, 10) || 1));
+                  goToPage(num);
+                }
+              }}
               style={{ width: 60, padding: '0.3rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc' }}
             />
             <button
               onClick={() => {
                 const num = Math.max(1, Math.min(totalPages, parseInt(pageInput, 10) || 1));
-                setPage(num);
+                goToPage(num);
               }}
               style={{ padding: '0.4rem 0.8rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: '#fff' }}
             >
               {t('go')}
             </button>
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => goToPage(page + 1)}
               disabled={page === totalPages}
               style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
             >

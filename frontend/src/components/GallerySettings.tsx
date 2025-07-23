@@ -46,7 +46,7 @@ const GallerySettings: React.FC<GallerySettingsProps> = ({
   onViewChange,
 }) => {
   const { t } = useTranslation();
-  const [filterOpen, setFilterOpen] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
