@@ -19,10 +19,11 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ price, solPriceUsd }) =
 
   return (
     <div className="price-breakdown">
-      <div
+      <button
         className="price-summary"
-        role="button"
+        type="button"
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
       >
         {total.toFixed(3)} SOL
         {usd && <span className="usd"> (${usd})</span>}
@@ -31,14 +32,14 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ price, solPriceUsd }) =
           fontSize="small"
           data-testid="expand-arrow"
         />
-      </div>
+      </button>
       {open && (
         <div className="fee-details">
           <span>{t('list_price')}: {price.toFixed(3)} SOL</span>
           <span>{t('market_taker_fee')} (2%): {fees.marketTaker.toFixed(4)} SOL</span>
           <span>{t('creator_royalty_fee')} (5%): {fees.creatorRoyalty.toFixed(4)} SOL</span>
-          <span>{t('community_fee')} (3%): {fees.community.toFixed(4)} SOL</span>
-          <span>{t('operations_fee')} (1.5%): {fees.operations.toFixed(4)} SOL</span>
+          <span>{t('community_fee')} (2%): {fees.community.toFixed(4)} SOL</span>
+          <span>{t('operations_fee')} (0.5%): {fees.operations.toFixed(4)} SOL</span>
           <span>{t('seller_receives')}: {fees.sellerReceives.toFixed(3)} SOL</span>
         </div>
       )}

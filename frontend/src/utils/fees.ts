@@ -1,7 +1,7 @@
 export const FEE_MARKET_TAKER = 0.02;
 export const FEE_CREATOR_ROYALTY = 0.05;
-export const FEE_COMMUNITY = 0.03;
-export const FEE_OPERATIONS = 0.015;
+export const FEE_COMMUNITY = 0.02;
+export const FEE_OPERATIONS = 0.005;
 
 export const TOTAL_FEE_RATE =
   FEE_MARKET_TAKER + FEE_CREATOR_ROYALTY + FEE_COMMUNITY + FEE_OPERATIONS;
