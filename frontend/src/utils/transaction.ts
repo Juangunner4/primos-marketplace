@@ -1,4 +1,11 @@
-import { Connection, Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
+import {
+  Connection,
+  Transaction,
+  SystemProgram,
+  PublicKey,
+  ComputeBudgetProgram,
+  PACKET_DATA_SIZE,
+} from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import { getBuyNowInstructions, getListInstructions } from './magiceden';
 import api from './api';
@@ -75,11 +82,23 @@ const FEE_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ??
   'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
+const stripComputeBudget = (tx: Transaction) => {
+  try {
+    if (tx.serializeMessage().length <= PACKET_DATA_SIZE) return;
+  } catch {
+    return;
+  }
+  tx.instructions = tx.instructions.filter(
+    (ix) => !ix.programId.equals(ComputeBudgetProgram.programId)
+  );
+};
+
 const signAndSendTransaction = async (
   tx: Transaction,
   connection: Connection,
   wallet: WalletContextState
 ): Promise<string> => {
+  stripComputeBudget(tx);
   try {
     return await wallet.sendTransaction(tx, connection);
   } catch (error: any) {
