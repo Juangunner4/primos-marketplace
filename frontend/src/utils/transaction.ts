@@ -72,11 +72,13 @@ const DEFAULT_AUCTION_HOUSE = 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe';
 export const executeBuyNow = async (
   connection: Connection,
   wallet: WalletContextState,
-  listing: BuyNowListing
+  listing: BuyNowListing,
+  onStep?: (step: number) => void
 ): Promise<string> => {
   const buyer = wallet.publicKey?.toBase58();
   if (!buyer) throw new Error('Wallet not connected');
 
+  onStep?.(1);
   const params: Record<string, string> = {
     buyer,
     seller: listing.seller,
@@ -96,7 +98,9 @@ export const executeBuyNow = async (
   const tx = Transaction.from(Buffer.from(encoded, 'base64'));
   let sig: string | null = null;
   try {
+    onStep?.(2);
     sig = await wallet.sendTransaction(tx, connection);
+    onStep?.(3);
     await connection.confirmTransaction(sig, 'confirmed');
     return sig;
   } finally {

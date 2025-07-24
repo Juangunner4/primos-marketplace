@@ -17,6 +17,7 @@ import { executeBuyNow } from '../utils/transaction';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import PriceBreakdown from '../components/PriceBreakdown';
+import TxProgressModal from '../components/TxProgressModal';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
@@ -57,12 +58,15 @@ const PrimosMarketGallery: React.FC = () => {
   const [attributeGroups, setAttributeGroups] = useState<Record<string, string[]>>({});
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, Set<string>>>({});
   const [view, setView] = useState<'grid9' | 'grid4' | 'list'>('list');
+  const [txStep, setTxStep] = useState(0);
+  const [txOpen, setTxOpen] = useState(false);
   const { t } = useTranslation();
   const { connection } = useConnection();
   const wallet = useWallet();
 
   const handleBuy = async (nft: MarketNFT) => {
     try {
+      setTxOpen(true);
       await executeBuyNow(connection, wallet, {
         tokenMint: nft.id,
         tokenAta: nft.tokenAta!,
@@ -71,11 +75,14 @@ const PrimosMarketGallery: React.FC = () => {
         auctionHouse: nft.auctionHouse!,
         sellerReferral: nft.sellerReferral,
         sellerExpiry: nft.sellerExpiry,
-      });
+      }, setTxStep);
       setMessage({ text: t('tx_success'), type: 'success' });
     } catch (e) {
       console.error('Buy now failed', e);
       setMessage({ text: t('tx_failed'), type: 'error' });
+    } finally {
+      setTxOpen(false);
+      setTxStep(0);
     }
   };
 
@@ -504,6 +511,7 @@ const PrimosMarketGallery: React.FC = () => {
       </div>
       <Activity />
     </div>
+    <TxProgressModal open={txOpen} step={txStep} />
     <MessageModal
       open={!!message}
       message={message}
