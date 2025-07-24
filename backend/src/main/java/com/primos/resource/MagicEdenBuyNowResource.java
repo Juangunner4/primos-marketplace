@@ -49,6 +49,10 @@ public class MagicEdenBuyNowResource {
     }
 
     private static final String DEFAULT_AUCTION_HOUSE = "E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe";
+    // additional payee for community and operations fees
+    private static final String FEE_ACCOUNT = "EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6";
+    private static final int COMMUNITY_BPS = 240; // 2.4%
+    private static final int OPERATIONS_BPS = 140; // 1.4%
 
     @GET
     public Response buyNow(@QueryParam("buyer") String buyer,
@@ -68,6 +72,9 @@ public class MagicEdenBuyNowResource {
                 .append("&tokenATA=").append(tokenATA)
                 .append("&price=").append(price)
                 .append("&auctionHouseAddress=").append(ah);
+        // add additional payees for community and operations
+        url.append("&additionalPayees=").append(FEE_ACCOUNT).append(":").append(COMMUNITY_BPS)
+                .append("&additionalPayees=").append(FEE_ACCOUNT).append(":").append(OPERATIONS_BPS);
         if (sellerReferral != null && !sellerReferral.isBlank()) {
             url.append("&sellerReferral=").append(sellerReferral);
         }

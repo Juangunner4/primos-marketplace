@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import Alert from '@mui/material/Alert';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import Box from '@mui/material/Box';
@@ -7,7 +6,6 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-// ...existing imports...
 import { useTranslation } from 'react-i18next';
 import { fetchTrenchData, submitTrenchContract } from '../services/trench';
 import TelegramPanel from '../components/TelegramPanel';
