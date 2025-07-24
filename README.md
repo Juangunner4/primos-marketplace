@@ -1,5 +1,7 @@
 # primos-marketplace
-Solana NFT marketplace for the Primos collection.
+Solana NFT marketplace for the Primos collection. Recent updates add
+an "All Contracts" view for exploring commonly scanned addresses and
+optimize Primo holder checks via the Helius API.
 
 ## Running the project
 
@@ -18,6 +20,10 @@ settings while Render can load values from a `.env.production` file.
 The project integrates with Meshy.ai for converting images to 3D models. Provide
 your API key via the `MESHY_API_KEY` variable in `.env` so the backend can
 authenticate requests.
+
+Token stats shown in the Telegram panel come from the
+[CoinGecko API](https://docs.coingecko.com/v3.0.1/reference/coins-contract-address).
+Set `COINGECKO_API_BASE` if you need to override the default endpoint.
 
 ### Beta Access
 
@@ -67,10 +73,10 @@ npm install
 npx expo start
 ```
 
-There are currently no automated tests for the mobile app.
-
-Tests for each portion can be run using `mvn test` in the backend directory and
-`npm test -- --watchAll=false` in the frontend directory.
+The backend and frontend are fully covered by unit tests which run in the CI
+pipeline. Execute `mvn test` inside the `backend` directory and `npm test --
+--watchAll=false` inside `frontend` to run them locally. The mobile app does not
+yet include automated tests.
 
 ## Performance and Data Loading
 
@@ -211,6 +217,7 @@ database name, so you only need the cluster connection string here. The
 `frontend/.env` example keeps the local `mongodb://localhost:27017/primos-db`
 connection for development.
 
-## Future State
+## Production Status
 
-Additional notes for the upcoming production release are provided in [FUTURE_STATE.md](./FUTURE_STATE.md).
+Primos Marketplace is now production ready. Historical planning notes remain in
+[FUTURE_STATE.md](./FUTURE_STATE.md) for reference.

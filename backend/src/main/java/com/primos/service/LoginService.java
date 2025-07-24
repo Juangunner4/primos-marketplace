@@ -7,6 +7,8 @@ import com.primos.model.User;
 import com.primos.resource.AdminResource;
 import com.primos.resource.LoginRequest;
 
+import jakarta.inject.Inject;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
@@ -16,6 +18,9 @@ public class LoginService {
     private static final Logger LOGGER = Logger.getLogger(LoginService.class.getName());
     private static final String PUBLIC_KEY_FIELD = "publicKey";
     private static final String ADMIN_WALLET = AdminResource.ADMIN_WALLET;
+
+    @Inject
+    HeliusService heliusService;
 
     public User login(LoginRequest req) {
         validateLoginRequest(req);
@@ -63,6 +68,12 @@ public class LoginService {
             }
         }
         user.persistOrUpdate();
+
+        // Update NFT count from the blockchain on each login
+        int count = heliusService.getPrimoCount(user.getPublicKey());
+        user.setNftCount(count);
+        updateHolderStatus(user, count > 0);
+
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
             if (user.isPrimoHolder()) {
                 LOGGER.info(String.format("[LoginService] Primo holder login for publicKey: %s", req.publicKey));
@@ -112,6 +123,8 @@ public class LoginService {
         user.setCreatedAt(System.currentTimeMillis());
         user.setDaoMember(holder);
         user.setPrimoHolder(holder);
+        user.setArtTeam(false);
+        user.setWorkGroups(new java.util.ArrayList<>());
         return user;
     }
 

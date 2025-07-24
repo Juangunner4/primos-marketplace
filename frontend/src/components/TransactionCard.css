@@ -38,14 +38,25 @@
   filter: brightness(0.95);
 }
 
+.fee-details {
+  font-size: 0.8rem;
+  line-height: 1.1;
+  text-align: center;
+  margin-top: 0.3rem;
+  color: #444;
+}
+
+.fee-details span {
+  display: block;
+}
+
 @media (max-width: 700px) {
   .transaction-card-mobile-content {
     flex-direction: row;
   }
 
   .transaction-card-mobile {
-    padding: 0.5rem;
-    border-radius: 0.4rem;
-    margin: 0;
+    width: 100%;
+    max-width: fit-content;
   }
 }

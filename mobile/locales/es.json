@@ -2,5 +2,7 @@
   "mobile_welcome": "¡Bienvenido a la app móvil de Primos!",
   "render_started": "Renderizado 3D iniciado para Primo",
   "home": "Inicio",
-  "profile": "Perfil"
+  "profile": "Perfil",
+  "total_price": "Precio total",
+  "seller_receives": "Recibe el vendedor"
 }

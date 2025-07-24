@@ -1,0 +1,67 @@
+.experiment-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.bubble-map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.bubble {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  flex: 0 0 auto;
+  word-break: break-word;
+  font-size: clamp(0.6rem, 2.5vw, 1rem);
+  position: relative;
+}
+
+.model-tag {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #fff;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.user-bubble {
+  border: 2px solid #1976d2;
+  flex: 0 0 auto;
+  font-size: clamp(0.6rem, 2.5vw, 1rem);
+}
+
+@media (max-width: 600px) {
+  .bubble-map {
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .experiment-container {
+    margin-top: 1rem;
+    padding: 0 1rem;
+  }
+  .input-row,
+  .tab-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tab-row {
+    gap: 0.5rem;
+  }
+}

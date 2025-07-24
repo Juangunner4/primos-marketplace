@@ -3,20 +3,25 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box } from '@mui/material';
 import * as Dialog from '@radix-ui/react-dialog';
 import { getPythSolPrice } from '../utils/pyth';
-import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
+import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats, getCollectionAttributes } from '../utils/magiceden';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { getNftRank } from '../utils/nft';
 import { useTranslation } from 'react-i18next';
+import { calculateFees } from '../utils/fees';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
 import NFTCard from '../components/NFTCard';
+import GallerySettings from '../components/GallerySettings';
 import { executeBuyNow } from '../utils/transaction';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
+import PriceBreakdown from '../components/PriceBreakdown';
+import TxProgressModal from '../components/TxProgressModal';
 
 const MAGICEDEN_SYMBOL = 'primos';
 const PAGE_SIZE = 10;
+const DEFAULT_AUCTION_HOUSE = 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe';
 
 type MarketNFT = {
   id: string;
@@ -46,12 +51,22 @@ const PrimosMarketGallery: React.FC = () => {
   const [selectedNft, setSelectedNft] = useState<MarketNFT | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
   const [message, setMessage] = useState<AppMessage | null>(null);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minRank, setMinRank] = useState('');
+  const [maxRank, setMaxRank] = useState('');
+  const [attributeGroups, setAttributeGroups] = useState<Record<string, string[]>>({});
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, Set<string>>>({});
+  const [view, setView] = useState<'grid9' | 'grid4' | 'list'>('list');
+  const [txStep, setTxStep] = useState(0);
+  const [txOpen, setTxOpen] = useState(false);
   const { t } = useTranslation();
   const { connection } = useConnection();
   const wallet = useWallet();
 
   const handleBuy = async (nft: MarketNFT) => {
     try {
+      setTxOpen(true);
       await executeBuyNow(connection, wallet, {
         tokenMint: nft.id,
         tokenAta: nft.tokenAta!,
@@ -60,15 +75,36 @@ const PrimosMarketGallery: React.FC = () => {
         auctionHouse: nft.auctionHouse!,
         sellerReferral: nft.sellerReferral,
         sellerExpiry: nft.sellerExpiry,
-      });
+      }, setTxStep);
       setMessage({ text: t('tx_success'), type: 'success' });
     } catch (e) {
       console.error('Buy now failed', e);
       setMessage({ text: t('tx_failed'), type: 'error' });
+    } finally {
+      setTxOpen(false);
+      setTxStep(0);
     }
   };
 
+  const handleClearFilters = () => {
+    setSelectedAttributes({});
+    setMinPrice('');
+    setMaxPrice('');
+    setMinRank('');
+    setMaxRank('');
+  };
 
+  const handleApplyFilters = () => {
+    // filtering happens reactively via state; reset to first page
+    setPage(1);
+  };
+
+
+  // Helper to clamp and set page number
+  const goToPage = (num: number) => {
+    const n = Math.max(1, Math.min(totalPages, num));
+    setPage(n);
+  };
   useEffect(() => {
     let isMounted = true;
     async function fetchStats() {
@@ -80,10 +116,22 @@ const PrimosMarketGallery: React.FC = () => {
         ]);
         if (isMounted) {
           setListedCount(stats?.listedCount ?? null);
-          setFloorPrice(stats?.floorPrice ? stats.floorPrice / 1e9 : null);
+          // Compute floor price including marketplace fees
+          if (stats?.floorPrice != null) {
+            const rawFloor = stats.floorPrice / 1e9;
+            const adjusted = rawFloor + calculateFees(rawFloor).totalFees;
+            setFloorPrice(adjusted);
+          } else {
+            setFloorPrice(null);
+          }
           setSolPrice(solPriceVal ?? null);
           setUniqueHolders(holderStats?.uniqueHolders ?? null);
-          setUniqueHolders(holderStats?.uniqueHolders ?? null);
+          // Initialize totalPages for pagination based on listedCount
+          if (stats?.listedCount) {
+            setTotalPages(Math.ceil(stats.listedCount / PAGE_SIZE));
+          } else {
+            setTotalPages(1);
+          }
         }
       } catch (e) {
         console.error('Failed to fetch stats:', e);
@@ -91,6 +139,24 @@ const PrimosMarketGallery: React.FC = () => {
     }
     fetchStats();
     return () => { isMounted = false; };
+  }, []);
+
+  useEffect(() => {
+    async function fetchAttrs() {
+      try {
+        const data = await getCollectionAttributes(MAGICEDEN_SYMBOL);
+        if (data?.attributes) {
+          const groups: Record<string, string[]> = {};
+          for (const [key, arr] of Object.entries<any>(data.attributes)) {
+            groups[key] = Array.isArray(arr) ? arr.map((a: any) => a.value) : [];
+          }
+          setAttributeGroups(groups);
+        }
+      } catch (e) {
+        console.error('Failed to fetch attributes', e);
+      }
+    }
+    fetchAttrs();
   }, []);
 
 
@@ -142,7 +208,7 @@ const PrimosMarketGallery: React.FC = () => {
             attributes: metaAttrs,
             tokenAta: listing.tokenAddress,
             seller: listing.seller,
-            auctionHouse: listing.auctionHouse,
+            auctionHouse: listing.auctionHouse || DEFAULT_AUCTION_HOUSE,
             sellerReferral: listing.sellerReferral,
             sellerExpiry: listing.expiry,
           } as MarketNFT;
@@ -164,7 +230,147 @@ const PrimosMarketGallery: React.FC = () => {
     setPageInput(String(page));
   }, [page]);
 
-  const filteredNfts = nfts;
+  const filteredNfts = nfts.filter(nft => {
+    if (minPrice && nft.price < parseFloat(minPrice)) return false;
+    if (maxPrice && nft.price > parseFloat(maxPrice)) return false;
+    if (minRank && (nft.rank === null || nft.rank < parseInt(minRank))) return false;
+    if (maxRank && (nft.rank === null || nft.rank > parseInt(maxRank))) return false;
+    for (const [group, values] of Object.entries(selectedAttributes)) {
+      if (values.size === 0) continue;
+      const attr = nft.attributes?.find(a => a.trait_type === group)?.value;
+      if (!attr || !values.has(attr)) return false;
+    }
+    return true;
+  });
+
+  const renderNft = (nft: MarketNFT) => {
+    const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
+    const priceSol = nft.price ? nft.price.toFixed(3) : null;
+
+    let rankVariant = CARD_VARIANTS.find(v => v.name === 'bronze');
+    if (nft.rank !== null && nft.rank <= 100) {
+      rankVariant = CARD_VARIANTS.find(v => v.name === 'gold');
+    } else if (nft.rank !== null && nft.rank <= 500) {
+      rankVariant = CARD_VARIANTS.find(v => v.name === 'silver');
+    }
+
+    return (
+      <Dialog.Root open={selectedNft?.id === nft.id && cardOpen} onOpenChange={(open) => {
+        setCardOpen(open);
+        if (!open) setSelectedNft(null);
+      }} key={nft.id}>
+        <Card>
+          <Dialog.Trigger asChild>
+            <CardActionArea
+              onClick={() => {
+                setSelectedNft(nft);
+                setCardOpen(true);
+              }}
+            >
+              <Box sx={{
+                position: 'absolute', top: 14, left: 14, zIndex: 2,
+                background: rankVariant?.bg,
+                borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
+              }}>
+                {nft.rank !== null ? `#${nft.rank}` : '--'}
+              </Box>
+              <Box sx={{
+                position: 'absolute', top: 14, right: 14, zIndex: 2,
+                background: variant.bg,
+                borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
+              }}>
+                {nft.id.slice(0, 4)}
+              </Box>
+              <CardMedia component="img" image={nft.image} alt={nft.name} />
+              <Typography sx={{
+                position: 'absolute', bottom: -5, left: 14, zIndex: 2,
+                background: variant.bg,
+                borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '0.85rem'
+              }}>
+                {nft.name}
+              </Typography>
+            </CardActionArea>
+          </Dialog.Trigger>
+          <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            {priceSol ? (
+              <Box
+                sx={{
+                  background: variant.bg,
+                  border: `2px solid ${variant.border}`,
+                  borderRadius: 2,
+                  px: 2,
+                  py: 0.5,
+                  fontWeight: 'bold',
+                  fontSize: '1.05rem',
+                  color: '#1a202c',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                  display: 'inline-flex',
+                  alignItems: 'baseline',
+                  justifyContent: 'center',
+                  alignSelf: 'center',
+                }}
+              >
+                <PriceBreakdown price={nft.price} solPriceUsd={solPrice} expandable={false} />
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  background: variant.bg,
+                  border: `2px solid ${variant.border}`,
+                  borderRadius: 2,
+                  px: 2,
+                  py: 0.5,
+                  fontWeight: 'bold',
+                  fontSize: '1.05rem',
+                  color: '#1a202c',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                  display: 'inline-flex',
+                  alignItems: 'baseline',
+                  justifyContent: 'center',
+                  alignSelf: 'center',
+                }}
+              >
+                {t('market_no_price')}
+              </Box>
+            )}
+            <Button
+              variant="contained"
+              sx={{
+                borderRadius: 2,
+                background: variant.bg,
+                color: '#222',
+                fontWeight: 700,
+                border: `2px solid ${variant.border}`,
+                boxShadow: 'none',
+                '&:hover': {
+                  background: variant.border,
+                  color: '#fff',
+                },
+              }}
+              onClick={(e) => { e.stopPropagation(); handleBuy(nft); }}
+            >
+              {t('buy_now')}
+            </Button>
+          </CardActions>
+        </Card>
+        <Dialog.Portal>
+          <Dialog.Overlay style={{
+            background: 'rgba(0,0,0,0.55)',
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }} />
+        </Dialog.Portal>
+      </Dialog.Root>
+    );
+  };
+
+  let displayNfts = filteredNfts;
+  if (view === 'grid4') displayNfts = filteredNfts.slice(0, 4);
+  if (view === 'grid9') displayNfts = filteredNfts.slice(0, 9);
+  if (view === 'list') displayNfts = filteredNfts.slice(0, 10);
 
   let content;
   if (loading) {
@@ -174,149 +380,24 @@ const PrimosMarketGallery: React.FC = () => {
         <span>{t('market_loading')}</span>
       </div>
     );
-  } else if (filteredNfts.length === 0) {
+  } else if (displayNfts.length === 0) {
     content = <p className="no-nfts">{t('market_no_nfts')}</p>;
-  } else {
+  } else if (view === 'list') {
     content = (
-      <ul className="nft-gallery-grid market-nft-list nft-list">
-        {filteredNfts.map((nft) => {
-          const variant = CARD_VARIANTS.find((v) => v.name === nft.variant) || CARD_VARIANTS[0];
-          const priceSol = nft.price ? nft.price.toFixed(3) : null;
-          const priceUsd = nft.price && solPrice ? (nft.price * solPrice).toFixed(2) : null;
-
-          let rankVariant = CARD_VARIANTS.find(v => v.name === 'bronze');
-          if (nft.rank !== null && nft.rank <= 100) {
-            rankVariant = CARD_VARIANTS.find(v => v.name === 'gold');
-          } else if (nft.rank !== null && nft.rank <= 500) {
-            rankVariant = CARD_VARIANTS.find(v => v.name === 'silver');
-          }
-
-          return (
-            <Dialog.Root open={selectedNft?.id === nft.id && cardOpen} onOpenChange={(open) => {
-              setCardOpen(open);
-              if (!open) setSelectedNft(null);
-            }} key={nft.id}>
-              <Card>
-                <Dialog.Trigger asChild>
-                  <CardActionArea
-                    onClick={() => {
-                      setSelectedNft(nft);
-                      setCardOpen(true);
-                    }}
-                  >
-                    {/* Rank pill: top-left */}
-                    <Box sx={{
-                      position: 'absolute', top: 14, left: 14, zIndex: 2,
-                      background: rankVariant?.bg,
-                      borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
-                    }}>
-                      {nft.rank !== null ? `#${nft.rank}` : '--'}
-                    </Box>
-                    {/* ID pill: top-right */}
-                    <Box sx={{
-                      position: 'absolute', top: 14, right: 14, zIndex: 2,
-                      background: variant.bg,
-                      borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '1rem'
-                    }}>
-                      {nft.id.slice(0, 4)}
-                    </Box>
-                    {/* NFT Image */}
-                    <CardMedia
-                      component="img"
-                      image={nft.image}
-                      alt={nft.name}
-                    />
-                    {/* Name pill: below image, centered */}
-                    <Typography sx={{
-                      position: 'absolute', bottom: -5, left: 14, zIndex: 2,
-                      background: variant.bg,
-                      borderRadius: 2, px: 1.2, py: 0.3, fontWeight: 700, fontSize: '0.85rem'
-                    }}
-                    >
-                      {nft.name}
-                    </Typography>
-                  </CardActionArea>
-                </Dialog.Trigger>
-                <CardActions sx={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                    {priceSol ? (
-                      <Box
-                        sx={{
-                          background: variant.bg,
-                          border: `2px solid ${variant.border}`,
-                          borderRadius: 2,
-                          px: 2,
-                          py: 0.5,
-                          fontWeight: 'bold',
-                          fontSize: '1.05rem',
-                          color: '#1a202c',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                          display: 'inline-flex',
-                          alignItems: 'baseline',
-                          justifyContent: 'center',
-                          alignSelf: 'center',
-                        }}
-                      >
-                        {priceSol} SOL
-                        {priceUsd && (
-                          <span style={{ fontSize: '0.92em', color: '#444', fontWeight: 500, marginLeft: '0.18em', opacity: 0.85 }}>
-                            (${priceUsd})
-                          </span>
-                        )}
-                      </Box>
-                    ) : (
-                      <Box
-                        sx={{
-                          background: variant.bg,
-                          border: `2px solid ${variant.border}`,
-                          borderRadius: 2,
-                          px: 2,
-                          py: 0.5,
-                          fontWeight: 'bold',
-                          fontSize: '1.05rem',
-                          color: '#1a202c',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                          display: 'inline-flex',
-                          alignItems: 'baseline',
-                          justifyContent: 'center',
-                          alignSelf: 'center',
-                        }}
-                      >
-                        {t('market_no_price')}
-                      </Box>
-                    )}
-                    <Button
-                      variant="contained"
-                      sx={{
-                        borderRadius: 2,
-                        background: variant.bg,
-                        color: '#222',
-                        fontWeight: 700,
-                        border: `2px solid ${variant.border}`,
-                        boxShadow: 'none',
-                        '&:hover': {
-                          background: variant.border,
-                          color: '#fff',
-                        },
-                      }}
-                      onClick={(e) => { e.stopPropagation(); handleBuy(nft); }}
-                    >
-                      {t('buy_now')}
-                    </Button>
-                  </CardActions>
-                </Card>
-              <Dialog.Portal>
-                <Dialog.Overlay style={{
-                  background: 'rgba(0,0,0,0.55)',
-                  position: 'fixed',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }} />
-              </Dialog.Portal>
-            </Dialog.Root>
-          );
-        })}
+      <div>
+        <ul className="nft-gallery-grid market-nft-list nft-list gallery-list">
+          {displayNfts.slice(0, 5).map(renderNft)}
+        </ul>
+        <ul className="nft-gallery-grid market-nft-list nft-list gallery-list" style={{ marginTop: '1rem' }}>
+          {displayNfts.slice(5, 10).map(renderNft)}
+        </ul>
+      </div>
+    );
+  } else {
+    const gridClass = view === 'grid9' ? 'gallery-grid9' : 'gallery-grid4';
+    content = (
+      <ul className={`nft-gallery-grid market-nft-list nft-list ${gridClass}`}>
+        {displayNfts.map(renderNft)}
       </ul>
     );
   }
@@ -352,40 +433,24 @@ const PrimosMarketGallery: React.FC = () => {
           transition: 'opacity 0.2s, filter 0.2s',
         }}
       >
-        {/* Filter Incoming */}
-        {/* {!filterOpen && (
-          <IconButton
-            aria-label={t('open_filters')}
-            onClick={() => setFilterOpen(true)}
-            sx={{
-              border: '1px solid #bbb',
-              borderRadius: 3,
-              boxShadow: '4px 0 24px rgba(226, 194, 117, 0.08)',
-              background: '#f5f5f8',
-              margin: '0 10px 0 10px',
-            }}
-          >
-            <CompareArrowsIcon />
-          </IconButton>
-        )}
-        <FilterPanel
-          open={filterOpen}
-          onClose={() => setFilterOpen(false)}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          minRank={minRank}
-          maxRank={maxRank}
-          attributeGroups={attributeGroups}
-          selectedAttributes={selectedAttributes}
-          setSelectedAttributes={setSelectedAttributes}
-          setMinPrice={setMinPrice}
-          setMaxPrice={setMaxPrice}
-          setMinRank={setMinRank}
-          setMaxRank={setMaxRank}
-          onClear={handleClearFilters}
-          onApply={handleApplyFilters}
-        /> */}
         <div className="market-gallery" style={{ flex: 1 }}>
+          <GallerySettings
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            minRank={minRank}
+            maxRank={maxRank}
+            attributeGroups={attributeGroups}
+            selectedAttributes={selectedAttributes}
+            setSelectedAttributes={setSelectedAttributes}
+            setMinPrice={setMinPrice}
+            setMaxPrice={setMaxPrice}
+            setMinRank={setMinRank}
+            setMaxRank={setMaxRank}
+            onClearFilters={handleClearFilters}
+            onApplyFilters={handleApplyFilters}
+            view={view}
+            onViewChange={setView}
+          />
           <div className="market-header-row">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <h2 className="market-title">{t('market_title')}</h2>
@@ -394,13 +459,18 @@ const PrimosMarketGallery: React.FC = () => {
               <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
               <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
               <span className="market-pill">{t('market_holders')}: {uniqueHolders ?? '--'}</span>
-              <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice}` : '--'}</span>
+              <span className="market-pill">
+                {t('market_floor_price')} (USD):{' '}
+                {floorPrice !== null && solPrice !== null
+                  ? `$${(floorPrice * solPrice).toFixed(2)}`
+                  : '--'}
+              </span>
             </div>
           </div>
           {content}
           <div className="market-pagination">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+          <button
+              onClick={() => goToPage(page - 1)}
               disabled={page === 1}
               style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === 1 ? '#eee' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
             >
@@ -413,19 +483,25 @@ const PrimosMarketGallery: React.FC = () => {
               max={totalPages}
               value={pageInput}
               onChange={(e) => setPageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const num = Math.max(1, Math.min(totalPages, parseInt(pageInput, 10) || 1));
+                  goToPage(num);
+                }
+              }}
               style={{ width: 60, padding: '0.3rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc' }}
             />
             <button
               onClick={() => {
                 const num = Math.max(1, Math.min(totalPages, parseInt(pageInput, 10) || 1));
-                setPage(num);
+                goToPage(num);
               }}
               style={{ padding: '0.4rem 0.8rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: '#fff' }}
             >
               {t('go')}
             </button>
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => goToPage(page + 1)}
               disabled={page === totalPages}
               style={{ padding: '0.4rem 1.2rem', fontSize: '1rem', borderRadius: 6, border: '1px solid #ccc', background: page === totalPages ? '#eee' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
             >
@@ -435,6 +511,7 @@ const PrimosMarketGallery: React.FC = () => {
       </div>
       <Activity />
     </div>
+    <TxProgressModal open={txOpen} step={txStep} />
     <MessageModal
       open={!!message}
       message={message}

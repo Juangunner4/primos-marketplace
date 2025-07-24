@@ -5,7 +5,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '../../i18n';
 import Stickers from '../Stickers';
 
-jest.mock('../utils/helius', () => ({
+jest.mock('../../utils/helius', () => ({
   fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([]))
 }));
 
@@ -18,7 +18,7 @@ describe('Stickers page', () => {
         </I18nextProvider>
       </MemoryRouter>
     );
-    expect(screen.getByText(/Experiment #2/i)).toBeTruthy();
+    expect(screen.getByText(/Stickers/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /Order Sticker/i })).toBeDisabled();
   });
 });

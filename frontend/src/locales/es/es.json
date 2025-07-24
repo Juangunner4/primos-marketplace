@@ -73,7 +73,7 @@
   "docs_title": "Docs",
   "docs_welcome": "En el extenso panorama de guías, referencias y tutoriales interminables que pueden rodear cualquier proyecto, finalmente has llegado al lugar donde, después de mucho leer y desplazarte, descubrirás que esta es la documentación oficial de Primos Marketplace.",
   "docs_treasury_title": "Tesorería Comunitaria Descentralizada",
-  "docs_treasury_desc": "Un marketplace en Solana con permisos y comisiones ultra bajas: 2% para creadores, 3% para la comunidad, 1.5% para operaciones. Todo va a una tesorería en cadena que impulsa recompras, sube el floor y construye verdadera propiedad comunitaria con mecánicas DeFi.",
+  "docs_treasury_desc": "Un marketplace en Solana integrado con la API de Magic Eden: comisión de comprador (2%) más royalty de creador (5%) y tarifas on-chain adicionales de comunidad (2.4%) y operaciones (1.4%). Todos los ingresos alimentan una tesorería compartida on-chain: impulsan recompras, elevan el precio floor y construyen verdadera propiedad comunitaria mediante mecánicas DeFi.",
   "docs_governance_title": "Gobernanza Exclusiva",
   "docs_governance_desc": "Solo los poseedores verificados de Primos pueden acceder al marketplace, unirse y ayudar a construir un legado en la blockchain. No estamos creando un DAO, estamos construyendo un centro cultural. Un lugar para latinos y exploradores del cripto donde puedan sumergirse en DeFi, NFTs, gaming, memecoins y todo el mundo Web3. Primos no se trata solo de mantener—se trata de ser dueño del futuro.",
   "docs_utility_title": "Utilidad Comunitaria On-Chain",
@@ -113,6 +113,7 @@
   "join_primos": "Únete a Primos",
   "home_fomo": "¡No te pierdas la próxima oportunidad!",
   "market_cap": "Capitalización",
+  "market_cap_usd": "Capitalización (USD)",
   "unique_holders": "Holders únicos",
   "volume_day": "Volumen 24h",
   "news": "Noticias",
@@ -127,13 +128,24 @@
   "clear_filters": "Limpiar",
   "earn_point": "Ganar punto",
   "limit_reached": "Límite diario alcanzado",
+  "total_price": "Precio total",
+  "seller_receives": "Recibe el vendedor",
+  "list_price": "Precio listado",
+  "market_taker_fee": "Comisión comprador",
+  "creator_royalty_fee": "Royalty creador",
+  "community_fee": "Comunidad",
+  "operations_fee": "Operaciones",
   "close": "Cerrar",
+  "gallery_settings": "Ajustes de Galería",
+  "gallery_view_grid9": "9 Tarjetas",
+  "gallery_view_grid4": "4 Tarjetas",
+  "gallery_view_list": "Vista en Lista",
   "buy_now": "Comprar ahora",
   "pay_with": "Pagar con",
   "make_an_offer": "Hacer una oferta",
   "list": "Listar",
   "go": "Ir",
-  "experiment1_title": "Experimento #1",
+  "experiment1_title": "Primo 3D",
   "experiment1_desc": "Sube la imagen de tu Primo NFT y genera un modelo 3D usando Meshy.ai.",
   "experiment1_render": "Renderizar 3D",
   "redeem_beta": "Canjear código Beta",
@@ -178,8 +190,33 @@
   "has_3d": "3D disponible",
   "tx_success": "¡Transacción enviada!",
   "tx_failed": "Transacción fallida",
-  "experiment2_title": "Experimento #2",
+  "tx_progress_title": "Progreso de la transacción",
+  "message_modal_title": "Mensaje",
+  "tx_step_init": "Paso 1 - Inicializando compra...",
+  "tx_step_sign": "Paso 2 - Firmando compra\nRevisa y confirma en tu wallet...",
+  "tx_step_confirm": "Paso 3 - Confirmando compra...",
+  "experiment2_title": "Calcomanías",
   "experiment2_desc": "Ordena calcomanías de tus Primos NFTs con códigos QR que enlazan al marketplace y a tus redes. El 5% del costo apoya al DAO.",
   "order_sticker": "Pedir calcomanía",
   "stickers_order_thanks": "¡Pronto podrás completar tu pedido!"
+ ,"experiment3_title": "Trincheras"
+ ,"experiment3_desc": "Ingresa direcciones de contrato para hacer crecer las trincheras. Las burbujas aumentan al unirse más usuarios."
+ ,"enter_contract": "Ingresa dirección de contrato"
+ ,"add_contract": "Agregar Contrato"
+ ,"my_contracts": "Mis Contratos"
+ ,"all_users": "Todos los Usuarios"
+ ,"all_contracts": "Todos los Contratos"
+ ,"scanner": "Escáner"
+ ,"no_scans": "Aún no has escaneado contratos."
+ ,"work_title": "Solicitudes de Arte"
+ ,"work_join_label": "Seleccionar Grupos de Trabajo"
+ ,"work_group_label": "Grupo de Trabajo"
+ ,"work_art": "Arte"
+ ,"work_dev": "Desarrollo"
+ ,"work_other": "Otros"
+ ,"work_request_placeholder": "Describe tu solicitud"
+ ,"work_submit": "Enviar"
+  ,"work_pick": "Tomar"
+  ,"work_assigned_to": "Asignado a"
+  ,"work_no_groups": "No perteneces a ning\u00fan grupo de trabajo. \u00danete en tu perfil."
 }

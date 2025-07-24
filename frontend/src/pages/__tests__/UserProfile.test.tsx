@@ -37,7 +37,7 @@ jest.mock('../../utils/api', () => ({
   }}))
 }));
 
-jest.mock('../services/helius', () => ({
+jest.mock('../../services/helius', () => ({
   getAssetsByCollection: jest.fn(() => Promise.resolve([])),
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));

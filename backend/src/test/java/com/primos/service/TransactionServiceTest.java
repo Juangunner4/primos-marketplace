@@ -19,7 +19,26 @@ public class TransactionServiceTest {
         Transaction tx = svc.recordTransaction(dto);
         assertNotNull(tx.getId());
         assertEquals("abc123", tx.getTxId());
+        assertNull(tx.getSolSpent());
         Transaction stored = Transaction.find("txId", "abc123").firstResult();
         assertNotNull(stored);
+    }
+
+    @Test
+    public void testVolumeLast24h() {
+        TransactionService svc = new TransactionService();
+        Transaction t = new Transaction();
+        t.setTxId("txv1");
+        t.setBuyer("b");
+        t.setMint("m");
+        t.setCollection("c");
+        t.setSource("s");
+        t.setTimestamp(java.time.Instant.now().toString());
+        t.setStatus("confirmed");
+        t.setPrice(1e9);
+        t.setSolSpent(1e9);
+        t.persist();
+        double vol = svc.volumeLast24h();
+        assertEquals(1e9, vol);
     }
 }

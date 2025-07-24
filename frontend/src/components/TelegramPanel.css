@@ -1,0 +1,47 @@
+.telegram-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  inset: 0;
+}
+
+.telegram-content {
+  background: rgba(30, 30, 30, 0.9);
+  color: #fff;
+  border: 1px solid #888;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 90vw;
+  max-width: 380px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.telegram-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: #fff;
+}
+
+.telegram-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.telegram-row {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.4rem;
+  border-radius: 4px;
+}
+
+@media (min-width: 700px) {
+  .telegram-content {
+    max-width: 500px;
+  }
+}

@@ -1,19 +1,21 @@
 package com.primos.resource;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import org.jboss.logging.Logger;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.jboss.logging.Logger;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.ProxySelector;
-import java.net.InetSocketAddress;
 
 /**
  * Fetches "list" instructions from the Magic Eden API. The backend adds the
@@ -46,22 +48,25 @@ public class MagicEdenListResource {
         return HttpClient.newHttpClient();
     }
 
+    private static final String DEFAULT_AUCTION_HOUSE = "E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe";
+
     @GET
     public Response list(@QueryParam("seller") String seller,
-                         @QueryParam("tokenMint") String tokenMint,
-                         @QueryParam("tokenATA") String tokenATA,
-                         @QueryParam("price") String price,
-                         @QueryParam("auctionHouseAddress") String auctionHouse)
+            @QueryParam("tokenMint") String tokenMint,
+            @QueryParam("tokenATA") String tokenATA,
+            @QueryParam("price") String price,
+            @QueryParam("auctionHouseAddress") String auctionHouse)
             throws IOException, InterruptedException {
-        StringBuilder url = new StringBuilder(API_BASE)
-                .append("/v2/instructions/sell?seller=").append(seller)
-                .append("&tokenMint=").append(tokenMint)
-                .append("&tokenATA=").append(tokenATA)
-                .append("&price=").append(price)
-                .append("&auctionHouseAddress=").append(auctionHouse);
+        String ah = (auctionHouse == null || auctionHouse.isBlank()) ? DEFAULT_AUCTION_HOUSE : auctionHouse;
+        String url = API_BASE
+                + "/v2/instructions/sell?seller=" + seller
+                + "&tokenMint=" + tokenMint
+                + "&tokenATA=" + tokenATA
+                + "&price=" + price
+                + "&auctionHouseAddress=" + ah;
         LOG.infof("Requesting list tx seller=%s tokenMint=%s price=%s", seller, tokenMint, price);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url.toString()))
+                .uri(URI.create(url))
                 .GET();
         if (API_KEY != null && !API_KEY.isBlank()) {
             builder.header("Authorization", "Bearer " + API_KEY);

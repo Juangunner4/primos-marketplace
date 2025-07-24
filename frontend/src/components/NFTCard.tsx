@@ -50,13 +50,12 @@ const NFTCard: React.FC<NFTCardProps> = ({
     rankVariant = CARD_VARIANTS.find((v) => v.name === "silver");
   }
   const priceSol = nft.price ? nft.price.toFixed(3) : null;
-  const priceUsd =
-    nft.price && solPriceUsd ? (nft.price * solPriceUsd).toFixed(2) : null;
 
   return (
     <Dialog.Root open={open} onOpenChange={(val) => !val && onClose()}>
       <Dialog.Overlay className="nft-dialog-overlay" />
       <Dialog.Content className="nft-dialog-content">
+        <Dialog.Title className="dialog-title">{nft.name}</Dialog.Title>
         <button
           className="close-button"
           onClick={onClose}
@@ -64,17 +63,18 @@ const NFTCard: React.FC<NFTCardProps> = ({
         >
           <CloseIcon fontSize="medium" />
         </button>
-        <Box
-          className="nft-modal-vertical"
-          sx={{
-            display: { xs: "block", md: "flex" },
-            flexDirection: { md: "row" },
-            alignItems: { md: "flex-start" },
-            gap: { md: 3 },
-            width: "100%",
-            maxWidth: "100%",
-          }}
-        >
+        <Dialog.Description asChild>
+          <Box
+            className="nft-modal-vertical"
+            sx={{
+              display: { xs: "block", md: "flex" },
+              flexDirection: { md: "row" },
+              alignItems: { md: "flex-start" },
+              gap: { md: 3 },
+              width: "100%",
+              maxWidth: "100%",
+            }}
+          >
           <Box
             className="nft-modal-image-container"
             sx={{
@@ -144,7 +144,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
           >
             <TransactionCard
               priceSol={priceSol}
-              priceUsd={priceUsd}
+              solPriceUsd={solPriceUsd}
               onBuy={onBuy || onClose}
               variantBg={variant.bg}
               variantBorder={variant.border}
@@ -152,6 +152,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
             />
           </Box>
         </Box>
+        </Dialog.Description>
       </Dialog.Content>
     </Dialog.Root>
   );

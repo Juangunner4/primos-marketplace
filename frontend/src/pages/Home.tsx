@@ -5,8 +5,10 @@ import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import hero from '../images/primoslogo.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
+import { calculateFees } from '../utils/fees';
 import { getPythSolPrice } from '../utils/pyth';
 import api from '../utils/api';
+import { fetchVolume24h } from '../utils/transaction';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
@@ -19,6 +21,7 @@ interface Stats {
   floorPrice: number | null;
   solPrice: number | null;
   marketCap: number | null;
+  marketCapUsd: number | null;
 }
 
 interface DaoMember {
@@ -39,23 +42,26 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [meStats, meHolderStats, solPrice] = await Promise.all([
+        const [meStats, meHolderStats, solPrice, dbVolume] = await Promise.all([
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getMagicEdenHolderStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
+          fetchVolume24h(),
         ]);
-        const floor = meStats?.floorPrice ?? null;
+        // Calculate floor price including marketplace fees
+        const rawFloor = meStats?.floorPrice != null ? meStats.floorPrice / 1e9 : null;
+        const adjustedFloor = rawFloor != null ? rawFloor + calculateFees(rawFloor).totalFees : null;
         const supply = meHolderStats?.totalSupply ?? null;
-        const mcap =
-          floor !== null && supply !== null ? (floor * supply) : null;
+        const mcap = adjustedFloor != null && supply != null ? adjustedFloor * supply : null;
         setStats({
           uniqueHolders: meHolderStats?.uniqueHolders ?? null,
           totalSupply: supply,
-          volume24hr: meStats?.volume24hr ?? null,
+          volume24hr: dbVolume ?? meStats?.volume24hr ?? null,
           listedCount: meStats?.listedCount ?? null,
-          floorPrice: floor,
+          floorPrice: adjustedFloor,
           solPrice: solPrice ?? null,
           marketCap: mcap,
+          marketCapUsd: mcap != null && solPrice != null ? mcap * solPrice : null,
         });
       } catch (e) {
         console.error('Failed to fetch stats:', e);
@@ -195,7 +201,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 700 }}>
               {stats.floorPrice !== null
-                ? (stats.floorPrice / 1e9).toFixed(2)
+                ? stats.floorPrice.toFixed(3)
                 : '--'}{' '}
               SOL
             </Typography>
@@ -212,13 +218,12 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           </Box>
           <Box>
             <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
-              {t('market_cap')}
+              {t('market_cap_usd')}
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              {stats.marketCap !== null
-                ? (stats.marketCap / 1e9).toFixed(2)
-                : '--'}{' '}
-              SOL
+              {stats.marketCapUsd !== null
+                ? `$${stats.marketCapUsd.toFixed(2)}`
+                : '--'}
             </Typography>
           </Box>
         </Box>

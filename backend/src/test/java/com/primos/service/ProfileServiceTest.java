@@ -39,4 +39,20 @@ public class ProfileServiceTest {
         updated.setDomain("taken.sol");
         assertThrows(jakarta.ws.rs.BadRequestException.class, () -> svc.updateProfile("w2", "w2", updated));
     }
+
+    @Test
+    public void testUpdateArtTeamFlag() {
+        User u = new User();
+        u.setPublicKey("wg1");
+        u.persist();
+
+        ProfileService svc = new ProfileService();
+        User updated = new User();
+        updated.setPublicKey("wg1");
+        updated.setArtTeam(true);
+        svc.updateProfile("wg1", "wg1", updated);
+
+        User db = User.find("publicKey", "wg1").firstResult();
+        assertTrue(db.isArtTeam());
+    }
 }

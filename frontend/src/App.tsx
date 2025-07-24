@@ -24,8 +24,11 @@ import PrimoLabs from './pages/PrimoLabs';
 import Primos from './pages/Primos';
 import Experiment1 from './pages/Experiment1';
 import Stickers from './pages/Stickers';
+import Trenches from './pages/Trenches';
 import Docs from './pages/Docs';
+import TokenScanner from './pages/TokenScanner';
 import Admin from './pages/Admin';
+import Work from './pages/Work';
 import BetaRedeem from './components/BetaRedeem';
 import LoadingOverlay from './components/LoadingOverlay';
 
@@ -205,7 +208,7 @@ const Header: React.FC = () => {
 
 const AppRoutes = () => {
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists, artTeam } = usePrimoHolder();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -226,6 +229,12 @@ const AppRoutes = () => {
       navigate('/', { replace: true });
     }
     if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/stickers') {
+      navigate('/', { replace: true });
+    }
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/trenches') {
+      navigate('/', { replace: true });
+    }
+    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/work') {
       navigate('/', { replace: true });
     }
     if (
@@ -253,6 +262,7 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<PrimosMarketGallery />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/token-scanner" element={<TokenScanner />} />
 
           {publicKey && (isHolder || betaRedeemed) && userExists && (
             <>
@@ -260,6 +270,8 @@ const AppRoutes = () => {
               <Route path="/labs"      element={<PrimoLabs />} />
               <Route path="/experiment1" element={<Experiment1 />} />
               <Route path="/stickers" element={<Stickers />} />
+              <Route path="/trenches" element={<Trenches />} />
+              <Route path="/work" element={<Work />} />
               <Route path="/profile"   element={<UserProfile />} />
               <Route path="/user/:publicKey" element={<UserProfile />} />
             </>

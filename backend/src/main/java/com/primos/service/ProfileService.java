@@ -29,6 +29,12 @@ public class ProfileService {
                 }
                 user.setDomain(lower);
             }
+            if (updated.getWorkGroups() != null) {
+                user.setWorkGroups(updated.getWorkGroups());
+                user.setArtTeam(updated.getWorkGroups().contains("art"));
+            } else {
+                user.setArtTeam(updated.isArtTeam());
+            }
             user.persistOrUpdate();
         }
         return user;

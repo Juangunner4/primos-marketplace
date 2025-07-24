@@ -7,10 +7,11 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Button from "@mui/material/Button";
 import "./TransactionCard.css";
+import PriceBreakdown from "./PriceBreakdown";
 
 interface TransactionCardProps {
   priceSol: string | null;
-  priceUsd?: string | null;
+  solPriceUsd?: number;
   onBuy: () => void;
   variantBg: string;
   variantBorder: string;
@@ -19,7 +20,7 @@ interface TransactionCardProps {
 
 const TransactionCard: React.FC<TransactionCardProps> = ({
   priceSol,
-  priceUsd,
+  solPriceUsd,
   onBuy,
   variantBg,
   variantBorder,
@@ -27,6 +28,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:700px)");
+  const priceNum = priceSol ? parseFloat(priceSol) : null;
 
   if (isMobile) {
     return (
@@ -37,19 +39,10 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         >
           <CardContent className="transaction-card-mobile-content">
             <Typography sx={{ fontWeight: 700, right: 0 }} variant="subtitle2" color="text.secondary">
-              Total Price
+              {t('total_price')}
             </Typography>
-            {priceSol ? (
-              <Box display="flex" alignItems="baseline" gap={1}>
-                <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="h5" fontWeight="bold">
-                  {priceSol} SOL
-                </Typography>
-                {priceUsd && (
-                  <Typography sx={{ fontSize: "1rem", textAlign: "right" }} variant="body2" color="text.secondary">
-                    (${priceUsd})
-                  </Typography>
-                )}
-              </Box>
+            {priceNum !== null ? (
+              <PriceBreakdown price={priceNum} solPriceUsd={solPriceUsd} />
             ) : (
               <Typography variant="h6">{t("market_no_price")}</Typography>
             )}
@@ -84,14 +77,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 
   return (
     <div className="market-card-footer transaction-card-floating">
-      {priceSol ? (
-        <span
-          className="market-nft-price-pill"
-          style={{ background: variantBg, borderColor: variantBorder }}
-        >
-          {priceSol} SOL
-          {priceUsd && <span className="usd"> (${priceUsd})</span>}
-        </span>
+      {priceNum !== null ? (
+        <PriceBreakdown price={priceNum} solPriceUsd={solPriceUsd} />
       ) : (
         <span
           className="market-nft-price-pill"

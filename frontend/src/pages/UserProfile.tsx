@@ -33,6 +33,8 @@ type UserDoc = {
   pointsToday: number;
   pointsDate: string;
   pesos: number;
+  artTeam: boolean;
+  workGroups: string[];
 };
 
 const getStatus = (count: number) => {
@@ -71,7 +73,7 @@ const UserProfile: React.FC = () => {
       api
         .get(`/api/user/${profileKey}`,
           publicKey ? { headers: { 'X-Public-Key': publicKey.toBase58() } } : undefined)
-        .then((res) => setUser(res.data))
+        .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }))
         .catch(() => setUser(null));
     }
   }, [profileKey, publicKey]);
@@ -124,7 +126,7 @@ const UserProfile: React.FC = () => {
           tokenAddress,
           { headers: { 'Content-Type': 'text/plain', 'X-Public-Key': publicKey.toBase58() } }
         )
-        .then((res) => setUser(res.data));
+        .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }));
     }
   };
 
@@ -183,7 +185,7 @@ const UserProfile: React.FC = () => {
           .put(`/api/user/${publicKey.toBase58()}`, user, {
             headers: { 'X-Public-Key': publicKey.toBase58() },
           })
-          .then((res) => setUser(res.data))
+          .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }))
           .finally(() => {
             setIsEditing(false);
             setShowNFTs(false);
@@ -210,7 +212,7 @@ const UserProfile: React.FC = () => {
           {},
           { headers: { 'Content-Type': 'application/json', 'X-Public-Key': publicKey.toBase58() } }
         )
-        .then((res) => setUser(res.data))
+        .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }))
         .finally(() => {
           setTimeout(() => {
             setBallAnimating(false);
@@ -338,6 +340,30 @@ const fadeOut = keyframes`
           margin="normal"
           disabled={!isOwner || !isEditing}
         />
+        <Box mb={1}>
+          <Typography>{t('work_join_label')}</Typography>
+          <Box mt={1} sx={{ display: 'flex', gap: 1 }}>
+            {['art', 'dev', 'other'].map((g) => {
+              const selected = user!.workGroups.includes(g);
+              return (
+                <Button
+                  key={g}
+                  variant={selected ? 'contained' : 'outlined'}
+                  size="small"
+                  onClick={() => {
+                    if (!isOwner || !isEditing || !user) return;
+                    const groups = user.workGroups.includes(g)
+                      ? user.workGroups.filter((x) => x !== g)
+                      : [...user.workGroups, g];
+                    setUser({ ...user, workGroups: groups, artTeam: groups.includes('art') });
+                  }}
+                >
+                  {t(`work_${g}` as any)}
+                </Button>
+              );
+            })}
+          </Box>
+        </Box>
         <TextField
           label={t('sns_domain')}
           value={primaryDomain || ''}
