@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import Alert from '@mui/material/Alert';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import { useWallet } from '@solana/wallet-adapter-react';
+// ...existing imports...
 import { useTranslation } from 'react-i18next';
 import { fetchTrenchData, submitTrenchContract } from '../services/trench';
 import TelegramPanel from '../components/TelegramPanel';
@@ -31,6 +34,8 @@ interface TrenchData {
 
 const Trenches: React.FC = () => {
   const { publicKey } = useWallet();
+  const { connection } = useConnection();
+  const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [] });
@@ -65,7 +70,28 @@ const Trenches: React.FC = () => {
   }, []);
 
   const handleAdd = async () => {
+    setError(null);
     if (!input || !publicKey) return;
+    let valid = false;
+    // Ethereum address check
+    if (/^0x[0-9a-fA-F]{40}$/.test(input)) {
+      try {
+        const res = await fetch(`https://api.coingecko.com/api/v3/coins/ethereum/contract/${input}`);
+        if (res.ok) valid = true;
+      } catch {}
+    }
+    // Solana account check
+    if (!valid) {
+      try {
+        const addr = new PublicKey(input);
+        const info = await connection.getAccountInfo(addr);
+        if (info) valid = true;
+      } catch {}
+    }
+    if (!valid) {
+      setError(t('contract_not_onchain'));
+      return;
+    }
     await submitTrenchContract(publicKey.toBase58(), input, 'model1');
     setInput('');
     load();
