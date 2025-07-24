@@ -13,9 +13,16 @@ jest.mock('../api', () => ({
   default: { post: jest.fn() },
 }));
 
-jest.mock('@solana/web3.js', () => ({
-  Transaction: { from: jest.fn(() => ({ decoded: true })) },
-}));
+jest.mock('@solana/web3.js', () => {
+  const add = jest.fn().mockReturnThis();
+  const Transaction = jest.fn(() => ({ add }));
+  Transaction.from = jest.fn(() => ({ decoded: true }));
+  return {
+    Transaction,
+    SystemProgram: { transfer: jest.fn(() => ({ ix: true })) },
+    PublicKey: jest.fn((v: string) => ({ toBase58: () => v })),
+  };
+});
 
 describe('executeBuyNow', () => {
   test('sends transaction', async () => {
@@ -38,8 +45,10 @@ describe('executeBuyNow', () => {
       auctionHouse: 'ah',
     };
     const sig = await executeBuyNow(connection, wallet, listing);
-    expect(getBuyNowInstructions).toHaveBeenCalled();
-    expect(sendTransaction).toHaveBeenCalled();
+    expect(getBuyNowInstructions).toHaveBeenCalledWith(
+      expect.objectContaining({ buyer: 'buyer', splitFees: 'true' })
+    );
+    expect(sendTransaction).toHaveBeenCalledTimes(2);
     expect(api.post).toHaveBeenCalledWith('/api/transactions', expect.objectContaining({ mint: 'mint' }));
     expect(sig).toBe('sig');
   });
