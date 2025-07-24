@@ -7,6 +7,7 @@ import hero from '../images/primoslogo.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import api from '../utils/api';
+import { fetchVolume24h } from '../utils/transaction';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
@@ -39,10 +40,11 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [meStats, meHolderStats, solPrice] = await Promise.all([
+        const [meStats, meHolderStats, solPrice, dbVolume] = await Promise.all([
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getMagicEdenHolderStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
+          fetchVolume24h(),
         ]);
         const floor = meStats?.floorPrice ?? null;
         const supply = meHolderStats?.totalSupply ?? null;
@@ -51,7 +53,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         setStats({
           uniqueHolders: meHolderStats?.uniqueHolders ?? null,
           totalSupply: supply,
-          volume24hr: meStats?.volume24hr ?? null,
+          volume24hr: dbVolume ?? meStats?.volume24hr ?? null,
           listedCount: meStats?.listedCount ?? null,
           floorPrice: floor,
           solPrice: solPrice ?? null,

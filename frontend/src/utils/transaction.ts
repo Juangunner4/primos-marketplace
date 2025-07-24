@@ -20,6 +20,35 @@ export const recordTransaction = async (tx: TxRecord) => {
   }
 };
 
+export interface DbTransaction {
+  txId: string;
+  buyer: string;
+  seller?: string;
+  mint: string;
+  price?: number;
+  collection: string;
+  source: string;
+  timestamp: string;
+  status: string;
+  solSpent?: number;
+}
+
+export const fetchRecentTransactions = async (
+  hours = 24
+): Promise<DbTransaction[]> => {
+  const res = await api.get<DbTransaction[]>(`/api/transactions/recent?hours=${hours}`);
+  return res.data;
+};
+
+export const fetchVolume24h = async (): Promise<number> => {
+  try {
+    const res = await api.get<{ volume: number }>('/api/transactions/volume24h');
+    return res.data.volume;
+  } catch {
+    return 0;
+  }
+};
+
 export interface BuyNowListing {
   tokenMint: string;
   tokenAta: string;

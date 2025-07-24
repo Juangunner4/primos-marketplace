@@ -15,6 +15,7 @@ public class Transaction extends PanacheMongoEntity {
     private String source;
     private String timestamp;
     private String status;
+    private Double solSpent;
 
     /**
      * Expose the MongoDB generated identifier so tests can verify the
@@ -95,5 +96,13 @@ public class Transaction extends PanacheMongoEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getSolSpent() {
+        return solSpent;
+    }
+
+    public void setSolSpent(Double solSpent) {
+        this.solSpent = solSpent;
     }
 }
