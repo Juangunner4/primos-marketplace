@@ -20,7 +20,12 @@ const MessageModal: React.FC<MessageModalProps> = ({ open, message, onClose, onC
     <Dialog.Root open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
       <Dialog.Overlay className="dialog-overlay" />
       <Dialog.Content className="dialog-content">
-        <p>{message.text}</p>
+        <Dialog.Title className="dialog-title">
+          {t('message_modal_title')}
+        </Dialog.Title>
+        <Dialog.Description asChild>
+          <p>{message.text}</p>
+        </Dialog.Description>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
           {onConfirm && (
             <Button variant="contained" onClick={onConfirm}>

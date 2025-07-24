@@ -21,8 +21,13 @@ const TxProgressModal: React.FC<TxProgressModalProps> = ({ open, step }) => {
     <Dialog.Root open={open}>
       <Dialog.Overlay className="tx-modal-overlay" />
       <Dialog.Content className="tx-modal-content">
+        <Dialog.Title className="tx-modal-title">
+          {t('tx_progress_title')}
+        </Dialog.Title>
         <div className="tx-modal-spinner" />
-        <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{messages[step]}</pre>
+        <Dialog.Description asChild>
+          <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{messages[step]}</pre>
+        </Dialog.Description>
       </Dialog.Content>
     </Dialog.Root>
   );

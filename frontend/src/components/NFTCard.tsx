@@ -55,6 +55,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
     <Dialog.Root open={open} onOpenChange={(val) => !val && onClose()}>
       <Dialog.Overlay className="nft-dialog-overlay" />
       <Dialog.Content className="nft-dialog-content">
+        <Dialog.Title className="dialog-title">{nft.name}</Dialog.Title>
         <button
           className="close-button"
           onClick={onClose}
@@ -62,17 +63,18 @@ const NFTCard: React.FC<NFTCardProps> = ({
         >
           <CloseIcon fontSize="medium" />
         </button>
-        <Box
-          className="nft-modal-vertical"
-          sx={{
-            display: { xs: "block", md: "flex" },
-            flexDirection: { md: "row" },
-            alignItems: { md: "flex-start" },
-            gap: { md: 3 },
-            width: "100%",
-            maxWidth: "100%",
-          }}
-        >
+        <Dialog.Description asChild>
+          <Box
+            className="nft-modal-vertical"
+            sx={{
+              display: { xs: "block", md: "flex" },
+              flexDirection: { md: "row" },
+              alignItems: { md: "flex-start" },
+              gap: { md: 3 },
+              width: "100%",
+              maxWidth: "100%",
+            }}
+          >
           <Box
             className="nft-modal-image-container"
             sx={{
@@ -150,6 +152,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
             />
           </Box>
         </Box>
+        </Dialog.Description>
       </Dialog.Content>
     </Dialog.Root>
   );

@@ -93,6 +93,7 @@ const TelegramPanel: React.FC<TelegramPanelProps> = ({ contract, open, onClose }
       {error && <Typography color="error" variant="body2">{error}</Typography>}
       <Dialog.Overlay className="telegram-overlay" />
       <Dialog.Content className="telegram-content">
+        <Dialog.Title className="dialog-title">{t('telegram_data')}</Dialog.Title>
         <IconButton
           className="telegram-close"
           onClick={onClose}
@@ -101,17 +102,17 @@ const TelegramPanel: React.FC<TelegramPanelProps> = ({ contract, open, onClose }
         >
           <CloseIcon fontSize="small" />
         </IconButton>
-        <Typography variant="h6" sx={{ mb: 1 }}>
-        </Typography>
-        <Box className="telegram-list" sx={{ maxHeight: 400, overflowY: 'auto', mt: 1 }}>
-          {entries.map((e) => (
-            <Box key={e.id} sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
-              <Typography variant="body2" component="div">
-                {e.message}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
+        <Dialog.Description asChild>
+          <Box className="telegram-list" sx={{ maxHeight: 400, overflowY: 'auto', mt: 1 }}>
+            {entries.map((e) => (
+              <Box key={e.id} sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
+                <Typography variant="body2" component="div">
+                  {e.message}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Dialog.Description>
       </Dialog.Content>
     </Dialog.Root>
   );

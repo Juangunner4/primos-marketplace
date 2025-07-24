@@ -190,6 +190,8 @@
   "has_3d": "3D available",
   "tx_success": "Transaction sent!",
   "tx_failed": "Transaction failed",
+  "tx_progress_title": "Transaction Progress",
+  "message_modal_title": "Message",
   "tx_step_init": "Step 1 - Initializing Buy Transaction...",
   "tx_step_sign": "Step 2 - Signing Buy Transaction\nReview and confirm in your wallet...",
   "tx_step_confirm": "Step 3 - Confirming Buy Transaction...",
