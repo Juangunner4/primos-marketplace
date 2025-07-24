@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, IconButton, ToggleButtonGroup, ToggleButton, TextField, InputAdornment, Select, MenuItem, ListItem, ListItemAvatar, Avatar, ListItemText, Box, Typography, Accordion, AccordionSummary, AccordionDetails, Button, Stack, useTheme, useMediaQuery } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, ToggleButtonGroup, ToggleButton, TextField, InputAdornment, ListItem, ListItemAvatar, Avatar, ListItemText, Box, Typography, Accordion, AccordionSummary, AccordionDetails, Button, useTheme, useMediaQuery } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -17,7 +17,6 @@ interface ListItemModalProps {
 const ListItemModal: React.FC<ListItemModalProps> = ({ open, nft, onClose, onConfirm }) => {
   const [strategy, setStrategy] = useState('floor');
   const [price, setPrice] = useState('');
-  const [currency, setCurrency] = useState('SOL');
   const theme = useTheme();
   const fullScreenMobile = useMediaQuery(theme.breakpoints.down('sm'));
   if (!nft) return null;
@@ -46,9 +45,10 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ open, nft, onClose, onCon
             bgcolor: 'background.paper',
             boxShadow: theme.shadows[24],
             width: fullScreenMobile ? '100vw' : 600,
-            height: fullScreenMobile ? '100vh' : 700,
+            // auto height to fit content and reduce whitespace
+            height: 'auto',
             maxWidth: fullScreenMobile ? '100vw' : '90vw',
-            maxHeight: fullScreenMobile ? '100vh' : '90vh',
+            maxHeight: fullScreenMobile ? '100vh' : '80vh',
           },
         })}
       >
@@ -76,19 +76,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ open, nft, onClose, onCon
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             sx={{ mb: 2 }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Select
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                    size="small"
-                  >
-                    <MenuItem value="SOL">SOL</MenuItem>
-                  </Select>
-                </InputAdornment>
-              ),
-            }}
+            InputProps={{ endAdornment: <InputAdornment position="end">SOL</InputAdornment> }}
           />
           <ListItem disableGutters sx={{ mb: 2 }}>
             <ListItemAvatar>
@@ -106,12 +94,12 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ open, nft, onClose, onCon
                 <Tooltip.Root>
                   <Tooltip.Trigger asChild>
                     <Typography variant="caption" color="textSecondary">
-                      Buyer sees {buyerSees} {currency}
+                      Buyer sees {buyerSees} SOL
                     </Typography>
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content side="top" style={{ background: 'black', color: 'white', padding: '2px 6px', borderRadius: 4 }}>
-                      {buyerSees} {currency}
+                      {buyerSees} SOL
                     </Tooltip.Content>
                   </Tooltip.Portal>
                 </Tooltip.Root>
@@ -121,17 +109,17 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ open, nft, onClose, onCon
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography>You Receive</Typography>
-              <Typography sx={{ marginLeft: 'auto' }}>{fees ? fees.sellerReceives.toFixed(3) + ' ' + currency : '--'}</Typography>
+              <Typography sx={{ marginLeft: 'auto' }}>{fees ? fees.sellerReceives.toFixed(3) + ' SOL' : '--'}</Typography>
             </AccordionSummary>
         <AccordionDetails>
           {/* Priority Fee and Lucky Buy details removed */}
         </AccordionDetails>
           </Accordion>
-          <Stack direction="row" spacing={2} mt={2}>
-            <Button variant="outlined" fullWidth onClick={onClose}>Cancel</Button>
-            <Button variant="contained" color="secondary" fullWidth onClick={() => onConfirm && onConfirm(numericPrice)}>List 1 Item</Button>
-          </Stack>
         </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0, gap: 2 }}>
+          <Button variant="outlined" fullWidth onClick={onClose}>Cancel</Button>
+          <Button variant="contained" fullWidth onClick={() => onConfirm && onConfirm(numericPrice)}>List 1 Item</Button>
+        </DialogActions>
       </Dialog>
     </Tooltip.Provider>
   );
