@@ -1,6 +1,7 @@
 import {
   Connection,
   Transaction,
+  VersionedTransaction,
   SystemProgram,
   PublicKey,
   ComputeBudgetProgram,
@@ -82,9 +83,18 @@ const FEE_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ??
   'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
-const decodeTransaction = (data: string): Transaction => {
+type SolanaTx = Transaction | VersionedTransaction;
+
+const decodeTransaction = (data: string): SolanaTx => {
   const buf = Buffer.from(data, 'base64');
-  // Always deserialize as a legacy Transaction
+  // versioned transactions set the top bit in the first byte
+  if (buf[0] & 0x80) {
+    try {
+      return VersionedTransaction.deserialize(buf);
+    } catch {
+      // fall back to legacy parsing
+    }
+  }
   return Transaction.from(buf);
 };
 
@@ -99,23 +109,28 @@ const stripComputeBudget = (tx: Transaction) => {
   );
 };
 
+const isLegacy = (t: SolanaTx): t is Transaction => 'instructions' in t;
+
 const signAndSendTransaction = async (
-  tx: Transaction,
+  tx: SolanaTx,
   connection: Connection,
   wallet: WalletContextState
 ): Promise<string> => {
-  stripComputeBudget(tx);
-  // ensure recentBlockhash and feePayer are set
-  if (!tx.recentBlockhash) {
-    const latest = await connection.getLatestBlockhash();
-    tx.recentBlockhash = latest.blockhash;
+  if (isLegacy(tx)) {
+    stripComputeBudget(tx);
+    // ensure recentBlockhash and feePayer are set
+    if (!tx.recentBlockhash) {
+      const latest = await connection.getLatestBlockhash();
+      tx.recentBlockhash = latest.blockhash;
+    }
+    if (!tx.feePayer) {
+      tx.feePayer = wallet.publicKey!;
+    }
+    console.log('Tx size (bytes):', tx.serializeMessage().length);
   }
-  if (!tx.feePayer) {
-    tx.feePayer = wallet.publicKey!;
-  }
-  console.log('Tx size (bytes):', tx.serializeMessage().length);
   try {
-    return await wallet.sendTransaction(tx, connection);
+    // wallet adapters can handle both legacy and versioned transactions
+    return await wallet.sendTransaction(tx as any, connection);
   } catch (error: any) {
     console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
