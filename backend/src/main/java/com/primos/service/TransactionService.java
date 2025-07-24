@@ -15,6 +15,9 @@ import java.net.http.HttpResponse;
 import java.net.ProxySelector;
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @ApplicationScoped
 public class TransactionService {
@@ -48,6 +51,7 @@ public class TransactionService {
         tx.setCollection(dto.collection);
         tx.setSource(dto.source);
         tx.setTimestamp(dto.timestamp);
+        tx.setSolSpent(null);
         tx.setStatus("pending");
         tx.persist();
         enrich(tx);
@@ -79,7 +83,9 @@ public class TransactionService {
                         tx.setSeller(obj.getString("seller", null));
                         if (obj.containsKey("price")) {
                             try {
-                                tx.setPrice(obj.getJsonNumber("price").doubleValue());
+                                double price = obj.getJsonNumber("price").doubleValue();
+                                tx.setPrice(price);
+                                tx.setSolSpent(price);
                             } catch (Exception ignore) {}
                         }
                         tx.setStatus("confirmed");
@@ -91,5 +97,33 @@ public class TransactionService {
         } catch (Exception e) {
             LOG.warning("Failed to enrich transaction: " + e.getMessage());
         }
+    }
+
+    public double volumeLast24h() {
+        Instant cutoff = Instant.now().minus(24, ChronoUnit.HOURS);
+        return Transaction.<Transaction>streamAll()
+                .filter(t -> "confirmed".equalsIgnoreCase(t.getStatus()))
+                .filter(t -> {
+                    try {
+                        return t.getTimestamp() != null && Instant.parse(t.getTimestamp()).isAfter(cutoff);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .mapToDouble(t -> t.getSolSpent() != null ? t.getSolSpent() : (t.getPrice() != null ? t.getPrice() : 0.0))
+                .sum();
+    }
+
+    public List<Transaction> recentTransactions(int hours) {
+        Instant cutoff = Instant.now().minus(hours, ChronoUnit.HOURS);
+        return Transaction.<Transaction>streamAll()
+                .filter(t -> {
+                    try {
+                        return t.getTimestamp() != null && Instant.parse(t.getTimestamp()).isAfter(cutoff);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .toList();
     }
 }
