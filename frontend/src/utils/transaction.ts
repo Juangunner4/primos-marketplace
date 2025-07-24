@@ -1,7 +1,6 @@
 import {
   Connection,
   Transaction,
-  VersionedTransaction,
   SystemProgram,
   PublicKey,
   ComputeBudgetProgram,
@@ -83,17 +82,13 @@ const FEE_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ??
   'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
-type AnyTx = Transaction | VersionedTransaction;
-
-const decodeTransaction = (data: string): AnyTx => {
+const decodeTransaction = (data: string): Transaction => {
   const buf = Buffer.from(data, 'base64');
-  return buf[0] & 0x80
-    ? VersionedTransaction.deserialize(buf)
-    : Transaction.from(buf);
+  // Always deserialize as a legacy Transaction
+  return Transaction.from(buf);
 };
 
-const stripComputeBudget = (tx: AnyTx) => {
-  if (!(tx instanceof Transaction)) return;
+const stripComputeBudget = (tx: Transaction) => {
   try {
     if (tx.serializeMessage().length <= PACKET_DATA_SIZE) return;
   } catch {
@@ -105,20 +100,21 @@ const stripComputeBudget = (tx: AnyTx) => {
 };
 
 const signAndSendTransaction = async (
-  tx: AnyTx,
+  tx: Transaction,
   connection: Connection,
   wallet: WalletContextState
 ): Promise<string> => {
   stripComputeBudget(tx);
+  console.log('Tx size (bytes):', tx.serializeMessage().length);
   try {
-    return await wallet.sendTransaction(tx as any, connection);
+    return await wallet.sendTransaction(tx, connection);
   } catch (error: any) {
     console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
 
     if (wallet.signAllTransactions) {
       try {
-        const [signed] = await wallet.signAllTransactions([tx as any]);
+        const [signed] = await wallet.signAllTransactions([tx]);
         return await connection.sendRawTransaction(signed.serialize());
       } catch (e) {
         console.error('signAllTransactions failed', e);
@@ -127,7 +123,7 @@ const signAndSendTransaction = async (
     }
     if (wallet.signTransaction) {
       try {
-        const signedTx = await wallet.signTransaction(tx as any);
+        const signedTx = await wallet.signTransaction(tx);
         return await connection.sendRawTransaction(signedTx.serialize());
       } catch (signErr: any) {
         console.error('signTransaction failed', signErr);
