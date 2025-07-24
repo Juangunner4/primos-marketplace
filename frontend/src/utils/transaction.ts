@@ -85,7 +85,6 @@ export const executeBuyNow = async (
     tokenMint: listing.tokenMint,
     tokenATA: listing.tokenAta,
     price: listing.price.toString(),
-    // use provided auctionHouse or default
     auctionHouseAddress: listing.auctionHouse || DEFAULT_AUCTION_HOUSE,
   };
   if (listing.sellerReferral) params.sellerReferral = listing.sellerReferral;
@@ -96,16 +95,29 @@ export const executeBuyNow = async (
   const encoded = resp.txSigned?.data;
   if (!encoded) throw new Error('Invalid response');
   const tx = Transaction.from(Buffer.from(encoded, 'base64'));
-  let sig: string | null = null;
+
+  let sig = '';
   try {
     onStep?.(2);
-    sig = await wallet.sendTransaction(tx, connection);
+    try {
+      sig = await wallet.sendTransaction(tx, connection);
+    } catch (error: any) {
+      if (error.message.includes('Transaction too large')) {
+        if (!wallet.signTransaction)
+          throw new Error('Wallet fallback unsupported');
+        const signedTx = await wallet.signTransaction(tx);
+        sig = await connection.sendRawTransaction(signedTx.serialize());
+      } else {
+        throw error;
+      }
+    }
     onStep?.(3);
+    // @ts-ignore
     await connection.confirmTransaction(sig, 'confirmed');
     return sig;
   } finally {
     await recordTransaction({
-      txId: sig ?? '',
+      txId: sig,
       mint: listing.tokenMint,
       buyer,
       collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
@@ -136,9 +148,11 @@ export const executeList = async (
   const encoded = resp.txSigned?.data;
   if (!encoded) throw new Error('Invalid response');
   const tx = Transaction.from(Buffer.from(encoded, 'base64'));
+
   let sig: string | null = null;
   try {
     sig = await wallet.sendTransaction(tx, connection);
+    // @ts-ignore
     await connection.confirmTransaction(sig, 'confirmed');
     return sig;
   } finally {
