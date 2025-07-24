@@ -105,6 +105,14 @@ const signAndSendTransaction = async (
   wallet: WalletContextState
 ): Promise<string> => {
   stripComputeBudget(tx);
+  // ensure recentBlockhash and feePayer are set
+  if (!tx.recentBlockhash) {
+    const latest = await connection.getLatestBlockhash();
+    tx.recentBlockhash = latest.blockhash;
+  }
+  if (!tx.feePayer) {
+    tx.feePayer = wallet.publicKey!;
+  }
   console.log('Tx size (bytes):', tx.serializeMessage().length);
   try {
     return await wallet.sendTransaction(tx, connection);
