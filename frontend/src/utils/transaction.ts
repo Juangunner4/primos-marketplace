@@ -1,7 +1,8 @@
-import { Connection, Transaction } from '@solana/web3.js';
+import { Connection, Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import { getBuyNowInstructions, getListInstructions } from './magiceden';
 import api from './api';
+import { calculateFees, FEE_COMMUNITY, FEE_OPERATIONS } from './fees';
 
 export interface TxRecord {
   txId: string;
@@ -68,6 +69,11 @@ export interface ListNFT {
 
 // Default Magic Eden AuctionHouse address
 const DEFAULT_AUCTION_HOUSE = 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe';
+// wallet receiving community + operations fees
+const FEE_WALLET =
+  process.env.REACT_APP_FEE_WALLET ??
+  process.env.REACT_APP_ADMIN_WALLET ??
+  'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
 const signAndSendTransaction = async (
   tx: Transaction,
@@ -77,13 +83,15 @@ const signAndSendTransaction = async (
   try {
     return await wallet.sendTransaction(tx, connection);
   } catch (error: any) {
+    console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
 
     if (wallet.signAllTransactions) {
       try {
         const [signed] = await wallet.signAllTransactions([tx]);
         return await connection.sendRawTransaction(signed.serialize());
-      } catch {
+      } catch (e) {
+        console.error('signAllTransactions failed', e);
         // ignore and fallback to single sign
       }
     }
@@ -92,6 +100,7 @@ const signAndSendTransaction = async (
         const signedTx = await wallet.signTransaction(tx);
         return await connection.sendRawTransaction(signedTx.serialize());
       } catch (signErr: any) {
+        console.error('signTransaction failed', signErr);
         throw new Error('Transaction too large to sign: ' + signErr.message);
       }
     }
@@ -109,6 +118,28 @@ export const executeBuyNow = async (
   if (!buyer) throw new Error('Wallet not connected');
 
   onStep?.(1);
+  // first send operations/community fee separately
+  try {
+    const fees = calculateFees(listing.price);
+    const lamports = Math.round((fees.community + fees.operations) * 1e9);
+    if (lamports > 0) {
+      const feeTx = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: wallet.publicKey!,
+          toPubkey: new PublicKey(FEE_WALLET),
+          lamports,
+        })
+      );
+      onStep?.(2);
+      const feeSig = await signAndSendTransaction(feeTx, connection, wallet);
+      // @ts-ignore
+      await connection.confirmTransaction(feeSig, 'confirmed');
+    }
+  } catch (e) {
+    console.error('Fee transfer failed', e);
+    throw e;
+  }
+
   const params: Record<string, string> = {
     buyer,
     seller: listing.seller,
@@ -120,6 +151,7 @@ export const executeBuyNow = async (
   if (listing.sellerReferral) params.sellerReferral = listing.sellerReferral;
   if (listing.sellerExpiry !== undefined)
     params.sellerExpiry = listing.sellerExpiry.toString();
+  params.splitFees = 'true';
 
   // Get primary and cleanup transaction payloads
   const resp = await getBuyNowInstructions(params);

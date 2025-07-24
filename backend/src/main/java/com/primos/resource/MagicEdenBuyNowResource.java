@@ -64,7 +64,8 @@ public class MagicEdenBuyNowResource {
             @QueryParam("price") String price,
             @QueryParam("auctionHouseAddress") String auctionHouse,
             @QueryParam("sellerReferral") String sellerReferral,
-            @QueryParam("sellerExpiry") String sellerExpiry)
+            @QueryParam("sellerExpiry") String sellerExpiry,
+            @QueryParam("splitFees") boolean splitFees)
             throws IOException, InterruptedException {
         String ah = (auctionHouse == null || auctionHouse.isBlank()) ? DEFAULT_AUCTION_HOUSE : auctionHouse;
         StringBuilder url = new StringBuilder(API_BASE)
@@ -74,15 +75,17 @@ public class MagicEdenBuyNowResource {
                 .append("&tokenATA=").append(tokenATA)
                 .append("&price=").append(price)
                 .append("&auctionHouseAddress=").append(ah);
-        // add a single payee covering community and operations fees
-        url.append("&additionalPayees=").append(FEE_ACCOUNT).append(":").append(TOTAL_FEE_BPS);
+        // optionally include community/operations fees in the Magic Eden tx
+        if (!splitFees) {
+            url.append("&additionalPayees=").append(FEE_ACCOUNT).append(":").append(TOTAL_FEE_BPS);
+        }
         if (sellerReferral != null && !sellerReferral.isBlank()) {
             url.append("&sellerReferral=").append(sellerReferral);
         }
         if (sellerExpiry != null && !sellerExpiry.isBlank()) {
             url.append("&sellerExpiry=").append(sellerExpiry);
         }
-        LOG.infof("Requesting buy now tx buyer=%s tokenMint=%s price=%s", buyer, tokenMint, price);
+        LOG.infof("Requesting buy now tx buyer=%s tokenMint=%s price=%s splitFees=%b", buyer, tokenMint, price, splitFees);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url.toString()))
                 .GET();
