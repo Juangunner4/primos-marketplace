@@ -160,28 +160,26 @@ export const executeBuyNow = async (
   if (resp.cleanupTransaction?.data) payloads.push(resp.cleanupTransaction.data);
   if (payloads.length === 0) throw new Error('Invalid response');
 
+  // Send each transaction sequentially and record separately
   let sig = '';
-  try {
-    onStep?.(2);
-    // Send each transaction sequentially
-    for (const data of payloads) {
-      const tx = Transaction.from(Buffer.from(data, 'base64'));
-      sig = await signAndSendTransaction(tx, connection, wallet);
-      // @ts-ignore
-      await connection.confirmTransaction(sig, 'confirmed');
-    }
-    onStep?.(3);
-    return sig;
-  } finally {
+  onStep?.(2);
+  for (const [i, data] of payloads.entries()) {
+    const tx = Transaction.from(Buffer.from(data, 'base64'));
+    sig = await signAndSendTransaction(tx, connection, wallet);
+    // @ts-ignore
+    await connection.confirmTransaction(sig, 'confirmed');
+    // Log primary vs DAO fee tx with different sources
     await recordTransaction({
       txId: sig,
       mint: listing.tokenMint,
       buyer,
       collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
-      source: 'magiceden',
+      source: i === 0 ? 'magiceden' : 'losprimosdao.sol',
       timestamp: new Date().toISOString(),
     });
   }
+  onStep?.(3);
+  return sig;
 };
 
 export const executeList = async (
