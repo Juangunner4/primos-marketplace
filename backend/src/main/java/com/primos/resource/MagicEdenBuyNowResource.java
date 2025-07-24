@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Response;
  * Fetches "Buy Now" instructions from the Magic Eden API. The backend adds the
  * required API key so the frontend does not expose it.
  */
-@Path("/api/magiceden/buy_now")
+@Path("/api/magiceden/instructions/buy-now")
 @Produces(MediaType.APPLICATION_JSON)
 public class MagicEdenBuyNowResource {
 
@@ -85,7 +85,8 @@ public class MagicEdenBuyNowResource {
         if (sellerExpiry != null && !sellerExpiry.isBlank()) {
             url.append("&sellerExpiry=").append(sellerExpiry);
         }
-        LOG.infof("Requesting buy now tx buyer=%s tokenMint=%s price=%s splitFees=%b", buyer, tokenMint, price, splitFees);
+        LOG.infof("Requesting buy now tx buyer=%s tokenMint=%s price=%s splitFees=%b", buyer, tokenMint, price,
+                splitFees);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url.toString()))
                 .GET();

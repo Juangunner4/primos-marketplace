@@ -254,7 +254,7 @@ export const getBuyNowInstructions = async (
   params: Record<string, string>
 ): Promise<any> => {
   const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`/api/magiceden/buy_now?${qs}`);
+  const res = await fetch(`/api/magiceden/instructions/buy-now?${qs}`);
   if (!res.ok) {
     throw new Error('Failed to fetch buy now instructions');
   }
