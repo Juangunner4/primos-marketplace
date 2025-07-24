@@ -1,7 +1,7 @@
 import { executeBuyNow, BuyNowListing, executeList, ListNFT } from '../transaction';
 import { getBuyNowInstructions, getListInstructions } from '../magiceden';
 import api from '../api';
-import { Transaction } from '@solana/web3.js';
+import { Transaction, VersionedTransaction } from '@solana/web3.js';
 
 jest.mock('../magiceden', () => ({
   getBuyNowInstructions: jest.fn(),
@@ -15,10 +15,13 @@ jest.mock('../api', () => ({
 
 jest.mock('@solana/web3.js', () => {
   const add = jest.fn().mockReturnThis();
-  const Transaction = jest.fn(() => ({ add }));
-  Transaction.from = jest.fn(() => ({ decoded: true }));
+  const serialize = jest.fn();
+  const Transaction = jest.fn(() => ({ add, serializeMessage: jest.fn(), serialize }));
+  Transaction.from = jest.fn(() => ({ decoded: true, serializeMessage: jest.fn(), serialize }));
+  const VersionedTransaction = { deserialize: jest.fn(() => ({ versioned: true, serialize })) };
   return {
     Transaction,
+    VersionedTransaction,
     SystemProgram: { transfer: jest.fn(() => ({ ix: true })) },
     PublicKey: jest.fn((v: string) => ({ toBase58: () => v })),
   };
