@@ -1,7 +1,7 @@
 export const FEE_MARKET_TAKER = 0.02;
 export const FEE_CREATOR_ROYALTY = 0.05;
-export const FEE_COMMUNITY = 0.02;
-export const FEE_OPERATIONS = 0.005;
+export const FEE_COMMUNITY = 0.024;
+export const FEE_OPERATIONS = 0.014;
 
 export const TOTAL_FEE_RATE =
   FEE_MARKET_TAKER + FEE_CREATOR_ROYALTY + FEE_COMMUNITY + FEE_OPERATIONS;
@@ -21,6 +21,7 @@ export const calculateFees = (priceSol: number): FeeBreakdown => {
   const community = priceSol * FEE_COMMUNITY;
   const operations = priceSol * FEE_OPERATIONS;
   const totalFees = marketTaker + creatorRoyalty + community + operations;
-  const sellerReceives = priceSol - totalFees;
+  // Seller receives the full listing price; fees are added on top for the buyer
+  const sellerReceives = priceSol;
   return { marketTaker, creatorRoyalty, community, operations, totalFees, sellerReceives };
 };

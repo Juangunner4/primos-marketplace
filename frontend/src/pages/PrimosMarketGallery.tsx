@@ -7,6 +7,7 @@ import { fetchMagicEdenListings, getMagicEdenStats, getMagicEdenHolderStats, get
 import { getNFTByTokenAddress } from '../utils/helius';
 import { getNftRank } from '../utils/nft';
 import { useTranslation } from 'react-i18next';
+import { calculateFees } from '../utils/fees';
 import { CARD_VARIANTS, getRandomCardVariantName } from '../utils/cardVariants';
 import './PrimosMarketGallery.css';
 import Activity from '../components/Activity';
@@ -108,7 +109,14 @@ const PrimosMarketGallery: React.FC = () => {
         ]);
         if (isMounted) {
           setListedCount(stats?.listedCount ?? null);
-          setFloorPrice(stats?.floorPrice ? stats.floorPrice / 1e9 : null);
+          // Compute floor price including marketplace fees
+          if (stats?.floorPrice != null) {
+            const rawFloor = stats.floorPrice / 1e9;
+            const adjusted = rawFloor + calculateFees(rawFloor).totalFees;
+            setFloorPrice(adjusted);
+          } else {
+            setFloorPrice(null);
+          }
           setSolPrice(solPriceVal ?? null);
           setUniqueHolders(holderStats?.uniqueHolders ?? null);
           // Initialize totalPages for pagination based on listedCount
@@ -295,7 +303,7 @@ const PrimosMarketGallery: React.FC = () => {
                   alignSelf: 'center',
                 }}
               >
-                <PriceBreakdown price={nft.price} solPriceUsd={solPrice} />
+                <PriceBreakdown price={nft.price} solPriceUsd={solPrice} expandable={false} />
               </Box>
             ) : (
               <Box
@@ -444,7 +452,12 @@ const PrimosMarketGallery: React.FC = () => {
               <span className="market-pill">{t('market_sol_price')}: {solPrice !== null ? `$${solPrice.toFixed(2)}` : '--'}</span>
               <span className="market-pill">{t('market_listed')}: {listedCount ?? '--'}</span>
               <span className="market-pill">{t('market_holders')}: {uniqueHolders ?? '--'}</span>
-              <span className="market-pill">{t('market_floor_price')}: {floorPrice !== null ? `${floorPrice}` : '--'}</span>
+              <span className="market-pill">
+                {t('market_floor_price')} (USD):{' '}
+                {floorPrice !== null && solPrice !== null
+                  ? `$${(floorPrice * solPrice).toFixed(2)}`
+                  : '--'}
+              </span>
             </div>
           </div>
           {content}
