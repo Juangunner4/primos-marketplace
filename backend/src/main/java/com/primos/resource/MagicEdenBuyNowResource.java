@@ -99,6 +99,7 @@ public class MagicEdenBuyNowResource {
 
         int status = resp.statusCode() == 304 ? 200 : resp.statusCode();
         LOG.debugf("Magic Eden response status: %d", status);
+        // return full Magic Eden response for frontend splitting
         return Response.status(status).entity(resp.body()).build();
     }
 }

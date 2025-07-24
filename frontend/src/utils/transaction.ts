@@ -69,6 +69,36 @@ export interface ListNFT {
 // Default Magic Eden AuctionHouse address
 const DEFAULT_AUCTION_HOUSE = 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe';
 
+const signAndSendTransaction = async (
+  tx: Transaction,
+  connection: Connection,
+  wallet: WalletContextState
+): Promise<string> => {
+  try {
+    return await wallet.sendTransaction(tx, connection);
+  } catch (error: any) {
+    if (!error.message.includes('Transaction too large')) throw error;
+
+    if (wallet.signAllTransactions) {
+      try {
+        const [signed] = await wallet.signAllTransactions([tx]);
+        return await connection.sendRawTransaction(signed.serialize());
+      } catch {
+        // ignore and fallback to single sign
+      }
+    }
+    if (wallet.signTransaction) {
+      try {
+        const signedTx = await wallet.signTransaction(tx);
+        return await connection.sendRawTransaction(signedTx.serialize());
+      } catch (signErr: any) {
+        throw new Error('Transaction too large to sign: ' + signErr.message);
+      }
+    }
+    throw new Error('Wallet fallback unsupported');
+  }
+};
+
 export const executeBuyNow = async (
   connection: Connection,
   wallet: WalletContextState,
@@ -91,29 +121,24 @@ export const executeBuyNow = async (
   if (listing.sellerExpiry !== undefined)
     params.sellerExpiry = listing.sellerExpiry.toString();
 
+  // Get primary and cleanup transaction payloads
   const resp = await getBuyNowInstructions(params);
-  const encoded = resp.txSigned?.data;
-  if (!encoded) throw new Error('Invalid response');
-  const tx = Transaction.from(Buffer.from(encoded, 'base64'));
+  const payloads: string[] = [];
+  if (resp.txSigned?.data) payloads.push(resp.txSigned.data);
+  if (resp.cleanupTransaction?.data) payloads.push(resp.cleanupTransaction.data);
+  if (payloads.length === 0) throw new Error('Invalid response');
 
   let sig = '';
   try {
     onStep?.(2);
-    try {
-      sig = await wallet.sendTransaction(tx, connection);
-    } catch (error: any) {
-      if (error.message.includes('Transaction too large')) {
-        if (!wallet.signTransaction)
-          throw new Error('Wallet fallback unsupported');
-        const signedTx = await wallet.signTransaction(tx);
-        sig = await connection.sendRawTransaction(signedTx.serialize());
-      } else {
-        throw error;
-      }
+    // Send each transaction sequentially
+    for (const data of payloads) {
+      const tx = Transaction.from(Buffer.from(data, 'base64'));
+      sig = await signAndSendTransaction(tx, connection, wallet);
+      // @ts-ignore
+      await connection.confirmTransaction(sig, 'confirmed');
     }
     onStep?.(3);
-    // @ts-ignore
-    await connection.confirmTransaction(sig, 'confirmed');
     return sig;
   } finally {
     await recordTransaction({
