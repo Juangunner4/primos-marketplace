@@ -1,6 +1,7 @@
 import {
   Connection,
   Transaction,
+  VersionedTransaction,
   SystemProgram,
   PublicKey,
   ComputeBudgetProgram,
@@ -82,7 +83,17 @@ const FEE_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ??
   'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
-const stripComputeBudget = (tx: Transaction) => {
+type AnyTx = Transaction | VersionedTransaction;
+
+const decodeTransaction = (data: string): AnyTx => {
+  const buf = Buffer.from(data, 'base64');
+  return buf[0] & 0x80
+    ? VersionedTransaction.deserialize(buf)
+    : Transaction.from(buf);
+};
+
+const stripComputeBudget = (tx: AnyTx) => {
+  if (!(tx instanceof Transaction)) return;
   try {
     if (tx.serializeMessage().length <= PACKET_DATA_SIZE) return;
   } catch {
@@ -94,20 +105,20 @@ const stripComputeBudget = (tx: Transaction) => {
 };
 
 const signAndSendTransaction = async (
-  tx: Transaction,
+  tx: AnyTx,
   connection: Connection,
   wallet: WalletContextState
 ): Promise<string> => {
   stripComputeBudget(tx);
   try {
-    return await wallet.sendTransaction(tx, connection);
+    return await wallet.sendTransaction(tx as any, connection);
   } catch (error: any) {
     console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
 
     if (wallet.signAllTransactions) {
       try {
-        const [signed] = await wallet.signAllTransactions([tx]);
+        const [signed] = await wallet.signAllTransactions([tx as any]);
         return await connection.sendRawTransaction(signed.serialize());
       } catch (e) {
         console.error('signAllTransactions failed', e);
@@ -116,7 +127,7 @@ const signAndSendTransaction = async (
     }
     if (wallet.signTransaction) {
       try {
-        const signedTx = await wallet.signTransaction(tx);
+        const signedTx = await wallet.signTransaction(tx as any);
         return await connection.sendRawTransaction(signedTx.serialize());
       } catch (signErr: any) {
         console.error('signTransaction failed', signErr);
@@ -183,7 +194,7 @@ export const executeBuyNow = async (
   let sig = '';
   onStep?.(2);
   for (const [i, data] of payloads.entries()) {
-    const tx = Transaction.from(Buffer.from(data, 'base64'));
+    const tx = decodeTransaction(data);
     sig = await signAndSendTransaction(tx, connection, wallet);
     // @ts-ignore
     await connection.confirmTransaction(sig, 'confirmed');
@@ -221,7 +232,7 @@ export const executeList = async (
   const resp = await getListInstructions(params);
   const encoded = resp.txSigned?.data;
   if (!encoded) throw new Error('Invalid response');
-  const tx = Transaction.from(Buffer.from(encoded, 'base64'));
+  const tx = decodeTransaction(encoded);
 
   let sig: string | null = null;
   try {
