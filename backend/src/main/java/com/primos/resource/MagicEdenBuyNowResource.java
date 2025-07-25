@@ -43,6 +43,7 @@ public class MagicEdenBuyNowResource {
                         .proxy(ProxySelector.of(new InetSocketAddress(uri.getHost(), uri.getPort())))
                         .build();
             } catch (Exception ignored) {
+                // Intentionally ignore proxy parsing errors and fall back to default client
             }
         }
         return HttpClient.newHttpClient();
