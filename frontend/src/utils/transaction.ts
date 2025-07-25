@@ -7,15 +7,15 @@ import {
   ComputeBudgetProgram,
   PACKET_DATA_SIZE,
 } from '@solana/web3.js';
-import { WalletContextState } from '@solana/wallet-adapter-react';
 import { getBuyNowInstructions, getListInstructions } from './magiceden';
 import api from './api';
-import { calculateFees, FEE_COMMUNITY, FEE_OPERATIONS } from './fees';
+import { calculateFees } from './fees';
+import { WalletContextState } from '@solana/wallet-adapter-react';
+
 
 export interface TxRecord {
   txId: string;
   mint: string;
-  buyer: string;
   collection: string;
   source: string;
   timestamp: string;
@@ -37,7 +37,6 @@ export interface DbTransaction {
   price?: number;
   collection: string;
   source: string;
-  timestamp: string;
   status: string;
   solSpent?: number;
 }
@@ -123,9 +122,7 @@ const signAndSendTransaction = async (
       const latest = await connection.getLatestBlockhash();
       tx.recentBlockhash = latest.blockhash;
     }
-    if (!tx.feePayer) {
-      tx.feePayer = wallet.publicKey!;
-    }
+    tx.feePayer ??= wallet.publicKey!;
     console.log('Tx size (bytes):', tx.serializeMessage().length);
   }
   try {
@@ -157,6 +154,45 @@ const signAndSendTransaction = async (
   }
 };
 
+const sendFeeTransaction = async (
+  connection: Connection,
+  wallet: WalletContextState,
+  listing: BuyNowListing,
+  onStep?: (step: number) => void
+): Promise<string | null> => {
+  onStep?.(1);
+  const { community, operations } = calculateFees(listing.price);
+  const lamports = Math.round((community + operations) * 1e9);
+  if (lamports > 0) {
+    const txFee = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: wallet.publicKey!,
+        toPubkey: new PublicKey(FEE_WALLET),
+        lamports,
+      })
+    );
+    const sigFee = await signAndSendTransaction(txFee, connection, wallet);
+    const latestBlockhash = await connection.getLatestBlockhash();
+    await connection.confirmTransaction(
+      {
+        signature: sigFee,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+      },
+      'confirmed'
+    );
+    await recordTransaction({
+      txId: sigFee,
+      mint: listing.tokenMint,
+      collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
+      source: 'DAO fee',
+      timestamp: new Date().toISOString(),
+    });
+    return sigFee;
+  }
+  return null;
+};
+
 export const executeBuyNow = async (
   connection: Connection,
   wallet: WalletContextState,
@@ -166,29 +202,11 @@ export const executeBuyNow = async (
   const buyer = wallet.publicKey?.toBase58();
   if (!buyer) throw new Error('Wallet not connected');
 
-  onStep?.(1);
-  // first send operations/community fee separately
-  try {
-    const fees = calculateFees(listing.price);
-    const lamports = Math.round((fees.community + fees.operations) * 1e9);
-    if (lamports > 0) {
-      const feeTx = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: wallet.publicKey!,
-          toPubkey: new PublicKey(FEE_WALLET),
-          lamports,
-        })
-      );
-      onStep?.(2);
-      const feeSig = await signAndSendTransaction(feeTx, connection, wallet);
-      // @ts-ignore
-      await connection.confirmTransaction(feeSig, 'confirmed');
-    }
-  } catch (e) {
-    console.error('Fee transfer failed', e);
-    throw e;
-  }
+  // 1) Send DAO fees (community + operations), if any
+  await sendFeeTransaction(connection, wallet, listing, onStep);
 
+  // 2) Magic Eden buy-now
+  onStep?.(2);
   const params: Record<string, string> = {
     buyer,
     seller: listing.seller,
@@ -196,39 +214,39 @@ export const executeBuyNow = async (
     tokenATA: listing.tokenAta,
     price: listing.price.toString(),
     auctionHouseAddress: listing.auctionHouse || DEFAULT_AUCTION_HOUSE,
+    splitFees: 'true',
   };
   if (listing.sellerReferral) params.sellerReferral = listing.sellerReferral;
   if (listing.sellerExpiry !== undefined)
     params.sellerExpiry = listing.sellerExpiry.toString();
-  params.splitFees = 'true';
 
-  // Get primary and cleanup transaction payloads
   const resp = await getBuyNowInstructions(params);
-  const payloads: string[] = [];
-  if (resp.txSigned?.data) payloads.push(resp.txSigned.data);
-  if (resp.cleanupTransaction?.data) payloads.push(resp.cleanupTransaction.data);
-  if (payloads.length === 0) throw new Error('Invalid response');
+  const data = resp.txSigned?.data;
+  if (!data) throw new Error('Invalid response');
 
-  // Send each transaction sequentially and record separately
-  let sig = '';
-  onStep?.(2);
-  for (const [i, data] of payloads.entries()) {
-    const tx = decodeTransaction(data);
-    sig = await signAndSendTransaction(tx, connection, wallet);
-    // @ts-ignore
-    await connection.confirmTransaction(sig, 'confirmed');
-    // Log primary vs DAO fee tx with different sources
-    await recordTransaction({
-      txId: sig,
-      mint: listing.tokenMint,
-      buyer,
-      collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
-      source: i === 0 ? 'magiceden' : 'losprimosdao.sol',
-      timestamp: new Date().toISOString(),
-    });
-  }
+  const txBuy = decodeTransaction(data);
+  const sigBuy = await signAndSendTransaction(txBuy, connection, wallet);
+
+  const latest = await connection.getLatestBlockhash();
+  await connection.confirmTransaction(
+    {
+      signature: sigBuy,
+      blockhash: latest.blockhash,
+      lastValidBlockHeight: latest.lastValidBlockHeight,
+    },
+    'confirmed'
+  );
+
+  await recordTransaction({
+    txId: sigBuy,
+    mint: listing.tokenMint,
+    collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
+    source: 'magiceden',
+    timestamp: new Date().toISOString(),
+  });
+
   onStep?.(3);
-  return sig;
+  return sigBuy;
 };
 
 export const executeList = async (
@@ -257,16 +275,15 @@ export const executeList = async (
   try {
     sig = await wallet.sendTransaction(tx, connection);
     // @ts-ignore
-    await connection.confirmTransaction(sig, 'confirmed');
+    await connection.confirmTransaction(sig!, { commitment: 'confirmed' });
     return sig;
   } finally {
     await recordTransaction({
       txId: sig ?? '',
       mint: nft.tokenMint,
-      buyer: seller,
       collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
       source: 'magiceden',
       timestamp: new Date().toISOString(),
     });
   }
-};
+}

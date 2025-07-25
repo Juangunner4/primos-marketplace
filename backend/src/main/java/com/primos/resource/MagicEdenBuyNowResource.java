@@ -49,12 +49,6 @@ public class MagicEdenBuyNowResource {
     }
 
     private static final String DEFAULT_AUCTION_HOUSE = "E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe";
-    // additional payee for community and operations fees
-    private static final String FEE_ACCOUNT = "EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6";
-    private static final int COMMUNITY_BPS = 240; // 2.4%
-    private static final int OPERATIONS_BPS = 140; // 1.4%
-    // Magic Eden allows combining payees, so use a single entry for both
-    private static final int TOTAL_FEE_BPS = COMMUNITY_BPS + OPERATIONS_BPS; // 3.8%
 
     @GET
     public Response buyNow(@QueryParam("buyer") String buyer,
@@ -64,8 +58,7 @@ public class MagicEdenBuyNowResource {
             @QueryParam("price") String price,
             @QueryParam("auctionHouseAddress") String auctionHouse,
             @QueryParam("sellerReferral") String sellerReferral,
-            @QueryParam("sellerExpiry") String sellerExpiry,
-            @QueryParam("splitFees") boolean splitFees)
+            @QueryParam("sellerExpiry") String sellerExpiry)
             throws IOException, InterruptedException {
         String ah = (auctionHouse == null || auctionHouse.isBlank()) ? DEFAULT_AUCTION_HOUSE : auctionHouse;
         StringBuilder url = new StringBuilder(API_BASE)
@@ -75,18 +68,13 @@ public class MagicEdenBuyNowResource {
                 .append("&tokenATA=").append(tokenATA)
                 .append("&price=").append(price)
                 .append("&auctionHouseAddress=").append(ah);
-        // optionally include community/operations fees in the Magic Eden tx
-        if (!splitFees) {
-            url.append("&additionalPayees=").append(FEE_ACCOUNT).append(":").append(TOTAL_FEE_BPS);
-        }
         if (sellerReferral != null && !sellerReferral.isBlank()) {
             url.append("&sellerReferral=").append(sellerReferral);
         }
         if (sellerExpiry != null && !sellerExpiry.isBlank()) {
             url.append("&sellerExpiry=").append(sellerExpiry);
         }
-        LOG.infof("Requesting buy now tx buyer=%s tokenMint=%s price=%s splitFees=%b", buyer, tokenMint, price,
-                splitFees);
+        LOG.infof("Requesting buy now tx buyer=%s tokenMint=%s price=%s", buyer, tokenMint, price);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url.toString()))
                 .GET();

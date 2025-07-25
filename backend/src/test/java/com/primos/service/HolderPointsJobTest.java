@@ -1,9 +1,10 @@
 package com.primos.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
 
 import com.primos.model.User;
-import org.junit.jupiter.api.Test;
 
 public class HolderPointsJobTest {
     @Test
@@ -14,7 +15,8 @@ public class HolderPointsJobTest {
         user.setPoints(10);
         user.persist();
 
-        HolderPointsJob job = new HolderPointsJob();
+        HeliusService heliusService = new HeliusService(); // or mock as needed
+        HolderPointsJob job = new HolderPointsJob(heliusService);
         job.awardHolderPoints();
 
         User updated = User.find("publicKey", "holder").firstResult();
