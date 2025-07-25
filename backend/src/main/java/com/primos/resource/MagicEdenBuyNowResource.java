@@ -53,10 +53,10 @@ public class MagicEdenBuyNowResource {
     @GET
     public Response buyNow(@QueryParam("buyer") String buyer,
             @QueryParam("seller") String seller,
+            @QueryParam("auctionHouseAddress") String auctionHouse,
             @QueryParam("tokenMint") String tokenMint,
             @QueryParam("tokenATA") String tokenATA,
             @QueryParam("price") String price,
-            @QueryParam("auctionHouseAddress") String auctionHouse,
             @QueryParam("sellerReferral") String sellerReferral,
             @QueryParam("sellerExpiry") String sellerExpiry)
             throws IOException, InterruptedException {

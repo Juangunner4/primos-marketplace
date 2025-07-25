@@ -115,19 +115,24 @@ const signAndSendTransaction = async (
   connection: Connection,
   wallet: WalletContextState
 ): Promise<string> => {
-  if (isLegacy(tx)) {
-    stripComputeBudget(tx);
-    // ensure recentBlockhash and feePayer are set
-    if (!tx.recentBlockhash) {
-      const latest = await connection.getLatestBlockhash();
-      tx.recentBlockhash = latest.blockhash;
-    }
-    tx.feePayer ??= wallet.publicKey!;
-    console.log('Tx size (bytes):', tx.serializeMessage().length);
+  // Convert versioned transactions to legacy for size optimization
+  if (!isLegacy(tx)) {
+    const legacy = Transaction.from(tx.serialize());
+    tx = legacy;
   }
+  // Strip compute budget instructions and prepare transaction
+  stripComputeBudget(tx);
+  if (!tx.recentBlockhash) {
+    const latest = await connection.getLatestBlockhash();
+    tx.recentBlockhash = latest.blockhash;
+  }
+  tx.feePayer ??= wallet.publicKey!;
+  console.log('Tx size (bytes):', tx.serializeMessage().length);
   try {
     // wallet adapters can handle both legacy and versioned transactions
-    return await wallet.sendTransaction(tx as any, connection);
+    const sig = await wallet.sendTransaction(tx as any, connection);
+    console.log('Transaction hash:', sig);
+    return sig;
   } catch (error: any) {
     console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
@@ -135,7 +140,9 @@ const signAndSendTransaction = async (
     if (wallet.signAllTransactions) {
       try {
         const [signed] = await wallet.signAllTransactions([tx]);
-        return await connection.sendRawTransaction(signed.serialize());
+        const sigAll = await connection.sendRawTransaction(signed.serialize());
+        console.log('Transaction hash:', sigAll);
+        return sigAll;
       } catch (e) {
         console.error('signAllTransactions failed', e);
         // ignore and fallback to single sign
@@ -144,7 +151,9 @@ const signAndSendTransaction = async (
     if (wallet.signTransaction) {
       try {
         const signedTx = await wallet.signTransaction(tx);
-        return await connection.sendRawTransaction(signedTx.serialize());
+        const sigTx = await connection.sendRawTransaction(signedTx.serialize());
+        console.log('Transaction hash:', sigTx);
+        return sigTx;
       } catch (signErr: any) {
         console.error('signTransaction failed', signErr);
         throw new Error('Transaction too large to sign: ' + signErr.message);
@@ -213,8 +222,7 @@ export const executeBuyNow = async (
     tokenMint: listing.tokenMint,
     tokenATA: listing.tokenAta,
     price: listing.price.toString(),
-    auctionHouseAddress: listing.auctionHouse || DEFAULT_AUCTION_HOUSE,
-    splitFees: 'true',
+    auctionHouseAddress: listing.auctionHouse || DEFAULT_AUCTION_HOUSE
   };
   if (listing.sellerReferral) params.sellerReferral = listing.sellerReferral;
   if (listing.sellerExpiry !== undefined)
@@ -271,19 +279,21 @@ export const executeList = async (
   if (!encoded) throw new Error('Invalid response');
   const tx = decodeTransaction(encoded);
 
-  let sig: string | null = null;
-  try {
-    sig = await wallet.sendTransaction(tx, connection);
-    // @ts-ignore
-    await connection.confirmTransaction(sig!, { commitment: 'confirmed' });
-    return sig;
-  } finally {
-    await recordTransaction({
-      txId: sig ?? '',
-      mint: nft.tokenMint,
-      collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
-      source: 'magiceden',
-      timestamp: new Date().toISOString(),
-    });
-  }
+  // send and confirm optimized transaction
+  const sig = await signAndSendTransaction(tx, connection, wallet);
+  // confirm with blockhash and commitment
+  const latest = await connection.getLatestBlockhash();
+  await connection.confirmTransaction(
+    { signature: sig, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight },
+    'confirmed'
+  );
+  // record transaction
+  await recordTransaction({
+    txId: sig,
+    mint: nft.tokenMint,
+    collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
+    source: 'magiceden',
+    timestamp: new Date().toISOString(),
+  });
+  return sig;
 }
