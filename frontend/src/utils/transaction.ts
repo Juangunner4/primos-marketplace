@@ -221,7 +221,7 @@ export const executeBuyNow = async (
   if (!buyer) throw new Error('Wallet not connected');
 
   // 1) Send DAO fees (community + operations), if any
-  await sendFeeTransaction(connection, wallet, listing, onStep);
+  // await sendFeeTransaction(connection, wallet, listing, onStep);
 
   // 2) Magic Eden buy-now
   onStep?.(2);
