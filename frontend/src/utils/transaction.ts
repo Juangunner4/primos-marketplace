@@ -115,19 +115,23 @@ const signAndSendTransaction = async (
   connection: Connection,
   wallet: WalletContextState
 ): Promise<string> => {
-  // Convert versioned transactions to legacy for size optimization
-  if (!isLegacy(tx)) {
-    const legacy = Transaction.from(tx.serialize());
-    tx = legacy;
+  // Only strip compute budget instructions for legacy transactions
+  if (isLegacy(tx)) {
+    stripComputeBudget(tx);
+    if (!tx.recentBlockhash) {
+      const latest = await connection.getLatestBlockhash();
+      tx.recentBlockhash = latest.blockhash;
+    }
+    tx.feePayer ??= wallet.publicKey!;
+    console.log('Tx size (bytes):', tx.serializeMessage().length);
+  } else {
+    // Ensure a recent blockhash on versioned transactions
+    if (!tx.message.recentBlockhash) {
+      const latest = await connection.getLatestBlockhash();
+      tx.message.recentBlockhash = latest.blockhash;
+    }
+    console.log('Tx size (bytes):', tx.serialize().length);
   }
-  // Strip compute budget instructions and prepare transaction
-  stripComputeBudget(tx);
-  if (!tx.recentBlockhash) {
-    const latest = await connection.getLatestBlockhash();
-    tx.recentBlockhash = latest.blockhash;
-  }
-  tx.feePayer ??= wallet.publicKey!;
-  console.log('Tx size (bytes):', tx.serializeMessage().length);
   try {
     // wallet adapters can handle both legacy and versioned transactions
     const sig = await wallet.sendTransaction(tx as any, connection);
