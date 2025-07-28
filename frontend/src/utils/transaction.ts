@@ -5,8 +5,9 @@ import {
   SystemProgram,
   PublicKey,
   ComputeBudgetProgram,
-  PACKET_DATA_SIZE,
+  PACKET_DATA_SIZE
 } from '@solana/web3.js';
+import { Metaplex, keypairIdentity } from '@metaplex-foundation/js';
 import { getBuyNowInstructions, getListInstructions } from './magiceden';
 import api from './api';
 import { calculateFees } from './fees';
@@ -110,12 +111,41 @@ const stripComputeBudget = (tx: Transaction) => {
 
 const isLegacy = (t: SolanaTx): t is Transaction => 'instructions' in t;
 
+const tryFallbackSign = async (
+  tx: SolanaTx,
+  connection: Connection,
+  wallet: WalletContextState
+): Promise<string> => {
+  if (wallet.signAllTransactions) {
+    try {
+      const [signed] = await wallet.signAllTransactions([tx]);
+      const sigAll = await connection.sendRawTransaction(signed.serialize());
+      console.log('Transaction hash:', sigAll);
+      return sigAll;
+    } catch (e) {
+      console.error('signAllTransactions failed', e);
+      // ignore and fallback to single sign
+    }
+  }
+  if (wallet.signTransaction) {
+    try {
+      const signedTx = await wallet.signTransaction(tx);
+      const sigTx = await connection.sendRawTransaction(signedTx.serialize());
+      console.log('Transaction hash:', sigTx);
+      return sigTx;
+    } catch (signErr: any) {
+      console.error('signTransaction failed', signErr);
+      throw new Error('Transaction too large to sign: ' + signErr.message);
+    }
+  }
+  throw new Error('Wallet fallback unsupported');
+};
+
 const signAndSendTransaction = async (
   tx: SolanaTx,
   connection: Connection,
   wallet: WalletContextState
 ): Promise<string> => {
-  // Only strip compute budget instructions for legacy transactions
   if (isLegacy(tx)) {
     stripComputeBudget(tx);
     if (!tx.recentBlockhash) {
@@ -125,7 +155,6 @@ const signAndSendTransaction = async (
     tx.feePayer ??= wallet.publicKey!;
     console.log('Tx size (bytes):', tx.serializeMessage().length);
   } else {
-    // Ensure a recent blockhash on versioned transactions
     if (!tx.message.recentBlockhash) {
       const latest = await connection.getLatestBlockhash();
       tx.message.recentBlockhash = latest.blockhash;
@@ -133,37 +162,13 @@ const signAndSendTransaction = async (
     console.log('Tx size (bytes):', tx.serialize().length);
   }
   try {
-    // wallet adapters can handle both legacy and versioned transactions
     const sig = await wallet.sendTransaction(tx as any, connection);
     console.log('Transaction hash:', sig);
     return sig;
   } catch (error: any) {
     console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
-
-    if (wallet.signAllTransactions) {
-      try {
-        const [signed] = await wallet.signAllTransactions([tx]);
-        const sigAll = await connection.sendRawTransaction(signed.serialize());
-        console.log('Transaction hash:', sigAll);
-        return sigAll;
-      } catch (e) {
-        console.error('signAllTransactions failed', e);
-        // ignore and fallback to single sign
-      }
-    }
-    if (wallet.signTransaction) {
-      try {
-        const signedTx = await wallet.signTransaction(tx);
-        const sigTx = await connection.sendRawTransaction(signedTx.serialize());
-        console.log('Transaction hash:', sigTx);
-        return sigTx;
-      } catch (signErr: any) {
-        console.error('signTransaction failed', signErr);
-        throw new Error('Transaction too large to sign: ' + signErr.message);
-      }
-    }
-    throw new Error('Wallet fallback unsupported');
+    return await tryFallbackSign(tx, connection, wallet);
   }
 };
 
