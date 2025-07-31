@@ -54,22 +54,22 @@ describe('magiceden utilities', () => {
   });
 
   test('getBuyNowInstructions calls backend', async () => {
-    const response = { ok: true, json: async () => ({ txSigned: { data: [1] } }) };
+    const response = { ok: true, json: async () => ({ txSigned: { data: 'AQ==' } }) };
     const fetchMock = jest.fn().mockResolvedValue(response);
     (global as any).fetch = fetchMock;
     const params = { buyer: 'A', seller: 'B' };
     const data = await getBuyNowInstructions(params);
     expect(fetchMock).toHaveBeenCalledWith('/api/magiceden/buy_now?buyer=A&seller=B');
-    expect(data.txSigned.data[0]).toBe(1);
+    expect(data.txSigned.data).toBe('AQ==');
   });
 
   test('getListInstructions calls backend', async () => {
-    const response = { ok: true, json: async () => ({ txSigned: { data: [1] } }) };
+    const response = { ok: true, json: async () => ({ txSigned: { data: 'AQ==' } }) };
     const fetchMock = jest.fn().mockResolvedValue(response);
     (global as any).fetch = fetchMock;
     const params = { seller: 'A', tokenMint: 'B' };
     const data = await getListInstructions(params);
     expect(fetchMock).toHaveBeenCalledWith('/api/magiceden/list?seller=A&tokenMint=B');
-    expect(data.txSigned.data[0]).toBe(1);
+    expect(data.txSigned.data).toBe('AQ==');
   });
 });
