@@ -214,7 +214,7 @@ const AppRoutes = () => {
   useEffect(() => {
     if (
       (!publicKey || (!isHolder && !betaRedeemed)) &&
-      (location.pathname === '/profile' || location.pathname.startsWith('/user'))
+      location.pathname === '/profile'
     ) {
       navigate('/', { replace: true });
     }
@@ -245,9 +245,6 @@ const AppRoutes = () => {
     if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname === '/profile') {
       navigate('/', { replace: true });
     }
-    if ((!publicKey || (!isHolder && !betaRedeemed)) && location.pathname.startsWith('/user')) {
-      navigate('/', { replace: true });
-    }
   }, [publicKey, isHolder, betaRedeemed, location.pathname, navigate]);
 
   return (
@@ -271,9 +268,9 @@ const AppRoutes = () => {
               <Route path="/trenches" element={<Trenches />} />
               <Route path="/work" element={<Work />} />
               <Route path="/profile"   element={<UserProfile />} />
-              <Route path="/user/:publicKey" element={<UserProfile />} />
             </>
           )}
+          <Route path="/user/:publicKey" element={<UserProfile />} />
           <Route path="/primos" element={<Primos />} />
 
           {publicKey?.toBase58() === ADMIN_WALLET && (
