@@ -69,6 +69,32 @@
   display: block;
 }
 
+.owned-nft-thumb {
+  position: relative;
+}
+
+.owned-nft-thumb img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  border: 2px solid #000;
+  display: block;
+}
+
+.like-row {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+  border-radius: 0.5rem;
+}
+
 .dialog-overlay {
   background: rgba(0,0,0,0.6);
   position: fixed;
