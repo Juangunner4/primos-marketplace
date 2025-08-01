@@ -38,7 +38,7 @@ jest.mock('../../utils/api', () => ({
 }));
 
 jest.mock('../../services/helius', () => ({
-  getAssetsByCollection: jest.fn(() => Promise.resolve([])),
+  getAssetsByCollection: jest.fn(() => Promise.resolve([{ id: 't1', image: 'i', name: 'n', listed: false }])),
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));
 
@@ -140,5 +140,29 @@ describe('UserProfile', () => {
     fireEvent.click(screen.getByText(/Earn Point/i));
     await waitFor(() => expect((api.post as jest.Mock).mock.calls.length).toBe(1));
     expect(await screen.findByText(/Points: 1/i)).toBeTruthy();
+  });
+
+  test('shows owned NFTs for public view', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: null });
+    render(
+      <MemoryRouter initialEntries={['/user/pub']}>
+        <Routes><Route path="/user/:publicKey" element={<I18nextProvider i18n={i18n}><UserProfile /></I18nextProvider>} /></Routes>
+      </MemoryRouter>
+    );
+
+    const img = await screen.findByRole('img');
+    expect(img).toBeTruthy();
+  });
+
+  test('likes NFT when button clicked', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    const { get } = require('../../utils/api');
+    const { post } = require('../../utils/api');
+    (get as jest.Mock).mockResolvedValueOnce({ data: { publicKey: 'pubkey123', bio: '', socials: { twitter: '', discord: '', website: '' }, pfp: '', domain: 'my.sol', points:0, pointsToday:0, pointsDate:'today', pesos:0 } });
+    (post as jest.Mock).mockResolvedValue({ data: { count: 1, liked: true } });
+    render(<I18nextProvider i18n={i18n}><UserProfile /></I18nextProvider>);
+    const btn = await screen.findByLabelText('like');
+    fireEvent.click(btn);
+    await waitFor(() => expect(post).toHaveBeenCalled());
   });
 });

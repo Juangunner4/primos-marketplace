@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import api from '../utils/api';
 import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
+import { getLikes, toggleLike } from '../utils/likes';
 import { keyframes } from '@emotion/react';
 
 import './UserProfile.css';
@@ -10,6 +11,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
@@ -55,6 +58,7 @@ const UserProfile: React.FC = () => {
   const { t } = useTranslation();
   const [user, setUser] = useState<UserDoc | null>(null);
   const [nfts, setNfts] = useState<HeliusNFT[]>([]);
+  const [likes, setLikes] = useState<Record<string, { count: number; liked: boolean }>>({});
   const [pfpImage, setPfpImage] = useState<string | null>(null);
   const [showNFTs, setShowNFTs] = useState(false);
   const [pendingPfp, setPendingPfp] = useState<string | null>(null);
@@ -107,6 +111,22 @@ const UserProfile: React.FC = () => {
   }, [profileKey]);
 
   useEffect(() => {
+    const load = async () => {
+      const wallet = publicKey?.toBase58();
+      const map: Record<string, { count: number; liked: boolean }> = {};
+      for (const nft of nfts) {
+        try {
+          map[nft.id] = await getLikes(nft.id, wallet);
+        } catch {
+          map[nft.id] = { count: 0, liked: false };
+        }
+      }
+      setLikes(map);
+    };
+    if (nfts.length) load();
+  }, [nfts, publicKey]);
+
+  useEffect(() => {
     async function fetchPFP() {
       if (user?.pfp) {
         const nft = await getNFTByTokenAddress(user.pfp.replace(/"/g, ''));
@@ -140,6 +160,16 @@ const UserProfile: React.FC = () => {
   const handleSelectNFT = (tokenAddress: string) => {
     setPendingPfp(tokenAddress);
     setPfpDialogOpen(true);
+  };
+
+  const handleToggleLike = (tokenId: string) => {
+    if (!publicKey) return;
+    const wallet = publicKey.toBase58();
+    toggleLike(tokenId, wallet)
+      .then((res) =>
+        setLikes((prev) => ({ ...prev, [tokenId]: res }))
+      )
+      .catch(() => {});
   };
 
   const confirmEditProfile = () => {
@@ -407,8 +437,34 @@ const fadeOut = keyframes`
             {t('save')}
           </Button>
         )}
-      </Box>
-      {isOwner && (
+        </Box>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            {t('nfts')}
+          </Typography>
+          <Box className="profile-nft-grid">
+            {nfts.map((nft) => (
+              <Box key={nft.id} className="owned-nft-thumb">
+                <img src={nft.image} alt={nft.name} />
+                <Box className="like-row">
+                  <Typography sx={{ fontSize: '0.8rem' }}>
+                    {likes[nft.id]?.count ?? 0}
+                  </Typography>
+                  {publicKey && (
+                    <IconButton size="small" onClick={() => handleToggleLike(nft.id)} aria-label="like">
+                      {likes[nft.id]?.liked ? (
+                        <FavoriteIcon fontSize="small" color="error" />
+                      ) : (
+                        <FavoriteBorderIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+        {isOwner && (
         <Box sx={{ mt: 2 }} id="notifications">
           <Typography variant="h6" sx={{ mb: 1 }}>
             {t('notifications')}
