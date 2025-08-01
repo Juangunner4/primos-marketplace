@@ -438,9 +438,9 @@ const fadeOut = keyframes`
           </Button>
         )}
         </Box>
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            {t('nfts')}
+        <Box className="nfts-section">
+          <Typography className="nfts-title" variant="h6">
+            Primo NFTs
           </Typography>
           <Box className="profile-nft-grid">
             {nfts.map((nft) => (
