@@ -249,7 +249,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         position: 'relative',
       }}>
         {loadingMembers ? (
-          <Loading message={t('loading_nfts')} />
+          <Loading message={t('primos_loading')} />
         ) : (
           members.length > 0 && (
             <Box>

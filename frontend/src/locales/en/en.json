@@ -2,6 +2,8 @@
   "connect_wallet": "Connect your wallet to view your Primos NFTs",
   "your_primos_nfts": "Your Primos NFTs",
   "loading_nfts": "Loading your NFTs...",
+  "primos_loading": "Loading Primos...",
+  "loading": "Loading",
   "no_nfts": "No Primos NFTs found in your wallet.",
   "listed": "Listed",
   "not_listed": "Not Listed",
@@ -221,4 +223,5 @@
   ,"work_assigned_to": "Assigned to"
   ,"work_no_groups": "You are not part of any work groups. Join one in your profile."
   ,"telegram_data": "Telegram Data"
+  ,"telegram_error": "Failed to load data"
 }

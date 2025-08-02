@@ -166,7 +166,7 @@ const Admin: React.FC = () => {
   }
 
   if (loadingMembers) {
-    return <Loading message={t('loading_nfts')} />;
+    return <Loading message={t('primos_loading')} />;
   }
 
   const filtered = members.filter((m) =>

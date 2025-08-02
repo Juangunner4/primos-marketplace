@@ -79,7 +79,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       />
       <Box className="primos-list">
         {loadingMembers ? (
-          <Loading message={t('loading_nfts')} />
+          <Loading message={t('primos_loading')} />
         ) : (
           <>
             {filtered.map((m) => (

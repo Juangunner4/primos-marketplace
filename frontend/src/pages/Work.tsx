@@ -142,7 +142,7 @@ const Work: React.FC = () => {
         </Box>
       )}
       {loadingRequests ? (
-        <Loading message={t('loading_nfts')} />
+        <Loading message={`${t('loading')}...`} />
       ) : (
         requests.map((r, i) => {
           const reqUser = users[r.requester];

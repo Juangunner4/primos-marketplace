@@ -120,7 +120,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         </Card>
       </Box>
       {loadingMembers ? (
-        <Loading message={t('loading_nfts')} />
+        <Loading message={t('primos_loading')} />
       ) : (
         members.length > 0 && (
           <Box>
