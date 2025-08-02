@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import { getPrimaryDomainName } from '../utils/sns';
 import './Primos.css';
+import Loading from '../components/Loading';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -26,9 +27,11 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
+  const [loadingMembers, setLoadingMembers] = useState(true);
 
   useEffect(() => {
     async function fetchMembers() {
+      setLoadingMembers(true);
       try {
         const res = await api.get<Member[]>('/api/user/primos');
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
@@ -50,6 +53,8 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
         setMembers(enriched);
       } catch {
         setMembers([]);
+      } finally {
+        setLoadingMembers(false);
       }
     }
     fetchMembers();
@@ -73,33 +78,39 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
         margin="normal"
       />
       <Box className="primos-list">
-        {filtered.map((m) => (
-          <Link
-            key={m.publicKey}
-            to={`/user/${m.publicKey}`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            <Box className="primos-card">
-              <Avatar
-                src={m.pfp || undefined}
-                sx={{ width: 56, height: 56 }}
-              />
-              <Box ml={1}>
-                <Typography>
-                  {(m.domain ? m.domain + ' ' : '') + m.publicKey.slice(0, 4) + '...' + m.publicKey.slice(-3)}
-                </Typography>
-                <Box className="primos-pills">
-                  <span className="primos-pill">{t('points')}: {m.points}</span>
-                  <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
+        {loadingMembers ? (
+          <Loading message={t('loading_nfts')} />
+        ) : (
+          <>
+            {filtered.map((m) => (
+              <Link
+                key={m.publicKey}
+                to={`/user/${m.publicKey}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <Box className="primos-card">
+                  <Avatar
+                    src={m.pfp || undefined}
+                    sx={{ width: 56, height: 56 }}
+                  />
+                  <Box ml={1}>
+                    <Typography>
+                      {(m.domain ? m.domain + ' ' : '') + m.publicKey.slice(0, 4) + '...' + m.publicKey.slice(-3)}
+                    </Typography>
+                    <Box className="primos-pills">
+                      <span className="primos-pill">{t('points')}: {m.points}</span>
+                      <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
+                    </Box>
+                  </Box>
                 </Box>
-              </Box>
-            </Box>
-          </Link>
-        ))}
-        {filtered.length === 0 && (
-          <Typography className="no-members">
-            {t('primos_no_members')}
-          </Typography>
+              </Link>
+            ))}
+            {filtered.length === 0 && (
+              <Typography className="no-members">
+                {t('primos_no_members')}
+              </Typography>
+            )}
+          </>
         )}
       </Box>
     </Box>

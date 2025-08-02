@@ -25,6 +25,7 @@ import * as Tabs from '@radix-ui/react-tabs';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
+import Loading from '../components/Loading';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
@@ -71,6 +72,7 @@ const Admin: React.FC = () => {
   const [filter, setFilter] = useState<'active' | 'inactive'>('active');
   const [members, setMembers] = useState<AdminMember[]>([]);
   const [search, setSearch] = useState('');
+  const [loadingMembers, setLoadingMembers] = useState(true);
 
   useEffect(() => {
     if (publicKey?.toBase58() === ADMIN_WALLET) {
@@ -93,6 +95,7 @@ const Admin: React.FC = () => {
     if (publicKey?.toBase58() !== ADMIN_WALLET) return;
 
     async function fetchMembers() {
+      setLoadingMembers(true);
       try {
         if (!publicKey) return;
         const res = await api.get<Member[]>("/api/user/primos", {
@@ -141,6 +144,8 @@ const Admin: React.FC = () => {
         setMembers(enriched);
       } catch {
         setMembers([]);
+      } finally {
+        setLoadingMembers(false);
       }
     }
 
@@ -158,6 +163,10 @@ const Admin: React.FC = () => {
 
   if (publicKey?.toBase58() !== ADMIN_WALLET) {
     return <Typography>{t('access_denied')}</Typography>;
+  }
+
+  if (loadingMembers) {
+    return <Loading message={t('loading_nfts')} />;
   }
 
   const filtered = members.filter((m) =>

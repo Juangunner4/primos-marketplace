@@ -9,6 +9,7 @@ import api from '../utils/api';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import './Experiment1.css';
+import Loading from '../components/Loading';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -35,15 +36,21 @@ const Experiment1: React.FC = () => {
   const [statuses, setStatuses] = useState<Record<string, StatusInfo>>({});
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNfts = async () => {
       if (!wallet.publicKey) return;
-      const items = await fetchCollectionNFTsForOwner(
-        wallet.publicKey.toBase58(),
-        PRIMO_COLLECTION
-      );
-      setNfts(items);
+      setLoading(true);
+      try {
+        const items = await fetchCollectionNFTsForOwner(
+          wallet.publicKey.toBase58(),
+          PRIMO_COLLECTION
+        );
+        setNfts(items);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchNfts();
   }, [wallet.publicKey]);
@@ -103,29 +110,33 @@ const Experiment1: React.FC = () => {
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t('experiment1_select')}
       </Typography>
-      <Box className="nft-grid">
-            {nfts.map((nft) => {
-              const s = statuses[nft.id]?.status;
-              let label = '';
-              if (s === 'IN_PROGRESS') label = t('render_status_in_progress');
-              else if (s === 'COMPLETED') label = t('render_status_done');
-              else if (s) label = t('render_status_not_started');
-              return (
-                <div
-                  key={nft.id}
-                  className="nft-wrapper"
-                  onClick={() => setSelected(nft)}
-                >
-                  <img
-                    src={nft.image}
-                    alt={nft.name}
-                    className={selected?.id === nft.id ? 'nft selected' : 'nft'}
-                  />
-                  {label && <span className="status-badge">{label}</span>}
-                </div>
-              );
-            })}
-          </Box>
+      {loading ? (
+        <Loading message={t('loading_nfts')} />
+      ) : (
+        <Box className="nft-grid">
+          {nfts.map((nft) => {
+            const s = statuses[nft.id]?.status;
+            let label = '';
+            if (s === 'IN_PROGRESS') label = t('render_status_in_progress');
+            else if (s === 'COMPLETED') label = t('render_status_done');
+            else if (s) label = t('render_status_not_started');
+            return (
+              <div
+                key={nft.id}
+                className="nft-wrapper"
+                onClick={() => setSelected(nft)}
+              >
+                <img
+                  src={nft.image}
+                  alt={nft.name}
+                  className={selected?.id === nft.id ? 'nft selected' : 'nft'}
+                />
+                {label && <span className="status-badge">{label}</span>}
+              </div>
+            );
+          })}
+        </Box>
+      )}
       {selected && statuses[selected.id]?.stlUrl && (
         <Button sx={{ mt: 2 }} onClick={() => window.open(statuses[selected.id]!.stlUrl, '_blank')}>
           {t('download_3d')}

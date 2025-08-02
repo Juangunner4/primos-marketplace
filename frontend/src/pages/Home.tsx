@@ -12,6 +12,7 @@ import { fetchVolume24h } from '../utils/transaction';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import Loading from '../components/Loading';
 
 interface Stats {
   uniqueHolders: number | null;
@@ -36,6 +37,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
   const [members, setMembers] = useState<DaoMember[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(true);
   const wallet = useWallet();
   const isConnected = connected ?? wallet.connected;
 
@@ -73,6 +75,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
   useEffect(() => {
     const fetchMembers = async () => {
+      setLoadingMembers(true);
       try {
         const res = await api.get<DaoMember[]>('/api/user/primos');
         const enriched = await Promise.all(
@@ -91,6 +94,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         setMembers(enriched);
       } catch {
         setMembers([]);
+      } finally {
+        setLoadingMembers(false);
       }
     };
     fetchMembers();
@@ -243,7 +248,10 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         border: '2px solid #fff',
         position: 'relative',
       }}>
-        {members.length > 0 && (
+        {loadingMembers ? (
+          <Loading message={t('loading_nfts')} />
+        ) : (
+          members.length > 0 && (
             <Box>
               <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
                 {t('primos_title')}
@@ -258,7 +266,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 ))}
               </Box>
             </Box>
-          )}
+          )
+        )}
       </Box>
       <Box sx={{
         mt: 6,
