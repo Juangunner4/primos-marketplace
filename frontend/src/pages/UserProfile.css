@@ -84,15 +84,19 @@
 
 .like-row {
   position: absolute;
-  bottom: 4px;
-  left: 4px;
-  background: rgba(0,0,0,0.6);
-  color: #fff;
+  top: 4px;
+  right: 4px;
   display: flex;
   align-items: center;
   gap: 2px;
   padding: 0 4px;
   border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+}
+
+.like-row svg {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .dialog-overlay {
