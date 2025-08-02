@@ -26,6 +26,7 @@ import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/heli
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import Loading from '../components/Loading';
+import './Primos.css';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';

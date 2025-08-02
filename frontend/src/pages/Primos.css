@@ -22,6 +22,8 @@
   border-radius: 4px;
   padding: 4px 8px;
   cursor: pointer;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .primos-pills {
@@ -38,6 +40,17 @@
   border: 1px solid #000;
   font-size: 0.8rem;
   font-weight: bold;
+}
+
+@media (max-width: 600px) {
+  .primos-card {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .primos-card .MuiAvatar-root {
+    margin-bottom: 0.5rem;
+  }
 }
 
 .dialog-overlay {

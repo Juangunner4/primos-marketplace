@@ -15,6 +15,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
@@ -221,6 +222,12 @@ const UserProfile: React.FC = () => {
       .finally(() => setNotifications([]));
   };
 
+  const handleCopyPublicKey = () => {
+    if (!profileKey) return;
+    navigator.clipboard.writeText(profileKey);
+    setMessage({ text: t('public_key_copied'), type: 'success' });
+  };
+
   const handleSaveProfile = () => {
     setSaveDialogOpen(false);
     if (publicKey && user && isOwner) {
@@ -300,11 +307,16 @@ const fadeOut = keyframes`
           </Box>
         )}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-          <Typography className="wallet-info" sx={{ mb: 0 }}>
-            <strong>{t('wallet')}</strong>{' '}
-            {profileKey ? `${profileKey.slice(0, 4)}...${profileKey.slice(-3)}` : ''}
-            {primaryDomain ? ` (${primaryDomain})` : ''}
-          </Typography>
+          <Box className="wallet-info">
+            <Typography sx={{ mb: 0 }}>
+              <strong>{t('wallet')}</strong>{' '}
+              {profileKey ? `${profileKey.slice(0, 4)}...${profileKey.slice(-3)}` : ''}
+              {primaryDomain ? ` (${primaryDomain})` : ''}
+            </Typography>
+            <IconButton size="small" onClick={handleCopyPublicKey} aria-label={t('copy_public_key')}>
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </Box>
           {isOwner && (
             <>
               <Button
@@ -508,7 +520,7 @@ const fadeOut = keyframes`
             Primo NFTs
           </Typography>
           {loadingNfts ? (
-            <Loading message={t('loading_nfts')} />
+            <Loading message={isOwner ? t('loading_nfts') : t('loading_primos_nfts')} />
           ) : (
             <Box className="profile-nft-grid">
               {nfts.map((nft) => (
