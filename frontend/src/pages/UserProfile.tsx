@@ -18,6 +18,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
+import Loading from '../components/Loading';
 import MessageModal from '../components/MessageModal';
 import { verifyDomainOwnership, getPrimaryDomainName } from '../utils/sns';
 
@@ -91,6 +92,7 @@ const UserProfile: React.FC = () => {
   const [primaryDomain, setPrimaryDomain] = useState<string | null>(null);
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [notifDialogOpen, setNotifDialogOpen] = useState(false);
+  const [loadingNfts, setLoadingNfts] = useState(true);
 
   useEffect(() => {
     if (profileKey) {
@@ -124,9 +126,11 @@ const UserProfile: React.FC = () => {
 
   useEffect(() => {
     if (profileKey) {
+      setLoadingNfts(true);
       getAssetsByCollection(PRIMO_COLLECTION, profileKey)
         .then(setNfts)
-        .catch(() => setNfts([]));
+        .catch(() => setNfts([]))
+        .finally(() => setLoadingNfts(false));
     }
   }, [profileKey]);
 
@@ -348,8 +352,11 @@ const fadeOut = keyframes`
           </Button>
         )}
         {isOwner && showNFTs && (
-          <Box className="profile-nft-grid">
-            {nfts.map((nft, i) => {
+          loadingNfts ? (
+            <Loading message={t('loading_nfts')} />
+          ) : (
+            <Box className="profile-nft-grid">
+              {nfts.map((nft, i) => {
               const isSelected = user.pfp.replace(/"/g, '') === nft.id;
               return (
                 <button
@@ -363,11 +370,12 @@ const fadeOut = keyframes`
                   <img src={nft.image} alt={nft.name} />
                   {isSelected && (
                     <span className="selected-overlay">{t('selected')}</span>
-                  )}
+                )}
                 </button>
               );
             })}
-          </Box>
+            </Box>
+          )
         )}
         {isOwner && isEditing ? (
           <TextField
@@ -499,27 +507,31 @@ const fadeOut = keyframes`
           <Typography className="nfts-title" variant="h6">
             Primo NFTs
           </Typography>
-          <Box className="profile-nft-grid">
-            {nfts.map((nft) => (
-              <Box key={nft.id} className="owned-nft-thumb">
-                <img src={nft.image} alt={nft.name} />
-                <Box className="like-row">
-                  <Typography sx={{ fontSize: '0.8rem' }}>
-                    {likes[nft.id]?.count ?? 0}
-                  </Typography>
-                  {publicKey && (
-                    <IconButton size="small" onClick={() => handleToggleLike(nft.id)} aria-label="like">
-                      {likes[nft.id]?.liked ? (
-                        <FavoriteIcon fontSize="small" sx={{ color: 'rgba(255,255,255,0.9)' }} />
-                      ) : (
-                        <FavoriteBorderIcon fontSize="small" sx={{ color: 'rgba(255,255,255,0.9)' }} />
-                      )}
-                    </IconButton>
-                  )}
+          {loadingNfts ? (
+            <Loading message={t('loading_nfts')} />
+          ) : (
+            <Box className="profile-nft-grid">
+              {nfts.map((nft) => (
+                <Box key={nft.id} className="owned-nft-thumb">
+                  <img src={nft.image} alt={nft.name} />
+                  <Box className="like-row">
+                    <Typography sx={{ fontSize: '0.8rem' }}>
+                      {likes[nft.id]?.count ?? 0}
+                    </Typography>
+                    {publicKey && (
+                      <IconButton size="small" onClick={() => handleToggleLike(nft.id)} aria-label="like">
+                        {likes[nft.id]?.liked ? (
+                          <FavoriteIcon fontSize="small" sx={{ color: 'rgba(255,255,255,0.9)' }} />
+                        ) : (
+                          <FavoriteBorderIcon fontSize="small" sx={{ color: 'rgba(255,255,255,0.9)' }} />
+                        )}
+                      </IconButton>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            ))}
-          </Box>
+              ))}
+            </Box>
+          )}
         </Box>
       {isOwner && <BetaRedeem />}
       {isOwner && (

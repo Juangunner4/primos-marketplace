@@ -8,6 +8,7 @@ import { fetchCollectionNFTsForOwner, HeliusNFT } from '../utils/helius';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import './Stickers.css';
+import Loading from '../components/Loading';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -17,15 +18,21 @@ const Stickers: React.FC = () => {
   const [nfts, setNfts] = useState<HeliusNFT[]>([]);
   const [selected, setSelected] = useState<HeliusNFT | null>(null);
   const [message, setMessage] = useState<AppMessage | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNfts = async () => {
       if (!wallet.publicKey) return;
-      const items = await fetchCollectionNFTsForOwner(
-        wallet.publicKey.toBase58(),
-        PRIMO_COLLECTION
-      );
-      setNfts(items);
+      setLoading(true);
+      try {
+        const items = await fetchCollectionNFTsForOwner(
+          wallet.publicKey.toBase58(),
+          PRIMO_COLLECTION
+        );
+        setNfts(items);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchNfts();
   }, [wallet.publicKey]);
@@ -43,21 +50,25 @@ const Stickers: React.FC = () => {
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t('experiment2_desc')}
       </Typography>
-      <Box className="nft-grid">
-        {nfts.map((nft) => (
-          <div
-            key={nft.id}
-            className="nft-wrapper"
-            onClick={() => setSelected(nft)}
-          >
-            <img
-              src={nft.image}
-              alt={nft.name}
-              className={selected?.id === nft.id ? 'nft selected' : 'nft'}
-            />
-          </div>
-        ))}
-      </Box>
+      {loading ? (
+        <Loading message={t('loading_nfts')} />
+      ) : (
+        <Box className="nft-grid">
+          {nfts.map((nft) => (
+            <div
+              key={nft.id}
+              className="nft-wrapper"
+              onClick={() => setSelected(nft)}
+            >
+              <img
+                src={nft.image}
+                alt={nft.name}
+                className={selected?.id === nft.id ? 'nft selected' : 'nft'}
+              />
+            </div>
+          ))}
+        </Box>
+      )}
       <Button variant="contained" sx={{ mt: 2 }} disabled={!selected} onClick={handleOrder}>
         {t('order_sticker')}
       </Button>

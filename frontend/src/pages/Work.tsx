@@ -12,6 +12,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import api from '../utils/api';
+import Loading from '../components/Loading';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -32,6 +33,7 @@ const Work: React.FC = () => {
   const [workGroups, setWorkGroups] = useState<string[]>([]);
   const [group, setGroup] = useState('');
   const [users, setUsers] = useState<Record<string, { pfp: string; domain?: string }>>({});
+  const [loadingRequests, setLoadingRequests] = useState(true);
 
   useEffect(() => {
     if (!publicKey) return;
@@ -68,7 +70,12 @@ const Work: React.FC = () => {
 
   useEffect(() => {
     if (!group) return;
-    api.get<WorkRequest[]>(`/api/work?group=${group}`).then(res => setRequests(res.data)).catch(() => setRequests([]));
+    setLoadingRequests(true);
+    api
+      .get<WorkRequest[]>(`/api/work?group=${group}`)
+      .then(res => setRequests(res.data))
+      .catch(() => setRequests([]))
+      .finally(() => setLoadingRequests(false));
   }, [group]);
 
   useEffect(() => {
@@ -134,29 +141,33 @@ const Work: React.FC = () => {
           </Button>
         </Box>
       )}
-      {requests.map((r, i) => {
-        const reqUser = users[r.requester];
-        const workerUser = r.worker ? users[r.worker] : undefined;
-        const requesterName = reqUser?.domain
-          ? reqUser.domain
-          : r.requester.slice(0, 4) + '...' + r.requester.slice(-3);
-        return (
-          <Box key={i} sx={{ mb:1, p:1, border:'1px solid #ccc', display:'flex', alignItems:'center', gap:1 }}>
-            <Avatar src={reqUser?.pfp || undefined} sx={{ width:32, height:32 }} />
-            <Typography sx={{ fontWeight: 'bold' }}>{requesterName}</Typography>
-            <Typography sx={{ mx:1 }}>:</Typography>
-            <Typography sx={{ flexGrow:1 }}>{r.description}</Typography>
-            {r.worker ? (
-              <Box sx={{ display:'flex', alignItems:'center', gap:0.5 }}>
-                <Typography variant="body2">{t('work_assigned_to')}</Typography>
-                <Avatar src={workerUser?.pfp || undefined} sx={{ width:24, height:24 }} />
-              </Box>
-            ) : (
-              <Button size="small" onClick={() => pickup(r.id)}>{t('work_pick')}</Button>
-            )}
-          </Box>
-        );
-      })}
+      {loadingRequests ? (
+        <Loading message={t('loading_nfts')} />
+      ) : (
+        requests.map((r, i) => {
+          const reqUser = users[r.requester];
+          const workerUser = r.worker ? users[r.worker] : undefined;
+          const requesterName = reqUser?.domain
+            ? reqUser.domain
+            : r.requester.slice(0, 4) + '...' + r.requester.slice(-3);
+          return (
+            <Box key={i} sx={{ mb:1, p:1, border:'1px solid #ccc', display:'flex', alignItems:'center', gap:1 }}>
+              <Avatar src={reqUser?.pfp || undefined} sx={{ width:32, height:32 }} />
+              <Typography sx={{ fontWeight: 'bold' }}>{requesterName}</Typography>
+              <Typography sx={{ mx:1 }}>:</Typography>
+              <Typography sx={{ flexGrow:1 }}>{r.description}</Typography>
+              {r.worker ? (
+                <Box sx={{ display:'flex', alignItems:'center', gap:0.5 }}>
+                  <Typography variant="body2">{t('work_assigned_to')}</Typography>
+                  <Avatar src={workerUser?.pfp || undefined} sx={{ width:24, height:24 }} />
+                </Box>
+              ) : (
+                <Button size="small" onClick={() => pickup(r.id)}>{t('work_pick')}</Button>
+              )}
+            </Box>
+          );
+        })
+      )}
     </Box>
   );
 };
