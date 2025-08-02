@@ -2,6 +2,8 @@
   "connect_wallet": "Conecta tu billetera para ver tus Primos NFTs",
   "your_primos_nfts": "Tus Primos NFTs",
   "loading_nfts": "Cargando tus NFTs...",
+  "primos_loading": "Cargando Primos...",
+  "loading": "Cargando",
   "no_nfts": "No se encontraron Primos NFTs en tu billetera.",
   "listed": "Listado",
   "not_listed": "No Listado",
@@ -220,4 +222,6 @@
   ,"work_pick": "Tomar"
   ,"work_assigned_to": "Asignado a"
   ,"work_no_groups": "No perteneces a ning\u00fan grupo de trabajo. \u00danete en tu perfil."
+  ,"telegram_data": "Datos de Telegram"
+  ,"telegram_error": "Error al cargar datos"
 }
