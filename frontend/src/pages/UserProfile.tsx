@@ -19,6 +19,7 @@ import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
 import MessageModal from '../components/MessageModal';
 import { verifyDomainOwnership, getPrimaryDomainName } from '../utils/sns';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 type SocialLinks = {
   twitter: string;
@@ -89,6 +90,7 @@ const UserProfile: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [primaryDomain, setPrimaryDomain] = useState<string | null>(null);
   const [message, setMessage] = useState<AppMessage | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (profileKey) {
@@ -122,9 +124,11 @@ const UserProfile: React.FC = () => {
 
   useEffect(() => {
     if (profileKey) {
+      setLoading(true);
       getAssetsByCollection(PRIMO_COLLECTION, profileKey)
         .then(setNfts)
-        .catch(() => setNfts([]));
+        .catch(() => setNfts([]))
+        .finally(() => setLoading(false));
     }
   }, [profileKey]);
 
@@ -287,6 +291,7 @@ const fadeOut = keyframes`
 
   return (
     <>
+      {loading && <LoadingOverlay message={t('loading_nfts')} />}
       <Box className="user-profile">
         {pfpImage && (
           <Box display="flex" justifyContent="center" mb={2}>

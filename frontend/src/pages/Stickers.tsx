@@ -8,6 +8,7 @@ import { fetchCollectionNFTsForOwner, HeliusNFT } from '../utils/helius';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import './Stickers.css';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -17,15 +18,21 @@ const Stickers: React.FC = () => {
   const [nfts, setNfts] = useState<HeliusNFT[]>([]);
   const [selected, setSelected] = useState<HeliusNFT | null>(null);
   const [message, setMessage] = useState<AppMessage | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchNfts = async () => {
       if (!wallet.publicKey) return;
-      const items = await fetchCollectionNFTsForOwner(
-        wallet.publicKey.toBase58(),
-        PRIMO_COLLECTION
-      );
-      setNfts(items);
+      setLoading(true);
+      try {
+        const items = await fetchCollectionNFTsForOwner(
+          wallet.publicKey.toBase58(),
+          PRIMO_COLLECTION
+        );
+        setNfts(items);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchNfts();
   }, [wallet.publicKey]);
@@ -37,6 +44,7 @@ const Stickers: React.FC = () => {
 
   return (
     <Box className="experiment-container">
+      {loading && <LoadingOverlay message={t('loading_nfts')} />}
       <Typography variant="h4" sx={{ mb: 2 }}>
         {t('experiment2_title')}
       </Typography>

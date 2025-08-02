@@ -12,6 +12,7 @@ import { fetchVolume24h } from '../utils/transaction';
 import Avatar from '@mui/material/Avatar';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 interface Stats {
   uniqueHolders: number | null;
@@ -38,6 +39,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [members, setMembers] = useState<DaoMember[]>([]);
   const wallet = useWallet();
   const isConnected = connected ?? wallet.connected;
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchStats() {
@@ -74,6 +76,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
+        setLoading(true);
         const res = await api.get<DaoMember[]>('/api/user/primos');
         const enriched = await Promise.all(
           res.data.slice(0, 5).map(async (m) => {
@@ -91,6 +94,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         setMembers(enriched);
       } catch {
         setMembers([]);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMembers();
@@ -107,6 +112,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         py: 6,
       }}
     >
+      {loading && <LoadingOverlay message={t('loading_nfts')} />}
       <Box
       >
         {!isConnected && (

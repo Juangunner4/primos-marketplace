@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import { getPrimaryDomainName } from '../utils/sns';
 import './Primos.css';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -26,10 +27,12 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchMembers() {
       try {
+        setLoading(true);
         const res = await api.get<Member[]>('/api/user/primos');
         const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
         const enriched = await Promise.all(
@@ -50,6 +53,8 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
         setMembers(enriched);
       } catch {
         setMembers([]);
+      } finally {
+        setLoading(false);
       }
     }
     fetchMembers();
@@ -62,6 +67,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
   return (
     <Box className="primos-container">
+      {loading && <LoadingOverlay message={t('loading_nfts')} />}
       <Typography variant="h4" className="primos-title">
         {t('primos_title')}
       </Typography>

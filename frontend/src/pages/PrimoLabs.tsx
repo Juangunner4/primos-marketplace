@@ -16,6 +16,7 @@ import api from '../utils/api';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 type Member = { publicKey: string; pfp: string };
@@ -26,28 +27,34 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? (wallet.connected && isHolder);
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isConnected) return;
 
     const fetchData = async () => {
-      const membersRes = await api.get<Member[]>('/api/user/primos', {
-        headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
-      });
-      const enriched = await Promise.all(
-        membersRes.data.map(async (m) => {
-          let image = '';
-          if (m.pfp) {
-            const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-            image = nft?.image ?? '';
-          } else {
-            const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
-            image = nfts[0]?.image ?? '';
-          }
-          return { ...m, pfp: image };
-        })
-      );
-      setMembers(enriched);
+      setLoading(true);
+      try {
+        const membersRes = await api.get<Member[]>('/api/user/primos', {
+          headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
+        });
+        const enriched = await Promise.all(
+          membersRes.data.map(async (m) => {
+            let image = '';
+            if (m.pfp) {
+              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
+              image = nft?.image ?? '';
+            } else {
+              const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
+              image = nfts[0]?.image ?? '';
+            }
+            return { ...m, pfp: image };
+          })
+        );
+        setMembers(enriched);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -68,6 +75,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
 
   return (
     <Box className="labs-container">
+      {loading && <LoadingOverlay message={t('loading_nfts')} />}
       <Box className="labs-grid">
         <Tooltip title={t('experiment1_desc')} arrow>
           <Card className="lab-card" component={Link} to="/experiment1" sx={{ textDecoration: 'none' }}>
