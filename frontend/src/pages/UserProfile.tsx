@@ -14,6 +14,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
@@ -89,6 +90,7 @@ const UserProfile: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [primaryDomain, setPrimaryDomain] = useState<string | null>(null);
   const [message, setMessage] = useState<AppMessage | null>(null);
+  const [notifDialogOpen, setNotifDialogOpen] = useState(false);
 
   useEffect(() => {
     if (profileKey) {
@@ -300,26 +302,35 @@ const fadeOut = keyframes`
             {primaryDomain ? ` (${primaryDomain})` : ''}
           </Typography>
           {isOwner && (
-            <Button
-              variant="contained"
-              onClick={() => {
-                if (isEditing) {
-                  setIsEditing(false);
-                  setShowNFTs(false);
-                } else {
-                  setEditDialogOpen(true);
-                }
-              }}
-              sx={{
-                background: '#111',
-                color: '#fff',
-                border: '1px solid #111',
-                ml: 1,
-                '&:hover': { background: '#222' },
-              }}
-            >
-              {isEditing ? t('cancel') : t('edit')}
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (isEditing) {
+                    setIsEditing(false);
+                    setShowNFTs(false);
+                  } else {
+                    setEditDialogOpen(true);
+                  }
+                }}
+                sx={{
+                  background: '#111',
+                  color: '#fff',
+                  border: '1px solid #111',
+                  ml: 1,
+                  '&:hover': { background: '#222' },
+                }}
+              >
+                {isEditing ? t('cancel') : t('edit')}
+              </Button>
+              <IconButton
+                sx={{ ml: 1 }}
+                aria-label="notifications"
+                onClick={() => setNotifDialogOpen(true)}
+              >
+                <NotificationsIcon />
+              </IconButton>
+            </>
           )}
           {isOwner && publicKey?.toBase58() === ADMIN_WALLET && (
             <IconButton component={Link} to="/admin" sx={{ ml: 1 }}>
@@ -499,9 +510,9 @@ const fadeOut = keyframes`
                   {publicKey && (
                     <IconButton size="small" onClick={() => handleToggleLike(nft.id)} aria-label="like">
                       {likes[nft.id]?.liked ? (
-                        <FavoriteIcon fontSize="small" color="error" />
+                        <FavoriteIcon fontSize="small" sx={{ color: 'rgba(255,255,255,0.9)' }} />
                       ) : (
-                        <FavoriteBorderIcon fontSize="small" />
+                        <FavoriteBorderIcon fontSize="small" sx={{ color: 'rgba(255,255,255,0.9)' }} />
                       )}
                     </IconButton>
                   )}
@@ -510,11 +521,13 @@ const fadeOut = keyframes`
             ))}
           </Box>
         </Box>
-        {isOwner && (
-        <Box sx={{ mt: 2 }} id="notifications">
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            {t('notifications')}
-          </Typography>
+      {isOwner && <BetaRedeem />}
+      {isOwner && (
+      <>
+      <Dialog.Root open={notifDialogOpen} onOpenChange={setNotifDialogOpen}>
+        <Dialog.Overlay className="dialog-overlay" />
+        <Dialog.Content className="dialog-content">
+          <Dialog.Title>{t('notifications')}</Dialog.Title>
           {notifications.length === 0 ? (
             <Typography>{t('no_notifications')}</Typography>
           ) : (
@@ -532,11 +545,8 @@ const fadeOut = keyframes`
               ))}
             </>
           )}
-        </Box>
-      )}
-      {isOwner && <BetaRedeem />}
-      {isOwner && (
-      <>
+        </Dialog.Content>
+      </Dialog.Root>
       <Dialog.Root open={pfpDialogOpen} onOpenChange={setPfpDialogOpen}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
