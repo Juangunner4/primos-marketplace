@@ -65,6 +65,38 @@ describe('UserProfile', () => {
     expect(walletText.textContent).toContain('my.sol');
   });
 
+  test('renders twitter and website links', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    const { get } = require('../../utils/api');
+    (get as jest.Mock).mockResolvedValueOnce({
+      data: {
+        publicKey: 'pubkey123',
+        bio: '',
+        socials: { twitter: 'mytwitter', discord: '', website: 'https://example.com' },
+        pfp: '',
+        domain: 'my.sol',
+        points: 0,
+        pointsToday: 0,
+        pointsDate: 'today',
+        pesos: 0,
+      },
+    });
+
+    render(
+      <I18nextProvider i18n={i18n}>
+        <UserProfile />
+      </I18nextProvider>
+    );
+
+    await screen.findByText(/Wallet/i);
+
+    const twitterLink = screen.getByRole('link', { name: 'mytwitter' });
+    expect(twitterLink.getAttribute('href')).toBe('https://x.com/mytwitter');
+
+    const websiteLink = screen.getByRole('link', { name: 'https://example.com' });
+    expect(websiteLink.getAttribute('href')).toBe('https://example.com');
+  });
+
   test('shows cancel button and NFT selector when entering edit mode', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
     render(

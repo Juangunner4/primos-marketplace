@@ -50,6 +50,24 @@ const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
+const formatTwitterUrl = (handle: string) => {
+  const trimmed = handle.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `https://x.com/${trimmed.replace(/^@/, '')}`;
+};
+
+const formatWebsiteUrl = (url: string) => {
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+};
+
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
   const params = useParams<{ publicKey?: string }>();
@@ -340,16 +358,30 @@ const fadeOut = keyframes`
             })}
           </Box>
         )}
-        <TextField
-          label={t('twitter')}
-          value={user.socials.twitter}
-          onChange={(e) =>
-            setUser({ ...user, socials: { ...user.socials, twitter: e.target.value } })
-          }
-          fullWidth
-          margin="normal"
-          disabled={!isOwner || !isEditing}
-        />
+        {isOwner && isEditing ? (
+          <TextField
+            label={t('twitter')}
+            value={user.socials.twitter}
+            onChange={(e) =>
+              setUser({ ...user, socials: { ...user.socials, twitter: e.target.value } })
+            }
+            fullWidth
+            margin="normal"
+          />
+        ) : (
+          user.socials.twitter && (
+            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
+              <strong>{t('twitter')}</strong>{' '}
+              <a
+                href={formatTwitterUrl(user.socials.twitter)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {user.socials.twitter}
+              </a>
+            </Typography>
+          )
+        )}
         <TextField
           label={t('discord')}
           value={user.socials.discord}
@@ -360,16 +392,30 @@ const fadeOut = keyframes`
           margin="normal"
           disabled={!isOwner || !isEditing}
         />
-        <TextField
-          label={t('website')}
-          value={user.socials.website}
-          onChange={(e) =>
-            setUser({ ...user, socials: { ...user.socials, website: e.target.value } })
-          }
-          fullWidth
-          margin="normal"
-          disabled={!isOwner || !isEditing}
-        />
+        {isOwner && isEditing ? (
+          <TextField
+            label={t('website')}
+            value={user.socials.website}
+            onChange={(e) =>
+              setUser({ ...user, socials: { ...user.socials, website: e.target.value } })
+            }
+            fullWidth
+            margin="normal"
+          />
+        ) : (
+          user.socials.website && (
+            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
+              <strong>{t('website')}</strong>{' '}
+              <a
+                href={formatWebsiteUrl(user.socials.website)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {user.socials.website}
+              </a>
+            </Typography>
+          )
+        )}
         <TextField
           label={t('sns_domain')}
           value={primaryDomain || ''}
