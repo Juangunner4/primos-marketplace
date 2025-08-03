@@ -16,6 +16,8 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
+import TerrainIcon from '@mui/icons-material/Terrain';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
@@ -41,6 +43,7 @@ type UserDoc = {
   pesos: number;
   artTeam: boolean;
   workGroups: string[];
+  badges?: string[];
 };
 
 const getStatus = (count: number) => {
@@ -302,8 +305,18 @@ const fadeOut = keyframes`
     <>
       <Box className="user-profile">
         {pfpImage && (
-          <Box display="flex" justifyContent="center" mb={2}>
+          <Box display="flex" justifyContent="center" mb={2} position="relative">
             <Avatar src={pfpImage} sx={{ width: 120, height: 120, border: '2px solid #000' }} />
+            {user?.badges && (
+              <Box className="badge-container">
+                {user.badges.includes('sns') && (
+                  <AlternateEmailIcon className="badge-icon" />
+                )}
+                {user.badges.includes('trenches') && (
+                  <TerrainIcon className="badge-icon" />
+                )}
+              </Box>
+            )}
           </Box>
         )}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>

@@ -103,6 +103,23 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+.badge-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  gap: 4px;
+}
+
+.badge-icon {
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 50%;
+  padding: 2px;
+}
+
 .dialog-overlay {
   background: rgba(0,0,0,0.6);
   position: fixed;
