@@ -28,6 +28,9 @@ public class ProfileService {
                     throw new jakarta.ws.rs.BadRequestException();
                 }
                 user.setDomain(lower);
+                if (lower.endsWith(".sol")) {
+                    user.addBadge("sns");
+                }
             }
             if (updated.getWorkGroups() != null) {
                 user.setWorkGroups(updated.getWorkGroups());

@@ -81,6 +81,10 @@ public class LoginService {
                 LOGGER.info(String.format("[LoginService] Non-primo login for publicKey: %s", req.publicKey));
             }
         }
+        if (user.getDomain() != null && user.getDomain().endsWith(".sol")) {
+            user.addBadge("sns");
+            user.persistOrUpdate();
+        }
         return user;
     }
 

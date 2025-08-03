@@ -10,6 +10,7 @@ public class User extends PanacheMongoEntity {
     private SocialLinks socials = new SocialLinks();
     private String pfp;
     private String domain = "";
+    private java.util.List<String> badges = new java.util.ArrayList<>();
     private int points = 0;
     private int pointsToday = 0;
     private String pointsDate = java.time.LocalDate.now().toString();
@@ -62,6 +63,23 @@ public class User extends PanacheMongoEntity {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public java.util.List<String> getBadges() {
+        return badges;
+    }
+
+    public void setBadges(java.util.List<String> badges) {
+        this.badges = badges;
+    }
+
+    public void addBadge(String badge) {
+        if (badges == null) {
+            badges = new java.util.ArrayList<>();
+        }
+        if (!badges.contains(badge)) {
+            badges.add(badge);
+        }
     }
 
     public int getPoints() {

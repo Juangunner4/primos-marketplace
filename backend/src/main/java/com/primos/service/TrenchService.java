@@ -2,6 +2,7 @@ package com.primos.service;
 
 import com.primos.model.TrenchContract;
 import com.primos.model.TrenchUser;
+import com.primos.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
@@ -50,6 +51,11 @@ public class TrenchService {
             tu.setContracts(list);
             tu.setLastSubmittedAt(now);
             tu.persistOrUpdate();
+        }
+        User user = User.find("publicKey", publicKey).firstResult();
+        if (user != null) {
+            user.addBadge("trenches");
+            user.persistOrUpdate();
         }
     }
 
