@@ -297,7 +297,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     {geckoIcons[entry.id]}
                     <Typography variant="body2" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
-                      {entry.message}
+                      {t(entry.label)}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -325,7 +325,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
               ))}
               {coinGeckoData.length === 0 && (
                 <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
-                  {loading ? t('loading') + '...' : 'No market data available'}
+                  {loading ? `${t('loading')}...` : t('no_market_data')}
                 </Typography>
               )}
             </Box>

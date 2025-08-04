@@ -1,4 +1,4 @@
-import { fetchCoinGeckoData, fetchSimpleTokenPrice } from '../coingecko';
+import * as coingecko from '../coingecko';
 
 // Mock the global fetch function
 global.fetch = jest.fn();
@@ -29,14 +29,14 @@ describe('coingecko service', () => {
       json: () => Promise.resolve(mockResponse)
     });
 
-    const result = await fetchSimpleTokenPrice('test-contract', 'solana');
+    const result = await coingecko.fetchSimpleTokenPrice('test-contract', 'solana');
     
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('api.coingecko.com/api/v3/simple/token_price/solana'),
-      undefined
-    );
-    expect(result).toEqual(mockResponse['test-contract']);
-  });
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/coingecko/simple/token_price/solana'),
+        undefined
+      );
+      expect(result).toEqual(mockResponse['test-contract']);
+    });
 
   test('fetchCoinGeckoData handles API errors gracefully', async () => {
     (global.fetch as jest.Mock).mockResolvedValue({
@@ -44,7 +44,26 @@ describe('coingecko service', () => {
       status: 404
     });
 
-    const result = await fetchCoinGeckoData('invalid-contract');
-    expect(result).toEqual([]);
+      const result = await coingecko.fetchCoinGeckoData('invalid-contract');
+      expect(result).toEqual([]);
+    });
+
+    test('fetchCoinGeckoData returns formatted entries', async () => {
+      (coingecko.fetchSimpleTokenPrice as jest.Mock).mockResolvedValue({
+        usd: 1,
+        usd_market_cap: 2000000,
+        usd_24h_vol: 100000,
+        usd_24h_change: 2,
+        last_updated_at: 1700000000,
+      });
+
+      const result = await coingecko.fetchCoinGeckoData('test-contract');
+
+      expect(result).toEqual([
+        { id: 'price', label: 'price', value: '$1.00000000', change: '2.00%' },
+        { id: 'market_cap', label: 'market_cap', value: '$2.00M' },
+        { id: 'volume_24h', label: 'volume_24h', value: '$0.10M' },
+        { id: 'last_updated', label: 'last_updated', value: expect.any(String) },
+      ]);
+    });
   });
-});
