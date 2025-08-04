@@ -278,7 +278,7 @@ export const fetchCoinGeckoData = async (
       if (priceData.usd) {
         entries.push({
           id: 'price',
-          message: '💰 Price',
+          message: 'Price',
           value: `$${priceData.usd.toFixed(8)}`,
           change: priceData.usd_24h_change ? `${priceData.usd_24h_change.toFixed(2)}%` : undefined
         });
@@ -287,7 +287,7 @@ export const fetchCoinGeckoData = async (
       if (priceData.usd_market_cap) {
         entries.push({
           id: 'market_cap',
-          message: '📊 Market Cap',
+          message: 'Market Cap',
           value: `$${(priceData.usd_market_cap / 1000000).toFixed(2)}M`
         });
       }
@@ -295,7 +295,7 @@ export const fetchCoinGeckoData = async (
       if (priceData.usd_24h_vol) {
         entries.push({
           id: 'volume_24h',
-          message: '📈 24h Volume',
+          message: '24h Volume',
           value: `$${(priceData.usd_24h_vol / 1000000).toFixed(2)}M`
         });
       }
@@ -303,7 +303,7 @@ export const fetchCoinGeckoData = async (
       if (priceData.last_updated_at) {
         entries.push({
           id: 'last_updated',
-          message: '🔄 Last Updated',
+          message: 'Last Updated',
           value: new Date(priceData.last_updated_at * 1000).toLocaleString()
         });
       }

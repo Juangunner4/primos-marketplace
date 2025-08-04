@@ -3,6 +3,10 @@ import * as Dialog from '@radix-ui/react-dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import XIcon from '@mui/icons-material/X';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -41,6 +45,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const geckoIcons: Record<string, JSX.Element> = {
+    price: <AttachMoneyIcon fontSize="small" />,
+    market_cap: <BarChartIcon fontSize="small" />,
+    volume_24h: <TrendingUpIcon fontSize="small" />,
+    last_updated: <AutorenewIcon fontSize="small" />,
+  };
 
   const handleCopyContract = () => {
     if (contract) {
@@ -139,8 +150,9 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             
             {/* Community Sentiment Info */}
             <Box sx={{ mb: 2, p: 1, backgroundColor: '#e3f2fd', borderRadius: 1, border: '1px solid #2196f3' }}>
-              <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 0.5 }}>
-                📊 {t('community_sentiment')} {userCount > 0 && `(${userCount} ${userCount === 1 ? t('user') : t('users')})`}
+              <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <BarChartIcon fontSize="small" />
+                {t('community_sentiment')} {userCount > 0 && `(${userCount} ${userCount === 1 ? t('user') : t('users')})`}
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#1565c0' }}>
                 {userCount > 0 
@@ -221,8 +233,9 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   })}` : 'N/A'}
                 </Typography>
                 {callerInfo.marketCap && coinGeckoData.length > 0 && (
-                  <Typography variant="caption" sx={{ color: '#888', fontSize: '0.75rem', fontStyle: 'italic' }}>
-                    📈 {t('compare_with_current')}
+                  <Typography variant="caption" sx={{ color: '#888', fontSize: '0.75rem', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <TrendingUpIcon fontSize="inherit" />
+                    {t('compare_with_current')}
                   </Typography>
                 )}
               </Box>
@@ -276,9 +289,12 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             <Box className="market-data-list" sx={{ mt: 1 }}>
               {coinGeckoData.map((entry) => (
                 <Box key={entry.id} sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, backgroundColor: '#fafafa', borderRadius: 0.5 }}>
-                  <Typography variant="body2" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
-                    {entry.message}
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {geckoIcons[entry.id]}
+                    <Typography variant="body2" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
+                      {entry.message}
+                    </Typography>
+                  </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant="body2" component="div" sx={{ fontWeight: 'bold' }}>
                       {entry.value}
