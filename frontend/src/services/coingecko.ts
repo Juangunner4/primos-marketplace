@@ -177,7 +177,7 @@ export interface CoinGeckoPoolData {
 
 export interface CoinGeckoEntry {
   id: string;
-  message: string;
+  label: string;
   value: string;
   change?: string;
 }
@@ -262,8 +262,6 @@ export const fetchSimpleTokenPrice = async (
   }
 };
 
-// Removed fetchTokenInfo and fetchTopPools functions to avoid CORS and Pro API issues
-
 /**
  * Fetch comprehensive token data and format it for display
  * @param contractAddress - Token contract address
@@ -285,33 +283,33 @@ export const fetchCoinGeckoData = async (
       if (priceData.usd) {
         entries.push({
           id: 'price',
-          message: 'Price',
+          label: 'price',
           value: `$${priceData.usd.toFixed(8)}`,
-          change: priceData.usd_24h_change ? `${priceData.usd_24h_change.toFixed(2)}%` : undefined
+          change: priceData.usd_24h_change ? `${priceData.usd_24h_change.toFixed(2)}%` : undefined,
         });
       }
 
       if (priceData.usd_market_cap) {
         entries.push({
           id: 'market_cap',
-          message: 'Market Cap',
-          value: `$${(priceData.usd_market_cap / 1000000).toFixed(2)}M`
+          label: 'market_cap',
+          value: `$${(priceData.usd_market_cap / 1000000).toFixed(2)}M`,
         });
       }
 
       if (priceData.usd_24h_vol) {
         entries.push({
           id: 'volume_24h',
-          message: '24h Volume',
-          value: `$${(priceData.usd_24h_vol / 1000000).toFixed(2)}M`
+          label: 'volume_24h',
+          value: `$${(priceData.usd_24h_vol / 1000000).toFixed(2)}M`,
         });
       }
 
       if (priceData.last_updated_at) {
         entries.push({
           id: 'last_updated',
-          message: 'Last Updated',
-          value: new Date(priceData.last_updated_at * 1000).toLocaleString()
+          label: 'last_updated',
+          value: new Date(priceData.last_updated_at * 1000).toLocaleString(),
         });
       }
     }

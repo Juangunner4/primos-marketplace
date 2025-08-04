@@ -2,15 +2,11 @@ import {
   Connection,
   Transaction,
   VersionedTransaction,
-  SystemProgram,
-  PublicKey,
   ComputeBudgetProgram,
   PACKET_DATA_SIZE
 } from '@solana/web3.js';
-import { Metaplex, keypairIdentity } from '@metaplex-foundation/js';
 import { getBuyNowInstructions, getListInstructions } from './magiceden';
 import api from './api';
-import { calculateFees } from './fees';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 
 
@@ -77,11 +73,6 @@ export interface ListNFT {
 
 // Default Magic Eden AuctionHouse address
 const DEFAULT_AUCTION_HOUSE = 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe';
-// wallet receiving community + operations fees
-const FEE_WALLET =
-  process.env.REACT_APP_FEE_WALLET ??
-  process.env.REACT_APP_ADMIN_WALLET ??
-  'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
 type SolanaTx = Transaction | VersionedTransaction;
 
@@ -120,7 +111,6 @@ const tryFallbackSign = async (
     try {
       const [signed] = await wallet.signAllTransactions([tx]);
       const sigAll = await connection.sendRawTransaction(signed.serialize());
-      console.log('Transaction hash:', sigAll);
       return sigAll;
     } catch (e) {
       console.error('signAllTransactions failed', e);
@@ -131,7 +121,6 @@ const tryFallbackSign = async (
     try {
       const signedTx = await wallet.signTransaction(tx);
       const sigTx = await connection.sendRawTransaction(signedTx.serialize());
-      console.log('Transaction hash:', sigTx);
       return sigTx;
     } catch (signErr: any) {
       console.error('signTransaction failed', signErr);
@@ -153,62 +142,20 @@ const signAndSendTransaction = async (
       tx.recentBlockhash = latest.blockhash;
     }
     tx.feePayer ??= wallet.publicKey!;
-    console.log('Tx size (bytes):', tx.serializeMessage().length);
   } else {
     if (!tx.message.recentBlockhash) {
       const latest = await connection.getLatestBlockhash();
       tx.message.recentBlockhash = latest.blockhash;
     }
-    console.log('Tx size (bytes):', tx.serialize().length);
   }
   try {
     const sig = await wallet.sendTransaction(tx as any, connection);
-    console.log('Transaction hash:', sig);
     return sig;
   } catch (error: any) {
     console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
     return await tryFallbackSign(tx, connection, wallet);
   }
-};
-
-const sendFeeTransaction = async (
-  connection: Connection,
-  wallet: WalletContextState,
-  listing: BuyNowListing,
-  onStep?: (step: number) => void
-): Promise<string | null> => {
-  onStep?.(1);
-  const { community, operations } = calculateFees(listing.price);
-  const lamports = Math.round((community + operations) * 1e9);
-  if (lamports > 0) {
-    const txFee = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: wallet.publicKey!,
-        toPubkey: new PublicKey(FEE_WALLET),
-        lamports,
-      })
-    );
-    const sigFee = await signAndSendTransaction(txFee, connection, wallet);
-    const latestBlockhash = await connection.getLatestBlockhash();
-    await connection.confirmTransaction(
-      {
-        signature: sigFee,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      },
-      'confirmed'
-    );
-    await recordTransaction({
-      txId: sigFee,
-      mint: listing.tokenMint,
-      collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
-      source: 'DAO fee',
-      timestamp: new Date().toISOString(),
-    });
-    return sigFee;
-  }
-  return null;
 };
 
 export const executeBuyNow = async (
@@ -219,12 +166,7 @@ export const executeBuyNow = async (
 ): Promise<string> => {
   const buyer = wallet.publicKey?.toBase58();
   if (!buyer) throw new Error('Wallet not connected');
-
-  // 1) Send DAO fees (community + operations), if any
-  // await sendFeeTransaction(connection, wallet, listing, onStep);
-
-  // 2) Magic Eden buy-now
-  onStep?.(2);
+  onStep?.(1);
   const params: Record<string, string> = {
     buyer,
     seller: listing.seller,
@@ -262,7 +204,7 @@ export const executeBuyNow = async (
     timestamp: new Date().toISOString(),
   });
 
-  onStep?.(3);
+  onStep?.(2);
   return sigBuy;
 };
 
