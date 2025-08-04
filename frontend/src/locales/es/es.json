@@ -35,6 +35,8 @@
   "disconnect_wallet": "Desconectar",
   "copy_public_key": "Copiar clave pública",
   "public_key_copied": "¡Clave pública copiada!",
+  "copy_contract": "Copiar contrato",
+  "contract_copied": "¡Contrato copiado!",
   "twitter": "Twitter",
   "discord": "Discord",
   "website": "Sitio web",

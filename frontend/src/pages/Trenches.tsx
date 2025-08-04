@@ -6,9 +6,13 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
 import { fetchTrenchData, submitTrenchContract } from '../services/trench';
 import TelegramPanel from '../components/TelegramPanel';
+import MessageModal from '../components/MessageModal';
+import { AppMessage } from '../types';
 import './Trenches.css';
 
 interface TrenchContract {
@@ -40,6 +44,7 @@ const Trenches: React.FC = () => {
   const [tab, setTab] = useState<'my' | 'users' | 'contracts' | 'scanner'>('my');
   const [selectedUser, setSelectedUser] = useState<TrenchUser | null>(null);
   const [openContract, setOpenContract] = useState<string | null>(null);
+  const [message, setMessage] = useState<AppMessage | null>(null);
 
   const multiContracts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -93,6 +98,11 @@ const Trenches: React.FC = () => {
     await submitTrenchContract(publicKey.toBase58(), input, 'model1');
     setInput('');
     load();
+  };
+
+  const handleCopy = (contract: string) => {
+    navigator.clipboard.writeText(contract);
+    setMessage({ text: t('contract_copied'), type: 'success' });
   };
 
   return (
@@ -181,6 +191,17 @@ const Trenches: React.FC = () => {
                       onClick={() => setOpenContract(c)}
                     >
                       {short}
+                      <IconButton
+                        size="small"
+                        className="copy-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(c);
+                        }}
+                        aria-label={t('copy_contract')}
+                      >
+                        <ContentCopyIcon fontSize="inherit" />
+                      </IconButton>
                       {meta?.model && (
                         <Box className="model-tag">{meta.model}</Box>
                       )}
@@ -239,6 +260,17 @@ const Trenches: React.FC = () => {
                     onClick={() => setOpenContract(c)}
                   >
                     {short}
+                    <IconButton
+                      size="small"
+                      className="copy-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopy(c);
+                      }}
+                      aria-label={t('copy_contract')}
+                    >
+                      <ContentCopyIcon fontSize="inherit" />
+                    </IconButton>
                     {data.contracts.find((cc) => cc.contract === c)?.model && (
                       <Box className="model-tag">
                         {data.contracts.find((cc) => cc.contract === c)?.model}
@@ -274,6 +306,17 @@ const Trenches: React.FC = () => {
                     onClick={() => setOpenContract(c.contract)}
                   >
                     {short}
+                    <IconButton
+                      size="small"
+                      className="copy-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopy(c.contract);
+                      }}
+                      aria-label={t('copy_contract')}
+                    >
+                      <ContentCopyIcon fontSize="inherit" />
+                    </IconButton>
                     {data.contracts.find((cc) => cc.contract === c.contract)?.model && (
                       <Box className="model-tag">
                         {data.contracts.find((cc) => cc.contract === c.contract)?.model}
@@ -306,6 +349,17 @@ const Trenches: React.FC = () => {
                     onClick={() => setOpenContract(c.contract)}
                   >
                     {short}
+                    <IconButton
+                      size="small"
+                      className="copy-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopy(c.contract);
+                      }}
+                      aria-label={t('copy_contract')}
+                    >
+                      <ContentCopyIcon fontSize="inherit" />
+                    </IconButton>
                     {c.model && <Box className="model-tag">{c.model}</Box>}
                   </Box>
                 );
@@ -318,6 +372,11 @@ const Trenches: React.FC = () => {
         contract={openContract}
         open={openContract !== null}
         onClose={() => setOpenContract(null)}
+      />
+      <MessageModal
+        open={message !== null}
+        message={message}
+        onClose={() => setMessage(null)}
       />
     </Box>
   );

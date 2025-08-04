@@ -35,6 +35,8 @@
   "disconnect_wallet": "Disconnect",
   "copy_public_key": "Copy public key",
   "public_key_copied": "Public key copied!",
+  "copy_contract": "Copy contract",
+  "contract_copied": "Contract copied!",
   "twitter": "Twitter",
   "discord": "Discord",
   "website": "Website",

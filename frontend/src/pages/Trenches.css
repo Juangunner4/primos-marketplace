@@ -26,6 +26,15 @@
   position: relative;
 }
 
+.copy-button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #fff;
+  padding: 2px;
+  color: #1976d2;
+}
+
 .model-tag {
   position: absolute;
   bottom: -4px;
