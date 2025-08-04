@@ -6,8 +6,6 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
 import {
   fetchTrenchData,
@@ -107,7 +105,17 @@ const Trenches: React.FC = () => {
           placeholder={t('enter_contract')}
           size="small"
         />
-        <Button variant="contained" onClick={handleAdd} disabled={!input}>
+        <Button variant="contained" onClick={handleAdd} disabled={!input} sx={{
+          backgroundColor: '#000',
+          color: '#fff',
+          '&:hover': {
+            backgroundColor: '#333',
+          },
+          '&:disabled': {
+            backgroundColor: '#ccc',
+            color: '#666',
+          }
+        }}>
           {t('add_contract')}
         </Button>
       </Box>
@@ -118,6 +126,15 @@ const Trenches: React.FC = () => {
             setTab('my');
             setSelectedUser(null);
           }}
+          sx={{
+            backgroundColor: tab === 'my' ? '#000' : 'transparent',
+            color: tab === 'my' ? '#fff' : '#000',
+            borderColor: '#000',
+            '&:hover': {
+              backgroundColor: tab === 'my' ? '#333' : '#f0f0f0',
+              borderColor: '#000',
+            }
+          }}
         >
           {t('my_contracts')}
         </Button>
@@ -126,6 +143,15 @@ const Trenches: React.FC = () => {
           onClick={() => {
             setTab('users');
             setSelectedUser(null);
+          }}
+          sx={{
+            backgroundColor: tab === 'users' ? '#000' : 'transparent',
+            color: tab === 'users' ? '#fff' : '#000',
+            borderColor: '#000',
+            '&:hover': {
+              backgroundColor: tab === 'users' ? '#333' : '#f0f0f0',
+              borderColor: '#000',
+            }
           }}
         >
           {t('all_users')}
@@ -136,6 +162,15 @@ const Trenches: React.FC = () => {
             setTab('contracts');
             setSelectedUser(null);
           }}
+          sx={{
+            backgroundColor: tab === 'contracts' ? '#000' : 'transparent',
+            color: tab === 'contracts' ? '#fff' : '#000',
+            borderColor: '#000',
+            '&:hover': {
+              backgroundColor: tab === 'contracts' ? '#333' : '#f0f0f0',
+              borderColor: '#000',
+            }
+          }}
         >
           {t('all_contracts')}
         </Button>
@@ -144,6 +179,15 @@ const Trenches: React.FC = () => {
           onClick={() => {
             setTab('scanner');
             setSelectedUser(null);
+          }}
+          sx={{
+            backgroundColor: tab === 'scanner' ? '#000' : 'transparent',
+            color: tab === 'scanner' ? '#fff' : '#000',
+            borderColor: '#000',
+            '&:hover': {
+              backgroundColor: tab === 'scanner' ? '#333' : '#f0f0f0',
+              borderColor: '#000',
+            }
           }}
         >
           {t('scanner')}
@@ -169,34 +213,29 @@ const Trenches: React.FC = () => {
                   );
                   const meta = data.contracts.find((cc) => cc.contract === c);
                   return (
-                    <Box
+                    <button
                       key={c}
                       className="bubble"
-                      role="button"
                       aria-label={c}
                       title={c}
-                      sx={{
+                      style={{
                         width: size,
                         height: size,
                         backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                        backgroundSize: 'cover',
+                        border: 'none',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        padding: 0,
+                        outline: 'none',
                       }}
                       onClick={() => setOpenContract(c)}
+                      onDoubleClick={() => handleCopy(c)}
                     >
-                      <IconButton
-                        size="small"
-                        className="copy-button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopy(c);
-                        }}
-                        aria-label={t('copy_contract')}
-                      >
-                        <ContentCopyIcon fontSize="inherit" />
-                      </IconButton>
                       {meta?.model && (
                         <Box className="model-tag">{meta.model}</Box>
                       )}
-                    </Box>
+                    </button>
                   );
                 })}
             </Box>
@@ -243,36 +282,31 @@ const Trenches: React.FC = () => {
                 );
                 const meta = data.contracts.find((cc) => cc.contract === c);
                 return (
-                  <Box
+                  <button
                     key={c}
                     className="bubble"
-                    role="button"
                     aria-label={c}
                     title={c}
-                    sx={{
+                    style={{
                       width: size,
                       height: size,
                       backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                      backgroundSize: 'cover',
+                      border: 'none',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      padding: 0,
+                      outline: 'none',
                     }}
                     onClick={() => setOpenContract(c)}
+                    onDoubleClick={() => handleCopy(c)}
                   >
-                    <IconButton
-                      size="small"
-                      className="copy-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(c);
-                      }}
-                      aria-label={t('copy_contract')}
-                    >
-                      <ContentCopyIcon fontSize="inherit" />
-                    </IconButton>
                     {data.contracts.find((cc) => cc.contract === c)?.model && (
                       <Box className="model-tag">
                         {data.contracts.find((cc) => cc.contract === c)?.model}
                       </Box>
                     )}
-                  </Box>
+                  </button>
                 );
               })}
             </Box>
@@ -292,36 +326,31 @@ const Trenches: React.FC = () => {
                 );
                 const meta = data.contracts.find((cc) => cc.contract === c.contract);
                 return (
-                  <Box
+                  <button
                     key={c.contract}
                     className="bubble"
-                    role="button"
                     aria-label={c.contract}
                     title={c.contract}
-                    sx={{
+                    style={{
                       width: size,
                       height: size,
                       backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                      backgroundSize: 'cover',
+                      border: 'none',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      padding: 0,
+                      outline: 'none',
                     }}
                     onClick={() => setOpenContract(c.contract)}
+                    onDoubleClick={() => handleCopy(c.contract)}
                   >
-                    <IconButton
-                      size="small"
-                      className="copy-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(c.contract);
-                      }}
-                      aria-label={t('copy_contract')}
-                    >
-                      <ContentCopyIcon fontSize="inherit" />
-                    </IconButton>
                     {data.contracts.find((cc) => cc.contract === c.contract)?.model && (
                       <Box className="model-tag">
                         {data.contracts.find((cc) => cc.contract === c.contract)?.model}
                       </Box>
                     )}
-                  </Box>
+                  </button>
                 );
               })}
             </Box>
@@ -338,32 +367,27 @@ const Trenches: React.FC = () => {
                 const size = 60;
                 const meta = data.contracts.find((cc) => cc.contract === c.contract);
                 return (
-                  <Box
+                  <button
                     key={c.contract}
                     className="bubble"
-                    role="button"
                     aria-label={c.contract}
                     title={c.contract}
-                    sx={{
+                    style={{
                       width: size,
                       height: size,
                       backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                      backgroundSize: 'cover',
+                      border: 'none',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      padding: 0,
+                      outline: 'none',
                     }}
                     onClick={() => setOpenContract(c.contract)}
+                    onDoubleClick={() => handleCopy(c.contract)}
                   >
-                    <IconButton
-                      size="small"
-                      className="copy-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(c.contract);
-                      }}
-                      aria-label={t('copy_contract')}
-                    >
-                      <ContentCopyIcon fontSize="inherit" />
-                    </IconButton>
                     {c.model && <Box className="model-tag">{c.model}</Box>}
-                  </Box>
+                  </button>
                 );
               })}
             </Box>

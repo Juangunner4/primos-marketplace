@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import { useTranslation } from 'react-i18next';
 import { fetchTokenMetadata, TokenMetadata } from '../services/token';
 import api from '../utils/api';
@@ -35,6 +36,12 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
   const [telegram, setTelegram] = useState<TelegramData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleCopyContract = () => {
+    if (contract) {
+      navigator.clipboard.writeText(contract);
+    }
+  };
 
   useEffect(() => {
     if (!open || !contract) return;
@@ -108,13 +115,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
       <Dialog.Overlay className="contract-overlay" />
       <Dialog.Content className="contract-content">
         <Dialog.Close asChild>
-          <IconButton
+          <button
             className="contract-close"
+            onClick={onClose}
             aria-label={t('close')}
-            size="small"
           >
             <CloseIcon fontSize="medium" />
-          </IconButton>
+          </button>
         </Dialog.Close>
         {loading && <Typography variant="body2">{t('loading')}...</Typography>}
         {error && (
@@ -125,6 +132,21 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
         <Box className="contract-panels">
           <Box className="token-panel">
             <Typography className="dialog-title">{t('token_metadata')}</Typography>
+            {contract && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Typography variant="body2" sx={{ wordBreak: 'break-all', flex: 1 }}>
+                  <strong>Contract:</strong> {contract}
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={handleCopyContract}
+                  aria-label="Copy contract address"
+                  sx={{ color: '#000' }}
+                >
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            )}
             {token ? (
               <Box className="token-info">
                 {token.image && (

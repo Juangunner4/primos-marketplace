@@ -13,7 +13,7 @@
 }
 
 .bubble {
-  background-color: #1976d2;
+  background-color: #000;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -27,15 +27,7 @@
   word-break: break-word;
   font-size: clamp(0.6rem, 2.5vw, 1rem);
   position: relative;
-}
-
-.copy-button {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background: #fff;
-  padding: 2px;
-  color: #1976d2;
+  cursor: pointer;
 }
 
 .model-tag {
@@ -43,8 +35,8 @@
   bottom: -4px;
   right: -4px;
   background: #fff;
-  color: #1976d2;
-  border: 1px solid #1976d2;
+  color: #000;
+  border: 1px solid #000;
   border-radius: 3px;
   padding: 0 2px;
   font-size: 10px;
@@ -52,7 +44,7 @@
 }
 
 .user-bubble {
-  border: 2px solid #1976d2;
+  border: 2px solid #000;
   flex: 0 0 auto;
   font-size: clamp(0.6rem, 2.5vw, 1rem);
 }
