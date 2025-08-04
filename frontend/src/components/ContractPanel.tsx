@@ -16,18 +16,21 @@ import {
   TokenInfo,
 } from '../services/token';
 import { fetchTrenchData, TrenchData } from '../services/trench';
+import { fetchCoinGeckoData, CoinGeckoEntry } from '../services/coingecko';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
   contract: string | null;
   open: boolean;
   onClose: () => void;
+  userCount?: number;
 }
 
-const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }) => {
+const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, userCount = 0 }) => {
   const { t } = useTranslation();
   const [token, setToken] = useState<TokenMetadata | null>(null);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
+  const [coinGeckoData, setCoinGeckoData] = useState<CoinGeckoEntry[]>([]);
   const [callerInfo, setCallerInfo] = useState<{
     publicKey: string;
     pfp: string;
@@ -72,16 +75,21 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
     
     const loadData = async () => {
       try {
-        const [tok, info] = await Promise.all([
+        const [tok, info, geckoData] = await Promise.all([
           fetchTokenMetadata(contract).catch(() => null),
           fetchTokenInfo(contract).catch((err) => {
             console.error('fetchTokenInfo error', err);
             return null;
           }),
+          fetchCoinGeckoData(contract).catch((err) => {
+            console.error('fetchCoinGeckoData error', err);
+            return [];
+          }),
         ]);
         
         setToken(tok);
         setTokenInfo(info);
+        setCoinGeckoData(geckoData);
         await loadTrenchData();
       } catch (error) {
         console.error('Failed to load token data:', error);
@@ -98,45 +106,10 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
     if (open) return;
     setToken(null);
     setTokenInfo(null);
+    setCoinGeckoData([]);
     setError(null);
     setLoading(false);
   }, [open]);
-
-  const telegramEntries = [
-    { id: '1', label: '🌐', type: 'ticker' },
-    { id: '2', label: '💹 MCap', key: 'marketCap' },
-    { id: '3', label: '💰 USD', key: 'priceUsd' },
-    { id: '4', label: '💎 FDV', key: 'fdvUsd' },
-    { id: '5', label: '📊 Vol', key: 'volume24hUsd' },
-    { id: '6', label: '🛒 Buys', key: 'buys24h' },
-    { id: '7', label: '👥 Holders', key: 'holders' },
-    { id: '8', label: '📈 1H', key: 'change1hPercent' },
-  ].map(({ id, label, key, type }) => {
-    let value = '—';
-    const data = tokenInfo;
-    if (data) {
-      if (
-        type === 'ticker' &&
-        data.tickerBase &&
-        data.tickerTarget &&
-        data.tickerMarketName
-      ) {
-        value = `${data.tickerBase}/${data.tickerTarget} @ ${data.tickerMarketName}`;
-      } else if (key) {
-        const num = (data as any)[key] as number | undefined;
-        if (num != null) {
-          value =
-            key === 'change1hPercent'
-              ? num.toFixed(2) + '%'
-              : num.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                });
-        }
-      }
-    }
-    return { id, message: `${label} ${value}` };
-  });
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
@@ -163,6 +136,19 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
             <Typography variant="h6" sx={{ mb: 2 }}>
               {t('first_caller')}
             </Typography>
+            
+            {/* Community Sentiment Info */}
+            <Box sx={{ mb: 2, p: 1, backgroundColor: '#e3f2fd', borderRadius: 1, border: '1px solid #2196f3' }}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 0.5 }}>
+                📊 {t('community_sentiment')} {userCount > 0 && `(${userCount} ${userCount === 1 ? t('user') : t('users')})`}
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#1565c0' }}>
+                {userCount > 0 
+                  ? t('sentiment_contract_explanation_with_count', { count: userCount })
+                  : t('sentiment_contract_explanation')
+                }
+              </Typography>
+            </Box>
             
             {/* User Info Row */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -229,8 +215,16 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
                   {t('market_cap_at_call')}
                 </Typography>
                 <Typography variant="body2">
-                  {callerInfo.marketCap ? `$${callerInfo.marketCap.toLocaleString()}` : 'N/A'}
+                  {callerInfo.marketCap ? `$${callerInfo.marketCap.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  })}` : 'N/A'}
                 </Typography>
+                {callerInfo.marketCap && coinGeckoData.length > 0 && (
+                  <Typography variant="caption" sx={{ color: '#888', fontSize: '0.75rem', fontStyle: 'italic' }}>
+                    📈 {t('compare_with_current')}
+                  </Typography>
+                )}
               </Box>
             </Box>
           </Box>
@@ -277,16 +271,42 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
               <Typography variant="body2">{t('loading')}...</Typography>
             )}
           </Box>
-          <Box className="telegram-panel">
-            <Typography className="dialog-title">{t('token_info')}</Typography>
-            <Box className="telegram-list" sx={{ mt: 1 }}>
-              {telegramEntries.map((e) => (
-                <Box key={e.id} sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
-                  <Typography variant="body2" component="div">
-                    {e.message}
+          <Box className="market-data-panel">
+            <Typography className="dialog-title">{t('market_data')}</Typography>
+            <Box className="market-data-list" sx={{ mt: 1 }}>
+              {coinGeckoData.map((entry) => (
+                <Box key={entry.id} sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, backgroundColor: '#fafafa', borderRadius: 0.5 }}>
+                  <Typography variant="body2" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
+                    {entry.message}
                   </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="body2" component="div" sx={{ fontWeight: 'bold' }}>
+                      {entry.value}
+                    </Typography>
+                    {entry.change && (
+                      <Typography 
+                        variant="body2" 
+                        component="div" 
+                        sx={{ 
+                          color: entry.change.startsWith('-') ? '#f44336' : '#4caf50',
+                          fontSize: '0.875rem',
+                          fontWeight: 'bold',
+                          padding: '2px 6px',
+                          backgroundColor: entry.change.startsWith('-') ? '#ffebee' : '#e8f5e8',
+                          borderRadius: '4px'
+                        }}
+                      >
+                        {entry.change}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
               ))}
+              {coinGeckoData.length === 0 && (
+                <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
+                  {loading ? t('loading') + '...' : 'No market data available'}
+                </Typography>
+              )}
             </Box>
           </Box>
         </Box>

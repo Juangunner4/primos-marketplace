@@ -63,7 +63,7 @@
 }
 
 .token-panel,
-.telegram-panel {
+.market-data-panel {
   flex: 1;
   border: 2px solid #000;
   border-radius: 0.5rem;
@@ -89,7 +89,7 @@
   flex: 1;
 }
 
-.telegram-list {
+.market-data-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

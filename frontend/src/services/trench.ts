@@ -63,11 +63,18 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
 export const submitTrenchContract = async (
   publicKey: string,
   contract: string,
-  model?: string
+  model?: string,
+  marketCap?: number,
+  domain?: string
 ): Promise<void> => {
+  const payload: any = { contract, source: 'website' };
+  if (model) payload.model = model;
+  if (marketCap) payload.marketCap = marketCap.toString();
+  if (domain) payload.domain = domain;
+
   await api.post(
     '/api/trench',
-    { contract, source: 'website', model },
+    payload,
     { headers: { 'X-Public-Key': publicKey } }
   );
 };

@@ -1,4 +1,5 @@
 import { getNFTByTokenAddress, getTokenInfo as heliusGetTokenInfo } from './helius';
+import { getCurrentMarketCap } from './coingecko';
 import type { HeliusTokenInfo } from './helius';
 
 export interface TokenMetadata {
@@ -106,4 +107,23 @@ export const fetchTokenInfo = async (
     console.error('fetchTokenInfo (helius) error', e);
     return null;
   }
+};
+
+/**
+ * Get current market cap for a token (used for trench tracking)
+ * @param contract - Token contract address
+ * @returns Current market cap or null
+ */
+export const getCurrentTokenMarketCap = async (
+  contract: string
+): Promise<number | null> => {
+  // Try CoinGecko first for Solana tokens
+  if (!/^0x[0-9a-fA-F]{40}$/.test(contract)) {
+    const marketCap = await getCurrentMarketCap(contract, 'solana');
+    if (marketCap) return marketCap;
+  }
+
+  // Fallback to existing token info methods
+  const tokenInfo = await fetchTokenInfo(contract);
+  return tokenInfo?.marketCap || null;
 };

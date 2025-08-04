@@ -15,6 +15,10 @@ public class TrenchService {
     private static final long MIN_SUBMIT_INTERVAL_MS = 60_000; // 1 minute cooldown
 
     public void add(String publicKey, String contract, String source, String model) {
+        add(publicKey, contract, source, model, null, null);
+    }
+
+    public void add(String publicKey, String contract, String source, String model, Double marketCap, String domain) {
         long now = System.currentTimeMillis();
 
         TrenchContract tc = TrenchContract.find("contract", contract).firstResult();
@@ -26,9 +30,8 @@ public class TrenchService {
             tc.setModel(model);
             tc.setFirstCaller(publicKey);
             tc.setFirstCallerAt(now);
-            // TODO: Set market cap and domain from external APIs if needed
-            // tc.setFirstCallerMarketCap(marketCap);
-            // tc.setFirstCallerDomain(domain);
+            tc.setFirstCallerMarketCap(marketCap);
+            tc.setFirstCallerDomain(domain);
             tc.persist();
         } else {
             tc.setCount(tc.getCount() + 1);

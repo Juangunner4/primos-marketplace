@@ -86,4 +86,31 @@
     flex-wrap: wrap;
     justify-content: center;
   }
+  
+  /* Sentiment explanation responsive */
+  .experiment-container .MuiBox-root {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 1rem;
+  }
+  
+  /* Mobile adjustments for tags */
+  .meta-container {
+    bottom: -2px;
+    right: -2px;
+    gap: 1px;
+  }
+  .model-tag {
+    font-size: 8px;
+    padding: 0 1px;
+  }
+  .count-tag {
+    font-size: 8px;
+    min-width: 14px;
+    height: 14px;
+    line-height: 14px;
+    top: -2px;
+    left: -2px;
+    padding: 0 2px;
+  }
 }

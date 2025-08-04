@@ -23,6 +23,7 @@ const Trenches: React.FC = () => {
   const [input, setInput] = useState('');
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [] });
   const [openContract, setOpenContract] = useState<string | null>(null);
+  const [openContractUserCount, setOpenContractUserCount] = useState<number>(0);
   const [message, setMessage] = useState<AppMessage | null>(null);
 
   const canSubmit = !!publicKey && isHolder;
@@ -49,24 +50,50 @@ const Trenches: React.FC = () => {
   const handleAdd = async () => {
     if (!input || !publicKey) return;
     let valid = false;
+    let marketCap: number | undefined;
+    
     if (/^0x[0-9a-fA-F]{40}$/.test(input)) {
       try {
         const res = await fetch(`https://api.coingecko.com/api/v3/coins/ethereum/contract/${input}`);
-        if (res.ok) valid = true;
+        if (res.ok) {
+          const data = await res.json();
+          valid = true;
+          marketCap = data.market_data?.market_cap?.usd;
+        }
       } catch {}
     }
+    
     if (!valid) {
       try {
         const addr = new PublicKey(input);
         const info = await connection.getAccountInfo(addr);
-        if (info) valid = true;
+        if (info) {
+          valid = true;
+          // Try to get Solana token market cap from CoinGecko
+          try {
+            const response = await fetch(
+              `https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${input}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              const tokenData = data[input.toLowerCase()];
+              if (tokenData?.usd_market_cap) {
+                marketCap = tokenData.usd_market_cap;
+              }
+            }
+          } catch (e) {
+            console.warn('Failed to fetch market cap for token:', e);
+          }
+        }
       } catch {}
     }
+    
     if (!valid) {
       setMessage({ text: t('contract_not_onchain'), type: 'error' });
       return;
     }
-    await submitTrenchContract(publicKey.toBase58(), input, 'model1');
+    
+    await submitTrenchContract(publicKey.toBase58(), input, 'model1', marketCap);
     setInput('');
     load();
   };
@@ -84,6 +111,29 @@ const Trenches: React.FC = () => {
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t('experiment3_desc')}
       </Typography>
+      
+      {/* Sentiment Explanation */}
+      <Box sx={{ 
+        mb: 3, 
+        p: 2, 
+        backgroundColor: '#f5f5f5', 
+        borderRadius: 1, 
+        border: '1px solid #ddd',
+        maxWidth: '800px',
+        margin: '0 auto 1.5rem auto'
+      }}>
+        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+          🎯 {t('how_sentiment_works')}
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1, color: '#666' }}>
+          {t('sentiment_explanation')}
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#666' }}>
+          • {t('sentiment_bubble_size')}<br/>
+          • {t('sentiment_community_signal')}<br/>
+          • {t('sentiment_first_caller')}
+        </Typography>
+      </Box>
       {canSubmit && (
         <Box className="input-row" sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
           <TextField
@@ -123,11 +173,18 @@ const Trenches: React.FC = () => {
                 height: size,
                 backgroundImage: c.image ? `url(${c.image})` : undefined,
               }}
-              onClick={() => setOpenContract(c.contract)}
+              onClick={() => {
+                setOpenContract(c.contract);
+                setOpenContractUserCount(userCount);
+              }}
               onDoubleClick={() => handleCopy(c.contract)}
             >
               <Box className="meta-container">
-                {c.model && <Box className="model-tag">{c.model}</Box>}
+                {c.model && (
+                  <Box className="model-tag">
+                    {c.model === 'model1' ? 'm01' : c.model}
+                  </Box>
+                )}
                 {firstUser && (
                   <Avatar
                     src={firstUser.pfp || undefined}
@@ -142,7 +199,15 @@ const Trenches: React.FC = () => {
           );
         })}
       </Box>
-      <ContractPanel contract={openContract} open={openContract !== null} onClose={() => setOpenContract(null)} />
+      <ContractPanel 
+        contract={openContract} 
+        open={openContract !== null} 
+        onClose={() => {
+          setOpenContract(null);
+          setOpenContractUserCount(0);
+        }} 
+        userCount={openContractUserCount}
+      />
       <MessageModal open={message !== null} message={message} onClose={() => setMessage(null)} />
     </Box>
   );
