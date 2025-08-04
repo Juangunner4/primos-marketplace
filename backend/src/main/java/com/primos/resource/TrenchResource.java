@@ -47,23 +47,14 @@ public class TrenchResource {
         String source = req.getOrDefault("source", "website");
         String model = req.get("model");
 
-        // Extract market cap and domain if provided
-        Double marketCap = null;
+        // Extract domain if provided
         String domain = null;
-
-        if (req.containsKey("marketCap")) {
-            try {
-                marketCap = Double.valueOf(req.get("marketCap"));
-            } catch (NumberFormatException e) {
-                // Ignore invalid market cap values
-            }
-        }
 
         if (req.containsKey("domain")) {
             domain = req.get("domain");
         }
 
-        service.add(publicKey, req.get("contract"), source, model, marketCap, domain);
+        service.add(publicKey, req.get("contract"), source, model, domain);
     }
 
     @GET
