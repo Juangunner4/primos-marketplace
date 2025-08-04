@@ -181,21 +181,18 @@ const Trenches: React.FC = () => {
               }}
               onDoubleClick={() => handleCopy(c.contract)}
             >
-              <Box className="meta-container">
-                {c.model && (
-                  <Box className="model-tag">
-                    {c.model === 'model1' ? 'm01' : c.model}
-                  </Box>
-                )}
-                {firstUser && (
-                  <Avatar
-                    src={firstUser.pfp || undefined}
-                    alt={firstUser.publicKey}
-                    className="caller-tag"
-                    sx={{ width: 16, height: 16 }}
-                  />
-                )}
-              </Box>
+              {c.model && (
+                <Box className="model-tag">
+                  {c.model === 'model1' ? 'm01' : c.model}
+                </Box>
+              )}
+              {firstUser && (
+                <Avatar
+                  src={firstUser.pfp || undefined}
+                  alt={firstUser.publicKey}
+                  className="caller-tag"
+                />
+              )}
               <Box className="count-tag">{userCount}</Box>
             </button>
           );
