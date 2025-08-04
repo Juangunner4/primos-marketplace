@@ -12,6 +12,7 @@ class TrenchResourceTest {
         TrenchResource.TrenchData data = res.get();
         assertEquals(1, data.contracts.size());
         assertEquals("ca1", data.contracts.get(0).getContract());
+        assertEquals("w1", data.contracts.get(0).getFirstCaller());
         assertEquals(1, data.users.size());
         assertEquals("w1", data.users.get(0).publicKey);
         assertTrue(data.users.get(0).contracts.contains("ca1"));

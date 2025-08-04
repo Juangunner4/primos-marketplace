@@ -20,6 +20,7 @@ public class TrenchService {
             tc.setCount(1);
             tc.setSource(source);
             tc.setModel(model);
+            tc.setFirstCaller(publicKey);
             tc.persist();
         } else {
             tc.setCount(tc.getCount() + 1);
