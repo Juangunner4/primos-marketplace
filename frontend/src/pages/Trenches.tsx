@@ -16,8 +16,7 @@ import {
   TrenchUser,
   TrenchData,
 } from '../services/trench';
-import TelegramPanel from '../components/TelegramPanel';
-import TokenPanel from '../components/TokenPanel';
+import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import './Trenches.css';
@@ -164,8 +163,6 @@ const Trenches: React.FC = () => {
                 .map((c) => {
                   const count =
                     data.contracts.find((cc) => cc.contract === c)?.count || 1;
-                  const short =
-                    c.length > 7 ? `${c.slice(0, 3)}...${c.slice(-4)}` : c;
                   const size = Math.max(
                     40,
                     Math.min(100, 40 + count * 10)
@@ -175,15 +172,16 @@ const Trenches: React.FC = () => {
                     <Box
                       key={c}
                       className="bubble"
+                      role="button"
+                      aria-label={c}
+                      title={c}
                       sx={{
                         width: size,
                         height: size,
-                        fontSize: size / 5,
                         backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
                       }}
                       onClick={() => setOpenContract(c)}
                     >
-                      {short}
                       <IconButton
                         size="small"
                         className="copy-button"
@@ -239,8 +237,6 @@ const Trenches: React.FC = () => {
               {selectedUser.contracts.map((c) => {
                 const count =
                   data.contracts.find((cc) => cc.contract === c)?.count || 1;
-                const short =
-                  c.length > 7 ? `${c.slice(0, 3)}...${c.slice(-4)}` : c;
                 const size = Math.max(
                   40,
                   Math.min(100, 40 + count * 10)
@@ -250,15 +246,16 @@ const Trenches: React.FC = () => {
                   <Box
                     key={c}
                     className="bubble"
+                    role="button"
+                    aria-label={c}
+                    title={c}
                     sx={{
                       width: size,
                       height: size,
-                      fontSize: size / 5,
                       backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
                     }}
                     onClick={() => setOpenContract(c)}
                   >
-                    {short}
                     <IconButton
                       size="small"
                       className="copy-button"
@@ -289,10 +286,6 @@ const Trenches: React.FC = () => {
           ) : (
             <Box className="bubble-map">
               {multiContracts.map((c) => {
-                const short =
-                  c.contract.length > 7
-                    ? `${c.contract.slice(0, 3)}...${c.contract.slice(-4)}`
-                    : c.contract;
                 const size = Math.max(
                   40,
                   Math.min(100, 40 + c.count * 10)
@@ -302,15 +295,16 @@ const Trenches: React.FC = () => {
                   <Box
                     key={c.contract}
                     className="bubble"
+                    role="button"
+                    aria-label={c.contract}
+                    title={c.contract}
                     sx={{
                       width: size,
                       height: size,
-                      fontSize: size / 5,
                       backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
                     }}
                     onClick={() => setOpenContract(c.contract)}
                   >
-                    {short}
                     <IconButton
                       size="small"
                       className="copy-button"
@@ -341,25 +335,22 @@ const Trenches: React.FC = () => {
           ) : (
             <Box className="bubble-map">
               {telegramContracts.map((c) => {
-                const short =
-                  c.contract.length > 7
-                    ? `${c.contract.slice(0, 3)}...${c.contract.slice(-4)}`
-                    : c.contract;
                 const size = 60;
                 const meta = data.contracts.find((cc) => cc.contract === c.contract);
                 return (
                   <Box
                     key={c.contract}
                     className="bubble"
+                    role="button"
+                    aria-label={c.contract}
+                    title={c.contract}
                     sx={{
                       width: size,
                       height: size,
-                      fontSize: size / 5,
                       backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
                     }}
                     onClick={() => setOpenContract(c.contract)}
                   >
-                    {short}
                     <IconButton
                       size="small"
                       className="copy-button"
@@ -379,12 +370,7 @@ const Trenches: React.FC = () => {
           )}
         </>
       )}
-      <TelegramPanel
-        contract={openContract}
-        open={openContract !== null}
-        onClose={() => setOpenContract(null)}
-      />
-      <TokenPanel
+      <ContractPanel
         contract={openContract}
         open={openContract !== null}
         onClose={() => setOpenContract(null)}
