@@ -231,4 +231,5 @@
   ,"telegram_error": "Failed to load data"
   ,"token_metadata": "Token Metadata"
   ,"token_error": "Failed to load metadata"
+  ,"token_info": "Token Info"
 }

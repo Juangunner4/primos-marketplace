@@ -172,7 +172,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
             )}
           </Box>
           <Box className="telegram-panel">
-            <Typography className="dialog-title">{t('telegram_data')}</Typography>
+            <Typography className="dialog-title">Token Info</Typography>
             <Box className="telegram-list" sx={{ mt: 1 }}>
               {telegramEntries.map((e) => (
                 <Box key={e.id} sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>

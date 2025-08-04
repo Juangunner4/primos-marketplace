@@ -230,5 +230,6 @@
   "telegram_data": "Datos de Telegram",
   "telegram_error": "Error al cargar datos",
   "token_metadata": "Metadatos del token",
-  "token_error": "Error al cargar metadatos"
+  "token_error": "Error al cargar metadatos",
+  "token_info": "Información del Token"
 }
