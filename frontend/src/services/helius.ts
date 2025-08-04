@@ -5,11 +5,12 @@
 // methods avoids pulling in the SDK while keeping the existing import
 // paths working.
 
-export type { HeliusNFT } from '../utils/helius';
+export type { HeliusNFT, HeliusTokenInfo } from '../utils/helius';
 export {
   getAssetsByCollection,
   getNFTByTokenAddress,
   checkPrimoHolder,
   fetchCollectionNFTsForOwner,
+  getTokenInfo,
 } from '../utils/helius';
 

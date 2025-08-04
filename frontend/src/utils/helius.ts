@@ -305,3 +305,50 @@ export async function fetchCollectionNFTsForOwner(
 
   return nfts;
 }
+
+export interface HeliusTokenInfo {
+  tickerBase?: string;
+  tickerTarget?: string;
+  tickerMarketName?: string;
+  marketCap?: number;
+  priceUsd?: number;
+  fdvUsd?: number;
+  volume24hUsd?: number;
+  buys24h?: number;
+  holders?: number;
+  change1hPercent?: number;
+}
+
+/**
+ * Fetches market and token info for a given token address using Helius RPC.
+ */
+export const getTokenInfo = async (
+  tokenAddress: string
+): Promise<HeliusTokenInfo | null> => {
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+  if (!apiKey) {
+    console.error('Helius API key is not configured.');
+    return null;
+  }
+  try {
+    const response = await heliusFetch(
+      `https://rpc.helius.io/?api-key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getTokenInfo',
+          params: { id: tokenAddress },
+        }),
+      }
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.result || null;
+  } catch (e) {
+    console.error('Failed to fetch token info', e);
+    return null;
+  }
+};

@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { useTranslation } from 'react-i18next';
 import { fetchTokenMetadata, TokenMetadata } from '../services/token';
-import api from '../utils/api';
+import { getTokenInfo, HeliusTokenInfo } from '../services/helius';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
@@ -35,7 +35,7 @@ interface TelegramData {
 const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }) => {
   const { t } = useTranslation();
   const [token, setToken] = useState<TokenMetadata | null>(null);
-  const [telegram, setTelegram] = useState<TelegramData | null>(null);
+  const [tokenInfo, setTokenInfo] = useState<HeliusTokenInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,27 +51,23 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
     setError(null);
     Promise.all([
       Promise.resolve(fetchTokenMetadata(contract)).catch(() => null),
-      Promise.resolve(
-        api.get<TelegramData>(`/api/telegram/${contract}`)
-      )
-        .then((res) => res?.data)
-        .catch((err) => {
-          console.error(err);
-          return null;
-        }),
+      Promise.resolve(getTokenInfo(contract)).catch((err) => {
+        console.error('getTokenInfo error', err);
+        return null;
+      }),
     ])
-      .then(([tok, tel]) => {
+      .then(([tok, info]) => {
         setToken(tok);
-        setTelegram(tel);
+        setTokenInfo(info);
       })
-      .catch(() => setError(t('telegram_error')))
+      .catch(() => setError(t('token_error')))
       .finally(() => setLoading(false));
   }, [open, contract, t]);
 
   useEffect(() => {
     if (open) return;
     setToken(null);
-    setTelegram(null);
+    setTokenInfo(null);
     setError(null);
     setLoading(false);
   }, [open]);
@@ -87,7 +83,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
     { id: '8', label: '📈 1H', key: 'change1hPercent' },
   ].map(({ id, label, key, type }) => {
     let value = '—';
-    const data = telegram;
+    const data = tokenInfo;
     if (data) {
       if (
         type === 'ticker' &&
@@ -174,7 +170,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
             )}
           </Box>
           <Box className="telegram-panel">
-            <Typography className="dialog-title">Token Info</Typography>
+            <Typography className="dialog-title">{t('token_info')}</Typography>
             <Box className="telegram-list" sx={{ mt: 1 }}>
               {telegramEntries.map((e) => (
                 <Box key={e.id} sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>

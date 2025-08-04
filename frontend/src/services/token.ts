@@ -15,7 +15,7 @@ export const fetchTokenMetadata = async (
 ): Promise<TokenMetadata | null> => {
   try {
     const nft = await getNFTByTokenAddress(contract);
-    if (!nft || !nft.metadata) return null;
+    if (!nft?.metadata) return null;
     const meta = nft.metadata as any;
     return {
       name: meta.name || nft.name,
