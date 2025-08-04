@@ -55,4 +55,27 @@ public class ProfileServiceTest {
         User db = User.find("publicKey", "wg1").firstResult();
         assertTrue(db.isArtTeam());
     }
+
+    @Test
+    public void testUpdateSocialLinks() {
+        User u = new User();
+        u.setPublicKey("sl1");
+        u.persist();
+
+        ProfileService svc = new ProfileService();
+        User updated = new User();
+        updated.setPublicKey("sl1");
+        User.SocialLinks links = new User.SocialLinks();
+        links.setSlingshot("code1");
+        links.setAxiom("code2");
+        links.setVector("code3");
+        updated.setSocials(links);
+
+        svc.updateProfile("sl1", "sl1", updated);
+
+        User db = User.find("publicKey", "sl1").firstResult();
+        assertEquals("code1", db.getSocials().getSlingshot());
+        assertEquals("code2", db.getSocials().getAxiom());
+        assertEquals("code3", db.getSocials().getVector());
+    }
 }

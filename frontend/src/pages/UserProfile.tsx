@@ -30,6 +30,9 @@ type SocialLinks = {
   twitter: string;
   discord: string;
   website: string;
+  slingshot: string;
+  axiom: string;
+  vector: string;
 };
 
 type UserDoc = {
@@ -108,9 +111,25 @@ const UserProfile: React.FC = () => {
   useEffect(() => {
     if (profileKey) {
       api
-        .get(`/api/user/${profileKey}`,
-          publicKey ? { headers: { 'X-Public-Key': publicKey.toBase58() } } : undefined)
-        .then((res) => setUser({ ...res.data, workGroups: res.data.workGroups || [] }))
+        .get(
+          `/api/user/${profileKey}`,
+          publicKey ? { headers: { 'X-Public-Key': publicKey.toBase58() } } : undefined
+        )
+        .then((res) =>
+          setUser({
+            ...res.data,
+            socials: {
+              twitter: '',
+              discord: '',
+              website: '',
+              slingshot: '',
+              axiom: '',
+              vector: '',
+              ...(res.data.socials || {}),
+            },
+            workGroups: res.data.workGroups || [],
+          })
+        )
         .catch(() => setUser(null));
     }
   }, [profileKey, publicKey]);
@@ -467,6 +486,36 @@ const fadeOut = keyframes`
             </Typography>
           )
         )}
+        <TextField
+          label={t('slingshot')}
+          value={user.socials.slingshot}
+          onChange={(e) =>
+            setUser({ ...user, socials: { ...user.socials, slingshot: e.target.value } })
+          }
+          fullWidth
+          margin="normal"
+          disabled={!isOwner || !isEditing}
+        />
+        <TextField
+          label={t('axiom')}
+          value={user.socials.axiom}
+          onChange={(e) =>
+            setUser({ ...user, socials: { ...user.socials, axiom: e.target.value } })
+          }
+          fullWidth
+          margin="normal"
+          disabled={!isOwner || !isEditing}
+        />
+        <TextField
+          label={t('vector')}
+          value={user.socials.vector}
+          onChange={(e) =>
+            setUser({ ...user, socials: { ...user.socials, vector: e.target.value } })
+          }
+          fullWidth
+          margin="normal"
+          disabled={!isOwner || !isEditing}
+        />
         <TextField
           label={t('sns_domain')}
           value={primaryDomain || ''}
