@@ -11,6 +11,9 @@ export interface TrenchContract {
   model?: string;
   image?: string;
   firstCaller?: string;
+  firstCallerAt?: number;
+  firstCallerMarketCap?: number;
+  firstCallerDomain?: string;
 }
 
 export interface TrenchUser {
@@ -18,6 +21,11 @@ export interface TrenchUser {
   pfp: string;
   count: number;
   contracts: string[];
+  socials?: {
+    twitter?: string;
+    discord?: string;
+    website?: string;
+  };
 }
 
 export interface TrenchData {

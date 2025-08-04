@@ -232,4 +232,7 @@
   ,"token_metadata": "Token Metadata"
   ,"token_error": "Failed to load metadata"
   ,"token_info": "Token Info"
+  ,"first_caller": "First Caller"
+  ,"called_at": "Called At"
+  ,"market_cap_at_call": "Market Cap at Call"
 }

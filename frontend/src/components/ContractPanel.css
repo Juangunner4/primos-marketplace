@@ -109,4 +109,18 @@
   .contract-panels {
     flex-direction: column;
   }
+  
+  /* Enhanced caller info responsive styling */
+  .first-caller-data-columns {
+    flex-direction: column;
+  }
+  
+  .first-caller-data-box {
+    min-width: 100% !important;
+  }
+  
+  /* Twitter icon positioning */
+  .first-caller-avatar-container {
+    position: relative;
+  }
 }

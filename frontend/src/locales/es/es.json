@@ -231,5 +231,8 @@
   "telegram_error": "Error al cargar datos",
   "token_metadata": "Metadatos del token",
   "token_error": "Error al cargar metadatos",
-  "token_info": "Información del Token"
+  "token_info": "Información del Token",
+  "first_caller": "Primer Llamador",
+  "called_at": "Llamado en",
+  "market_cap_at_call": "Cap. de Mercado al Llamar"
 }
