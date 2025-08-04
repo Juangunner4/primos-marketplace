@@ -15,6 +15,9 @@ public class UserTest {
         assertNotNull(user.getPointsDate());
         assertEquals(1, user.getPesos());
         assertNotNull(user.getSocials());
+        assertEquals("", user.getSocials().getSlingshot());
+        assertEquals("", user.getSocials().getAxiom());
+        assertEquals("", user.getSocials().getVector());
         assertFalse(user.isPrimoHolder());
         assertTrue(user.isDaoMember());
     }

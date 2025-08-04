@@ -4,38 +4,68 @@ import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import UserProfile from '../UserProfile';
 import i18n from '../../i18n';
-import api from '../../utils/api';
 
 const mockUseWallet = jest.fn();
 jest.mock('@solana/wallet-adapter-react', () => ({
-  useWallet: () => mockUseWallet()
+  useWallet: () => mockUseWallet(),
 }));
 
-jest.mock('../../utils/api', () => ({
-  get: jest.fn(() => Promise.resolve({ data: {
-    publicKey: 'pubkey123',
-    bio: '',
-    socials: { twitter: '', discord: '', website: '' },
-    pfp: '',
-    domain: 'my.sol',
-    points: 0,
-    pointsToday: 0,
-    pointsDate: 'today',
-    pesos: 0
-  }})),
-  put: jest.fn(() => Promise.resolve({ data: {} })),
-  post: jest.fn(() => Promise.resolve({ data: {
-    publicKey: 'pubkey123',
-    bio: '',
-    socials: { twitter: '', discord: '', website: '' },
-    pfp: '',
-    domain: 'my.sol',
-    points: 1,
-    pointsToday: 1,
-    pointsDate: 'today',
-    pesos: 0
-  }}))
-}));
+jest.mock('../../utils/api', () => {
+  const mockApi = {
+    get: jest.fn(() =>
+      Promise.resolve({
+        data: {
+          publicKey: 'pubkey123',
+          bio: '',
+          socials: {
+            twitter: '',
+            discord: '',
+            website: '',
+            slingshot: '',
+            axiom: '',
+            vector: '',
+          },
+          pfp: '',
+          domain: 'my.sol',
+          points: 0,
+          pointsToday: 0,
+          pointsDate: 'today',
+          pesos: 0,
+        },
+      })
+    ),
+    put: jest.fn(() => Promise.resolve({ data: {} })),
+    post: jest.fn(() =>
+      Promise.resolve({
+        data: {
+          publicKey: 'pubkey123',
+          bio: '',
+          socials: {
+            twitter: '',
+            discord: '',
+            website: '',
+            slingshot: '',
+            axiom: '',
+            vector: '',
+          },
+          pfp: '',
+          domain: 'my.sol',
+          points: 1,
+          pointsToday: 1,
+          pointsDate: 'today',
+          pesos: 0,
+        },
+      })
+    ),
+  };
+  return {
+    __esModule: true,
+    default: mockApi,
+    get: mockApi.get,
+    put: mockApi.put,
+    post: mockApi.post,
+  };
+});
 
 jest.mock('../../utils/sns', () => ({
   getPrimaryDomainName: jest.fn(() => Promise.resolve('my.sol')),
@@ -83,12 +113,19 @@ describe('UserProfile', () => {
 
   test('renders twitter and website links', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
-    const { get } = require('../../utils/api');
-    (get as jest.Mock).mockResolvedValueOnce({
+    const { default: apiMock } = require('../../utils/api');
+    (apiMock.get as jest.Mock).mockResolvedValueOnce({
       data: {
         publicKey: 'pubkey123',
         bio: '',
-        socials: { twitter: 'mytwitter', discord: '', website: 'https://example.com' },
+        socials: {
+          twitter: 'mytwitter',
+          discord: '',
+          website: 'https://example.com',
+          slingshot: '',
+          axiom: '',
+          vector: '',
+        },
         pfp: '',
         domain: 'my.sol',
         points: 0,
@@ -111,6 +148,21 @@ describe('UserProfile', () => {
 
     const websiteLink = screen.getByRole('link', { name: 'https://example.com' });
     expect(websiteLink.getAttribute('href')).toBe('https://example.com');
+  });
+
+  test('renders trading platform fields', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    render(
+      <I18nextProvider i18n={i18n}>
+        <UserProfile />
+      </I18nextProvider>
+    );
+
+    await screen.findByText(/Wallet/i);
+
+    expect(screen.getByLabelText('Slingshot')).toBeInTheDocument();
+    expect(screen.getByLabelText('Axiom')).toBeInTheDocument();
+    expect(screen.getByLabelText('Vector')).toBeInTheDocument();
   });
 
   test('shows cancel button and NFT selector when entering edit mode', async () => {
@@ -204,10 +256,9 @@ describe('UserProfile', () => {
 
   test('likes NFT when button clicked', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
-    const { get } = require('../../utils/api');
-    const { post } = require('../../utils/api');
-    (get as jest.Mock).mockResolvedValueOnce({ data: { publicKey: 'pubkey123', bio: '', socials: { twitter: '', discord: '', website: '' }, pfp: '', domain: 'my.sol', points:0, pointsToday:0, pointsDate:'today', pesos:0 } });
-    (post as jest.Mock).mockResolvedValue({ data: { count: 1, liked: true } });
+    const { default: apiMock } = require('../../utils/api');
+    (apiMock.get as jest.Mock).mockResolvedValueOnce({ data: { publicKey: 'pubkey123', bio: '', socials: { twitter: '', discord: '', website: '', slingshot: '', axiom: '', vector: '' }, pfp: '', domain: 'my.sol', points:0, pointsToday:0, pointsDate:'today', pesos:0 } });
+    (apiMock.post as jest.Mock).mockResolvedValue({ data: { count: 1, liked: true } });
     render(<I18nextProvider i18n={i18n}><UserProfile /></I18nextProvider>);
     const btn = await screen.findByLabelText('like');
     fireEvent.click(btn);

@@ -25,6 +25,9 @@ export interface TrenchUser {
     twitter?: string;
     discord?: string;
     website?: string;
+    slingshot?: string;
+    axiom?: string;
+    vector?: string;
   };
 }
 

@@ -182,6 +182,9 @@ public class User extends PanacheMongoEntity {
         private String twitter = "";
         private String discord = "";
         private String website = "";
+        private String slingshot = "";
+        private String axiom = "";
+        private String vector = "";
 
         public String getTwitter() {
             return twitter;
@@ -205,6 +208,30 @@ public class User extends PanacheMongoEntity {
 
         public void setWebsite(String website) {
             this.website = website;
+        }
+
+        public String getSlingshot() {
+            return slingshot;
+        }
+
+        public void setSlingshot(String slingshot) {
+            this.slingshot = slingshot;
+        }
+
+        public String getAxiom() {
+            return axiom;
+        }
+
+        public void setAxiom(String axiom) {
+            this.axiom = axiom;
+        }
+
+        public String getVector() {
+            return vector;
+        }
+
+        public void setVector(String vector) {
+            this.vector = vector;
         }
     }
 }
