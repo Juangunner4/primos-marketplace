@@ -14,6 +14,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import WorkIcon from '@mui/icons-material/Work';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -31,6 +32,7 @@ const SidebarNav: React.FC = () => {
     { to: '/', icon: <HomeIcon />, label: t('home'), show: true, end: true },
     { to: '/market', icon: <StorefrontIcon />, label: t('market_title'), show: true },
     { to: '/docs', icon: <MenuBookIcon />, label: t('docs_title'), show: true },
+    { to: '/trenches', icon: <MilitaryTechIcon />, label: t('experiment3_title'), show: true },
     {
       to: '/collected',
       icon: <WorkIcon />,

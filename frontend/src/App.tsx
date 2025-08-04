@@ -93,7 +93,7 @@ const LanguageButtons: React.FC = () => {
 
 const Header: React.FC = () => {
   const { publicKey } = useWallet();
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === '/profile';
@@ -166,7 +166,7 @@ const Header: React.FC = () => {
         </Box>
         <span className="beta-text">{t('beta')}</span>
         <Box sx={{ ml: 8 }}>
-          <img src={logo} alt={t('logo_alt')} className="logo logo-left logo-float" style={{ marginLeft: '60px', height: 48 }} />
+          <img src={logo} alt={t('logo_alt')} className="logo logo-left logo-float" style={{ height: 48 }} />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
           {publicKey && (
@@ -208,7 +208,7 @@ const Header: React.FC = () => {
 
 const AppRoutes = () => {
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, userExists, artTeam } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -260,11 +260,11 @@ const AppRoutes = () => {
           {publicKey && (isHolder || betaRedeemed) && userExists && (
             <>
               <Route path="/collected" element={<NFTGallery />} />
-              <Route path="/labs"      element={<PrimoLabs />} />
+              <Route path="/labs" element={<PrimoLabs />} />
               <Route path="/experiment1" element={<Experiment1 />} />
               <Route path="/stickers" element={<Stickers />} />
               <Route path="/work" element={<Work />} />
-              <Route path="/profile"   element={<UserProfile />} />
+              <Route path="/profile" element={<UserProfile />} />
             </>
           )}
           <Route path="/trenches" element={<Trenches />} />
