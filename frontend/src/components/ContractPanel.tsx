@@ -46,6 +46,14 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Format large numbers into human-readable strings with suffixes
+  const formatMarketCap = (cap: number): string => {
+    if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
+    if (cap >= 1e6) return `$${(cap / 1e6).toFixed(2)}M`;
+    if (cap >= 1e3) return `$${(cap / 1e3).toFixed(2)}K`;
+    return `$${cap.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  };
+
   const geckoIcons: Record<string, JSX.Element> = {
     price: <AttachMoneyIcon fontSize="small" />,
     market_cap: <BarChartIcon fontSize="small" />,
@@ -227,10 +235,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   {t('market_cap_at_call')}
                 </Typography>
                 <Typography variant="body2">
-                  {callerInfo.marketCap ? `$${callerInfo.marketCap.toLocaleString(undefined, {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                  })}` : 'N/A'}
+                  {callerInfo.marketCap != null ? formatMarketCap(callerInfo.marketCap) : 'N/A'}
                 </Typography>
                 {callerInfo.marketCap && coinGeckoData.length > 0 && (
                   <Typography variant="caption" sx={{ color: '#888', fontSize: '0.75rem', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 0.5 }}>
