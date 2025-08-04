@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '../../i18n';
@@ -41,8 +41,11 @@ describe('Trenches page', () => {
         </I18nextProvider>
       </MemoryRouter>
     );
-    expect(screen.getByText(/Trenches/i)).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Add Contract/i })).toBeDisabled();
+    expect(screen.getByRole('heading', { name: /Trenches/i })).toBeTruthy();
+    expect(
+      (screen.getByRole('button', { name: /Add Contract/i }) as HTMLButtonElement)
+        .disabled
+    ).toBe(true);
     expect(screen.getByRole('button', { name: /My Contracts/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /All Contracts/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Scanner/i })).toBeTruthy();
@@ -106,8 +109,12 @@ describe('Trenches page', () => {
     allBtn.click();
     const bubble = await screen.findByLabelText('c1');
     bubble.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(tokenService.fetchTokenMetadata).toHaveBeenCalledWith('c1');
-    expect(api.get).toHaveBeenCalledWith('/api/telegram/c1');
+    await waitFor(() =>
+      expect(tokenService.fetchTokenMetadata).toHaveBeenCalledWith('c1')
+    );
+    await waitFor(() =>
+      expect(api.get).toHaveBeenCalledWith('/api/telegram/c1')
+    );
     expect(await screen.findByText(/Telegram Data/i)).toBeTruthy();
   });
 });
