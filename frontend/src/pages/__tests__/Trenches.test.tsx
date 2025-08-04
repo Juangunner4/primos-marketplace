@@ -5,8 +5,13 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '../../i18n';
 import Trenches from '../Trenches';
 import * as trenchService from '../../services/trench';
-import * as telegramService from '../../services/telegram';
 import * as tokenService from '../../services/token';
+import api from '../../utils/api';
+
+jest.mock('@solana/wallet-adapter-react', () => ({
+  useWallet: () => ({ publicKey: null }),
+  useConnection: () => ({ connection: {} }),
+}));
 
 jest.mock('../../services/trench', () => ({
   fetchTrenchData: jest.fn(() =>
@@ -17,11 +22,14 @@ jest.mock('../../services/trench', () => ({
   ),
   submitTrenchContract: jest.fn(() => Promise.resolve()),
 }));
-jest.mock('../../services/telegram', () => ({
-  fetchTelegramData: jest.fn(() => Promise.resolve([])),
-}));
 jest.mock('../../services/token', () => ({
   fetchTokenMetadata: jest.fn(() => Promise.resolve({})),
+}));
+jest.mock('../../utils/api', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(() => Promise.resolve({ data: {} })),
+  },
 }));
 
 describe('Trenches page', () => {
@@ -76,13 +84,16 @@ describe('Trenches page', () => {
     const allContractsButton = screen.getByRole('button', { name: /All Contracts/i });
     allContractsButton.click();
 
-    expect(await screen.findByText('c1')).toBeTruthy();
+    expect(await screen.findByLabelText('c1')).toBeTruthy();
   });
 
   test('opens telegram panel on bubble click', async () => {
     (trenchService.fetchTrenchData as jest.Mock).mockResolvedValueOnce({
-      contracts: [{ contract: 'c1', count: 1 }],
-      users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
+      contracts: [{ contract: 'c1', count: 2 }],
+      users: [
+        { publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] },
+        { publicKey: 'u2', pfp: '', count: 1, contracts: ['c1'] },
+      ],
     });
     render(
       <MemoryRouter>
@@ -93,10 +104,10 @@ describe('Trenches page', () => {
     );
     const allBtn = screen.getByRole('button', { name: /All Contracts/i });
     allBtn.click();
-    const bubble = await screen.findByText('c1');
+    const bubble = await screen.findByLabelText('c1');
     bubble.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(telegramService.fetchTelegramData).toHaveBeenCalledWith('c1');
     expect(tokenService.fetchTokenMetadata).toHaveBeenCalledWith('c1');
+    expect(api.get).toHaveBeenCalledWith('/api/telegram/c1');
     expect(await screen.findByText(/Telegram Data/i)).toBeTruthy();
   });
 });
