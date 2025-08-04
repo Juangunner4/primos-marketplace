@@ -206,27 +206,29 @@
   "experiment2_title": "Calcomanías",
   "experiment2_desc": "Ordena calcomanías de tus Primos NFTs con códigos QR que enlazan al marketplace y a tus redes. El 5% del costo apoya al DAO.",
   "order_sticker": "Pedir calcomanía",
-  "stickers_order_thanks": "¡Pronto podrás completar tu pedido!"
- ,"experiment3_title": "Trincheras"
- ,"experiment3_desc": "Ingresa direcciones de contrato para hacer crecer las trincheras. Las burbujas aumentan al unirse más usuarios."
- ,"enter_contract": "Ingresa dirección de contrato"
- ,"add_contract": "Agregar Contrato"
- ,"my_contracts": "Mis Contratos"
- ,"all_users": "Todos los Usuarios"
- ,"all_contracts": "Todos los Contratos"
- ,"scanner": "Escáner"
- ,"no_scans": "Aún no has escaneado contratos."
- ,"work_title": "Solicitudes de Arte"
- ,"work_join_label": "Seleccionar Grupos de Trabajo"
- ,"work_group_label": "Grupo de Trabajo"
- ,"work_art": "Arte"
- ,"work_dev": "Desarrollo"
- ,"work_other": "Otros"
- ,"work_request_placeholder": "Describe tu solicitud"
- ,"work_submit": "Enviar"
-  ,"work_pick": "Tomar"
-  ,"work_assigned_to": "Asignado a"
-  ,"work_no_groups": "No perteneces a ning\u00fan grupo de trabajo. \u00danete en tu perfil."
-  ,"telegram_data": "Datos de Telegram"
-  ,"telegram_error": "Error al cargar datos"
+  "stickers_order_thanks": "¡Pronto podrás completar tu pedido!",
+  "experiment3_title": "Trincheras",
+  "experiment3_desc": "Ingresa direcciones de contrato para hacer crecer las trincheras. Las burbujas aumentan al unirse más usuarios.",
+  "enter_contract": "Ingresa dirección de contrato",
+  "add_contract": "Agregar Contrato",
+  "my_contracts": "Mis Contratos",
+  "all_users": "Todos los Usuarios",
+  "all_contracts": "Todos los Contratos",
+  "scanner": "Escáner",
+  "no_scans": "Aún no has escaneado contratos.",
+  "work_title": "Solicitudes de Arte",
+  "work_join_label": "Seleccionar Grupos de Trabajo",
+  "work_group_label": "Grupo de Trabajo",
+  "work_art": "Arte",
+  "work_dev": "Desarrollo",
+  "work_other": "Otros",
+  "work_request_placeholder": "Describe tu solicitud",
+  "work_submit": "Enviar",
+  "work_pick": "Tomar",
+  "work_assigned_to": "Asignado a",
+  "work_no_groups": "No perteneces a ningún grupo de trabajo. Únete en tu perfil.",
+  "telegram_data": "Datos de Telegram",
+  "telegram_error": "Error al cargar datos",
+  "token_metadata": "Metadatos del token",
+  "token_error": "Error al cargar metadatos"
 }

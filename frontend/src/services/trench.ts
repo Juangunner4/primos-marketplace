@@ -9,6 +9,7 @@ export interface TrenchContract {
   count: number;
   source?: string;
   model?: string;
+  image?: string;
 }
 
 export interface TrenchUser {
@@ -25,6 +26,12 @@ export interface TrenchData {
 
 export const fetchTrenchData = async (): Promise<TrenchData> => {
   const res = await api.get<TrenchData>('/api/trench');
+  const contracts = await Promise.all(
+    res.data.contracts.map(async (c) => {
+      const nft = await getNFTByTokenAddress(c.contract);
+      return { ...c, image: nft?.image } as TrenchContract;
+    })
+  );
   const users = await Promise.all(
     res.data.users.map(async (u) => {
       let image = '';
@@ -41,7 +48,7 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
       return { ...u, pfp: image } as TrenchUser;
     })
   );
-  return { contracts: res.data.contracts, users };
+  return { contracts, users };
 };
 
 export const submitTrenchContract = async (

@@ -11,6 +11,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
 import { fetchTrenchData, submitTrenchContract } from '../services/trench';
 import TelegramPanel from '../components/TelegramPanel';
+import TokenPanel from '../components/TokenPanel';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import './Trenches.css';
@@ -187,7 +188,12 @@ const Trenches: React.FC = () => {
                     <Box
                       key={c}
                       className="bubble"
-                      sx={{ width: size, height: size, fontSize: size / 5 }}
+                      sx={{
+                        width: size,
+                        height: size,
+                        fontSize: size / 5,
+                        backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                      }}
                       onClick={() => setOpenContract(c)}
                     >
                       {short}
@@ -252,11 +258,17 @@ const Trenches: React.FC = () => {
                   40,
                   Math.min(100, 40 + count * 10)
                 );
+                const meta = data.contracts.find((cc) => cc.contract === c);
                 return (
                   <Box
                     key={c}
                     className="bubble"
-                    sx={{ width: size, height: size, fontSize: size / 5 }}
+                    sx={{
+                      width: size,
+                      height: size,
+                      fontSize: size / 5,
+                      backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                    }}
                     onClick={() => setOpenContract(c)}
                   >
                     {short}
@@ -298,11 +310,17 @@ const Trenches: React.FC = () => {
                   40,
                   Math.min(100, 40 + c.count * 10)
                 );
+                const meta = data.contracts.find((cc) => cc.contract === c.contract);
                 return (
                   <Box
                     key={c.contract}
                     className="bubble"
-                    sx={{ width: size, height: size, fontSize: size / 5 }}
+                    sx={{
+                      width: size,
+                      height: size,
+                      fontSize: size / 5,
+                      backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                    }}
                     onClick={() => setOpenContract(c.contract)}
                   >
                     {short}
@@ -341,11 +359,17 @@ const Trenches: React.FC = () => {
                     ? `${c.contract.slice(0, 3)}...${c.contract.slice(-4)}`
                     : c.contract;
                 const size = 60;
+                const meta = data.contracts.find((cc) => cc.contract === c.contract);
                 return (
                   <Box
                     key={c.contract}
                     className="bubble"
-                    sx={{ width: size, height: size, fontSize: size / 5 }}
+                    sx={{
+                      width: size,
+                      height: size,
+                      fontSize: size / 5,
+                      backgroundImage: meta?.image ? `url(${meta.image})` : undefined,
+                    }}
                     onClick={() => setOpenContract(c.contract)}
                   >
                     {short}
@@ -369,6 +393,11 @@ const Trenches: React.FC = () => {
         </>
       )}
       <TelegramPanel
+        contract={openContract}
+        open={openContract !== null}
+        onClose={() => setOpenContract(null)}
+      />
+      <TokenPanel
         contract={openContract}
         open={openContract !== null}
         onClose={() => setOpenContract(null)}

@@ -6,6 +6,7 @@ import i18n from '../../i18n';
 import Trenches from '../Trenches';
 import * as trenchService from '../../services/trench';
 import * as telegramService from '../../services/telegram';
+import * as tokenService from '../../services/token';
 
 jest.mock('../../services/trench', () => ({
   fetchTrenchData: jest.fn(() =>
@@ -18,6 +19,9 @@ jest.mock('../../services/trench', () => ({
 }));
 jest.mock('../../services/telegram', () => ({
   fetchTelegramData: jest.fn(() => Promise.resolve([])),
+}));
+jest.mock('../../services/token', () => ({
+  fetchTokenMetadata: jest.fn(() => Promise.resolve({})),
 }));
 
 describe('Trenches page', () => {
@@ -92,6 +96,7 @@ describe('Trenches page', () => {
     const bubble = await screen.findByText('c1');
     bubble.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(telegramService.fetchTelegramData).toHaveBeenCalledWith('c1');
+    expect(tokenService.fetchTokenMetadata).toHaveBeenCalledWith('c1');
     expect(await screen.findByText(/Telegram Data/i)).toBeTruthy();
   });
 });
