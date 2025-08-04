@@ -47,11 +47,11 @@
 
 .caller-tag {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  border: 1px solid #000;
-  width: 16px;
-  height: 16px;
+  top: 50%;
+  right: -40px; 
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
 }
 
 .count-tag {
@@ -102,10 +102,12 @@
     padding: 0 1px;
   }
   .caller-tag {
-    width: 14px;
-    height: 14px;
-    bottom: -2px;
-    right: -2px;
+    width: 30px;
+    height: 30px;
+    right: -45px; /* float half outside */
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
   }
   .count-tag {
     font-size: 8px;
