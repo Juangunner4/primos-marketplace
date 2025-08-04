@@ -1,18 +1,22 @@
 package com.primos.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.primos.model.TrenchContract;
 import com.primos.model.TrenchUser;
 import com.primos.model.User;
-import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.List;
-import java.util.ArrayList;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
 
 @ApplicationScoped
 public class TrenchService {
     private static final long MIN_SUBMIT_INTERVAL_MS = 60_000; // 1 minute cooldown
+
     public void add(String publicKey, String contract, String source, String model) {
+        long now = System.currentTimeMillis();
+
         TrenchContract tc = TrenchContract.find("contract", contract).firstResult();
         if (tc == null) {
             tc = new TrenchContract();
@@ -21,6 +25,10 @@ public class TrenchService {
             tc.setSource(source);
             tc.setModel(model);
             tc.setFirstCaller(publicKey);
+            tc.setFirstCallerAt(now);
+            // TODO: Set market cap and domain from external APIs if needed
+            // tc.setFirstCallerMarketCap(marketCap);
+            // tc.setFirstCallerDomain(domain);
             tc.persist();
         } else {
             tc.setCount(tc.getCount() + 1);
@@ -28,7 +36,6 @@ public class TrenchService {
         }
 
         TrenchUser tu = TrenchUser.find("publicKey", publicKey).firstResult();
-        long now = System.currentTimeMillis();
         if (tu == null) {
             tu = new TrenchUser();
             tu.setPublicKey(publicKey);
@@ -45,7 +52,8 @@ public class TrenchService {
             }
             tu.setCount(tu.getCount() + 1);
             java.util.List<String> list = tu.getContracts();
-            if (list == null) list = new ArrayList<>();
+            if (list == null)
+                list = new ArrayList<>();
             if (!list.contains(contract)) {
                 list.add(contract);
             }

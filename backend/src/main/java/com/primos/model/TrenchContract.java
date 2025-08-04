@@ -10,6 +10,9 @@ public class TrenchContract extends PanacheMongoEntity {
     private String source;
     private String model;
     private String firstCaller;
+    private Long firstCallerAt;
+    private Double firstCallerMarketCap;
+    private String firstCallerDomain;
 
     public String getContract() {
         return contract;
@@ -49,5 +52,29 @@ public class TrenchContract extends PanacheMongoEntity {
 
     public void setFirstCaller(String firstCaller) {
         this.firstCaller = firstCaller;
+    }
+
+    public Long getFirstCallerAt() {
+        return firstCallerAt;
+    }
+
+    public void setFirstCallerAt(Long firstCallerAt) {
+        this.firstCallerAt = firstCallerAt;
+    }
+
+    public Double getFirstCallerMarketCap() {
+        return firstCallerMarketCap;
+    }
+
+    public void setFirstCallerMarketCap(Double firstCallerMarketCap) {
+        this.firstCallerMarketCap = firstCallerMarketCap;
+    }
+
+    public String getFirstCallerDomain() {
+        return firstCallerDomain;
+    }
+
+    public void setFirstCallerDomain(String firstCallerDomain) {
+        this.firstCallerDomain = firstCallerDomain;
     }
 }

@@ -1,22 +1,23 @@
 package com.primos.resource;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.primos.model.TrenchContract;
 import com.primos.model.TrenchUser;
 import com.primos.model.User;
 import com.primos.service.TrenchService;
+
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MediaType;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Path("/api/trench")
 @Produces(MediaType.APPLICATION_JSON)
@@ -30,6 +31,7 @@ public class TrenchResource {
         public String pfp;
         public int count;
         public java.util.List<String> contracts;
+        public User.SocialLinks socials;
     }
 
     public static class TrenchData {
@@ -58,6 +60,7 @@ public class TrenchResource {
             info.count = u.getCount();
             User user = User.find("publicKey", u.getPublicKey()).firstResult();
             info.pfp = user != null ? user.getPfp() : "";
+            info.socials = user != null ? user.getSocials() : new User.SocialLinks();
             info.contracts = u.getContracts();
             return info;
         }).collect(Collectors.toList());
