@@ -22,12 +22,14 @@ interface TelegramData {
   fdvUsd?: number;
   volume24hUsd?: number;
   change1hPercent?: number;
+  marketCap?: number;
+  holders?: number;
+  buys24h?: number;
   tickerBase?: string;
   tickerTarget?: string;
   tickerMarketName?: string;
   tickerMarketIdentifier?: string;
   hasTradingIncentive?: boolean;
-  topHolders?: number;
 }
 
 const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }) => {
@@ -77,12 +79,12 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
   const telegramEntries = [
     { id: '1', label: '🌐', type: 'ticker' },
     { id: '2', label: '💹 MCap', key: 'marketCap' },
-    { id: '2', label: '💰 USD', key: 'priceUsd' },
-    { id: '3', label: '💎 FDV', key: 'fdvUsd' },
-    { id: '4', label: '💦 Liq', key: null },
+    { id: '3', label: '💰 USD', key: 'priceUsd' },
+    { id: '4', label: '💎 FDV', key: 'fdvUsd' },
     { id: '5', label: '📊 Vol', key: 'volume24hUsd' },
-    { id: '6', label: '📈 1H', key: 'change1hPercent' },
-    { id: '7', label: '👥 TH', key: 'topHolders' },
+    { id: '6', label: '🛒 Buys', key: 'buys24h' },
+    { id: '7', label: '👥 Holders', key: 'holders' },
+    { id: '8', label: '📈 1H', key: 'change1hPercent' },
   ].map(({ id, label, key, type }) => {
     let value = '—';
     const data = telegram;
