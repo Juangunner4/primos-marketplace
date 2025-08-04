@@ -8,17 +8,21 @@ import com.primos.model.TrenchUser;
 import com.primos.model.User;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 
 @ApplicationScoped
 public class TrenchService {
     private static final long MIN_SUBMIT_INTERVAL_MS = 60_000; // 1 minute cooldown
 
+    @Inject
+    CoinGeckoService coinGeckoService;
+
     public void add(String publicKey, String contract, String source, String model) {
-        add(publicKey, contract, source, model, null, null);
+        add(publicKey, contract, source, model, null);
     }
 
-    public void add(String publicKey, String contract, String source, String model, Double marketCap, String domain) {
+    public void add(String publicKey, String contract, String source, String model, String domain) {
         long now = System.currentTimeMillis();
 
         TrenchContract tc = TrenchContract.find("contract", contract).firstResult();
@@ -30,6 +34,7 @@ public class TrenchService {
             tc.setModel(model);
             tc.setFirstCaller(publicKey);
             tc.setFirstCallerAt(now);
+            Double marketCap = coinGeckoService.fetchMarketCap(contract);
             tc.setFirstCallerMarketCap(marketCap);
             tc.setFirstCallerDomain(domain);
             tc.persist();

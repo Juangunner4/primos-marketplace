@@ -10,6 +10,12 @@ public class TrenchServiceTest {
     @Test
     public void testAddIncrementsCounts() {
         TrenchService svc = new TrenchService();
+        svc.coinGeckoService = new CoinGeckoService() {
+            @Override
+            public Double fetchMarketCap(String contract) {
+                return 1000.0;
+            }
+        };
         svc.add("u1", "ca1", "website", null);
         assertThrows(jakarta.ws.rs.BadRequestException.class, () -> svc.add("u1", "ca1", "website", null));
         svc.add("u2", "ca1", "website", null);
