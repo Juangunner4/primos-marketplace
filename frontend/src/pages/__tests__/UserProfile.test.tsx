@@ -37,6 +37,11 @@ jest.mock('../../utils/api', () => ({
   }}))
 }));
 
+jest.mock('../../utils/sns', () => ({
+  getPrimaryDomainName: jest.fn(() => Promise.resolve('my.sol')),
+  verifyDomainOwnership: jest.fn(),
+}));
+
 jest.mock('../../services/helius', () => ({
   getAssetsByCollection: jest.fn(() => Promise.resolve([{ id: 't1', image: 'i', name: 'n', listed: false }])),
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
@@ -63,6 +68,17 @@ describe('UserProfile', () => {
 
     const walletText = await screen.findByText(/Wallet/i);
     expect(walletText.textContent).toContain('my.sol');
+  });
+
+  test('shows SNS badge when domain present', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    render(
+      <I18nextProvider i18n={i18n}>
+        <UserProfile />
+      </I18nextProvider>
+    );
+
+    expect(await screen.findByLabelText('sns-badge')).toBeTruthy();
   });
 
   test('renders twitter and website links', async () => {
