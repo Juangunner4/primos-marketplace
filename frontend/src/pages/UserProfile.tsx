@@ -307,12 +307,12 @@ const fadeOut = keyframes`
         {pfpImage && (
           <Box display="flex" justifyContent="center" mb={2} position="relative">
             <Avatar src={pfpImage} sx={{ width: 120, height: 120, border: '2px solid #000' }} />
-            {user?.badges && (
+            {(user?.badges?.length || primaryDomain) && (
               <Box className="badge-container">
-                {user.badges.includes('sns') && (
-                  <AlternateEmailIcon className="badge-icon" />
+                {(user?.badges?.includes('sns') || primaryDomain) && (
+                  <AlternateEmailIcon className="badge-icon" aria-label="sns-badge" />
                 )}
-                {user.badges.includes('trenches') && (
+                {user?.badges?.includes('trenches') && (
                   <TerrainIcon className="badge-icon" />
                 )}
               </Box>
