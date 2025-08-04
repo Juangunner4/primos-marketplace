@@ -6,7 +6,6 @@ import i18n from '../../i18n';
 import Trenches from '../Trenches';
 import * as trenchService from '../../services/trench';
 import * as tokenService from '../../services/token';
-import api from '../../utils/api';
 
 jest.mock('@solana/wallet-adapter-react', () => ({
   useWallet: () => ({ publicKey: null }),
@@ -24,12 +23,7 @@ jest.mock('../../services/trench', () => ({
 }));
 jest.mock('../../services/token', () => ({
   fetchTokenMetadata: jest.fn(() => Promise.resolve({})),
-}));
-jest.mock('../../utils/api', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(() => Promise.resolve({ data: {} })),
-  },
+  fetchTokenInfo: jest.fn(() => Promise.resolve(null)),
 }));
 
 describe('Trenches page', () => {
@@ -113,8 +107,8 @@ describe('Trenches page', () => {
       expect(tokenService.fetchTokenMetadata).toHaveBeenCalledWith('c1')
     );
     await waitFor(() =>
-      expect(api.get).toHaveBeenCalledWith('/api/telegram/c1')
+      expect(tokenService.fetchTokenInfo).toHaveBeenCalledWith('c1')
     );
-    expect(await screen.findByText(/Telegram Data/i)).toBeTruthy();
+    expect(await screen.findByText(/Token Metadata/i)).toBeTruthy();
   });
 });

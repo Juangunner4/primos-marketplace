@@ -6,8 +6,12 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { useTranslation } from 'react-i18next';
-import { fetchTokenMetadata, TokenMetadata } from '../services/token';
-import { getTokenInfo, HeliusTokenInfo } from '../services/helius';
+import {
+  fetchTokenMetadata,
+  fetchTokenInfo,
+  TokenMetadata,
+  TokenInfo,
+} from '../services/token';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
@@ -35,7 +39,7 @@ interface TelegramData {
 const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }) => {
   const { t } = useTranslation();
   const [token, setToken] = useState<TokenMetadata | null>(null);
-  const [tokenInfo, setTokenInfo] = useState<HeliusTokenInfo | null>(null);
+  const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,8 +55,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
     setError(null);
     Promise.all([
       Promise.resolve(fetchTokenMetadata(contract)).catch(() => null),
-      Promise.resolve(getTokenInfo(contract)).catch((err) => {
-        console.error('getTokenInfo error', err);
+      Promise.resolve(fetchTokenInfo(contract)).catch((err) => {
+        console.error('fetchTokenInfo error', err);
         return null;
       }),
     ])
