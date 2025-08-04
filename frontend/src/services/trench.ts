@@ -10,6 +10,7 @@ export interface TrenchContract {
   source?: string;
   model?: string;
   image?: string;
+  firstCaller?: string;
 }
 
 export interface TrenchUser {

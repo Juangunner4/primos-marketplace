@@ -15,19 +15,20 @@ jest.mock('@solana/wallet-adapter-react', () => ({
 jest.mock('../../services/trench', () => ({
   fetchTrenchData: jest.fn(() =>
     Promise.resolve({
-      contracts: [{ contract: 'c1', count: 1 }],
+      contracts: [{ contract: 'c1', count: 1, firstCaller: 'u1' }],
       users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
     })
   ),
   submitTrenchContract: jest.fn(() => Promise.resolve()),
 }));
+
 jest.mock('../../services/token', () => ({
   fetchTokenMetadata: jest.fn(() => Promise.resolve({})),
   fetchTokenInfo: jest.fn(() => Promise.resolve(null)),
 }));
 
 describe('Trenches page', () => {
-  test('renders add button disabled', async () => {
+  test('renders without add button for guests', () => {
     render(
       <MemoryRouter>
         <I18nextProvider i18n={i18n}>
@@ -36,37 +37,13 @@ describe('Trenches page', () => {
       </MemoryRouter>
     );
     expect(screen.getByRole('heading', { name: /Trenches/i })).toBeTruthy();
-    expect(
-      (screen.getByRole('button', { name: /Add Contract/i }) as HTMLButtonElement)
-        .disabled
-    ).toBe(true);
-    expect(screen.getByRole('button', { name: /My Contracts/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /All Contracts/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Scanner/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Add Contract/i })).toBeNull();
   });
 
-  test('shows message when no contracts', async () => {
+  test('displays contract bubble and opens panel', async () => {
     (trenchService.fetchTrenchData as jest.Mock).mockResolvedValueOnce({
-      contracts: [],
-      users: [],
-    });
-    render(
-      <MemoryRouter>
-        <I18nextProvider i18n={i18n}>
-          <Trenches />
-        </I18nextProvider>
-      </MemoryRouter>
-    );
-    expect(await screen.findByText(/not scanned/i)).toBeTruthy();
-  });
-
-  test('displays shared contracts bubble map', async () => {
-    (trenchService.fetchTrenchData as jest.Mock).mockResolvedValueOnce({
-      contracts: [{ contract: 'c1', count: 2 }],
-      users: [
-        { publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] },
-        { publicKey: 'u2', pfp: '', count: 1, contracts: ['c1'] },
-      ],
+      contracts: [{ contract: 'c1', count: 1, firstCaller: 'u1' }],
+      users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
     });
 
     render(
@@ -77,38 +54,14 @@ describe('Trenches page', () => {
       </MemoryRouter>
     );
 
-    // Switch to All Contracts tab
-    const allContractsButton = screen.getByRole('button', { name: /All Contracts/i });
-    allContractsButton.click();
-
-    expect(await screen.findByLabelText('c1')).toBeTruthy();
-  });
-
-  test('opens telegram panel on bubble click', async () => {
-    (trenchService.fetchTrenchData as jest.Mock).mockResolvedValueOnce({
-      contracts: [{ contract: 'c1', count: 2 }],
-      users: [
-        { publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] },
-        { publicKey: 'u2', pfp: '', count: 1, contracts: ['c1'] },
-      ],
-    });
-    render(
-      <MemoryRouter>
-        <I18nextProvider i18n={i18n}>
-          <Trenches />
-        </I18nextProvider>
-      </MemoryRouter>
-    );
-    const allBtn = screen.getByRole('button', { name: /All Contracts/i });
-    allBtn.click();
     const bubble = await screen.findByLabelText('c1');
     bubble.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
     await waitFor(() =>
       expect(tokenService.fetchTokenMetadata).toHaveBeenCalledWith('c1')
     );
-    await waitFor(() =>
-      expect(tokenService.fetchTokenInfo).toHaveBeenCalledWith('c1')
-    );
+    await waitFor(() => expect(tokenService.fetchTokenInfo).toHaveBeenCalledWith('c1'));
     expect(await screen.findByText(/Token Metadata/i)).toBeTruthy();
   });
 });
+

@@ -9,6 +9,7 @@ public class TrenchContract extends PanacheMongoEntity {
     private int count;
     private String source;
     private String model;
+    private String firstCaller;
 
     public String getContract() {
         return contract;
@@ -40,5 +41,13 @@ public class TrenchContract extends PanacheMongoEntity {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public String getFirstCaller() {
+        return firstCaller;
+    }
+
+    public void setFirstCaller(String firstCaller) {
+        this.firstCaller = firstCaller;
     }
 }
