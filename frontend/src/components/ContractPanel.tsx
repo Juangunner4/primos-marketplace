@@ -124,7 +124,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
           <Box className="token-panel">
             <Typography className="dialog-title">{t('token_metadata')}</Typography>
             {token ? (
-              <>
+              <Box className="token-info">
                 {token.image && (
                   <Box
                     component="img"
@@ -133,14 +133,16 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
                     className="token-image"
                   />
                 )}
-                {Object.entries(token)
-                  .filter(([k]) => k !== 'image' && (token as any)[k])
-                  .map(([k, v]) => (
-                    <Typography key={k} variant="body2" sx={{ mb: 1 }}>
-                      {k}: {v as string}
-                    </Typography>
-                  ))}
-              </>
+                <Box className="token-metadata">
+                  {Object.entries(token)
+                    .filter(([k]) => k !== 'image' && (token as any)[k])
+                    .map(([k, v]) => (
+                      <Typography key={k} variant="body2" sx={{ mb: 1 }}>
+                        {k}: {v as string}
+                      </Typography>
+                    ))}
+                </Box>
+              </Box>
             ) : (
               <Typography variant="body2">{t('loading')}...</Typography>
             )}
