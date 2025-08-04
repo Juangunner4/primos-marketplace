@@ -9,31 +9,18 @@ import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
-import { fetchTrenchData, submitTrenchContract } from '../services/trench';
+import {
+  fetchTrenchData,
+  submitTrenchContract,
+  TrenchContract,
+  TrenchUser,
+  TrenchData,
+} from '../services/trench';
 import TelegramPanel from '../components/TelegramPanel';
 import TokenPanel from '../components/TokenPanel';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import './Trenches.css';
-
-interface TrenchContract {
-  contract: string;
-  count: number;
-  source?: string;
-  model?: string;
-}
-
-interface TrenchUser {
-  publicKey: string;
-  pfp: string;
-  count: number;
-  contracts: string[];
-}
-
-interface TrenchData {
-  contracts: TrenchContract[];
-  users: TrenchUser[];
-}
 
 const Trenches: React.FC = () => {
   const { publicKey } = useWallet();
