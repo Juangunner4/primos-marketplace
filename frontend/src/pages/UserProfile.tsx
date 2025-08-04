@@ -18,7 +18,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import TerrainIcon from '@mui/icons-material/Terrain';
-import { GiWhaleTail, GiFish, GiShrimp } from 'react-icons/gi';
+import { GiWhaleTail, GiAnglerFish, GiShrimp } from 'react-icons/gi';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
@@ -55,7 +55,7 @@ const getStatus = (count: number) => {
 
 const statusIcons: Record<string, JSX.Element> = {
   whale: <GiWhaleTail size={20} />,
-  fish: <GiFish size={20} />,
+  fish: <GiAnglerFish size={20} />,  
   shrimp: <GiShrimp size={20} />,
 };
 
