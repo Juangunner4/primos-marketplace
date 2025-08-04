@@ -35,7 +35,8 @@ public class CoinGeckoProxyResource {
             @QueryParam("include_market_cap") String includeMarketCap,
             @QueryParam("include_24hr_vol") String include24hrVol,
             @QueryParam("include_24hr_change") String include24hrChange,
-            @QueryParam("include_last_updated_at") String includeLastUpdatedAt) {
+            @QueryParam("include_last_updated_at") String includeLastUpdatedAt,
+            @QueryParam("x_cg_demo_api_key") String demoApiKey) {
 
         try {
             StringBuilder urlBuilder = new StringBuilder()
@@ -61,6 +62,9 @@ public class CoinGeckoProxyResource {
             }
             if (includeLastUpdatedAt != null) {
                 urlBuilder.append("include_last_updated_at=").append(includeLastUpdatedAt).append("&");
+            }
+            if (demoApiKey != null) {
+                urlBuilder.append("x_cg_demo_api_key=").append(demoApiKey).append("&");
             }
 
             String url = urlBuilder.toString();

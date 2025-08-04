@@ -202,16 +202,25 @@ const setCached = (key: string, data: any) => {
 let lastRequestTime = 0;
 const MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
 
-const rateLimitedFetch = async (url: string, options?: RequestInit): Promise<Response> => {
-  const now = Date.now();
-  const timeSinceLastRequest = now - lastRequestTime;
-  
-  if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
-    await new Promise(resolve => setTimeout(resolve, MIN_REQUEST_INTERVAL - timeSinceLastRequest));
-  }
-  
-  lastRequestTime = Date.now();
-  return fetch(url, options);
+// Ensure requests are queued to avoid hitting CoinGecko's strict rate limits
+let fetchQueue: Promise<any> = Promise.resolve();
+
+const rateLimitedFetch = async (
+  url: string,
+  options?: RequestInit
+): Promise<Response> => {
+  fetchQueue = fetchQueue.then(async () => {
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, MIN_REQUEST_INTERVAL - timeSinceLastRequest)
+      );
+    }
+    lastRequestTime = Date.now();
+    return fetch(url, options);
+  });
+  return fetchQueue;
 };
 
 /**
@@ -222,7 +231,8 @@ const rateLimitedFetch = async (url: string, options?: RequestInit): Promise<Res
  */
 export const fetchSimpleTokenPrice = async (
   contractAddress: string,
-  network: string = 'solana'
+  network: string = 'solana',
+  retries = 1
 ): Promise<CoinGeckoTokenPrice | null> => {
   const cacheKey = `simple-price-${network}-${contractAddress}`;
   const cached = getCached<CoinGeckoTokenPrice>(cacheKey);
@@ -230,12 +240,25 @@ export const fetchSimpleTokenPrice = async (
 
   try {
     // Use backend proxy to avoid CORS issues
-    const url = `/api/coingecko/simple/token_price/${network}?contract_addresses=${contractAddress}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true`;
-    
+    const apiKey = process.env.REACT_APP_COINGECKO_API_KEY;
+    const url =
+      `/api/coingecko/simple/token_price/${network}?contract_addresses=${contractAddress}` +
+      `&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true` +
+      (apiKey ? `&x_cg_demo_api_key=${apiKey}` : '');
+
     const response = await rateLimitedFetch(url);
-    
+
+    if (response.status === 429 && retries > 0) {
+      // Respect rate limit by waiting briefly before retrying
+      const retryAfter = parseInt(response.headers.get('retry-after') || '2', 10);
+      await new Promise((r) => setTimeout(r, retryAfter * 1000));
+      return fetchSimpleTokenPrice(contractAddress, network, retries - 1);
+    }
+
     if (!response.ok) {
-      console.error(`CoinGecko API error: ${response.status} ${response.statusText}`);
+      console.error(
+        `CoinGecko API error: ${response.status} ${response.statusText}`
+      );
       return null;
     }
     
