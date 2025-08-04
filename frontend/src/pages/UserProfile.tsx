@@ -18,6 +18,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import TerrainIcon from '@mui/icons-material/Terrain';
+import { GiWhaleTail, GiFish, GiShrimp } from 'react-icons/gi';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
@@ -50,6 +51,12 @@ const getStatus = (count: number) => {
   if (count >= 15) return 'whale';
   if (count >= 3) return 'fish';
   return 'shrimp';
+};
+
+const statusIcons: Record<string, JSX.Element> = {
+  whale: <GiWhaleTail size={20} />,
+  fish: <GiFish size={20} />,
+  shrimp: <GiShrimp size={20} />,
 };
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
@@ -468,7 +475,11 @@ const fadeOut = keyframes`
           disabled
         />
         <Typography mt={2}>
-          <strong>{t('status')}</strong> {t(getStatus(nfts.length))}
+          <strong>{t('status')}</strong>{' '}
+          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+            {statusIcons[getStatus(nfts.length)]}
+            {t(getStatus(nfts.length))}
+          </Box>
         </Typography>
         <Typography>
           <strong>{t('marketplace_balance')}</strong> {user.pesos} {t('pesos')}

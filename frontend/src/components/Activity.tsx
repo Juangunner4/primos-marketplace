@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import Drawer from '@mui/material/Drawer';
 import HistoryIcon from '@mui/icons-material/History';
 import CloseIcon from '@mui/icons-material/Close';
+import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
@@ -174,7 +175,7 @@ const Activity: React.FC = () => {
             )}
             {item.type === 'listing' ? (
               <span className="activity-pill listing-pill">
-                <span className="paper-hand" style={{ marginRight: 4 }}>🫲</span>{' '}
+                <PanToolAltIcon className="paper-hand" sx={{ mr: 0.5, fontSize: '1rem' }} />
                 {t('activity_listing')}
               </span>
             ) : (

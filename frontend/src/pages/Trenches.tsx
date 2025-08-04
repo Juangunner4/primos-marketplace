@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import { useTranslation } from 'react-i18next';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import { fetchTrenchData, submitTrenchContract, TrenchData } from '../services/trench';
 import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
@@ -122,8 +123,9 @@ const Trenches: React.FC = () => {
         maxWidth: '800px',
         margin: '0 auto 1.5rem auto'
       }}>
-        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-          🎯 {t('how_sentiment_works')}
+        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <TrackChangesIcon fontSize="small" />
+          {t('how_sentiment_works')}
         </Typography>
         <Typography variant="body2" sx={{ mb: 1, color: '#666' }}>
           {t('sentiment_explanation')}
