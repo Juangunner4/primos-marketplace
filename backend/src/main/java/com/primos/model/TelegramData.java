@@ -16,6 +16,10 @@ public class TelegramData {
     private String topHolderPercentages;
     // On-chain market cap from simple API
     private Double marketCap;
+    // Number of unique holders
+    private Integer holders;
+    // Number of buys in last 24h
+    private Integer buys24h;
 
     public String getTokenAddress() {
         return tokenAddress;
@@ -111,5 +115,21 @@ public class TelegramData {
 
     public void setMarketCap(Double marketCap) {
         this.marketCap = marketCap;
+    }
+
+    public Integer getHolders() {
+        return holders;
+    }
+
+    public void setHolders(Integer holders) {
+        this.holders = holders;
+    }
+
+    public Integer getBuys24h() {
+        return buys24h;
+    }
+
+    public void setBuys24h(Integer buys24h) {
+        this.buys24h = buys24h;
     }
 }
