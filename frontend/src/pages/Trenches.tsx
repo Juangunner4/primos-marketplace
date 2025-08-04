@@ -9,6 +9,7 @@ import Avatar from '@mui/material/Avatar';
 import { useTranslation } from 'react-i18next';
 import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import { fetchTrenchData, submitTrenchContract, TrenchData } from '../services/trench';
+import { fetchSimpleTokenPrice } from '../services/coingecko';
 import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
@@ -55,11 +56,10 @@ const Trenches: React.FC = () => {
     
     if (/^0x[0-9a-fA-F]{40}$/.test(input)) {
       try {
-        const res = await fetch(`https://api.coingecko.com/api/v3/coins/ethereum/contract/${input}`);
-        if (res.ok) {
-          const data = await res.json();
+        const data = await fetchSimpleTokenPrice(input, 'ethereum');
+        if (data) {
           valid = true;
-          marketCap = data.market_data?.market_cap?.usd;
+          marketCap = data.usd_market_cap;
         }
       } catch {}
     }
@@ -70,17 +70,11 @@ const Trenches: React.FC = () => {
         const info = await connection.getAccountInfo(addr);
         if (info) {
           valid = true;
-          // Try to get Solana token market cap from CoinGecko
+          // Try to get Solana token market cap from CoinGecko via backend proxy
           try {
-            const response = await fetch(
-              `https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${input}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true`
-            );
-            if (response.ok) {
-              const data = await response.json();
-              const tokenData = data[input.toLowerCase()];
-              if (tokenData?.usd_market_cap) {
-                marketCap = tokenData.usd_market_cap;
-              }
+            const tokenData = await fetchSimpleTokenPrice(input, 'solana');
+            if (tokenData?.usd_market_cap) {
+              marketCap = tokenData.usd_market_cap;
             }
           } catch (e) {
             console.warn('Failed to fetch market cap for token:', e);
