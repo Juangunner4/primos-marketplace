@@ -240,7 +240,14 @@ export const fetchSimpleTokenPrice = async (
     }
     
     const data = await response.json();
-    const tokenData = data[contractAddress.toLowerCase()];
+    // CoinGecko returns token data keyed exactly as the contract address is
+    // provided in the request for some networks (e.g. Solana). For these
+    // networks, lowercasing the address will result in a cache miss.
+    // Attempt to read the data using both the lowercased address (for
+    // case-insensitive chains like Ethereum) and the original address to
+    // support mixed-case identifiers.
+    const tokenData =
+      data[contractAddress.toLowerCase()] || data[contractAddress];
     
     if (!tokenData) {
       console.warn(`No price data found for contract ${contractAddress} on ${network}`);
