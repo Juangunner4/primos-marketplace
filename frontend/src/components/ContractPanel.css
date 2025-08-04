@@ -4,6 +4,10 @@
   inset: 0;
 }
 
+:root {
+  --navbar-height: 64px;
+}
+
 .contract-content {
   background: rgba(30, 30, 30, 0.9);
   color: #fff;
@@ -14,16 +18,30 @@
   max-width: 800px;
   box-sizing: border-box;
   position: fixed;
-  top: 50%;
+  top: var(--navbar-height);
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+  max-height: calc(95vh - var(--navbar-height));
+  overflow-y: auto;
 }
 
 .contract-close {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 8px;
+  right: 8px;
   color: #fff;
+  background: #333;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contract-close:hover {
+  background: #fff;
+  color: #000;
 }
 
 .contract-panels {

@@ -41,10 +41,11 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
     setLoading(true);
     setError(null);
     Promise.all([
-      fetchTokenMetadata(contract).catch(() => null),
-      api
-        .get<TelegramData>(`/api/telegram/${contract}`)
-        .then((res) => res.data)
+      Promise.resolve(fetchTokenMetadata(contract)).catch(() => null),
+      Promise.resolve(
+        api.get<TelegramData>(`/api/telegram/${contract}`)
+      )
+        .then((res) => res?.data)
         .catch((err) => {
           console.error(err);
           return null;
@@ -106,14 +107,15 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose }
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <Dialog.Overlay className="contract-overlay" />
       <Dialog.Content className="contract-content">
-        <IconButton
-          className="contract-close"
-          onClick={onClose}
-          aria-label={t('close')}
-          size="small"
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
+        <Dialog.Close asChild>
+          <IconButton
+            className="contract-close"
+            aria-label={t('close')}
+            size="small"
+          >
+            <CloseIcon fontSize="medium" />
+          </IconButton>
+        </Dialog.Close>
         {loading && <Typography variant="body2">{t('loading')}...</Typography>}
         {error && (
           <Typography color="error" variant="body2">
