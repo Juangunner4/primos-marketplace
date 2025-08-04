@@ -1,0 +1,26 @@
+.token-panel {
+  background: rgba(30, 30, 30, 0.9);
+  color: #fff;
+  border: 1px solid #888;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 90vw;
+  max-width: 380px;
+  position: fixed;
+  top: 50%;
+  left: calc(50% + 220px);
+  transform: translate(-50%, -50%);
+}
+
+.token-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: #fff;
+}
+
+@media (min-width: 700px) {
+  .token-panel {
+    max-width: 500px;
+  }
+}

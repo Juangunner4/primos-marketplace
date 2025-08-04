@@ -229,4 +229,6 @@
   ,"work_no_groups": "You are not part of any work groups. Join one in your profile."
   ,"telegram_data": "Telegram Data"
   ,"telegram_error": "Failed to load data"
+  ,"token_metadata": "Token Metadata"
+  ,"token_error": "Failed to load metadata"
 }
