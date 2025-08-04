@@ -12,6 +12,7 @@
   padding: 1rem;
   width: 90vw;
   max-width: 800px;
+  box-sizing: border-box;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -54,8 +55,12 @@
 
 @media (max-width: 700px) {
   .contract-content {
-    max-width: 380px;
+    width: 100vw;
+    max-width: 700px;
   }
+}
+
+@media (max-width: 500px) {
   .contract-panels {
     flex-direction: column;
   }
