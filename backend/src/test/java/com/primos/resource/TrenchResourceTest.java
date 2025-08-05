@@ -11,12 +11,12 @@ class TrenchResourceTest {
     void testAddAndGet() {
         TrenchResource res = new TrenchResource();
         TrenchService service = new TrenchService();
-        service.coinGeckoService = new CoinGeckoService() {
+        service.setCoinGeckoService(new CoinGeckoService() {
             @Override
             public Double fetchMarketCap(String contract) {
                 return 77.0;
             }
-        };
+        });
         res.service = service;
         res.add("w1", java.util.Map.of("contract", "ca1", "source", "website"));
         TrenchResource.TrenchData data = res.get();
