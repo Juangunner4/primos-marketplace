@@ -104,7 +104,15 @@ const Trenches: React.FC = () => {
       setInput('');
       await load();
     } catch (e: any) {
-      setMessage({ text: t('contract_already_added'), type: 'error' });
+      const errorMsg = e?.response?.data;
+      if (typeof errorMsg === 'string' && errorMsg.includes('Contract already added')) {
+        setInput('');
+        const userCount = counts[contract] || 0;
+        setOpenContract(contract);
+        setOpenContractUserCount(userCount);
+      } else {
+        setMessage({ text: t('contract_already_added'), type: 'error' });
+      }
     } finally {
       setAdding(false);
     }
