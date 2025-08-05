@@ -26,6 +26,11 @@
   max-width: 100%;
 }
 
+.primos-rank {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
 .primos-pills {
   display: flex;
   gap: 0.4rem;
