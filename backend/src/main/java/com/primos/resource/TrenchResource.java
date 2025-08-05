@@ -1,10 +1,12 @@
 package com.primos.resource;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.primos.model.TrenchContract;
+import com.primos.model.TrenchContractCaller;
 import com.primos.model.TrenchUser;
 import com.primos.model.User;
 import com.primos.service.TrenchService;
@@ -35,9 +37,19 @@ public class TrenchResource {
         public long lastSubmittedAt;
     }
 
+    public static class TrenchCallerInfo {
+        public String caller;
+        public String pfp;
+        public Long calledAt;
+        public Double marketCapAtCall;
+        public String domainAtCall;
+        public User.SocialLinks socials;
+    }
+
     public static class TrenchData {
         public List<TrenchContract> contracts;
         public List<TrenchUserInfo> users;
+        public Map<String, List<TrenchCallerInfo>> latestCallers;
     }
 
     @POST
@@ -74,6 +86,25 @@ public class TrenchResource {
             info.lastSubmittedAt = u.getLastSubmittedAt();
             return info;
         }).collect(Collectors.toList());
+
+        // Get latest callers for each contract
+        data.latestCallers = new HashMap<>();
+        for (TrenchContract contract : data.contracts) {
+            List<TrenchContractCaller> callers = service.getLatestCallersForContract(contract.getContract(), 4);
+            List<TrenchCallerInfo> callerInfos = callers.stream().map(caller -> {
+                TrenchCallerInfo info = new TrenchCallerInfo();
+                info.caller = caller.getCaller();
+                info.calledAt = caller.getCalledAt();
+                info.marketCapAtCall = caller.getMarketCapAtCall();
+                info.domainAtCall = caller.getDomainAtCall();
+                User user = User.find("publicKey", caller.getCaller()).firstResult();
+                info.pfp = user != null ? user.getPfp() : "";
+                info.socials = user != null ? user.getSocials() : new User.SocialLinks();
+                return info;
+            }).collect(Collectors.toList());
+            data.latestCallers.put(contract.getContract(), callerInfos);
+        }
+
         return data;
     }
 }

@@ -32,9 +32,26 @@ export interface TrenchUser {
   };
 }
 
+export interface TrenchCallerInfo {
+  caller: string;
+  pfp: string;
+  calledAt?: number;
+  marketCapAtCall?: number;
+  domainAtCall?: string;
+  socials?: {
+    twitter?: string;
+    discord?: string;
+    website?: string;
+    slingshot?: string;
+    axiom?: string;
+    vector?: string;
+  };
+}
+
 export interface TrenchData {
   contracts: TrenchContract[];
   users: TrenchUser[];
+  latestCallers: Record<string, TrenchCallerInfo[]>;
 }
 
 export const fetchTrenchData = async (): Promise<TrenchData> => {
@@ -44,9 +61,17 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
   const userPfpAddresses = res.data.users
     .map((u) => u.pfp?.replace(/"/g, ''))
     .filter((a): a is string => !!a);
+  
+  // Get all caller PFP addresses from latest callers
+  const latestCallerPfpAddresses = Object.values(res.data.latestCallers || {})
+    .flat()
+    .map((caller) => caller.pfp?.replace(/"/g, ''))
+    .filter((a): a is string => !!a);
+
   const nftMap = await getNFTsByTokenAddresses([
     ...contractAddresses,
     ...userPfpAddresses,
+    ...latestCallerPfpAddresses,
   ]);
 
   const contracts = res.data.contracts.map((c) => ({
@@ -71,7 +96,28 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
     })
   );
 
-  return { contracts, users };
+  // Process latest callers data
+  const latestCallers: Record<string, TrenchCallerInfo[]> = {};
+  for (const [contract, callers] of Object.entries(res.data.latestCallers || {})) {
+    latestCallers[contract] = await Promise.all(
+      callers.map(async (caller) => {
+        const pfpAddr = caller.pfp?.replace(/"/g, '');
+        let image = '';
+        if (pfpAddr && nftMap[pfpAddr]) {
+          image = nftMap[pfpAddr].image;
+        } else {
+          const nfts = await fetchCollectionNFTsForOwner(
+            caller.caller,
+            PRIMO_COLLECTION
+          );
+          image = nfts[0]?.image || '';
+        }
+        return { ...caller, pfp: image } as TrenchCallerInfo;
+      })
+    );
+  }
+
+  return { contracts, users, latestCallers };
 };
 
 export const submitTrenchContract = async (

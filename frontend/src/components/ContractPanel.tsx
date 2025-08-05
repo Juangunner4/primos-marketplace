@@ -21,7 +21,7 @@ import {
   TokenMetadata,
   TokenInfo,
 } from '../services/token';
-import { fetchTrenchData, TrenchData } from '../services/trench';
+import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
 import { fetchCoinGeckoData, CoinGeckoEntry } from '../services/coingecko';
 import './ContractPanel.css';
 
@@ -48,6 +48,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     axiom?: string;
     vector?: string;
   } | null>(null);
+  const [latestCallers, setLatestCallers] = useState<TrenchCallerInfo[]>([]);
   const [marketCapLoading, setMarketCapLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,6 +123,11 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           vector: user?.socials?.vector || '',
         });
       }
+      
+      // Set latest callers for this contract
+      if (contract && d.latestCallers[contract]) {
+        setLatestCallers(d.latestCallers[contract]);
+      }
     } catch (error) {
       console.error('Failed to load trench data:', error);
     } finally {
@@ -168,6 +174,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     setToken(null);
     setTokenInfo(null);
     setCoinGeckoData([]);
+    setCallerInfo(null);
+    setLatestCallers([]);
     setError(null);
     setLoading(false);
   }, [open]);
@@ -349,11 +357,11 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   {t('market_cap_at_call')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#000' }}>
-                  {marketCapLoading
-                    ? `${t('loading')}...`
-                    : callerInfo.marketCap != null
-                    ? formatMarketCap(callerInfo.marketCap)
-                    : 'N/A'}
+                  {(() => {
+                    if (marketCapLoading) return `${t('loading')}...`;
+                    if (callerInfo.marketCap != null) return formatMarketCap(callerInfo.marketCap);
+                    return 'N/A';
+                  })()}
                 </Typography>
                 {callerInfo.marketCap && !marketCapLoading && coinGeckoData.length > 0 && (
                   <Typography variant="caption" sx={{ color: '#888', fontSize: '0.75rem', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -365,6 +373,87 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             </Box>
           </Box>
         )}
+        
+        {/* Latest Callers */}
+        {latestCallers.length > 0 && (
+          <Box sx={{ mb: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              {t('latest_4_callers')}
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2 }}>
+              {latestCallers.map((caller, index) => (
+                <Box 
+                  key={`${caller.caller}-${index}`} 
+                  sx={{ 
+                    p: 1.5, 
+                    backgroundColor: '#f9f9f9', 
+                    borderRadius: 1, 
+                    border: '1px solid #ddd' 
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                      <Link to={`/user/${caller.caller}`} style={{ textDecoration: 'none' }}>
+                        <Avatar 
+                          src={caller.pfp} 
+                          alt={caller.caller} 
+                          sx={{ width: 32, height: 32, cursor: 'pointer' }} 
+                        />
+                      </Link>
+                      {caller.socials?.twitter && (
+                        <IconButton
+                          size="small"
+                          onClick={() => window.open(`https://x.com/${caller.socials!.twitter!.replace(/^@/, '')}`, '_blank')}
+                          aria-label="View X profile"
+                          sx={{
+                            position: 'absolute',
+                            top: -6,
+                            right: -6,
+                            width: 16,
+                            height: 16,
+                            backgroundColor: '#000',
+                            color: '#fff',
+                            '&:hover': { backgroundColor: '#333' },
+                            '& .MuiSvgIcon-root': { fontSize: '10px' }
+                          }}
+                        >
+                          <XIcon />
+                        </IconButton>
+                      )}
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" sx={{ 
+                        wordBreak: 'break-all', 
+                        fontWeight: 'bold',
+                        fontSize: '0.75rem',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}>
+                        {caller.caller}
+                      </Typography>
+                      {caller.domainAtCall && (
+                        <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem' }}>
+                          {caller.domainAtCall}.sol
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Typography variant="caption" sx={{ color: '#666', fontSize: '0.7rem' }}>
+                      {t('called_at')}: {caller.calledAt ? new Date(caller.calledAt).toLocaleDateString() : 'N/A'}
+                    </Typography>
+                    {caller.marketCapAtCall && (
+                      <Typography variant="caption" sx={{ color: '#666', fontSize: '0.7rem' }}>
+                        {t('market_cap_at_call')}: {formatMarketCap(caller.marketCapAtCall)}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
+        
         <Box className="contract-panels">
           <Box className="token-panel">
             <Typography className="dialog-title">{t('token_metadata')}</Typography>

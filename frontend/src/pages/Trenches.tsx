@@ -35,7 +35,7 @@ const Trenches: React.FC = () => {
   const { t } = useTranslation();
 
   const [input, setInput] = useState('');
-  const [data, setData] = useState<TrenchData>({ contracts: [], users: [] });
+  const [data, setData] = useState<TrenchData>({ contracts: [], users: [], latestCallers: {} });
   const [openContract, setOpenContract] = useState<string | null>(null);
   const [openContractUserCount, setOpenContractUserCount] = useState<number>(0);
   const [message, setMessage] = useState<AppMessage | null>(null);
@@ -66,7 +66,7 @@ const Trenches: React.FC = () => {
       const res = await api.get<TrenchData>('/api/trench');
 
       // Preload users so counts render immediately
-      setData({ contracts: [], users: res.data.users });
+      setData({ contracts: [], users: res.data.users, latestCallers: res.data.latestCallers || {} });
       if (showSpinner) setLoading(false);
 
       // Stream contracts one by one

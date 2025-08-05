@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.primos.model.TrenchContract;
+import com.primos.model.TrenchContractCaller;
 import com.primos.model.TrenchUser;
 import com.primos.model.User;
 
@@ -54,9 +55,28 @@ public class TrenchService {
             tc.setFirstCallerMarketCap(marketCap);
             tc.setFirstCallerDomain(domain);
             tc.persist();
+
+            // Add the first caller record
+            TrenchContractCaller caller = new TrenchContractCaller();
+            caller.setContract(contract);
+            caller.setCaller(publicKey);
+            caller.setCalledAt(now);
+            caller.setMarketCapAtCall(marketCap);
+            caller.setDomainAtCall(domain);
+            caller.persist();
         } else {
             tc.setCount(tc.getCount() + 1);
             tc.persistOrUpdate();
+
+            // Add caller record for existing contract
+            TrenchContractCaller caller = new TrenchContractCaller();
+            caller.setContract(contract);
+            caller.setCaller(publicKey);
+            caller.setCalledAt(now);
+            Double marketCap = coinGeckoService.fetchMarketCap(contract);
+            caller.setMarketCapAtCall(marketCap);
+            caller.setDomainAtCall(domain);
+            caller.persist();
         }
 
         if (tu == null) {
@@ -91,5 +111,11 @@ public class TrenchService {
 
     public List<TrenchUser> getUsers() {
         return TrenchUser.listAll();
+    }
+
+    public List<TrenchContractCaller> getLatestCallersForContract(String contract, int limit) {
+        return TrenchContractCaller.find("contract = ?1 order by calledAt desc", contract)
+                .page(0, limit)
+                .list();
     }
 }

@@ -253,7 +253,9 @@
   ,"user": "user"
   ,"users": "users"
   ,"compare_with_current": "Compare with current market data below"
-  ,"first_caller": "First Caller"
+  ,"first_caller": "Community Sentiment"
   ,"called_at": "Called At"
   ,"market_cap_at_call": "Market Cap at Call"
+  ,"latest_callers": "Latest Callers"
+  ,"latest_4_callers": "Latest 4 Callers"
 }

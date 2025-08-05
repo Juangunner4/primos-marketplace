@@ -251,7 +251,9 @@
   "user": "usuario",
   "users": "usuarios",
   "compare_with_current": "Comparar con los datos actuales del mercado a continuación",
-  "first_caller": "Primer Llamador",
+  "first_caller": "Sentimiento de la Comunidad",
   "called_at": "Llamado en",
-  "market_cap_at_call": "Cap. de Mercado al Llamar"
+  "market_cap_at_call": "Cap. de Mercado al Llamar",
+  "latest_callers": "Últimos Llamadores",
+  "latest_4_callers": "Últimos 4 Llamadores"
 }
