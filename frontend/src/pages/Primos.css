@@ -24,6 +24,24 @@
   cursor: pointer;
   flex-wrap: wrap;
   max-width: 100%;
+  position: relative;
+}
+
+.ranking-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: #000;
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  z-index: 1;
 }
 
 .primos-pills {
@@ -40,6 +58,12 @@
   border: 1px solid #000;
   font-size: 0.8rem;
   font-weight: bold;
+}
+
+.primos-pill.total-score {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
 }
 
 @media (max-width: 600px) {

@@ -9,6 +9,8 @@ import LinearProgress from '@mui/material/LinearProgress';
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import BuildIcon from '@mui/icons-material/Build';
+import HomeIcon from '@mui/icons-material/Home';
 import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
@@ -78,22 +80,55 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       <Box className="labs-grid">
         <Tooltip title={t('experiment1_desc')} arrow>
           <Card className="lab-card" component={Link} to="/experiment1" sx={{ textDecoration: 'none' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               <ThreeDRotationIcon sx={{ fontSize: 40 }} />
+              <BuildIcon sx={{ 
+                position: 'absolute', 
+                top: -8, 
+                right: -8, 
+                fontSize: 20, 
+                color: '#ffa500',
+                background: '#fff',
+                borderRadius: '50%',
+                padding: '2px'
+              }} />
             </Box>
           </Card>
         </Tooltip>
         <Tooltip title={t('experiment2_desc')} arrow>
           <Card className="lab-card" component={Link} to="/stickers" sx={{ textDecoration: 'none' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               <LocalOfferIcon sx={{ fontSize: 40 }} />
+              <BuildIcon sx={{ 
+                position: 'absolute', 
+                top: -8, 
+                right: -8, 
+                fontSize: 20, 
+                color: '#ffa500',
+                background: '#fff',
+                borderRadius: '50%',
+                padding: '2px'
+              }} />
             </Box>
           </Card>
         </Tooltip>
         <Tooltip title={t('experiment3_desc')} arrow>
           <Card className="lab-card" component={Link} to="/trenches" sx={{ textDecoration: 'none' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               <MilitaryTechIcon sx={{ fontSize: 40 }} />
+              <Box sx={{ 
+                position: 'absolute', 
+                top: -8, 
+                right: -8, 
+                display: 'flex', 
+                gap: 0.5,
+                background: '#fff',
+                borderRadius: '50%',
+                padding: '2px'
+              }}>
+                <BuildIcon sx={{ fontSize: 16, color: '#ffa500' }} />
+                <HomeIcon sx={{ fontSize: 16, color: '#4caf50' }} />
+              </Box>
             </Box>
           </Card>
         </Tooltip>
