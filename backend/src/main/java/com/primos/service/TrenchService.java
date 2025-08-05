@@ -82,7 +82,17 @@ public class TrenchService {
     }
 
     public List<TrenchContract> getContracts() {
-        return TrenchContract.listAll();
+        List<TrenchContract> contracts = TrenchContract.listAll();
+        for (TrenchContract tc : contracts) {
+            if (tc.getFirstCallerMarketCap() == null) {
+                Double marketCap = coinGeckoService.fetchMarketCap(tc.getContract());
+                if (marketCap != null) {
+                    tc.setFirstCallerMarketCap(marketCap);
+                    tc.persistOrUpdate();
+                }
+            }
+        }
+        return contracts;
     }
 
     public List<TrenchUser> getUsers() {

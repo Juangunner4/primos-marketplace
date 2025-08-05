@@ -52,4 +52,25 @@ public class TrenchServiceTest {
         TrenchContract tc = TrenchContract.find("contract", "ca2").firstResult();
         assertEquals(5000.0, tc.getFirstCallerMarketCap());
     }
+
+    @Test
+    public void testGetContractsPopulatesMissingMarketCap() {
+        TrenchService svc = new TrenchService();
+        svc.coinGeckoService = new CoinGeckoService() {
+            @Override
+            public Double fetchMarketCap(String contract) {
+                return 42.0;
+            }
+        };
+        TrenchContract tc = new TrenchContract();
+        tc.setContract("ca3");
+        tc.setCount(1);
+        tc.persist();
+        java.util.List<TrenchContract> list = svc.getContracts();
+        TrenchContract updated = list.stream().filter(c -> "ca3".equals(c.getContract())).findFirst().orElse(null);
+        assertNotNull(updated);
+        assertEquals(42.0, updated.getFirstCallerMarketCap());
+        TrenchContract fromDb = TrenchContract.find("contract", "ca3").firstResult();
+        assertEquals(42.0, fromDb.getFirstCallerMarketCap());
+    }
 }
