@@ -26,7 +26,9 @@ import { AppMessage } from '../types';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './Trenches.css';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
+// Fallback to an empty string if the collection env variable is missing so that
+// API calls that depend on it don't crash and leave the page blank.
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION ?? '';
 
 // Format market cap into readable string
 const formatCap = (cap: number) => {
@@ -62,6 +64,7 @@ const Trenches: React.FC = () => {
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const canSubmit = !!publicKey && isHolder;
 
@@ -83,6 +86,7 @@ const Trenches: React.FC = () => {
 
   const load = async (showSpinner = true) => {
     if (showSpinner) setLoading(true);
+    setError(null);
     try {
       const res = await api.get<TrenchData>('/api/trench');
 
@@ -155,6 +159,7 @@ const Trenches: React.FC = () => {
       });
     } catch {
       if (showSpinner) setLoading(false);
+      setError('Failed to load trenches data');
     }
   };
 
@@ -291,6 +296,12 @@ const Trenches: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
         </Box>
+      ) : error ? (
+        <Typography color="error" sx={{ mt: 4 }}>
+          {error}
+        </Typography>
+      ) : data.contracts.length === 0 ? (
+        <Typography sx={{ mt: 4 }}>{'No trenches found'}</Typography>
       ) : (
         <Box className="bubble-map">
           {data.contracts.map((c) => {
