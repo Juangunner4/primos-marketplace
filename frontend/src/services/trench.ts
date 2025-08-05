@@ -1,10 +1,6 @@
 export type { HeliusNFT } from './helius';
 import api from '../utils/api';
-import {
-  getNFTByTokenAddress,
-  getNFTsByTokenAddresses,
-  fetchCollectionNFTsForOwner,
-} from './helius';
+import { getNFTsByTokenAddresses, fetchCollectionNFTsForOwner } from './helius';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -42,19 +38,27 @@ export interface TrenchData {
 
 export const fetchTrenchData = async (): Promise<TrenchData> => {
   const res = await api.get<TrenchData>('/api/trench');
-  const nftMap = await getNFTsByTokenAddresses(
-    res.data.contracts.map((c) => c.contract)
-  );
+
+  const contractAddresses = res.data.contracts.map((c) => c.contract);
+  const userPfpAddresses = res.data.users
+    .map((u) => u.pfp?.replace(/"/g, ''))
+    .filter((a): a is string => !!a);
+  const nftMap = await getNFTsByTokenAddresses([
+    ...contractAddresses,
+    ...userPfpAddresses,
+  ]);
+
   const contracts = res.data.contracts.map((c) => ({
     ...c,
     image: nftMap[c.contract]?.image,
   }));
+
   const users = await Promise.all(
     res.data.users.map(async (u) => {
+      const pfpAddr = u.pfp?.replace(/"/g, '');
       let image = '';
-      if (u.pfp) {
-        const nft = await getNFTByTokenAddress(u.pfp.replace(/"/g, ''));
-        image = nft?.image || '';
+      if (pfpAddr && nftMap[pfpAddr]) {
+        image = nftMap[pfpAddr].image;
       } else {
         const nfts = await fetchCollectionNFTsForOwner(
           u.publicKey,
@@ -65,6 +69,7 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
       return { ...u, pfp: image } as TrenchUser;
     })
   );
+
   return { contracts, users };
 };
 
