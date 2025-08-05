@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import UserProfile from '../UserProfile';
 import i18n from '../../i18n';
 
 const mockUseWallet = jest.fn();
@@ -72,10 +71,15 @@ jest.mock('../../utils/sns', () => ({
   verifyDomainOwnership: jest.fn(),
 }));
 
-jest.mock('../../services/helius', () => ({
+jest.mock('../../utils/helius', () => ({
+  __esModule: true,
   getAssetsByCollection: jest.fn(() => Promise.resolve([{ id: 't1', image: 'i', name: 'n', listed: false }])),
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));
+
+jest.mock('../../components/BetaRedeem', () => () => null);
+
+const UserProfile = require('../UserProfile').default;
 
 describe('UserProfile', () => {
   test('returns null when wallet not connected', () => {
