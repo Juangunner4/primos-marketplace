@@ -1,5 +1,6 @@
 package com.primos.service;
 
+import java.time.LocalDate;
 import java.util.logging.Logger;
 
 import com.primos.model.BetaCode;
@@ -94,6 +95,8 @@ public class LoginService {
                 user.persistOrUpdate();
             }
         }
+        user.setPointsDate(LocalDate.now().toString());
+        user.persistOrUpdate();
         return user;
     }
 
