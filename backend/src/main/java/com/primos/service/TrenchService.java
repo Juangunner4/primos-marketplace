@@ -18,6 +18,10 @@ public class TrenchService {
     @Inject
     CoinGeckoService coinGeckoService;
 
+    public void setCoinGeckoService(CoinGeckoService coinGeckoService) {
+        this.coinGeckoService = coinGeckoService;
+    }
+
     public void add(String publicKey, String contract, String source, String model) {
         add(publicKey, contract, source, model, null);
     }
