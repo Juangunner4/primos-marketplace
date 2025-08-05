@@ -48,6 +48,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     axiom?: string;
     vector?: string;
   } | null>(null);
+  const [marketCapLoading, setMarketCapLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,6 +101,10 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   };
 
   const loadTrenchData = async () => {
+    setMarketCapLoading(true);
+    setCallerInfo((prev) =>
+      prev ? { ...prev, marketCap: undefined } : prev
+    );
     try {
       const d: TrenchData = await fetchTrenchData();
       const rec = d.contracts.find((cc) => cc.contract === contract);
@@ -119,6 +124,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       }
     } catch (error) {
       console.error('Failed to load trench data:', error);
+    } finally {
+      setMarketCapLoading(false);
     }
   };
 
@@ -342,9 +349,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   {t('market_cap_at_call')}
                 </Typography>
                 <Typography variant="body2">
-                  {callerInfo.marketCap != null ? formatMarketCap(callerInfo.marketCap) : 'N/A'}
+                  {marketCapLoading
+                    ? `${t('loading')}...`
+                    : callerInfo.marketCap != null
+                    ? formatMarketCap(callerInfo.marketCap)
+                    : 'N/A'}
                 </Typography>
-                {callerInfo.marketCap && coinGeckoData.length > 0 && (
+                {callerInfo.marketCap && !marketCapLoading && coinGeckoData.length > 0 && (
                   <Typography variant="caption" sx={{ color: '#888', fontSize: '0.75rem', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <TrendingUpIcon fontSize="inherit" />
                     {t('compare_with_current')}
