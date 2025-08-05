@@ -32,4 +32,24 @@ public class TrenchServiceTest {
         TrenchUser u2 = TrenchUser.find("publicKey", "u2").firstResult();
         assertEquals(1, u2.getCount());
     }
+
+    @Test
+    public void testRetriesMarketCapUntilSuccess() {
+        TrenchService svc = new TrenchService();
+        svc.coinGeckoService = new CoinGeckoService() {
+            int attempts = 0;
+
+            @Override
+            protected Double fetchMarketCapOnce(String contract) {
+                attempts++;
+                if (attempts < 3) {
+                    return null;
+                }
+                return 5000.0;
+            }
+        };
+        svc.add("u3", "ca2", "website", null);
+        TrenchContract tc = TrenchContract.find("contract", "ca2").firstResult();
+        assertEquals(5000.0, tc.getFirstCallerMarketCap());
+    }
 }

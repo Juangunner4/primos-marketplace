@@ -19,6 +19,8 @@ public class CoinGeckoService {
     private static final HttpClient CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
+    private static final int MAX_RETRIES = 5;
+    private static final long RETRY_DELAY_MS = 1_000;
 
     /**
      * Fetch current USD market cap for a token using CoinGecko's simple token price API.
@@ -26,6 +28,25 @@ public class CoinGeckoService {
      * @return Market cap in USD, or null if unavailable
      */
     public Double fetchMarketCap(String contract) {
+        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            Double marketCap = fetchMarketCapOnce(contract);
+            if (marketCap != null) {
+                return marketCap;
+            }
+            try {
+                Thread.sleep(RETRY_DELAY_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Perform a single HTTP request to CoinGecko for the given contract.
+     */
+    protected Double fetchMarketCapOnce(String contract) {
         String url = BASE_URL + "/simple/token_price/solana?contract_addresses=" + contract
                 + "&vs_currencies=usd&include_market_cap=true";
         try {
