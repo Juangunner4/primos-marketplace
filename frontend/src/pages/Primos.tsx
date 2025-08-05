@@ -20,6 +20,7 @@ interface Member {
   domain?: string;
   points: number;
   pesos: number;
+  rank: number;
 }
 
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
@@ -34,9 +35,11 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       setLoadingMembers(true);
       try {
         const res = await api.get<Member[]>('/api/user/primos');
-        const sorted = res.data.slice().sort((a: Member, b: Member) => b.pesos - a.pesos);
+        const sorted = res.data
+          .slice()
+          .sort((a: Member, b: Member) => b.pesos + b.points - (a.pesos + a.points));
         const enriched = await Promise.all(
-          sorted.map(async (m) => {
+          sorted.map(async (m, index) => {
             let image = '';
             if (m.pfp) {
               const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
@@ -47,7 +50,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
             }
             // fetch on-chain primary domain for each member
             const primary = await getPrimaryDomainName(m.publicKey);
-            return { ...m, pfp: image, domain: primary || m.domain };
+            return { ...m, pfp: image, domain: primary || m.domain, rank: index + 1 };
           })
         );
         setMembers(enriched);
@@ -89,6 +92,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <Box className="primos-card">
+                  <Typography className="primos-rank">#{m.rank}</Typography>
                   <Avatar
                     src={m.pfp || undefined}
                     sx={{ width: 56, height: 56 }}

@@ -9,6 +9,8 @@ import LinearProgress from '@mui/material/LinearProgress';
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import BuildIcon from '@mui/icons-material/Build';
+import HomeIcon from '@mui/icons-material/Home';
 import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
@@ -78,22 +80,26 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
       <Box className="labs-grid">
         <Tooltip title={t('experiment1_desc')} arrow>
           <Card className="lab-card" component={Link} to="/experiment1" sx={{ textDecoration: 'none' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <ThreeDRotationIcon sx={{ fontSize: 40 }} />
+              <BuildIcon sx={{ position: 'absolute', bottom: 0, right: 0, fontSize: 20 }} />
             </Box>
           </Card>
         </Tooltip>
         <Tooltip title={t('experiment2_desc')} arrow>
           <Card className="lab-card" component={Link} to="/stickers" sx={{ textDecoration: 'none' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <LocalOfferIcon sx={{ fontSize: 40 }} />
+              <BuildIcon sx={{ position: 'absolute', bottom: 0, right: 0, fontSize: 20 }} />
             </Box>
           </Card>
         </Tooltip>
         <Tooltip title={t('experiment3_desc')} arrow>
           <Card className="lab-card" component={Link} to="/trenches" sx={{ textDecoration: 'none' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <MilitaryTechIcon sx={{ fontSize: 40 }} />
+              <BuildIcon sx={{ position: 'absolute', bottom: 0, left: 0, fontSize: 20 }} />
+              <HomeIcon sx={{ position: 'absolute', bottom: 0, right: 0, fontSize: 20 }} />
             </Box>
           </Card>
         </Tooltip>
