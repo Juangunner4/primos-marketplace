@@ -54,12 +54,13 @@ public class TrenchServiceTest {
     }
 
     @Test
-    public void testGetContractsPopulatesMissingMarketCap() {
+    public void testGetContractsDoesNotFetchMarketCap() {
         TrenchService svc = new TrenchService();
         svc.coinGeckoService = new CoinGeckoService() {
             @Override
             public Double fetchMarketCap(String contract) {
-                return 42.0;
+                fail("fetchMarketCap should not be called");
+                return null; // unreachable
             }
         };
         TrenchContract tc = new TrenchContract();
@@ -67,10 +68,8 @@ public class TrenchServiceTest {
         tc.setCount(1);
         tc.persist();
         java.util.List<TrenchContract> list = svc.getContracts();
-        TrenchContract updated = list.stream().filter(c -> "ca3".equals(c.getContract())).findFirst().orElse(null);
-        assertNotNull(updated);
-        assertEquals(42.0, updated.getFirstCallerMarketCap());
-        TrenchContract fromDb = TrenchContract.find("contract", "ca3").firstResult();
-        assertEquals(42.0, fromDb.getFirstCallerMarketCap());
+        TrenchContract result = list.stream().filter(c -> "ca3".equals(c.getContract())).findFirst().orElse(null);
+        assertNotNull(result);
+        assertNull(result.getFirstCallerMarketCap());
     }
 }
