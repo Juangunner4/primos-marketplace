@@ -258,4 +258,6 @@
   ,"market_cap_at_call": "Market Cap at Call"
   ,"latest_callers": "Latest Callers"
   ,"latest_4_callers": "Latest 4 Callers"
+  ,"latest_trenches_contracts": "Latest Trenches Contracts"
+  ,"loading_trenches": "Loading trenches..."
 }

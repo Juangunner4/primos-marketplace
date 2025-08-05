@@ -10,7 +10,7 @@ import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import BuildIcon from '@mui/icons-material/Build';
-import HomeIcon from '@mui/icons-material/Home';
+import ConstructionIcon from '@mui/icons-material/Construction';
 import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
@@ -87,7 +87,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 top: -8, 
                 right: -8, 
                 fontSize: 20, 
-                color: '#ffa500',
+                color: '#000',
                 background: '#fff',
                 borderRadius: '50%',
                 padding: '2px'
@@ -104,7 +104,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 top: -8, 
                 right: -8, 
                 fontSize: 20, 
-                color: '#ffa500',
+                color: '#000',
                 background: '#fff',
                 borderRadius: '50%',
                 padding: '2px'
@@ -126,8 +126,8 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 borderRadius: '50%',
                 padding: '2px'
               }}>
-                <BuildIcon sx={{ fontSize: 16, color: '#ffa500' }} />
-                <HomeIcon sx={{ fontSize: 16, color: '#4caf50' }} />
+                <BuildIcon sx={{ fontSize: 16, color: '#000' }} />
+                <ConstructionIcon sx={{ fontSize: 16, color: '#000' }} />
               </Box>
             </Box>
           </Card>

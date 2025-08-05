@@ -256,4 +256,6 @@
   "market_cap_at_call": "Cap. de Mercado al Llamar",
   "latest_callers": "Últimos Llamadores",
   "latest_4_callers": "Últimos 4 Llamadores"
+  ,"latest_trenches_contracts": "Últimos Contratos de Trenches"
+  ,"loading_trenches": "Cargando trenches..."
 }

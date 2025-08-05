@@ -10,9 +10,15 @@ import { getPythSolPrice } from '../utils/pyth';
 import api from '../utils/api';
 import { fetchVolume24h } from '../utils/transaction';
 import Avatar from '@mui/material/Avatar';
+import PeopleIcon from '@mui/icons-material/People';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import { fetchSimpleTokenPrice } from '../services/coingecko';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+// Consolidated imports above
 import Loading from '../components/Loading';
+import './Home.css';
 
 interface Stats {
   uniqueHolders: number | null;
@@ -30,6 +36,12 @@ interface DaoMember {
   pfp: string;
 }
 
+interface TrenchContract {
+  contract: string;
+  image?: string;
+  marketCap?: number;
+}
+
 const MAGICEDEN_SYMBOL = 'primos';
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -38,8 +50,17 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [members, setMembers] = useState<DaoMember[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(true);
+  const [latestContracts, setLatestContracts] = useState<TrenchContract[]>([]);
+  const [loadingContracts, setLoadingContracts] = useState(true);
   const wallet = useWallet();
   const isConnected = connected ?? wallet.connected;
+  // format market cap into readable string
+  const formatCap = (cap: number) => {
+    if (cap >= 1e9) return `$${(cap / 1e9).toFixed(1)}B`;
+    if (cap >= 1e6) return `$${(cap / 1e6).toFixed(1)}M`;
+    if (cap >= 1e3) return `$${(cap / 1e3).toFixed(1)}k`;
+    return `$${cap.toFixed(0)}`;
+  };
 
   useEffect(() => {
     async function fetchStats() {
@@ -79,7 +100,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       try {
         const res = await api.get<DaoMember[]>('/api/user/primos');
         const enriched = await Promise.all(
-          res.data.slice(0, 5).map(async (m) => {
+          res.data.slice(0, 24).map(async (m) => {
             let image = '';
             if (m.pfp) {
               const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
@@ -99,6 +120,39 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }
     };
     fetchMembers();
+  }, []);
+
+  useEffect(() => {
+    const fetchContracts = async () => {
+      setLoadingContracts(true);
+      try {
+        const res = await api.get<{ contracts: TrenchContract[] }>('/api/trench');
+        const all = res.data.contracts;
+        const last10 = all.slice(-10).reverse();
+        const enriched = await Promise.all(
+          last10.map(async (c) => {
+            let img = c.image || '';
+            let cap: number | undefined;
+            try {
+              if (!img) {
+                const nft = await getNFTByTokenAddress(c.contract);
+                img = nft?.image || '';
+              }
+              // fetch market cap
+              const priceData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
+              cap = priceData?.usd_market_cap;
+            } catch {}
+            return { contract: c.contract, image: img, marketCap: cap };
+          })
+        );
+        setLatestContracts(enriched);
+      } catch {
+        setLatestContracts([]);
+      } finally {
+        setLoadingContracts(false);
+      }
+    };
+    fetchContracts();
   }, []);
 
   return (
@@ -253,10 +307,13 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         ) : (
           members.length > 0 && (
             <Box>
-              <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
-                {t('primos_title')}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>  
+                <PeopleIcon fontSize="small" sx={{ color: '#aaa' }} />
+                <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+                  {t('primos_title')}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', mt: 1 }}>
                 {members.map((m) => (
                   <Avatar
                     key={m.publicKey}
@@ -284,6 +341,42 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         border: '2px solid #fff',
         position: 'relative',
       }}>
+        {/* Latest Trenches Contracts */}
+        <Box sx={{ mt: 6, textAlign: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, gap: 0.5 }}>
+            <MilitaryTechIcon sx={{ color: '#aaa' }} />
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('latest_trenches_contracts')}
+            </Typography>
+          </Box>
+          {loadingContracts ? (
+            <Loading message={t('loading_trenches')} />
+          ) : (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+              {latestContracts.map((c) => (
+                <Box key={c.contract} title={c.contract} sx={{ position: 'relative' }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      backgroundColor: '#000',
+                      backgroundImage: c.image ? `url(${c.image})` : undefined,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  {c.marketCap && (
+                    <Box className="market-cap-tag">
+                      <AttachMoneyIcon sx={{ fontSize: 12 }} />
+                      {formatCap(c.marketCap)}
+                    </Box>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
       </Box>
     </Box>
   );

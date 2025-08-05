@@ -40,12 +40,30 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
         const enriched = await Promise.all(
           sorted.map(async (m, index) => {
             let image = '';
-            if (m.pfp) {
-              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-              image = nft?.image || '';
-            } else {
-              const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
-              image = nfts[0]?.image || '';
+            try {
+              if (m.pfp) {
+                // If pfp is already a URL, use directly
+                if (m.pfp.startsWith('http')) {
+                  image = m.pfp;
+                } else {
+                  // Otherwise treat as token address
+                const tokenAddress = m.pfp.replace(/"/g, '');
+                  const nft = await getNFTByTokenAddress(tokenAddress);
+                  image = nft?.image ?? '';
+                }
+              }
+              // Fallback: fetch any owned NFT from collection
+              if (!image) {
+                const ownedNfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
+                for (const nft of ownedNfts) {
+                  if (nft.image) {
+                    image = nft.image;
+                    break;
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn('Failed to fetch pfp for user', m.publicKey, err);
             }
             // fetch on-chain primary domain for each member
             const primary = await getPrimaryDomainName(m.publicKey);
