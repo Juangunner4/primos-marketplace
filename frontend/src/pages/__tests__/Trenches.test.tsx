@@ -20,7 +20,15 @@ jest.mock('../../services/trench', () => ({
   fetchTrenchData: jest.fn(() =>
     Promise.resolve({
       contracts: [{ contract: 'c1', count: 1, firstCaller: 'u1' }],
-      users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
+      users: [
+        {
+          publicKey: 'u1',
+          pfp: '',
+          count: 1,
+          contracts: ['c1'],
+          lastSubmittedAt: 1,
+        },
+      ],
     })
   ),
   submitTrenchContract: jest.fn(() => Promise.resolve()),
@@ -47,7 +55,15 @@ describe('Trenches page', () => {
   test('displays contract bubble and opens panel', async () => {
     (trenchService.fetchTrenchData as jest.Mock).mockResolvedValueOnce({
       contracts: [{ contract: 'c1', count: 1, firstCaller: 'u1' }],
-      users: [{ publicKey: 'u1', pfp: '', count: 1, contracts: ['c1'] }],
+      users: [
+        {
+          publicKey: 'u1',
+          pfp: '',
+          count: 1,
+          contracts: ['c1'],
+          lastSubmittedAt: 1,
+        },
+      ],
     });
 
     render(
