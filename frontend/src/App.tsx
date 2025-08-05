@@ -26,11 +26,13 @@ import Primos from './pages/Primos';
 import Experiment1 from './pages/Experiment1';
 import Stickers from './pages/Stickers';
 import Trenches from './pages/Trenches';
+import TrenchesFallback from './components/TrenchesFallback';
 import Docs from './pages/Docs';
 import Admin from './pages/Admin';
 import Work from './pages/Work';
 import BetaRedeem from './components/BetaRedeem';
 import LoadingOverlay from './components/LoadingOverlay';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
@@ -267,7 +269,11 @@ const AppRoutes = () => {
               <Route path="/profile" element={<UserProfile />} />
             </>
           )}
-          <Route path="/trenches" element={<Trenches />} />
+          <Route path="/trenches" element={
+            <ErrorBoundary fallback={TrenchesErrorFallback}>
+              <Trenches />
+            </ErrorBoundary>
+          } />
           <Route path="/user/:publicKey" element={<UserProfile />} />
           <Route path="/primos" element={<Primos />} />
 
@@ -293,6 +299,10 @@ const AppContent = () => {
     </>
   );
 };
+
+const TrenchesErrorFallback: React.FC<{ error?: Error; resetError: () => void }> = () => (
+  <TrenchesFallback />
+);
 
 const App = () => {
   const heliusApiKey = process.env.REACT_APP_HELIUS_API_KEY

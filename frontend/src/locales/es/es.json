@@ -214,6 +214,8 @@
   "experiment3_desc": "Ingresa direcciones de contrato para hacer crecer las trincheras. Las burbujas aumentan al unirse más usuarios.",
   "enter_contract": "Ingresa dirección de contrato",
   "add_contract": "Agregar Contrato",
+  "contract_not_onchain": "Contrato no encontrado en la blockchain",
+  "contract_already_added": "Ya has agregado este contrato",
   "my_contracts": "Mis Contratos",
   "all_users": "Todos los Usuarios",
   "all_contracts": "Todos los Contratos",
@@ -255,7 +257,17 @@
   "called_at": "Llamado en",
   "market_cap_at_call": "Cap. de Mercado al Llamar",
   "latest_callers": "Últimos Llamadores",
-  "latest_4_callers": "Últimos 4 Llamadores"
-  ,"latest_trenches_contracts": "Últimos Contratos de Trenches"
-  ,"loading_trenches": "Cargando trenches..."
+  "latest_4_callers": "Últimos 4 Llamadores",
+  "latest_trenches_contracts": "Últimos Contratos de Trenches",
+  "loading_trenches": "Cargando trenches...",
+  "failed_to_load_data": "Error al cargar datos de trincheras. Por favor, inténtalo de nuevo.",
+  "initialization_error": "Error al inicializar la página. Por favor, actualiza e inténtalo de nuevo.",
+  "no_contracts_yet": "Aún no hay contratos para mostrar.",
+  "something_went_wrong": "Algo salió mal",
+  "error_occurred": "Ocurrió un error al cargar esta página. Por favor, inténtalo de nuevo.",
+  "try_again": "Intentar de Nuevo",
+  "reload_page": "Recargar Página",
+  "trenches_unavailable": "Trincheras Temporalmente No Disponibles",
+  "trenches_error_message": "Estamos experimentando dificultades técnicas con la página de Trincheras. Por favor, inténtalo más tarde.",
+  "go_home": "Ir al Inicio"
 }

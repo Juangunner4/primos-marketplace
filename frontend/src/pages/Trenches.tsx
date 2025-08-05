@@ -26,7 +26,11 @@ import { AppMessage } from '../types';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './Trenches.css';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION;
+
+if (!PRIMO_COLLECTION) {
+  console.error('REACT_APP_PRIMOS_COLLECTION environment variable is not set');
+}
 
 // Format market cap into readable string
 const formatCap = (cap: number) => {
@@ -50,10 +54,15 @@ const getPriceChangeClass = (change: number) => {
 };
 
 const Trenches: React.FC = () => {
-  const { publicKey } = useWallet();
+  // Always call hooks unconditionally
+  const wallet = useWallet();
   const { connection } = useConnection();
-  const { isHolder } = usePrimoHolder();
+  const primoContext = usePrimoHolder();
   const { t } = useTranslation();
+
+  // Extract values with fallbacks
+  const publicKey = wallet.publicKey;
+  const isHolder = primoContext?.isHolder || false;
 
   const [input, setInput] = useState('');
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [], latestCallers: {} });
@@ -62,6 +71,15 @@ const Trenches: React.FC = () => {
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
+
+  console.log('Trenches component rendering', { 
+    publicKey: publicKey?.toBase58(), 
+    isHolder, 
+    dataContracts: data.contracts.length,
+    dataUsers: data.users.length,
+    loading,
+    connectionPresent: !!connection
+  });
 
   const canSubmit = !!publicKey && isHolder;
 
@@ -87,13 +105,19 @@ const Trenches: React.FC = () => {
       const res = await api.get<TrenchData>('/api/trench');
 
       // Preload users so counts render immediately
-      setData({ contracts: [], users: res.data.users, latestCallers: res.data.latestCallers || {} });
+      setData({ 
+        contracts: [], 
+        users: res.data.users || [], 
+        latestCallers: res.data.latestCallers || {} 
+      });
       if (showSpinner) setLoading(false);
 
       // Stream contracts one by one
-      res.data.contracts.forEach(async (c) => {
-        setData((prev) => ({ ...prev, contracts: [...prev.contracts, c] }));
+      const contracts = res.data.contracts || [];
+      contracts.forEach(async (c) => {
         try {
+          setData((prev) => ({ ...prev, contracts: [...prev.contracts, c] }));
+          
           const nft = await getNFTByTokenAddress(c.contract);
           if (nft?.image) {
             setData((prev) => ({
@@ -126,26 +150,33 @@ const Trenches: React.FC = () => {
                 ),
               }));
             }
-          } catch {}
-        } catch {}
+          } catch (err) {
+            console.warn('Failed to fetch market data for contract:', c.contract, err);
+          }
+        } catch (err) {
+          console.warn('Failed to process contract:', c.contract, err);
+        }
       });
 
       // Fetch user profile images gradually
-      res.data.users.forEach(async (u) => {
+      const users = res.data.users || [];
+      users.forEach(async (u) => {
         let image = '';
         try {
           const pfpAddr = u.pfp?.replace(/"/g, '');
           if (pfpAddr) {
             const nft = await getNFTByTokenAddress(pfpAddr);
             image = nft?.image || '';
-          } else {
+          } else if (PRIMO_COLLECTION) {
             const nfts = await fetchCollectionNFTsForOwner(
               u.publicKey,
               PRIMO_COLLECTION
             );
             image = nfts[0]?.image || '';
           }
-        } catch {}
+        } catch (err) {
+          console.warn('Failed to fetch PFP for user:', u.publicKey, err);
+        }
         setData((prev) => ({
           ...prev,
           users: prev.users.map((uu) =>
@@ -153,13 +184,21 @@ const Trenches: React.FC = () => {
           ),
         }));
       });
-    } catch {
+    } catch (err) {
+      console.error('Failed to load trench data:', err);
+      setMessage({ text: t('failed_to_load_data'), type: 'error' });
       if (showSpinner) setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
+    console.log('Trenches useEffect triggered');
+    try {
+      load();
+    } catch (error) {
+      console.error('Error in Trenches useEffect:', error);
+      setMessage({ text: t('initialization_error'), type: 'error' });
+    }
   }, []);
 
   const handleAdd = async () => {
@@ -182,17 +221,19 @@ const Trenches: React.FC = () => {
     if (!valid) {
       try {
         const addr = new PublicKey(contract);
-        const info = await connection.getAccountInfo(addr);
-        if (info) {
-          valid = true;
-          // Try to get Solana token market cap from CoinGecko via backend proxy
-          try {
-            const tokenData = await fetchSimpleTokenPrice(contract, 'solana');
-            if (tokenData?.usd_market_cap) {
-              marketCap = tokenData.usd_market_cap;
+        if (connection) {
+          const info = await connection.getAccountInfo(addr);
+          if (info) {
+            valid = true;
+            // Try to get Solana token market cap from CoinGecko via backend proxy
+            try {
+              const tokenData = await fetchSimpleTokenPrice(contract, 'solana');
+              if (tokenData?.usd_market_cap) {
+                marketCap = tokenData.usd_market_cap;
+              }
+            } catch (e) {
+              console.warn('Failed to fetch market cap for token:', e);
             }
-          } catch (e) {
-            console.warn('Failed to fetch market cap for token:', e);
           }
         }
       } catch {}
@@ -236,6 +277,16 @@ const Trenches: React.FC = () => {
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t('experiment3_desc')}
       </Typography>
+      
+      {/* Debug information */}
+      {process.env.NODE_ENV === 'development' && (
+        <Box sx={{ mb: 2, p: 1, backgroundColor: '#f0f0f0', borderRadius: 1 }}>
+          <Typography variant="caption">
+            Debug: publicKey={publicKey?.toBase58()}, isHolder={String(isHolder)}, 
+            contracts={data.contracts.length}, users={data.users.length}, loading={String(loading)}
+          </Typography>
+        </Box>
+      )}
       
       {/* Sentiment Explanation */}
       <Box sx={{ 
@@ -293,53 +344,59 @@ const Trenches: React.FC = () => {
         </Box>
       ) : (
         <Box className="bubble-map">
-          {data.contracts.map((c) => {
-            const lastUser = latestUsers[c.contract];
-            const userCount = counts[c.contract] || 1;
-            const size = Math.max(40, Math.min(100, 40 + userCount * 10));
-            return (
-              <button
-                key={c.contract}
-                className="bubble"
-                aria-label={c.contract}
-                title={c.contract}
-                style={{
-                  width: size,
-                  height: size,
-                  backgroundImage: c.image ? `url(${c.image})` : undefined,
-                }}
-                onClick={() => {
-                  setOpenContract(c.contract);
-                  setOpenContractUserCount(userCount);
-                }}
-                onDoubleClick={() => handleCopy(c.contract)}
-              >
-                {c.model && (
-                  <Box className="model-tag">
-                    {c.model === 'model1' ? 'm01' : c.model}
-                  </Box>
-                )}
-                {lastUser && (
-                  <Avatar
-                    src={lastUser.pfp || undefined}
-                    alt={lastUser.publicKey}
-                    className="caller-tag"
-                  />
-                )}
-                {c.marketCap && (
-                  <Box className="market-cap-tag">
-                    {formatCap(c.marketCap)}
-                  </Box>
-                )}
-                {c.priceChange24h !== undefined && (
-                  <Box className={getPriceChangeClass(c.priceChange24h)}>
-                    {formatPriceChange(c.priceChange24h)}
-                  </Box>
-                )}
-                <Box className="count-tag">{userCount}</Box>
-              </button>
-            );
-          })}
+          {data.contracts.length === 0 ? (
+            <Typography variant="body2" sx={{ textAlign: 'center', mt: 4, color: '#666' }}>
+              {t('no_contracts_yet') || 'No contracts to display yet.'}
+            </Typography>
+          ) : (
+            data.contracts.map((c) => {
+              const lastUser = latestUsers[c.contract];
+              const userCount = counts[c.contract] || 1;
+              const size = Math.max(40, Math.min(100, 40 + userCount * 10));
+              return (
+                <button
+                  key={c.contract}
+                  className="bubble"
+                  aria-label={c.contract}
+                  title={c.contract}
+                  style={{
+                    width: size,
+                    height: size,
+                    backgroundImage: c.image ? `url(${c.image})` : undefined,
+                  }}
+                  onClick={() => {
+                    setOpenContract(c.contract);
+                    setOpenContractUserCount(userCount);
+                  }}
+                  onDoubleClick={() => handleCopy(c.contract)}
+                >
+                  {c.model && (
+                    <Box className="model-tag">
+                      {c.model === 'model1' ? 'm01' : c.model}
+                    </Box>
+                  )}
+                  {lastUser && (
+                    <Avatar
+                      src={lastUser.pfp || undefined}
+                      alt={lastUser.publicKey}
+                      className="caller-tag"
+                    />
+                  )}
+                  {c.marketCap && (
+                    <Box className="market-cap-tag">
+                      {formatCap(c.marketCap)}
+                    </Box>
+                  )}
+                  {c.priceChange24h !== undefined && (
+                    <Box className={getPriceChangeClass(c.priceChange24h)}>
+                      {formatPriceChange(c.priceChange24h)}
+                    </Box>
+                  )}
+                  <Box className="count-tag">{userCount}</Box>
+                </button>
+              );
+            })
+          )}
         </Box>
       )}
       <ContractPanel 
