@@ -209,10 +209,10 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <Box sx={{ position: 'relative', display: 'inline-block' }} className="first-caller-avatar-container">
                 <Link to={`/user/${callerInfo.publicKey}`} style={{ textDecoration: 'none' }}>
-                  <Avatar 
-                    src={callerInfo.pfp} 
-                    alt={callerInfo.publicKey} 
-                    sx={{ width: 40, height: 40, cursor: 'pointer' }} 
+                  <Avatar
+                    src={callerInfo.pfp}
+                    alt={callerInfo.publicKey}
+                    sx={{ width: 40, height: 40, cursor: 'pointer' }}
                   />
                 </Link>
                 {callerInfo.twitter && (
@@ -220,7 +220,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     size="small"
                     onClick={() => window.open(`https://x.com/${callerInfo.twitter!.replace(/^@/, '')}`, '_blank')}
                     aria-label="View X profile"
-                    sx={{ 
+                    sx={{
                       position: 'absolute',
                       top: -8,
                       right: -8,
@@ -229,7 +229,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                       backgroundColor: '#000',
                       color: '#fff',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                      '&:hover': { 
+                      '&:hover': {
                         backgroundColor: '#333',
                         transform: 'scale(1.1)',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
@@ -242,6 +242,78 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     <XIcon />
                   </IconButton>
                 )}
+                {callerInfo.slingshot && (
+                  <IconButton
+                    size="small"
+                    onClick={() => window.open(formatSlingshotUrl(callerInfo.slingshot!), '_blank')}
+                    aria-label={t('slingshot')}
+                    sx={{
+                      position: 'absolute',
+                      top: -8,
+                      left: -8,
+                      width: 20,
+                      height: 20,
+                      backgroundColor: '#5E17EB',
+                      color: '#fff',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                      '&:hover': {
+                        backgroundColor: '#7B3FF2',
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                      }
+                    }}
+                  >
+                    <GiSlingshot size={12} />
+                  </IconButton>
+                )}
+                {callerInfo.vector && (
+                  <IconButton
+                    size="small"
+                    onClick={() => window.open(formatVectorUrl(callerInfo.vector!), '_blank')}
+                    aria-label={t('vector')}
+                    sx={{
+                      position: 'absolute',
+                      bottom: -8,
+                      left: -8,
+                      width: 20,
+                      height: 20,
+                      backgroundColor: '#1976d2',
+                      color: '#fff',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                      '&:hover': {
+                        backgroundColor: '#115293',
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                      }
+                    }}
+                  >
+                    <FaVectorSquare size={12} />
+                  </IconButton>
+                )}
+                {callerInfo.axiom && (
+                  <IconButton
+                    size="small"
+                    onClick={() => window.open(formatAxiomUrl(callerInfo.axiom!), '_blank')}
+                    aria-label={t('axiom')}
+                    sx={{
+                      position: 'absolute',
+                      bottom: -8,
+                      right: -8,
+                      width: 20,
+                      height: 20,
+                      backgroundColor: '#e53935',
+                      color: '#fff',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                      '&:hover': {
+                        backgroundColor: '#b71c1c',
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                      }
+                    }}
+                  >
+                    <GiAtom size={12} />
+                  </IconButton>
+                )}
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="body2" sx={{ wordBreak: 'break-all', fontWeight: 'bold' }}>
@@ -251,40 +323,6 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   <Typography variant="body2" sx={{ color: '#666', fontSize: '0.875rem' }}>
                     {callerInfo.domain}.sol
                   </Typography>
-                )}
-                {(callerInfo.slingshot || callerInfo.axiom || callerInfo.vector) && (
-                  <Box sx={{ mt: 0.5, display: 'flex', gap: 0.5 }}>
-                    {callerInfo.slingshot && (
-                      <IconButton
-                        size="small"
-                        onClick={() => window.open(formatSlingshotUrl(callerInfo.slingshot!), '_blank')}
-                        aria-label={t('slingshot')}
-                        sx={{ p: 0.5 }}
-                      >
-                        <GiSlingshot />
-                      </IconButton>
-                    )}
-                    {callerInfo.axiom && (
-                      <IconButton
-                        size="small"
-                        onClick={() => window.open(formatAxiomUrl(callerInfo.axiom!), '_blank')}
-                        aria-label={t('axiom')}
-                        sx={{ p: 0.5 }}
-                      >
-                        <GiAtom />
-                      </IconButton>
-                    )}
-                    {callerInfo.vector && (
-                      <IconButton
-                        size="small"
-                        onClick={() => window.open(formatVectorUrl(callerInfo.vector!), '_blank')}
-                        aria-label={t('vector')}
-                        sx={{ p: 0.5 }}
-                      >
-                        <FaVectorSquare />
-                      </IconButton>
-                    )}
-                  </Box>
                 )}
               </Box>
             </Box>
