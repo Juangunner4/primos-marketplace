@@ -95,7 +95,11 @@ public class LoginService {
                 user.persistOrUpdate();
             }
         }
-        user.setPointsDate(LocalDate.now().toString());
+        String today = LocalDate.now().toString();
+        if (!today.equals(user.getPointsDate())) {
+            user.setPointsDate(today);
+            user.setPointsToday(0);
+        }
         user.persistOrUpdate();
         return user;
     }

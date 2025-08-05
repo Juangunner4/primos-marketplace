@@ -13,6 +13,7 @@ import jakarta.ws.rs.NotFoundException;
 @ApplicationScoped
 public class PointService {
     private static final Logger LOGGER = Logger.getLogger(PointService.class.getName());
+    private static final int MAX_POINTS_PER_DAY = 1000;
 
     public User addPoint(String publicKey, String walletKey) {
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
@@ -40,7 +41,7 @@ public class PointService {
             user.setPointsToday(0);
             LOGGER.info("[PointService] Reset pointsToday for new day");
         }
-        if (user.getPointsToday() >= 4) {
+        if (user.getPointsToday() >= MAX_POINTS_PER_DAY) {
             if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
                 LOGGER.warning(String.format("[PointService] Daily limit reached for user: %s", publicKey));
             }
