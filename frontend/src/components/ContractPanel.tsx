@@ -11,6 +11,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
+import { GiSlingshot, GiAtom } from 'react-icons/gi';
+import { FaVectorSquare } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
@@ -42,6 +44,9 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     marketCap?: number;
     domain?: string;
     twitter?: string;
+    slingshot?: string;
+    axiom?: string;
+    vector?: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +64,33 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     market_cap: <BarChartIcon fontSize="small" />,
     volume_24h: <TrendingUpIcon fontSize="small" />,
     last_updated: <AutorenewIcon fontSize="small" />,
+  };
+
+  const formatSlingshotUrl = (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    return `https://slingshot.app/signup?code=${trimmed.replace(/^@/, '')}`;
+  };
+
+  const formatVectorUrl = (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    return `https://vec.fun/ref/${trimmed.replace(/^@/, '')}`;
+  };
+
+  const formatAxiomUrl = (handle: string) => {
+    const trimmed = handle.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    return `https://axiom.trade/@${trimmed.replace(/^@/, '')}`;
   };
 
   const handleCopyContract = () => {
@@ -80,6 +112,9 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           marketCap: rec.firstCallerMarketCap,
           domain: rec.firstCallerDomain,
           twitter: user?.socials?.twitter || '',
+          slingshot: user?.socials?.slingshot || '',
+          axiom: user?.socials?.axiom || '',
+          vector: user?.socials?.vector || '',
         });
       }
     } catch (error) {
@@ -216,6 +251,40 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   <Typography variant="body2" sx={{ color: '#666', fontSize: '0.875rem' }}>
                     {callerInfo.domain}.sol
                   </Typography>
+                )}
+                {(callerInfo.slingshot || callerInfo.axiom || callerInfo.vector) && (
+                  <Box sx={{ mt: 0.5, display: 'flex', gap: 0.5 }}>
+                    {callerInfo.slingshot && (
+                      <IconButton
+                        size="small"
+                        onClick={() => window.open(formatSlingshotUrl(callerInfo.slingshot!), '_blank')}
+                        aria-label={t('slingshot')}
+                        sx={{ p: 0.5 }}
+                      >
+                        <GiSlingshot />
+                      </IconButton>
+                    )}
+                    {callerInfo.axiom && (
+                      <IconButton
+                        size="small"
+                        onClick={() => window.open(formatAxiomUrl(callerInfo.axiom!), '_blank')}
+                        aria-label={t('axiom')}
+                        sx={{ p: 0.5 }}
+                      >
+                        <GiAtom />
+                      </IconButton>
+                    )}
+                    {callerInfo.vector && (
+                      <IconButton
+                        size="small"
+                        onClick={() => window.open(formatVectorUrl(callerInfo.vector!), '_blank')}
+                        aria-label={t('vector')}
+                        sx={{ p: 0.5 }}
+                      >
+                        <FaVectorSquare />
+                      </IconButton>
+                    )}
+                  </Box>
                 )}
               </Box>
             </Box>
