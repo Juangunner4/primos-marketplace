@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslation } from 'react-i18next';
 import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import { fetchTrenchData, submitTrenchContract, TrenchData } from '../services/trench';
@@ -27,6 +28,8 @@ const Trenches: React.FC = () => {
   const [openContract, setOpenContract] = useState<string | null>(null);
   const [openContractUserCount, setOpenContractUserCount] = useState<number>(0);
   const [message, setMessage] = useState<AppMessage | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   const canSubmit = !!publicKey && isHolder;
 
@@ -41,8 +44,13 @@ const Trenches: React.FC = () => {
   }, [data]);
 
   const load = async () => {
-    const res = await fetchTrenchData();
-    setData(res);
+    setLoading(true);
+    try {
+      const res = await fetchTrenchData();
+      setData(res);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -50,29 +58,31 @@ const Trenches: React.FC = () => {
   }, []);
 
   const handleAdd = async () => {
-    if (!input || !publicKey) return;
+    const contract = input.trim();
+    if (!contract || !publicKey) return;
+    setAdding(true);
     let valid = false;
     let marketCap: number | undefined;
-    
-    if (/^0x[0-9a-fA-F]{40}$/.test(input)) {
+
+    if (/^0x[0-9a-fA-F]{40}$/.test(contract)) {
       try {
-        const data = await fetchSimpleTokenPrice(input, 'ethereum');
+        const data = await fetchSimpleTokenPrice(contract, 'ethereum');
         if (data) {
           valid = true;
           marketCap = data.usd_market_cap;
         }
       } catch {}
     }
-    
+
     if (!valid) {
       try {
-        const addr = new PublicKey(input);
+        const addr = new PublicKey(contract);
         const info = await connection.getAccountInfo(addr);
         if (info) {
           valid = true;
           // Try to get Solana token market cap from CoinGecko via backend proxy
           try {
-            const tokenData = await fetchSimpleTokenPrice(input, 'solana');
+            const tokenData = await fetchSimpleTokenPrice(contract, 'solana');
             if (tokenData?.usd_market_cap) {
               marketCap = tokenData.usd_market_cap;
             }
@@ -82,18 +92,21 @@ const Trenches: React.FC = () => {
         }
       } catch {}
     }
-    
+
     if (!valid) {
       setMessage({ text: t('contract_not_onchain'), type: 'error' });
+      setAdding(false);
       return;
     }
-    
+
     try {
-      await submitTrenchContract(publicKey.toBase58(), input, 'model1', marketCap);
+      await submitTrenchContract(publicKey.toBase58(), contract, 'model1', marketCap);
       setInput('');
-      load();
+      await load();
     } catch (e: any) {
       setMessage({ text: t('contract_already_added'), type: 'error' });
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -145,7 +158,7 @@ const Trenches: React.FC = () => {
           <Button
             variant="contained"
             onClick={handleAdd}
-            disabled={!input}
+            disabled={!input || adding}
             sx={{
               backgroundColor: '#000',
               color: '#fff',
@@ -153,49 +166,59 @@ const Trenches: React.FC = () => {
               '&:disabled': { backgroundColor: '#ccc', color: '#666' },
             }}
           >
-            {t('add_contract')}
+            {adding ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              t('add_contract')
+            )}
           </Button>
         </Box>
       )}
-      <Box className="bubble-map">
-        {data.contracts.map((c) => {
-          const firstUser = data.users.find((u) => u.publicKey === c.firstCaller);
-          const userCount = counts[c.contract] || 1;
-          const size = Math.max(40, Math.min(100, 40 + userCount * 10));
-          return (
-            <button
-              key={c.contract}
-              className="bubble"
-              aria-label={c.contract}
-              title={c.contract}
-              style={{
-                width: size,
-                height: size,
-                backgroundImage: c.image ? `url(${c.image})` : undefined,
-              }}
-              onClick={() => {
-                setOpenContract(c.contract);
-                setOpenContractUserCount(userCount);
-              }}
-              onDoubleClick={() => handleCopy(c.contract)}
-            >
-              {c.model && (
-                <Box className="model-tag">
-                  {c.model === 'model1' ? 'm01' : c.model}
-                </Box>
-              )}
-              {firstUser && (
-                <Avatar
-                  src={firstUser.pfp || undefined}
-                  alt={firstUser.publicKey}
-                  className="caller-tag"
-                />
-              )}
-              <Box className="count-tag">{userCount}</Box>
-            </button>
-          );
-        })}
-      </Box>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box className="bubble-map">
+          {data.contracts.map((c) => {
+            const firstUser = data.users.find((u) => u.publicKey === c.firstCaller);
+            const userCount = counts[c.contract] || 1;
+            const size = Math.max(40, Math.min(100, 40 + userCount * 10));
+            return (
+              <button
+                key={c.contract}
+                className="bubble"
+                aria-label={c.contract}
+                title={c.contract}
+                style={{
+                  width: size,
+                  height: size,
+                  backgroundImage: c.image ? `url(${c.image})` : undefined,
+                }}
+                onClick={() => {
+                  setOpenContract(c.contract);
+                  setOpenContractUserCount(userCount);
+                }}
+                onDoubleClick={() => handleCopy(c.contract)}
+              >
+                {c.model && (
+                  <Box className="model-tag">
+                    {c.model === 'model1' ? 'm01' : c.model}
+                  </Box>
+                )}
+                {firstUser && (
+                  <Avatar
+                    src={firstUser.pfp || undefined}
+                    alt={firstUser.publicKey}
+                    className="caller-tag"
+                  />
+                )}
+                <Box className="count-tag">{userCount}</Box>
+              </button>
+            );
+          })}
+        </Box>
+      )}
       <ContractPanel 
         contract={openContract} 
         open={openContract !== null} 
