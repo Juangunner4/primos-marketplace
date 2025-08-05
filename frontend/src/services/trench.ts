@@ -2,7 +2,8 @@ export type { HeliusNFT } from './helius';
 import api from '../utils/api';
 import { getNFTsByTokenAddresses, fetchCollectionNFTsForOwner } from './helius';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
+// Gracefully handle missing env variable to avoid runtime crashes.
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION ?? '';
 
 export interface TrenchContract {
   contract: string;
