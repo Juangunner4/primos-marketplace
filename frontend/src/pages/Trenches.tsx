@@ -10,17 +10,23 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslation } from 'react-i18next';
 import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import {
-  fetchTrenchData,
   submitTrenchContract,
   TrenchData,
   TrenchUser,
 } from '../services/trench';
+import api from '../utils/api';
+import {
+  getNFTByTokenAddress,
+  fetchCollectionNFTsForOwner,
+} from '../services/helius';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
 import { AppMessage } from '../types';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './Trenches.css';
+
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 const Trenches: React.FC = () => {
   const { publicKey } = useWallet();
@@ -57,9 +63,52 @@ const Trenches: React.FC = () => {
   const load = async (showSpinner = true) => {
     if (showSpinner) setLoading(true);
     try {
-      const res = await fetchTrenchData();
-      setData(res);
-    } finally {
+      const res = await api.get<TrenchData>('/api/trench');
+
+      // Preload users so counts render immediately
+      setData({ contracts: [], users: res.data.users });
+      if (showSpinner) setLoading(false);
+
+      // Stream contracts one by one
+      res.data.contracts.forEach(async (c) => {
+        setData((prev) => ({ ...prev, contracts: [...prev.contracts, c] }));
+        try {
+          const nft = await getNFTByTokenAddress(c.contract);
+          if (nft?.image) {
+            setData((prev) => ({
+              ...prev,
+              contracts: prev.contracts.map((cc) =>
+                cc.contract === c.contract ? { ...cc, image: nft.image } : cc
+              ),
+            }));
+          }
+        } catch {}
+      });
+
+      // Fetch user profile images gradually
+      res.data.users.forEach(async (u) => {
+        let image = '';
+        try {
+          const pfpAddr = u.pfp?.replace(/"/g, '');
+          if (pfpAddr) {
+            const nft = await getNFTByTokenAddress(pfpAddr);
+            image = nft?.image || '';
+          } else {
+            const nfts = await fetchCollectionNFTsForOwner(
+              u.publicKey,
+              PRIMO_COLLECTION
+            );
+            image = nfts[0]?.image || '';
+          }
+        } catch {}
+        setData((prev) => ({
+          ...prev,
+          users: prev.users.map((uu) =>
+            uu.publicKey === u.publicKey ? { ...uu, pfp: image } : uu
+          ),
+        }));
+      });
+    } catch {
       if (showSpinner) setLoading(false);
     }
   };
