@@ -17,13 +17,16 @@ public class TrenchServiceTest {
             }
         };
         svc.add("u1", "ca1", "website", null);
+        TrenchUser u1 = TrenchUser.find("publicKey", "u1").firstResult();
+        u1.setLastSubmittedAt(0L); // bypass cooldown
+        u1.persistOrUpdate();
         assertThrows(jakarta.ws.rs.BadRequestException.class, () -> svc.add("u1", "ca1", "website", null));
         svc.add("u2", "ca1", "website", null);
 
         TrenchContract tc = TrenchContract.find("contract", "ca1").firstResult();
         assertEquals(2, tc.getCount());
 
-        TrenchUser u1 = TrenchUser.find("publicKey", "u1").firstResult();
+        u1 = TrenchUser.find("publicKey", "u1").firstResult();
         assertEquals(1, u1.getCount());
         assertTrue(u1.getContracts().contains("ca1"));
         TrenchUser u2 = TrenchUser.find("publicKey", "u2").firstResult();
