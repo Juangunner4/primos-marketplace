@@ -186,19 +186,19 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         )}
         {/* First caller information */}
         {callerInfo && (
-          <Box sx={{ mb: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
+          <Box sx={{ mb: 2, p: 2, border: '1px solid #fff', borderRadius: 1, backgroundColor: '#000', color: '#fff' }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
               {t('first_caller')}
             </Typography>
-            
+
             {/* Community Sentiment Info */}
-            <Box sx={{ mb: 2, p: 1, backgroundColor: '#e3f2fd', borderRadius: 1, border: '1px solid #2196f3' }}>
-              <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box sx={{ mb: 2, p: 1, backgroundColor: '#fff', borderRadius: 1, border: '1px solid #fff' }}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#000', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <BarChartIcon fontSize="small" />
                 {t('community_sentiment')} {userCount > 0 && `(${userCount} ${userCount === 1 ? t('user') : t('users')})`}
               </Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#1565c0' }}>
-                {userCount > 0 
+              <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#000' }}>
+                {userCount > 0
                   ? t('sentiment_contract_explanation_with_count', { count: userCount })
                   : t('sentiment_contract_explanation')
                 }
