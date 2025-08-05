@@ -21,6 +21,7 @@ export interface TrenchUser {
   pfp: string;
   count: number;
   contracts: string[];
+  lastSubmittedAt?: number;
   socials?: {
     twitter?: string;
     discord?: string;

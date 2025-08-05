@@ -32,6 +32,7 @@ public class TrenchResource {
         public int count;
         public java.util.List<String> contracts;
         public User.SocialLinks socials;
+        public long lastSubmittedAt;
     }
 
     public static class TrenchData {
@@ -70,6 +71,7 @@ public class TrenchResource {
             info.pfp = user != null ? user.getPfp() : "";
             info.socials = user != null ? user.getSocials() : new User.SocialLinks();
             info.contracts = u.getContracts();
+            info.lastSubmittedAt = u.getLastSubmittedAt();
             return info;
         }).collect(Collectors.toList());
         return data;

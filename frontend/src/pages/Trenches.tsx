@@ -9,7 +9,12 @@ import Avatar from '@mui/material/Avatar';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslation } from 'react-i18next';
 import TrackChangesIcon from '@mui/icons-material/TrackChanges';
-import { fetchTrenchData, submitTrenchContract, TrenchData } from '../services/trench';
+import {
+  fetchTrenchData,
+  submitTrenchContract,
+  TrenchData,
+  TrenchUser,
+} from '../services/trench';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
@@ -33,14 +38,20 @@ const Trenches: React.FC = () => {
 
   const canSubmit = !!publicKey && isHolder;
 
-  const counts = useMemo(() => {
-    const map: Record<string, number> = {};
+  const { counts, latestUsers } = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const latestUsers: Record<string, TrenchUser | undefined> = {};
     data.users.forEach((u) => {
+      const lastAt = u.lastSubmittedAt || 0;
       u.contracts.forEach((c) => {
-        map[c] = (map[c] || 0) + 1;
+        counts[c] = (counts[c] || 0) + 1;
+        const prev = latestUsers[c];
+        if (!prev || lastAt > (prev.lastSubmittedAt || 0)) {
+          latestUsers[c] = u;
+        }
       });
     });
-    return map;
+    return { counts, latestUsers };
   }, [data]);
 
   const load = async (showSpinner = true) => {
@@ -189,7 +200,7 @@ const Trenches: React.FC = () => {
       ) : (
         <Box className="bubble-map">
           {data.contracts.map((c) => {
-            const firstUser = data.users.find((u) => u.publicKey === c.firstCaller);
+            const lastUser = latestUsers[c.contract];
             const userCount = counts[c.contract] || 1;
             const size = Math.max(40, Math.min(100, 40 + userCount * 10));
             return (
@@ -214,10 +225,10 @@ const Trenches: React.FC = () => {
                     {c.model === 'model1' ? 'm01' : c.model}
                   </Box>
                 )}
-                {firstUser && (
+                {lastUser && (
                   <Avatar
-                    src={firstUser.pfp || undefined}
-                    alt={firstUser.publicKey}
+                    src={lastUser.pfp || undefined}
+                    alt={lastUser.publicKey}
                     className="caller-tag"
                   />
                 )}
