@@ -85,6 +85,15 @@ public class LoginService {
             user.addBadge("sns");
             user.persistOrUpdate();
         }
+        if (user.getSocials() != null) {
+            User.SocialLinks links = user.getSocials();
+            if ((links.getSlingshot() != null && !links.getSlingshot().isEmpty())
+                    || (links.getAxiom() != null && !links.getAxiom().isEmpty())
+                    || (links.getVector() != null && !links.getVector().isEmpty())) {
+                user.addBadge("trader");
+                user.persistOrUpdate();
+            }
+        }
         return user;
     }
 

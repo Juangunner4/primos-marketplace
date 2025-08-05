@@ -18,6 +18,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import TerrainIcon from '@mui/icons-material/Terrain';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { GiWhaleTail, GiAnglerFish, GiShrimp } from 'react-icons/gi';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
@@ -340,6 +341,9 @@ const fadeOut = keyframes`
                 )}
                 {user?.badges?.includes('trenches') && (
                   <TerrainIcon className="badge-icon" />
+                )}
+                {user?.badges?.includes('trader') && (
+                  <TrendingUpIcon className="badge-icon" aria-label="trader-badge" />
                 )}
               </Box>
             )}

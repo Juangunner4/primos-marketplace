@@ -77,5 +77,6 @@ public class ProfileServiceTest {
         assertEquals("code1", db.getSocials().getSlingshot());
         assertEquals("code2", db.getSocials().getAxiom());
         assertEquals("code3", db.getSocials().getVector());
+        assertTrue(db.getBadges().contains("trader"));
     }
 }

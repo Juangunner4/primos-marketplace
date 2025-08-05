@@ -111,6 +111,40 @@ describe('UserProfile', () => {
     expect(await screen.findByLabelText('sns-badge')).toBeTruthy();
   });
 
+  test('shows trader badge when trading platform present', async () => {
+    mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    const { default: apiMock } = require('../../utils/api');
+    (apiMock.get as jest.Mock).mockResolvedValueOnce({
+      data: {
+        publicKey: 'pubkey123',
+        bio: '',
+        socials: {
+          twitter: '',
+          discord: '',
+          website: '',
+          slingshot: 'code',
+          axiom: '',
+          vector: '',
+        },
+        badges: ['trader'],
+        pfp: '',
+        domain: '',
+        points: 0,
+        pointsToday: 0,
+        pointsDate: 'today',
+        pesos: 0,
+      },
+    });
+
+    render(
+      <I18nextProvider i18n={i18n}>
+        <UserProfile />
+      </I18nextProvider>
+    );
+
+    expect(await screen.findByLabelText('trader-badge')).toBeTruthy();
+  });
+
   test('renders twitter and website links', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
     const { default: apiMock } = require('../../utils/api');
