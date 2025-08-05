@@ -84,6 +84,33 @@ const formatWebsiteUrl = (url: string) => {
   return `https://${trimmed}`;
 };
 
+const formatSlingshotUrl = (code: string) => {
+  const trimmed = code.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `https://slingshot.app/signup?code=${trimmed.replace(/^@/, '')}`;
+};
+
+const formatVectorUrl = (code: string) => {
+  const trimmed = code.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `https://vec.fun/ref/${trimmed.replace(/^@/, '')}`;
+};
+
+const formatAxiomUrl = (handle: string) => {
+  const trimmed = handle.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `https://axiom.trade/@${trimmed.replace(/^@/, '')}`;
+};
+
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
   const params = useParams<{ publicKey?: string }>();
@@ -486,36 +513,78 @@ const fadeOut = keyframes`
             </Typography>
           )
         )}
-        <TextField
-          label={t('slingshot')}
-          value={user.socials.slingshot}
-          onChange={(e) =>
-            setUser({ ...user, socials: { ...user.socials, slingshot: e.target.value } })
-          }
-          fullWidth
-          margin="normal"
-          disabled={!isOwner || !isEditing}
-        />
-        <TextField
-          label={t('axiom')}
-          value={user.socials.axiom}
-          onChange={(e) =>
-            setUser({ ...user, socials: { ...user.socials, axiom: e.target.value } })
-          }
-          fullWidth
-          margin="normal"
-          disabled={!isOwner || !isEditing}
-        />
-        <TextField
-          label={t('vector')}
-          value={user.socials.vector}
-          onChange={(e) =>
-            setUser({ ...user, socials: { ...user.socials, vector: e.target.value } })
-          }
-          fullWidth
-          margin="normal"
-          disabled={!isOwner || !isEditing}
-        />
+        {isOwner && isEditing ? (
+          <TextField
+            label={t('slingshot')}
+            value={user.socials.slingshot}
+            onChange={(e) =>
+              setUser({ ...user, socials: { ...user.socials, slingshot: e.target.value } })
+            }
+            fullWidth
+            margin="normal"
+          />
+        ) : (
+          user.socials.slingshot && (
+            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
+              <strong>{t('slingshot')}</strong>{' '}
+              <a
+                href={formatSlingshotUrl(user.socials.slingshot)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {user.socials.slingshot}
+              </a>
+            </Typography>
+          )
+        )}
+        {isOwner && isEditing ? (
+          <TextField
+            label={t('axiom')}
+            value={user.socials.axiom}
+            onChange={(e) =>
+              setUser({ ...user, socials: { ...user.socials, axiom: e.target.value } })
+            }
+            fullWidth
+            margin="normal"
+          />
+        ) : (
+          user.socials.axiom && (
+            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
+              <strong>{t('axiom')}</strong>{' '}
+              <a
+                href={formatAxiomUrl(user.socials.axiom)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {user.socials.axiom}
+              </a>
+            </Typography>
+          )
+        )}
+        {isOwner && isEditing ? (
+          <TextField
+            label={t('vector')}
+            value={user.socials.vector}
+            onChange={(e) =>
+              setUser({ ...user, socials: { ...user.socials, vector: e.target.value } })
+            }
+            fullWidth
+            margin="normal"
+          />
+        ) : (
+          user.socials.vector && (
+            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
+              <strong>{t('vector')}</strong>{' '}
+              <a
+                href={formatVectorUrl(user.socials.vector)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {user.socials.vector}
+              </a>
+            </Typography>
+          )
+        )}
         <TextField
           label={t('sns_domain')}
           value={primaryDomain || ''}

@@ -150,8 +150,30 @@ describe('UserProfile', () => {
     expect(websiteLink.getAttribute('href')).toBe('https://example.com');
   });
 
-  test('renders trading platform fields', async () => {
+  test('renders trading platform links', async () => {
     mockUseWallet.mockReturnValue({ publicKey: { toBase58: () => 'pubkey123' } });
+    const { default: apiMock } = require('../../utils/api');
+    (apiMock.get as jest.Mock).mockResolvedValueOnce({
+      data: {
+        publicKey: 'pubkey123',
+        bio: '',
+        socials: {
+          twitter: '',
+          discord: '',
+          website: '',
+          slingshot: '0x1Juangunner4',
+          axiom: '0x1juan',
+          vector: '0x1JuanGunner4',
+        },
+        pfp: '',
+        domain: 'my.sol',
+        points: 0,
+        pointsToday: 0,
+        pointsDate: 'today',
+        pesos: 0,
+      },
+    });
+
     render(
       <I18nextProvider i18n={i18n}>
         <UserProfile />
@@ -160,9 +182,20 @@ describe('UserProfile', () => {
 
     await screen.findByText(/Wallet/i);
 
-    expect(screen.getByLabelText('Slingshot')).toBeInTheDocument();
-    expect(screen.getByLabelText('Axiom')).toBeInTheDocument();
-    expect(screen.getByLabelText('Vector')).toBeInTheDocument();
+    const slingshotLink = screen.getByRole('link', { name: '0x1Juangunner4' });
+    expect(slingshotLink.getAttribute('href')).toBe(
+      'https://slingshot.app/signup?code=0x1Juangunner4'
+    );
+
+    const axiomLink = screen.getByRole('link', { name: '0x1juan' });
+    expect(axiomLink.getAttribute('href')).toBe(
+      'https://axiom.trade/@0x1juan'
+    );
+
+    const vectorLink = screen.getByRole('link', { name: '0x1JuanGunner4' });
+    expect(vectorLink.getAttribute('href')).toBe(
+      'https://vec.fun/ref/0x1JuanGunner4'
+    );
   });
 
   test('shows cancel button and NFT selector when entering edit mode', async () => {
