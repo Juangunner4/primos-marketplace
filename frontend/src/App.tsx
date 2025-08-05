@@ -33,6 +33,7 @@ import Work from './pages/Work';
 import BetaRedeem from './components/BetaRedeem';
 import LoadingOverlay from './components/LoadingOverlay';
 import ErrorBoundary from './components/ErrorBoundary';
+import AdminDeveloperConsole from './components/AdminDeveloperConsole';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
@@ -289,14 +290,40 @@ const AppRoutes = () => {
 const AppContent = () => {
   const { loading } = usePrimoHolder();
   const { t } = useTranslation();
+  
   return (
     <>
       {loading && <LoadingOverlay message={t('checking_access')} />}
       <Router>
         <Header />
         <AppRoutes />
+        <GlobalAdminConsole />
       </Router>
     </>
+  );
+};
+
+const GlobalAdminConsole = () => {
+  const location = useLocation();
+  
+  return (
+    <AdminDeveloperConsole
+      debugInfo={{
+        apiCallAttempted: false,
+        apiCallSuccess: false,
+        apiCallError: null,
+        contractsLoaded: 0,
+        usersLoaded: 0,
+        renderAttempted: true,
+        lastError: null
+      }}
+      componentName={`Global - ${location?.pathname || 'Unknown'}`}
+      additionalData={{
+        currentPath: location?.pathname,
+        timestamp: new Date().toISOString(),
+        globalConsole: true
+      }}
+    />
   );
 };
 

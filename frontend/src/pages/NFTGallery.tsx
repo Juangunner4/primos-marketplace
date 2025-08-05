@@ -12,6 +12,7 @@ import NFTCard, { MarketNFT } from "../components/NFTCard";
 import api from '../utils/api';
 import MessageModal from '../components/MessageModal';
 import ListItemModal from '../components/ListItemModal';
+import AdminDeveloperConsole from '../components/AdminDeveloperConsole';
 import { AppMessage } from '../types';
 import "./PrimosMarketGallery.css";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -44,6 +45,17 @@ const NFTGallery: React.FC = () => {
   const { t } = useTranslation();
   const [message, setMessage] = useState<AppMessage | null>(null);
 
+  // Debug info for AdminDeveloperConsole
+  const [debugInfo, setDebugInfo] = useState({
+    apiCallAttempted: false,
+    apiCallSuccess: false,
+    apiCallError: null as string | null,
+    contractsLoaded: 0,
+    usersLoaded: 0,
+    renderAttempted: true,
+    lastError: null as Error | null
+  });
+
   const handleList = (nft: MarketNFT) => {
     setSelectedNft(nft);
     setCardOpen(false);
@@ -58,10 +70,13 @@ const NFTGallery: React.FC = () => {
         setLoading(false);
         setFloorPrice(null);
         setSolPrice(null);
+        setDebugInfo(prev => ({ ...prev, apiCallAttempted: false, apiCallSuccess: false }));
         return;
       }
       const pub = publicKey.toBase58();
       setLoading(true);
+      setDebugInfo(prev => ({ ...prev, apiCallAttempted: true, apiCallError: null }));
+      
       try {
         const [assets, stats, solPriceVal] = await Promise.all([
           getAssetsByCollection(PRIMO_COLLECTION, pub),
@@ -93,8 +108,20 @@ const NFTGallery: React.FC = () => {
         setNfts(filtered);
         setFloorPrice(stats?.floorPrice ?? null);
         setSolPrice(solPriceVal ?? null);
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          apiCallSuccess: true, 
+          contractsLoaded: filtered.length,
+          usersLoaded: 1 
+        }));
       } catch (e) {
         console.error("Failed to load NFTs", e);
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          apiCallSuccess: false, 
+          apiCallError: e instanceof Error ? e.message : 'Unknown error',
+          lastError: e instanceof Error ? e : new Error('Unknown error')
+        }));
       } finally {
         setLoading(false);
       }
@@ -375,6 +402,19 @@ const NFTGallery: React.FC = () => {
       open={!!message}
       message={message}
       onClose={() => setMessage(null)}
+    />
+    <AdminDeveloperConsole 
+      debugInfo={debugInfo}
+      componentName="NFTGallery (Collected)"
+      additionalData={{
+        loading,
+        nftsCount: nfts.length,
+        hasFloorPrice: !!floorPrice,
+        hasSolPrice: !!solPrice,
+        environmentVars: {
+          primoCollection: !!PRIMO_COLLECTION
+        }
+      }}
     />
   </>
   );

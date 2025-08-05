@@ -15,6 +15,7 @@ import NFTCard from '../components/NFTCard';
 import GallerySettings from '../components/GallerySettings';
 import { executeBuyNow } from '../utils/transaction';
 import MessageModal from '../components/MessageModal';
+import AdminDeveloperConsole from '../components/AdminDeveloperConsole';
 import { AppMessage } from '../types';
 import PriceBreakdown from '../components/PriceBreakdown';
 import TxProgressModal from '../components/TxProgressModal';
@@ -63,6 +64,17 @@ const PrimosMarketGallery: React.FC = () => {
   const { t } = useTranslation();
   const { connection } = useConnection();
   const wallet = useWallet();
+
+  // Debug info for AdminDeveloperConsole
+  const [debugInfo, setDebugInfo] = useState({
+    apiCallAttempted: false,
+    apiCallSuccess: false,
+    apiCallError: null as string | null,
+    contractsLoaded: 0,
+    usersLoaded: 0,
+    renderAttempted: true,
+    lastError: null as Error | null
+  });
 
   const handleBuy = async (nft: MarketNFT) => {
     try {
@@ -163,10 +175,19 @@ const PrimosMarketGallery: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
+    setDebugInfo(prev => ({ ...prev, apiCallAttempted: true, apiCallError: null }));
 
     fetchPage(page, setNfts, setLoading, setTotalPages, getNftRank).catch((e) => {
       console.error('Failed to fetch listings:', e);
-      if (isMounted) setNfts([]);
+      if (isMounted) {
+        setNfts([]);
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          apiCallSuccess: false, 
+          apiCallError: e instanceof Error ? e.message : 'Unknown error',
+          lastError: e instanceof Error ? e : new Error('Unknown error')
+        }));
+      }
       if (isMounted) setLoading(false);
     });
 
@@ -218,6 +239,12 @@ const PrimosMarketGallery: React.FC = () => {
       const filtered = pageNFTs.filter((nft) => nft.image);
 
       setNfts(filtered);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        apiCallSuccess: true, 
+        contractsLoaded: filtered.length,
+        usersLoaded: filtered.length 
+      }));
     } catch (e) {
       console.error('Error fetching page:', e);
       throw e;
@@ -516,6 +543,25 @@ const PrimosMarketGallery: React.FC = () => {
       open={!!message}
       message={message}
       onClose={() => setMessage(null)}
+    />
+    <AdminDeveloperConsole 
+      debugInfo={debugInfo}
+      componentName="PrimosMarketGallery (Market)"
+      additionalData={{
+        loading,
+        nftsCount: nfts.length,
+        filteredNftsCount: filteredNfts.length,
+        currentPage: page,
+        totalPages,
+        hasFloorPrice: !!floorPrice,
+        hasSolPrice: !!solPrice,
+        listedCount,
+        uniqueHolders,
+        hasFilters: Object.values(selectedAttributes).some(set => set.size > 0) || minPrice || maxPrice || minRank || maxRank,
+        environmentVars: {
+          magicEdenSymbol: MAGICEDEN_SYMBOL
+        }
+      }}
     />
   </>
   );

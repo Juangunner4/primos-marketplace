@@ -22,6 +22,7 @@ import {
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
+import AdminDeveloperConsole from '../components/AdminDeveloperConsole';
 import { AppMessage } from '../types';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './Trenches.css';
@@ -71,14 +72,31 @@ const Trenches: React.FC = () => {
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [debugInfo, setDebugInfo] = useState({
+    apiCallAttempted: false,
+    apiCallSuccess: false,
+    apiCallError: null as string | null,
+    contractsLoaded: 0,
+    usersLoaded: 0,
+    renderAttempted: false,
+    lastError: null as Error | null
+  });
 
-  console.log('Trenches component rendering', { 
+  // Enhanced debugging console logs
+  console.log('🔍 Trenches Debug - Component State:', { 
     publicKey: publicKey?.toBase58(), 
     isHolder, 
     dataContracts: data.contracts.length,
     dataUsers: data.users.length,
     loading,
-    connectionPresent: !!connection
+    adding,
+    connectionPresent: !!connection,
+    environmentVars: {
+      primoCollection: !!PRIMO_COLLECTION,
+      nodeEnv: process.env.NODE_ENV,
+      backendUrl: process.env.REACT_APP_BACKEND_URL
+    },
+    debugInfo
   });
 
   const canSubmit = !!publicKey && isHolder;
@@ -100,9 +118,28 @@ const Trenches: React.FC = () => {
   }, [data]);
 
   const load = async (showSpinner = true) => {
+    console.log('🚀 Load function started', { showSpinner });
     if (showSpinner) setLoading(true);
+    
+    // Update debug info
+    setDebugInfo(prev => ({
+      ...prev,
+      apiCallAttempted: true,
+      apiCallSuccess: false,
+      apiCallError: null
+    }));
+
     try {
+      console.log('📡 Making API call to /api/trench...');
       const res = await api.get<TrenchData>('/api/trench');
+      console.log('✅ API call successful:', res.data);
+      
+      setDebugInfo(prev => ({
+        ...prev,
+        apiCallSuccess: true,
+        contractsLoaded: res.data.contracts?.length || 0,
+        usersLoaded: res.data.users?.length || 0
+      }));
 
       // Preload users so counts render immediately
       setData({ 
@@ -185,20 +222,53 @@ const Trenches: React.FC = () => {
         }));
       });
     } catch (err) {
-      console.error('Failed to load trench data:', err);
+      console.error('❌ Failed to load trench data:', err);
+      
+      // Enhanced error logging
+      const errorDetails = {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        name: err instanceof Error ? err.name : 'UnknownError',
+        isNetworkError: err instanceof Error && (
+          err.message.includes('ECONNREFUSED') || 
+          err.message.includes('Network Error') ||
+          err.message.includes('fetch')
+        )
+      };
+      
+      console.error('🔍 Error details:', errorDetails);
+      
+      setDebugInfo(prev => ({
+        ...prev,
+        apiCallError: errorDetails.message,
+        lastError: err instanceof Error ? err : new Error(String(err))
+      }));
+      
       setMessage({ text: t('failed_to_load_data'), type: 'error' });
       if (showSpinner) setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log('Trenches useEffect triggered');
-    try {
-      load();
-    } catch (error) {
-      console.error('Error in Trenches useEffect:', error);
-      setMessage({ text: t('initialization_error'), type: 'error' });
-    }
+    console.log('🎯 Trenches useEffect triggered');
+    setDebugInfo(prev => ({ ...prev, renderAttempted: true }));
+    
+    const initializeComponent = async () => {
+      try {
+        console.log('🔄 Initializing Trenches component...');
+        await load();
+        console.log('✅ Component initialization completed successfully');
+      } catch (error) {
+        console.error('❌ Error during component initialization:', error);
+        setDebugInfo(prev => ({
+          ...prev,
+          lastError: error instanceof Error ? error : new Error(String(error))
+        }));
+        setMessage({ text: t('initialization_error'), type: 'error' });
+      }
+    };
+
+    initializeComponent();
   }, []);
 
   const handleAdd = async () => {
@@ -269,6 +339,15 @@ const Trenches: React.FC = () => {
     setMessage({ text: t('contract_copied'), type: 'success' });
   };
 
+  // Additional render tracking
+  console.log('🎨 Trenches render cycle:', {
+    timestamp: new Date().toISOString(),
+    hasData: data.contracts.length > 0,
+    isLoading: loading,
+    hasError: !!message && message.type === 'error',
+    debugInfo
+  });
+
   return (
     <Box className="experiment-container">
       <Typography variant="h4" sx={{ mb: 2 }}>
@@ -278,15 +357,25 @@ const Trenches: React.FC = () => {
         {t('experiment3_desc')}
       </Typography>
       
-      {/* Debug information */}
-      {process.env.NODE_ENV === 'development' && (
-        <Box sx={{ mb: 2, p: 1, backgroundColor: '#f0f0f0', borderRadius: 1 }}>
-          <Typography variant="caption">
-            Debug: publicKey={publicKey?.toBase58()}, isHolder={String(isHolder)}, 
-            contracts={data.contracts.length}, users={data.users.length}, loading={String(loading)}
-          </Typography>
-        </Box>
-      )}
+      {/* Admin Developer Console - Floating Button */}
+      <AdminDeveloperConsole
+        debugInfo={debugInfo}
+        componentName="Trenches"
+        additionalData={{
+          dataContracts: data.contracts.length,
+          dataUsers: data.users.length,
+          loading,
+          adding,
+          isHolder,
+          canSubmit,
+          connectionPresent: !!connection,
+          environmentVars: {
+            primoCollection: !!PRIMO_COLLECTION,
+            nodeEnv: process.env.NODE_ENV,
+            backendUrl: process.env.REACT_APP_BACKEND_URL
+          }
+        }}
+      />
       
       {/* Sentiment Explanation */}
       <Box sx={{ 
