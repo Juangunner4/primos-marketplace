@@ -9,6 +9,7 @@ export type { HeliusNFT, HeliusTokenInfo } from '../utils/helius';
 export {
   getAssetsByCollection,
   getNFTByTokenAddress,
+  getNFTsByTokenAddresses,
   checkPrimoHolder,
   fetchCollectionNFTsForOwner,
   getTokenInfo,
