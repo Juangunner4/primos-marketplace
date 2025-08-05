@@ -121,11 +121,13 @@ const PrimosMarketGallery: React.FC = () => {
     let isMounted = true;
     async function fetchStats() {
       try {
+        console.log('[PrimosMarketGallery Debug] Fetching initial stats...');
         const [stats, solPriceVal, holderStats] = await Promise.all([
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
           getMagicEdenHolderStats(MAGICEDEN_SYMBOL),
         ]);
+        console.log('[PrimosMarketGallery Debug] Initial stats loaded:', { stats, solPriceVal, holderStats });
         if (isMounted) {
           setListedCount(stats?.listedCount ?? null);
           // Compute floor price including marketplace fees
@@ -203,10 +205,13 @@ const PrimosMarketGallery: React.FC = () => {
   ) {
     try {
       const offset = (page - 1) * PAGE_SIZE;
+      console.log('[PrimosMarketGallery Debug] Fetching page:', page, 'offset:', offset);
       const listings = await fetchMagicEdenListings(MAGICEDEN_SYMBOL, offset, PAGE_SIZE);
+      console.log('[PrimosMarketGallery Debug] Fetched listings:', listings?.length);
 
       if (page === 1) {
         const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
+        console.log('[PrimosMarketGallery Debug] Market stats:', stats);
         if (stats?.listedCount) {
           setTotalPages(Math.ceil(stats.listedCount / PAGE_SIZE));
         }
@@ -239,14 +244,17 @@ const PrimosMarketGallery: React.FC = () => {
       const filtered = pageNFTs.filter((nft) => nft.image);
 
       setNfts(filtered);
+      console.log('[PrimosMarketGallery Debug] Successfully loaded:', filtered.length, 'NFTs');
       setDebugInfo(prev => ({ 
         ...prev, 
         apiCallSuccess: true, 
         contractsLoaded: filtered.length,
-        usersLoaded: filtered.length 
+        usersLoaded: filtered.length,
+        lastError: null
       }));
     } catch (e) {
       console.error('Error fetching page:', e);
+      console.log('[PrimosMarketGallery Debug] Error details:', e);
       throw e;
     } finally {
       setLoading(false);
@@ -553,13 +561,30 @@ const PrimosMarketGallery: React.FC = () => {
         filteredNftsCount: filteredNfts.length,
         currentPage: page,
         totalPages,
+        pageSize: PAGE_SIZE,
         hasFloorPrice: !!floorPrice,
+        floorPriceValue: floorPrice,
         hasSolPrice: !!solPrice,
+        solPriceValue: solPrice,
         listedCount,
         uniqueHolders,
         hasFilters: Object.values(selectedAttributes).some(set => set.size > 0) || minPrice || maxPrice || minRank || maxRank,
+        activeFilters: {
+          minPrice,
+          maxPrice,
+          minRank,
+          maxRank,
+          selectedAttributesCount: Object.values(selectedAttributes).reduce((acc, set) => acc + set.size, 0)
+        },
+        cardOpen,
+        selectedNftId: selectedNft?.id,
+        txOpen,
+        txStep,
+        attributeGroupsCount: Object.keys(attributeGroups).length,
+        view,
         environmentVars: {
-          magicEdenSymbol: MAGICEDEN_SYMBOL
+          magicEdenSymbol: MAGICEDEN_SYMBOL,
+          defaultAuctionHouse: DEFAULT_AUCTION_HOUSE
         }
       }}
     />

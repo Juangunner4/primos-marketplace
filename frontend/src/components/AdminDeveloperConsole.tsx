@@ -27,7 +27,7 @@ import {
   Dashboard as DashboardIcon
 } from '@mui/icons-material';
 
-const ADMIN_WALLET = process.env.REACT_APP_ADMIN_WALLET;
+const ADMIN_WALLET = process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
 interface DebugInfo {
   apiCallAttempted: boolean;
@@ -37,6 +37,9 @@ interface DebugInfo {
   usersLoaded: number;
   renderAttempted: boolean;
   lastError: Error | null;
+  apiEndpoints?: string[];
+  responseData?: Record<string, any>;
+  performanceMetrics?: Record<string, number>;
 }
 
 interface AdminDeveloperConsoleProps {
@@ -63,7 +66,16 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
   // Only show to admin wallet
   const isAdmin = publicKey && publicKey.toBase58() === ADMIN_WALLET;
   
-  if (!isAdmin || process.env.NODE_ENV !== 'development') {
+  // Debug logging
+  console.log('[AdminDeveloperConsole Debug]', {
+    connected,
+    publicKey: publicKey?.toBase58(),
+    adminWallet: ADMIN_WALLET,
+    isAdmin,
+    componentName
+  });
+  
+  if (!isAdmin) {
     return null;
   }
 
@@ -80,29 +92,41 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
     children: React.ReactNode;
     icon?: React.ReactNode;
   }> = ({ title, sectionKey, children, icon }) => (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ mb: { xs: 1, sm: 2 } }}>
       <Box 
         sx={{ 
           display: 'flex', 
           alignItems: 'center', 
           cursor: 'pointer',
-          p: 1,
+          p: { xs: 0.5, sm: 1 },
           backgroundColor: '#ffffff',
           borderRadius: 1,
           border: '1px solid #000000'
         }}
         onClick={() => toggleSection(sectionKey)}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, flex: 1 }}>
           {icon}
-          <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#000000' }}>
+          <Typography variant="subtitle2" sx={{ 
+            fontWeight: 'bold', 
+            color: '#000000',
+            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+          }}>
             {title}
           </Typography>
         </Box>
-        {expandedSections[sectionKey] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        {expandedSections[sectionKey] ? 
+          <ExpandLessIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} /> : 
+          <ExpandMoreIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+        }
       </Box>
       <Collapse in={expandedSections[sectionKey]}>
-        <Box sx={{ p: 1, backgroundColor: '#ffffff', border: '1px solid #000000', borderTop: 'none' }}>
+        <Box sx={{ 
+          p: { xs: 0.5, sm: 1 }, 
+          backgroundColor: '#ffffff', 
+          border: '1px solid #000000', 
+          borderTop: 'none' 
+        }}>
           {children}
         </Box>
       </Collapse>
@@ -117,18 +141,20 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
         aria-label="admin console"
         sx={{
           position: 'fixed',
-          bottom: 20,
-          right: 20,
-          zIndex: 1000,
+          top: { xs: 70, sm: 80 },
+          right: { xs: 15, sm: 20 },
+          zIndex: 9999,
           backgroundColor: '#000000',
           color: 'white',
+          width: { xs: 48, sm: 56 },
+          height: { xs: 48, sm: 56 },
           '&:hover': {
             backgroundColor: '#333333'
           }
         }}
         onClick={() => setIsOpen(true)}
       >
-        <BugReportIcon />
+        <BugReportIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
       </Fab>
 
       {/* Debug Console Dialog */}
@@ -137,19 +163,23 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
         onClose={() => setIsOpen(false)}
         maxWidth="lg"
         fullWidth
-        PaperProps={{
-          sx: {
-            position: 'fixed',
-            bottom: 20,
-            right: 20,
-            top: 'auto',
-            left: 'auto',
-            margin: 0,
-            maxWidth: '600px',
-            maxHeight: '70vh',
-            width: '600px'
+        slotProps={{
+          paper: {
+            sx: {
+              position: 'fixed',
+              top: { xs: 120, sm: 140 },
+              right: { xs: 10, sm: 20 },
+              bottom: 'auto',
+              left: { xs: 10, sm: 'auto' },
+              margin: 0,
+              maxWidth: { xs: 'calc(100vw - 20px)', sm: '600px' },
+              maxHeight: { xs: '70vh', sm: '75vh' },
+              width: { xs: 'calc(100vw - 20px)', sm: '600px' },
+              zIndex: 9998
+            }
           }
         }}
+        sx={{ zIndex: 9998 }}
       >
         <DialogTitle sx={{ 
           display: 'flex', 
@@ -157,37 +187,64 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
           alignItems: 'center',
           backgroundColor: '#000000',
           color: 'white',
-          py: 1
+          py: { xs: 0.5, sm: 1 },
+          px: { xs: 1, sm: 2 }
         }}>
-          <Typography variant="h6" component="div" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <BugReportIcon />
-            Admin Dev Console - {componentName}
+          <Typography variant="h6" component="div" sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1,
+            fontSize: { xs: '1rem', sm: '1.25rem' }
+          }}>
+            <BugReportIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Admin Dev Console - {componentName}</Box>
+            <Box sx={{ display: { xs: 'block', sm: 'none' } }}>Admin Console</Box>
           </Typography>
           <IconButton
             aria-label="close"
             onClick={() => setIsOpen(false)}
-            sx={{ color: 'white' }}
+            sx={{ 
+              color: 'white',
+              p: { xs: 0.5, sm: 1 }
+            }}
           >
-            <CloseIcon />
+            <CloseIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
           </IconButton>
         </DialogTitle>
         
-        <DialogContent sx={{ p: 2, fontSize: '0.85rem' }}>
+        <DialogContent sx={{ 
+          p: { xs: 1, sm: 2 }, 
+          fontSize: { xs: '0.75rem', sm: '0.85rem' }
+        }}>
           <DebugSection title="Wallet & Auth Status" sectionKey="wallet" icon={<SecurityIcon sx={{ color: '#000000' }} />}>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-              Connected: {connected ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/>
-              Public Key: {publicKey ? `${publicKey.toBase58().slice(0, 8)}...${publicKey.toBase58().slice(-8)}` : <><CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} /> None</>}<br/>
-              Is Admin: {isAdmin ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/>
+            <Typography variant="body2" sx={{ 
+              fontFamily: 'monospace', 
+              fontSize: { xs: '0.7rem', sm: '0.8rem' },
+              lineHeight: { xs: 1.3, sm: 1.4 }
+            }}>
+              Connected: {connected ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+              Public Key: {publicKey ? `${publicKey.toBase58().slice(0, 8)}...${publicKey.toBase58().slice(-8)}` : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> None</>}<br/>
+              Is Admin: {isAdmin ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
               Timestamp: {new Date().toISOString()}
             </Typography>
           </DebugSection>
 
           <DebugSection title="API & Data Status" sectionKey="api" icon={<ApiIcon sx={{ color: '#000000' }} />}>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-              API Attempted: {debugInfo.apiCallAttempted ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/>
-              API Success: {debugInfo.apiCallSuccess ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/>
+            <Typography variant="body2" sx={{ 
+              fontFamily: 'monospace', 
+              fontSize: { xs: '0.7rem', sm: '0.8rem' },
+              lineHeight: { xs: 1.3, sm: 1.4 }
+            }}>
+              API Attempted: {debugInfo.apiCallAttempted ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+              API Success: {debugInfo.apiCallSuccess ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
               Contracts Loaded: {debugInfo.contractsLoaded}<br/>
               Users Loaded: {debugInfo.usersLoaded}<br/>
+              {debugInfo.apiEndpoints && (
+                <>API Endpoints: {debugInfo.apiEndpoints.join(', ')}<br/></>
+              )}
+              {debugInfo.performanceMetrics && Object.keys(debugInfo.performanceMetrics).length > 0 && (
+                <>Performance: {Object.entries(debugInfo.performanceMetrics).map(([key, value]) => `${key}: ${value}ms`).join(', ')}<br/></>
+              )}
               {additionalData.dataContracts !== undefined && (
                 <>Current Contracts: {additionalData.dataContracts}<br/></>
               )}
@@ -198,35 +255,43 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
           </DebugSection>
 
           <DebugSection title="Component State" sectionKey="component" icon={<SettingsIcon sx={{ color: '#000000' }} />}>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-              Render Attempted: {debugInfo.renderAttempted ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/>
+            <Typography variant="body2" sx={{ 
+              fontFamily: 'monospace', 
+              fontSize: { xs: '0.7rem', sm: '0.8rem' },
+              lineHeight: { xs: 1.3, sm: 1.4 }
+            }}>
+              Render Attempted: {debugInfo.renderAttempted ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
               {additionalData.loading !== undefined && (
-                <>Loading: {additionalData.loading ? <RefreshIcon sx={{ fontSize: 14, color: 'orange', verticalAlign: 'middle' }} /> : <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} />}<br/></>
+                <>Loading: {additionalData.loading ? <RefreshIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'orange', verticalAlign: 'middle' }} /> : <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} />}<br/></>
               )}
               {additionalData.adding !== undefined && (
-                <>Adding: {additionalData.adding ? <RefreshIcon sx={{ fontSize: 14, color: 'orange', verticalAlign: 'middle' }} /> : <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} />}<br/></>
+                <>Adding: {additionalData.adding ? <RefreshIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'orange', verticalAlign: 'middle' }} /> : <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} />}<br/></>
               )}
               {additionalData.isHolder !== undefined && (
-                <>Is Holder: {additionalData.isHolder ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/></>
+                <>Is Holder: {additionalData.isHolder ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/></>
               )}
               {additionalData.canSubmit !== undefined && (
-                <>Can Submit: {additionalData.canSubmit ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/></>
+                <>Can Submit: {additionalData.canSubmit ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/></>
               )}
               {additionalData.connectionPresent !== undefined && (
-                <>Connection: {additionalData.connectionPresent ? <CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} />}<br/></>
+                <>Connection: {additionalData.connectionPresent ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/></>
               )}
             </Typography>
           </DebugSection>
 
           <DebugSection title="Environment" sectionKey="environment" icon={<LanguageIcon sx={{ color: '#000000' }} />}>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+            <Typography variant="body2" sx={{ 
+              fontFamily: 'monospace', 
+              fontSize: { xs: '0.7rem', sm: '0.8rem' },
+              lineHeight: { xs: 1.3, sm: 1.4 }
+            }}>
               Node Env: {process.env.NODE_ENV}<br/>
-              Backend URL: {process.env.REACT_APP_BACKEND_URL || <><CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/>
+              Backend URL: {process.env.REACT_APP_BACKEND_URL || <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/>
               {additionalData.environmentVars?.primoCollection !== undefined && (
-                <>Primo Collection: {additionalData.environmentVars.primoCollection ? <><CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/></>
+                <>Primo Collection: {additionalData.environmentVars.primoCollection ? <><CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/></>
               )}
-              Helius Key: {process.env.REACT_APP_HELIUS_API_KEY ? <><CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/>
-              Admin Wallet: {ADMIN_WALLET ? <><CheckCircleIcon sx={{ fontSize: 14, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: 14, color: 'red', verticalAlign: 'middle' }} /> Missing</>}
+              Helius Key: {process.env.REACT_APP_HELIUS_API_KEY ? <><CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/>
+              Admin Wallet: {ADMIN_WALLET ? <><CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}
             </Typography>
           </DebugSection>
 
@@ -234,10 +299,21 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
             <DebugSection title="Error Details" sectionKey="errors" icon={<ErrorIcon sx={{ color: '#000000' }} />}>
               {debugInfo.apiCallError && (
                 <Box sx={{ mb: 2, p: 1, backgroundColor: '#f8d7da', borderRadius: 1, border: '1px solid #f5c6cb' }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#721c24', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <CancelIcon sx={{ fontSize: 16 }} /> API Error:
+                  <Typography variant="subtitle2" sx={{ 
+                    fontWeight: 'bold', 
+                    color: '#721c24', 
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' }, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 0.5 
+                  }}>
+                    <CancelIcon sx={{ fontSize: { xs: 14, sm: 16 } }} /> API Error:
                   </Typography>
-                  <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.75rem', color: '#721c24' }}>
+                  <Typography variant="body2" sx={{ 
+                    fontFamily: 'monospace', 
+                    fontSize: { xs: '0.65rem', sm: '0.75rem' }, 
+                    color: '#721c24' 
+                  }}>
                     {debugInfo.apiCallError}
                   </Typography>
                 </Box>
@@ -245,10 +321,21 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
               
               {debugInfo.lastError && (
                 <Box sx={{ p: 1, backgroundColor: '#fff3cd', borderRadius: 1, border: '1px solid #ffeaa7' }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#856404', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <WarningIcon sx={{ fontSize: 16 }} /> Last Error:
+                  <Typography variant="subtitle2" sx={{ 
+                    fontWeight: 'bold', 
+                    color: '#856404', 
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' }, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 0.5 
+                  }}>
+                    <WarningIcon sx={{ fontSize: { xs: 14, sm: 16 } }} /> Last Error:
                   </Typography>
-                  <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.75rem', color: '#856404' }}>
+                  <Typography variant="body2" sx={{ 
+                    fontFamily: 'monospace', 
+                    fontSize: { xs: '0.65rem', sm: '0.75rem' }, 
+                    color: '#856404' 
+                  }}>
                     {debugInfo.lastError.message}<br/>
                     {debugInfo.lastError.stack?.split('\n').slice(0, 3).join('\n')}
                   </Typography>
@@ -260,8 +347,16 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
           {/* Additional Debug Data */}
           {Object.keys(additionalData).length > 0 && (
             <DebugSection title="Additional Data" sectionKey="additional" icon={<DashboardIcon sx={{ color: '#000000' }} />}>
-              <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
-                <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+              <Typography variant="body2" sx={{ 
+                fontFamily: 'monospace', 
+                fontSize: { xs: '0.65rem', sm: '0.75rem' }
+              }}>
+                <pre style={{ 
+                  margin: 0, 
+                  whiteSpace: 'pre-wrap', 
+                  wordBreak: 'break-word',
+                  overflow: 'auto'
+                }}>
                   {JSON.stringify(additionalData, null, 2)}
                 </pre>
               </Typography>

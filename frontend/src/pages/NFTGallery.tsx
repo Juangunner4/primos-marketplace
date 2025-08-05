@@ -75,14 +75,21 @@ const NFTGallery: React.FC = () => {
       }
       const pub = publicKey.toBase58();
       setLoading(true);
-      setDebugInfo(prev => ({ ...prev, apiCallAttempted: true, apiCallError: null }));
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        apiCallAttempted: true, 
+        apiCallError: null,
+        lastError: null
+      }));
       
       try {
+        console.log('[NFTGallery Debug] Starting API calls for:', pub);
         const [assets, stats, solPriceVal] = await Promise.all([
           getAssetsByCollection(PRIMO_COLLECTION, pub),
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
         ]);
+        console.log('[NFTGallery Debug] API responses:', { assets: assets?.length, stats, solPriceVal });
 
         const pageNFTs = await Promise.all(
           assets.map(async (asset: any) => {
@@ -112,10 +119,13 @@ const NFTGallery: React.FC = () => {
           ...prev, 
           apiCallSuccess: true, 
           contractsLoaded: filtered.length,
-          usersLoaded: 1 
+          usersLoaded: 1,
+          lastError: null
         }));
+        console.log('[NFTGallery Debug] Successfully loaded:', filtered.length, 'NFTs');
       } catch (e) {
         console.error("Failed to load NFTs", e);
+        console.log('[NFTGallery Debug] Error details:', e);
         setDebugInfo(prev => ({ 
           ...prev, 
           apiCallSuccess: false, 
@@ -336,6 +346,28 @@ const NFTGallery: React.FC = () => {
 
   return (
     <>
+      <AdminDeveloperConsole 
+        debugInfo={debugInfo}
+        componentName="NFTGallery (Collected)"
+        additionalData={{
+          loading,
+          nftsCount: nfts.length,
+          hasFloorPrice: !!floorPrice,
+          floorPriceValue: floorPrice,
+          hasSolPrice: !!solPrice,
+          solPriceValue: solPrice,
+          statusesLoaded: Object.keys(statuses).length,
+          totalValueUSD: solPrice && floorPrice ? (nfts.length * (floorPrice / 1e9) * solPrice).toFixed(2) : null,
+          cardOpen,
+          listOpen,
+          selectedNftId: selectedNft?.id,
+          environmentVars: {
+            primoCollection: !!PRIMO_COLLECTION,
+            primoCollectionValue: PRIMO_COLLECTION,
+            magicEdenSymbol: MAGICEDEN_SYMBOL
+          }
+        }}
+      />
       {cardOpen && (
         <div
           className="nft-modal-wrapper"
@@ -402,19 +434,6 @@ const NFTGallery: React.FC = () => {
       open={!!message}
       message={message}
       onClose={() => setMessage(null)}
-    />
-    <AdminDeveloperConsole 
-      debugInfo={debugInfo}
-      componentName="NFTGallery (Collected)"
-      additionalData={{
-        loading,
-        nftsCount: nfts.length,
-        hasFloorPrice: !!floorPrice,
-        hasSolPrice: !!solPrice,
-        environmentVars: {
-          primoCollection: !!PRIMO_COLLECTION
-        }
-      }}
     />
   </>
   );
