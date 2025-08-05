@@ -99,6 +99,8 @@ public class LoginService {
         if (!today.equals(user.getPointsDate())) {
             user.setPointsDate(today);
             user.setPointsToday(0);
+            user.setIconPointsToday(0);
+            user.setHolderPointsToday(0);
         }
         user.persistOrUpdate();
         return user;

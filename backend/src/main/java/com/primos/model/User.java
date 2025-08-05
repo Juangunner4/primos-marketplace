@@ -13,6 +13,8 @@ public class User extends PanacheMongoEntity {
     private java.util.List<String> badges = new java.util.ArrayList<>();
     private int points = 0;
     private int pointsToday = 0;
+    private int iconPointsToday = 0;
+    private int holderPointsToday = 0;
     private String pointsDate = java.time.LocalDate.now().toString();
     private int nftCount = 0;
     private int pesos = 1;
@@ -96,6 +98,22 @@ public class User extends PanacheMongoEntity {
 
     public void setPointsToday(int pointsToday) {
         this.pointsToday = pointsToday;
+    }
+
+    public int getIconPointsToday() {
+        return iconPointsToday;
+    }
+
+    public void setIconPointsToday(int iconPointsToday) {
+        this.iconPointsToday = iconPointsToday;
+    }
+
+    public int getHolderPointsToday() {
+        return holderPointsToday;
+    }
+
+    public void setHolderPointsToday(int holderPointsToday) {
+        this.holderPointsToday = holderPointsToday;
     }
 
     public String getPointsDate() {
