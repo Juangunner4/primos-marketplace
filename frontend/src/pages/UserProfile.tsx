@@ -8,7 +8,7 @@ import { keyframes } from '@emotion/react';
 import './UserProfile.css';
 import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Typography, TextField, Button, Avatar, IconButton, FormControl, InputLabel, Select, MenuItem, InputAdornment } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -19,7 +19,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import TerrainIcon from '@mui/icons-material/Terrain';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { GiWhaleTail, GiAnglerFish, GiShrimp } from 'react-icons/gi';
+import { GiWhaleTail, GiAnglerFish, GiShrimp, GiSlingshot, GiAtom } from 'react-icons/gi';
+import { FaXTwitter, FaGlobe, FaVectorSquare, FaDiscord } from 'react-icons/fa6';
 import { Link, useParams } from 'react-router-dom';
 import BetaRedeem from '../components/BetaRedeem';
 import { Notification, AppMessage } from '../types';
@@ -112,6 +113,13 @@ const formatAxiomUrl = (handle: string) => {
   return `https://axiom.trade/@${trimmed.replace(/^@/, '')}`;
 };
 
+const twitterPattern = /^(?:https?:\/\/(?:www\.)?(?:twitter|x)\.com\/)?@?[A-Za-z0-9_]{1,15}$/i;
+const websitePattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/\S*)?$/;
+const slingshotPattern = /^(?:https?:\/\/slingshot\.app\/signup\?code=)?@?[A-Za-z0-9_]+$/i;
+const axiomPattern = /^(?:https?:\/\/axiom\.trade\/@)?@?[A-Za-z0-9_]+$/i;
+const vectorPattern = /^(?:https?:\/\/vec\.fun\/ref\/)?@?[A-Za-z0-9_]+$/i;
+const discordPattern = /^[A-Za-z0-9._]{2,32}(#[0-9]{4})?$/;
+
 const UserProfile: React.FC = () => {
   const { publicKey } = useWallet();
   const params = useParams<{ publicKey?: string }>();
@@ -138,57 +146,67 @@ const UserProfile: React.FC = () => {
 
   useEffect(() => {
     if (profileKey) {
-      api
-        .get(
-          `/api/user/${profileKey}`,
-          publicKey ? { headers: { 'X-Public-Key': publicKey.toBase58() } } : undefined
-        )
-        .then((res) =>
-          setUser({
-            ...res.data,
-            socials: {
-              twitter: '',
-              discord: '',
-              website: '',
-              slingshot: '',
-              axiom: '',
-              vector: '',
-              ...(res.data.socials || {}),
-            },
-            workGroups: res.data.workGroups || [],
-          })
-        )
-        .catch(() => setUser(null));
+      const req = api.get(
+        `/api/user/${profileKey}`,
+        publicKey ? { headers: { 'X-Public-Key': publicKey.toBase58() } } : undefined
+      );
+      if (req && typeof (req as any).then === 'function') {
+        req
+          .then((res) =>
+            setUser({
+              ...res.data,
+              socials: {
+                twitter: '',
+                discord: '',
+                website: '',
+                slingshot: '',
+                axiom: '',
+                vector: '',
+                ...(res.data.socials || {}),
+              },
+              workGroups: res.data.workGroups || [],
+            })
+          )
+          .catch(() => setUser(null));
+      }
     }
   }, [profileKey, publicKey]);
 
   // fetch primary SNS domain for this profile
   useEffect(() => {
     if (profileKey) {
-      getPrimaryDomainName(profileKey)
-        .then(setPrimaryDomain)
-        .catch(() => setPrimaryDomain(null));
+      const prom = getPrimaryDomainName(profileKey);
+      if (prom && typeof (prom as any).then === 'function') {
+        prom
+          .then(setPrimaryDomain)
+          .catch(() => setPrimaryDomain(null));
+      }
     }
   }, [profileKey]);
 
   useEffect(() => {
     if (isOwner && publicKey) {
-      api
-        .get('/api/notifications', {
-          headers: { 'X-Public-Key': publicKey.toBase58() },
-        })
-        .then((res) => setNotifications(res.data))
-        .catch(() => setNotifications([]));
+      const req = api.get('/api/notifications', {
+        headers: { 'X-Public-Key': publicKey.toBase58() },
+      });
+      if (req && typeof (req as any).then === 'function') {
+        req.then((res) => setNotifications(res.data)).catch(() => setNotifications([]));
+      }
     }
   }, [isOwner, publicKey]);
 
   useEffect(() => {
     if (profileKey) {
       setLoadingNfts(true);
-      getAssetsByCollection(PRIMO_COLLECTION, profileKey)
-        .then(setNfts)
-        .catch(() => setNfts([]))
-        .finally(() => setLoadingNfts(false));
+      const prom = getAssetsByCollection(PRIMO_COLLECTION, profileKey);
+      if (prom && typeof (prom as any).then === 'function') {
+        prom
+          .then(setNfts)
+          .catch(() => setNfts([]))
+          .finally(() => setLoadingNfts(false));
+      } else {
+        setLoadingNfts(false);
+      }
     }
   }, [profileKey]);
 
@@ -289,6 +307,18 @@ const UserProfile: React.FC = () => {
     setSaveDialogOpen(false);
     if (publicKey && user && isOwner) {
       const save = async () => {
+        const socials = user.socials;
+        if (
+          (socials.twitter && !twitterPattern.test(socials.twitter)) ||
+          (socials.website && !websitePattern.test(socials.website)) ||
+          (socials.slingshot && !slingshotPattern.test(socials.slingshot)) ||
+          (socials.axiom && !axiomPattern.test(socials.axiom)) ||
+          (socials.vector && !vectorPattern.test(socials.vector)) ||
+          (socials.discord && !discordPattern.test(socials.discord))
+        ) {
+          setMessage({ text: 'Please fix social link formats', type: 'error' });
+          return;
+        }
         if (user.domain) {
           const owns = await verifyDomainOwnership(
             user.domain,
@@ -468,11 +498,29 @@ const fadeOut = keyframes`
             }
             fullWidth
             margin="normal"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaXTwitter />
+                </InputAdornment>
+              ),
+            }}
+            error={!!user.socials.twitter && !twitterPattern.test(user.socials.twitter)}
+            helperText={
+              user.socials.twitter && !twitterPattern.test(user.socials.twitter)
+                ? 'Invalid Twitter handle or URL'
+                : ''
+            }
+            inputProps={{ pattern: twitterPattern.source }}
           />
         ) : (
           user.socials.twitter && (
-            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
-              <strong>{t('twitter')}</strong>{' '}
+            <Typography mt={2} sx={{ wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                <strong>{t('twitter')}</strong>
+                <FaXTwitter />
+              </Box>
+              {' : '}
               <a
                 href={formatTwitterUrl(user.socials.twitter)}
                 target="_blank"
@@ -492,6 +540,20 @@ const fadeOut = keyframes`
           fullWidth
           margin="normal"
           disabled={!isOwner || !isEditing}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <FaDiscord />
+              </InputAdornment>
+            ),
+          }}
+          error={!!user.socials.discord && !discordPattern.test(user.socials.discord)}
+          helperText={
+            user.socials.discord && !discordPattern.test(user.socials.discord)
+              ? 'Invalid Discord handle'
+              : ''
+          }
+          inputProps={{ pattern: discordPattern.source }}
         />
         {isOwner && isEditing ? (
           <TextField
@@ -502,11 +564,29 @@ const fadeOut = keyframes`
             }
             fullWidth
             margin="normal"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaGlobe />
+                </InputAdornment>
+              ),
+            }}
+            error={!!user.socials.website && !websitePattern.test(user.socials.website)}
+            helperText={
+              user.socials.website && !websitePattern.test(user.socials.website)
+                ? 'Invalid website URL'
+                : ''
+            }
+            inputProps={{ pattern: websitePattern.source }}
           />
         ) : (
           user.socials.website && (
-            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
-              <strong>{t('website')}</strong>{' '}
+            <Typography mt={2} sx={{ wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                <strong>{t('website')}</strong>
+                <FaGlobe />
+              </Box>
+              {' : '}
               <a
                 href={formatWebsiteUrl(user.socials.website)}
                 target="_blank"
@@ -526,11 +606,29 @@ const fadeOut = keyframes`
             }
             fullWidth
             margin="normal"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <GiSlingshot />
+                </InputAdornment>
+              ),
+            }}
+            error={!!user.socials.slingshot && !slingshotPattern.test(user.socials.slingshot)}
+            helperText={
+              user.socials.slingshot && !slingshotPattern.test(user.socials.slingshot)
+                ? 'Invalid Slingshot code or URL'
+                : ''
+            }
+            inputProps={{ pattern: slingshotPattern.source }}
           />
         ) : (
           user.socials.slingshot && (
-            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
-              <strong>{t('slingshot')}</strong>{' '}
+            <Typography mt={2} sx={{ wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                <strong>{t('slingshot')}</strong>
+                <GiSlingshot />
+              </Box>
+              {' : '}
               <a
                 href={formatSlingshotUrl(user.socials.slingshot)}
                 target="_blank"
@@ -550,11 +648,29 @@ const fadeOut = keyframes`
             }
             fullWidth
             margin="normal"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <GiAtom />
+                </InputAdornment>
+              ),
+            }}
+            error={!!user.socials.axiom && !axiomPattern.test(user.socials.axiom)}
+            helperText={
+              user.socials.axiom && !axiomPattern.test(user.socials.axiom)
+                ? 'Invalid Axiom handle or URL'
+                : ''
+            }
+            inputProps={{ pattern: axiomPattern.source }}
           />
         ) : (
           user.socials.axiom && (
-            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
-              <strong>{t('axiom')}</strong>{' '}
+            <Typography mt={2} sx={{ wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                <strong>{t('axiom')}</strong>
+                <GiAtom />
+              </Box>
+              {' : '}
               <a
                 href={formatAxiomUrl(user.socials.axiom)}
                 target="_blank"
@@ -574,11 +690,29 @@ const fadeOut = keyframes`
             }
             fullWidth
             margin="normal"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaVectorSquare />
+                </InputAdornment>
+              ),
+            }}
+            error={!!user.socials.vector && !vectorPattern.test(user.socials.vector)}
+            helperText={
+              user.socials.vector && !vectorPattern.test(user.socials.vector)
+                ? 'Invalid Vector handle or URL'
+                : ''
+            }
+            inputProps={{ pattern: vectorPattern.source }}
           />
         ) : (
           user.socials.vector && (
-            <Typography mt={2} sx={{ wordBreak: 'break-word' }}>
-              <strong>{t('vector')}</strong>{' '}
+            <Typography mt={2} sx={{ wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                <strong>{t('vector')}</strong>
+                <FaVectorSquare />
+              </Box>
+              {' : '}
               <a
                 href={formatVectorUrl(user.socials.vector)}
                 target="_blank"
