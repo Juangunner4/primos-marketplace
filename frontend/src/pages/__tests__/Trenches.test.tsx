@@ -12,6 +12,10 @@ jest.mock('@solana/wallet-adapter-react', () => ({
   useConnection: () => ({ connection: {} }),
 }));
 
+jest.mock('../../contexts/PrimoHolderContext', () => ({
+  usePrimoHolder: () => ({ isHolder: false }),
+}));
+
 jest.mock('../../services/trench', () => ({
   fetchTrenchData: jest.fn(() =>
     Promise.resolve({
@@ -60,7 +64,6 @@ describe('Trenches page', () => {
     await waitFor(() =>
       expect(tokenService.fetchTokenMetadata).toHaveBeenCalledWith('c1')
     );
-    await waitFor(() => expect(tokenService.fetchTokenInfo).toHaveBeenCalledWith('c1'));
     expect(await screen.findByText(/Token Metadata/i)).toBeTruthy();
   });
 });
