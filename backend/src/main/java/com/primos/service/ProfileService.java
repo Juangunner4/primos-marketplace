@@ -20,6 +20,12 @@ public class ProfileService {
             user.setBio(updated.getBio());
             if (updated.getSocials() != null) {
                 user.setSocials(updated.getSocials());
+                User.SocialLinks links = updated.getSocials();
+                if ((links.getSlingshot() != null && !links.getSlingshot().isEmpty())
+                        || (links.getAxiom() != null && !links.getAxiom().isEmpty())
+                        || (links.getVector() != null && !links.getVector().isEmpty())) {
+                    user.addBadge("trader");
+                }
             }
             if (updated.getDomain() != null) {
                 String lower = updated.getDomain().toLowerCase();
