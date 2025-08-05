@@ -1,6 +1,10 @@
 export type { HeliusNFT } from './helius';
 import api from '../utils/api';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from './helius';
+import {
+  getNFTByTokenAddress,
+  getNFTsByTokenAddresses,
+  fetchCollectionNFTsForOwner,
+} from './helius';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
@@ -38,12 +42,13 @@ export interface TrenchData {
 
 export const fetchTrenchData = async (): Promise<TrenchData> => {
   const res = await api.get<TrenchData>('/api/trench');
-  const contracts = await Promise.all(
-    res.data.contracts.map(async (c) => {
-      const nft = await getNFTByTokenAddress(c.contract);
-      return { ...c, image: nft?.image } as TrenchContract;
-    })
+  const nftMap = await getNFTsByTokenAddresses(
+    res.data.contracts.map((c) => c.contract)
   );
+  const contracts = res.data.contracts.map((c) => ({
+    ...c,
+    image: nftMap[c.contract]?.image,
+  }));
   const users = await Promise.all(
     res.data.users.map(async (u) => {
       let image = '';

@@ -43,13 +43,13 @@ const Trenches: React.FC = () => {
     return map;
   }, [data]);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (showSpinner = true) => {
+    if (showSpinner) setLoading(true);
     try {
       const res = await fetchTrenchData();
       setData(res);
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   };
 
@@ -102,7 +102,7 @@ const Trenches: React.FC = () => {
     try {
       await submitTrenchContract(publicKey.toBase58(), contract, 'model1', marketCap);
       setInput('');
-      await load();
+      await load(false);
     } catch (e: any) {
       const errorMsg = e?.response?.data;
       if (typeof errorMsg === 'string' && errorMsg.includes('Contract already added')) {

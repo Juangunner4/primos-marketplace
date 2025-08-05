@@ -195,6 +195,63 @@ export const getNFTByTokenAddress = async (
 };
 
 /**
+ * Fetch metadata for multiple NFTs in a single request.
+ * @param tokenAddresses Array of mint addresses.
+ * @returns Map from token address to NFT info.
+ */
+export const getNFTsByTokenAddresses = async (
+  tokenAddresses: string[]
+): Promise<Record<string, HeliusNFT>> => {
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+
+  if (!apiKey) {
+    console.error('❌ Helius API key is missing for getNFTsByTokenAddresses!');
+    return {};
+  }
+
+  try {
+    const response = await heliusFetch(
+      `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getAssets',
+          params: { ids: tokenAddresses },
+        }),
+      }
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+    const items = data.result || [];
+    const result: Record<string, HeliusNFT> = {};
+    for (const item of items) {
+      const metadata = item.content?.metadata || {};
+      const nft = {
+        id: item.id,
+        image: item.content?.links?.image || '/fallback.png',
+        name: metadata?.name || item.id,
+        listed: !!item.listing || !!item.marketplace,
+        attributes: metadata?.attributes || [],
+        symbol: metadata?.symbol,
+        description: metadata?.description,
+        metadata,
+      } as HeliusNFT;
+      result[item.id] = nft;
+      nftCache[item.id] = nft;
+    }
+    return result;
+  } catch (e) {
+    console.error('Failed to fetch NFT metadata batch', e);
+    return {};
+  }
+};
+
+/**
  * Checks if the given wallet holds at least one NFT from the specified collection.
  * @param collectionAddress The collection's address on Solana.
  * @param ownerPubkey The wallet public key to check.
