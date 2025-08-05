@@ -13,7 +13,8 @@ import jakarta.ws.rs.NotFoundException;
 @ApplicationScoped
 public class PointService {
     private static final Logger LOGGER = Logger.getLogger(PointService.class.getName());
-    private static final int MAX_POINTS_PER_DAY = 1000;
+    public static final int MAX_POINTS_PER_DAY = 1000;
+    public static final int MAX_ICON_POINTS_PER_DAY = 4;
 
     public User addPoint(String publicKey, String walletKey) {
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
@@ -39,7 +40,9 @@ public class PointService {
         if (!today.equals(user.getPointsDate())) {
             user.setPointsDate(today);
             user.setPointsToday(0);
-            LOGGER.info("[PointService] Reset pointsToday for new day");
+            user.setIconPointsToday(0);
+            user.setHolderPointsToday(0);
+            LOGGER.info("[PointService] Reset daily points for new day");
         }
         if (user.getPointsToday() >= MAX_POINTS_PER_DAY) {
             if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
@@ -47,12 +50,21 @@ public class PointService {
             }
             throw new BadRequestException("Daily limit reached");
         }
+        if (user.getIconPointsToday() >= MAX_ICON_POINTS_PER_DAY) {
+            if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
+                LOGGER.warning(
+                        String.format("[PointService] Daily icon limit reached for user: %s", publicKey));
+            }
+            throw new BadRequestException("Daily icon limit reached");
+        }
         user.setPoints(user.getPoints() + 1);
         user.setPointsToday(user.getPointsToday() + 1);
+        user.setIconPointsToday(user.getIconPointsToday() + 1);
         user.persistOrUpdate();
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-            LOGGER.info(String.format("[PointService] Updated points: %d, pointsToday: %d for user: %s",
-                    user.getPoints(), user.getPointsToday(), publicKey));
+            LOGGER.info(String.format(
+                    "[PointService] Updated points: %d, pointsToday: %d, iconPointsToday: %d for user: %s",
+                    user.getPoints(), user.getPointsToday(), user.getIconPointsToday(), publicKey));
         }
         return user;
     }

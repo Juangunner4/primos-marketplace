@@ -30,7 +30,11 @@ public class HolderPointsJob {
             user.setDaoMember(count > 0);
             int multiplier = 1 + count / 5;
             int add = 18 * multiplier;
-            user.setPoints(user.getPoints() + add);
+            int remaining = PointService.MAX_POINTS_PER_DAY - user.getPointsToday();
+            int toAdd = Math.min(add, Math.max(remaining, 0));
+            user.setPoints(user.getPoints() + toAdd);
+            user.setPointsToday(user.getPointsToday() + toAdd);
+            user.setHolderPointsToday(user.getHolderPointsToday() + toAdd);
             user.persistOrUpdate();
         }
         LOG.info("Awarded holder points to all users");

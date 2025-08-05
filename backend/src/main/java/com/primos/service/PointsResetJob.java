@@ -21,6 +21,8 @@ public class PointsResetJob {
         for (User user : users) {
             if (!today.equals(user.getPointsDate())) {
                 user.setPointsToday(0);
+                user.setIconPointsToday(0);
+                user.setHolderPointsToday(0);
                 user.setPointsDate(today);
                 user.persistOrUpdate();
             }
