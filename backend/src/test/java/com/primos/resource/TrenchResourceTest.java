@@ -3,11 +3,21 @@ package com.primos.resource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+import com.primos.service.TrenchService;
+import com.primos.service.CoinGeckoService;
 
 class TrenchResourceTest {
     @Test
     void testAddAndGet() {
         TrenchResource res = new TrenchResource();
+        TrenchService service = new TrenchService();
+        service.coinGeckoService = new CoinGeckoService() {
+            @Override
+            public Double fetchMarketCap(String contract) {
+                return 77.0;
+            }
+        };
+        res.service = service;
         res.add("w1", java.util.Map.of("contract", "ca1", "source", "website"));
         TrenchResource.TrenchData data = res.get();
         assertEquals(1, data.contracts.size());
