@@ -63,8 +63,8 @@ describe('Home', () => {
 
   test('renders market cap tags on contract bubbles when available', async () => {
     const testContracts = [
-      { contract: '0xaddr1', image: '', marketCap: 1500000 },
-      { contract: '0xaddr2', image: '', marketCap: 2500000000 },
+      { contract: '0xaddr1', image: '', marketCap: 1500000, priceChange24h: 5.2 },
+      { contract: '0xaddr2', image: '', marketCap: 2500000000, priceChange24h: -2.1 },
       { contract: '0xaddr3', image: '' }
     ];
     
@@ -89,5 +89,9 @@ describe('Home', () => {
     // Check for market cap tags
     expect(screen.getByText('$1.5M')).toBeInTheDocument();
     expect(screen.getByText('$2.5B')).toBeInTheDocument();
+    
+    // Check for price change tags
+    expect(screen.getByText('+5.2%')).toBeInTheDocument();
+    expect(screen.getByText('-2.1%')).toBeInTheDocument();
   });
 });

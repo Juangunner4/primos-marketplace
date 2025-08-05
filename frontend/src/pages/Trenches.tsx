@@ -28,6 +28,27 @@ import './Trenches.css';
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
+// Format market cap into readable string
+const formatCap = (cap: number) => {
+  if (cap >= 1e9) return `$${(cap / 1e9).toFixed(1)}B`;
+  if (cap >= 1e6) return `$${(cap / 1e6).toFixed(1)}M`;
+  if (cap >= 1e3) return `$${(cap / 1e3).toFixed(1)}k`;
+  return `$${cap.toFixed(0)}`;
+};
+
+// Format price change percentage
+const formatPriceChange = (change: number) => {
+  const sign = change >= 0 ? '+' : '';
+  return `${sign}${change.toFixed(1)}%`;
+};
+
+// Get price change CSS class
+const getPriceChangeClass = (change: number) => {
+  if (change > 0) return 'price-change-tag positive';
+  if (change < 0) return 'price-change-tag negative';
+  return 'price-change-tag neutral';
+};
+
 const Trenches: React.FC = () => {
   const { publicKey } = useWallet();
   const { connection } = useConnection();
@@ -82,6 +103,30 @@ const Trenches: React.FC = () => {
               ),
             }));
           }
+          
+          // Fetch current market cap
+          let marketCap: number | undefined;
+          let priceChange: number | undefined;
+          try {
+            if (/^0x[0-9a-fA-F]{40}$/.test(c.contract)) {
+              const tokenData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
+              marketCap = tokenData?.usd_market_cap;
+              priceChange = tokenData?.usd_24h_change;
+            } else {
+              const tokenData = await fetchSimpleTokenPrice(c.contract, 'solana');
+              marketCap = tokenData?.usd_market_cap;
+              priceChange = tokenData?.usd_24h_change;
+            }
+            
+            if (marketCap || priceChange !== undefined) {
+              setData((prev) => ({
+                ...prev,
+                contracts: prev.contracts.map((cc) =>
+                  cc.contract === c.contract ? { ...cc, marketCap, priceChange24h: priceChange } : cc
+                ),
+              }));
+            }
+          } catch {}
         } catch {}
       });
 
@@ -280,6 +325,16 @@ const Trenches: React.FC = () => {
                     alt={lastUser.publicKey}
                     className="caller-tag"
                   />
+                )}
+                {c.marketCap && (
+                  <Box className="market-cap-tag">
+                    {formatCap(c.marketCap)}
+                  </Box>
+                )}
+                {c.priceChange24h !== undefined && (
+                  <Box className={getPriceChangeClass(c.priceChange24h)}>
+                    {formatPriceChange(c.priceChange24h)}
+                  </Box>
                 )}
                 <Box className="count-tag">{userCount}</Box>
               </button>

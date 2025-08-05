@@ -11,7 +11,6 @@ import api from '../utils/api';
 import { fetchVolume24h } from '../utils/transaction';
 import Avatar from '@mui/material/Avatar';
 import PeopleIcon from '@mui/icons-material/People';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -40,6 +39,7 @@ interface TrenchContract {
   contract: string;
   image?: string;
   marketCap?: number;
+  priceChange24h?: number;
 }
 
 const MAGICEDEN_SYMBOL = 'primos';
@@ -60,6 +60,19 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
     if (cap >= 1e6) return `$${(cap / 1e6).toFixed(1)}M`;
     if (cap >= 1e3) return `$${(cap / 1e3).toFixed(1)}k`;
     return `$${cap.toFixed(0)}`;
+  };
+
+  // format price change percentage
+  const formatPriceChange = (change: number) => {
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change.toFixed(1)}%`;
+  };
+
+  // get price change CSS class
+  const getPriceChangeClass = (change: number) => {
+    if (change > 0) return 'price-change-tag positive';
+    if (change < 0) return 'price-change-tag negative';
+    return 'price-change-tag neutral';
   };
 
   useEffect(() => {
@@ -133,16 +146,23 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           last10.map(async (c) => {
             let img = c.image || '';
             let cap: number | undefined;
+            let priceChange: number | undefined;
             try {
               if (!img) {
                 const nft = await getNFTByTokenAddress(c.contract);
                 img = nft?.image || '';
               }
-              // fetch market cap
-              const priceData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
+              // fetch market cap and price change
+              let priceData;
+              if (/^0x[0-9a-fA-F]{40}$/.test(c.contract)) {
+                priceData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
+              } else {
+                priceData = await fetchSimpleTokenPrice(c.contract, 'solana');
+              }
               cap = priceData?.usd_market_cap;
+              priceChange = priceData?.usd_24h_change;
             } catch {}
-            return { contract: c.contract, image: img, marketCap: cap };
+            return { contract: c.contract, image: img, marketCap: cap, priceChange24h: priceChange };
           })
         );
         setLatestContracts(enriched);
@@ -368,8 +388,12 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                   />
                   {c.marketCap && (
                     <Box className="market-cap-tag">
-                      <AttachMoneyIcon sx={{ fontSize: 12 }} />
                       {formatCap(c.marketCap)}
+                    </Box>
+                  )}
+                  {c.priceChange24h !== undefined && (
+                    <Box className={getPriceChangeClass(c.priceChange24h)}>
+                      {formatPriceChange(c.priceChange24h)}
                     </Box>
                   )}
                 </Box>

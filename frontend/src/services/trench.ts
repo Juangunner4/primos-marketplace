@@ -14,6 +14,8 @@ export interface TrenchContract {
   firstCallerAt?: number;
   firstCallerMarketCap?: number;
   firstCallerDomain?: string;
+  marketCap?: number;
+  priceChange24h?: number;
 }
 
 export interface TrenchUser {

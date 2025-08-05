@@ -54,6 +54,60 @@
   height: 25px !important;
 }
 
+.market-cap-tag {
+  position: absolute;
+  top: 70%;
+  left: -28px;
+  transform: translateY(-50%);
+  background: #000;
+  color: #fff;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.price-change-tag {
+  position: absolute;
+  top: 30%;
+  left: -28px;
+  transform: translateY(-50%);
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  border: 1px solid;
+}
+
+.price-change-tag.positive {
+  background: #00C851;
+  color: #fff;
+  border-color: #00C851;
+}
+
+.price-change-tag.negative {
+  background: #ff4444;
+  color: #fff;
+  border-color: #ff4444;
+}
+
+.price-change-tag.neutral {
+  background: #666;
+  color: #fff;
+  border-color: #666;
+}
+
 .count-tag {
   position: absolute;
   top: -4px;
@@ -111,6 +165,18 @@
     top: 70%;
     bottom: auto;
     transform: translateY(-50%);
+  }
+
+  .market-cap-tag {
+    left: -24px;
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+
+  .price-change-tag {
+    left: -24px;
+    font-size: 9px;
+    padding: 1px 4px;
   }
 
   .count-tag {
