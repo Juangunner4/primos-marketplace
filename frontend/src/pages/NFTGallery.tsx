@@ -53,7 +53,35 @@ const NFTGallery: React.FC = () => {
     contractsLoaded: 0,
     usersLoaded: 0,
     renderAttempted: true,
-    lastError: null as Error | null
+    lastError: null as Error | null,
+    heliusCallDetails: {
+      assetsRequested: 0,
+      assetsReceived: 0,
+      assetsWithImages: 0,
+      assetsWithoutImages: 0,
+      assetsWithMetadata: 0,
+      assetsWithoutMetadata: 0,
+      assetsWithAttributes: 0,
+      assetsWithoutAttributes: 0,
+      metadataCallsAttempted: 0,
+      metadataCallsSuccessful: 0,
+      metadataCallsFailed: 0,
+      missingDataBreakdown: {
+        noImage: [] as string[],
+        noMetadata: [] as string[],
+        noAttributes: [] as string[],
+        noName: [] as string[],
+        noRank: [] as string[]
+      },
+      apiEndpoints: [] as string[],
+      performanceMetrics: {
+        totalFetchTime: 0,
+        assetsFetchTime: 0,
+        metadataFetchTime: 0,
+        statsFetchTime: 0,
+        solPriceFetchTime: 0
+      }
+    }
   });
 
   const handleList = (nft: MarketNFT) => {
@@ -70,34 +98,136 @@ const NFTGallery: React.FC = () => {
         setLoading(false);
         setFloorPrice(null);
         setSolPrice(null);
-        setDebugInfo(prev => ({ ...prev, apiCallAttempted: false, apiCallSuccess: false }));
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          apiCallAttempted: false, 
+          apiCallSuccess: false,
+          heliusCallDetails: {
+            ...prev.heliusCallDetails,
+            assetsRequested: 0,
+            assetsReceived: 0,
+            missingDataBreakdown: {
+              noImage: [],
+              noMetadata: [],
+              noAttributes: [],
+              noName: [],
+              noRank: []
+            }
+          }
+        }));
         return;
       }
       const pub = publicKey.toBase58();
       setLoading(true);
+      
+      const startTime = performance.now();
+      
       setDebugInfo(prev => ({ 
         ...prev, 
         apiCallAttempted: true, 
         apiCallError: null,
-        lastError: null
+        lastError: null,
+        heliusCallDetails: {
+          ...prev.heliusCallDetails,
+          apiEndpoints: ['getAssetsByCollection', 'getMagicEdenStats', 'getPythSolPrice', 'getNFTByTokenAddress'],
+          missingDataBreakdown: {
+            noImage: [],
+            noMetadata: [],
+            noAttributes: [],
+            noName: [],
+            noRank: []
+          }
+        }
       }));
       
       try {
         console.log('[NFTGallery Debug] Starting API calls for:', pub);
-        const [assets, stats, solPriceVal] = await Promise.all([
-          getAssetsByCollection(PRIMO_COLLECTION, pub),
-          getMagicEdenStats(MAGICEDEN_SYMBOL),
-          getPythSolPrice(),
-        ]);
+        
+        const assetsStartTime = performance.now();
+        const assets = await getAssetsByCollection(PRIMO_COLLECTION, pub);
+        const assetsEndTime = performance.now();
+        
+        const statsStartTime = performance.now();
+        const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
+        const statsEndTime = performance.now();
+        
+        const solPriceStartTime = performance.now();
+        const solPriceVal = await getPythSolPrice();
+        const solPriceEndTime = performance.now();
+        
         console.log('[NFTGallery Debug] API responses:', { assets: assets?.length, stats, solPriceVal });
 
+        // Track initial asset data
+        const assetsRequested = 1; // We request all assets for the collection
+        const assetsReceived = assets?.length || 0;
+        let assetsWithImages = 0;
+        let assetsWithoutImages = 0;
+        let metadataCallsAttempted = 0;
+        let metadataCallsSuccessful = 0;
+        let metadataCallsFailed = 0;
+        let assetsWithMetadata = 0;
+        let assetsWithoutMetadata = 0;
+        let assetsWithAttributes = 0;
+        let assetsWithoutAttributes = 0;
+
+        const missingData = {
+          noImage: [] as string[],
+          noMetadata: [] as string[],
+          noAttributes: [] as string[],
+          noName: [] as string[],
+          noRank: [] as string[]
+        };
+
+        const metadataStartTime = performance.now();
         const pageNFTs = await Promise.all(
           assets.map(async (asset: any) => {
-            const meta = await getNFTByTokenAddress(asset.id);
+            metadataCallsAttempted++;
+            let meta = null;
+            
+            try {
+              meta = await getNFTByTokenAddress(asset.id);
+              metadataCallsSuccessful++;
+              if (meta) {
+                assetsWithMetadata++;
+              } else {
+                assetsWithoutMetadata++;
+                missingData.noMetadata.push(asset.id);
+              }
+            } catch (e) {
+              metadataCallsFailed++;
+              assetsWithoutMetadata++;
+              missingData.noMetadata.push(asset.id);
+              console.warn(`[NFTGallery Debug] Failed to get metadata for ${asset.id}:`, e);
+            }
+
             const image = asset.img ?? asset.image ?? asset.extra?.img ?? meta?.image ?? '';
             const name = asset.name ?? asset.title ?? meta?.name ?? asset.id;
             const metaAttrs = meta?.attributes;
             const rank = getNftRank(asset, metaAttrs);
+
+            // Track missing data
+            if (!image) {
+              assetsWithoutImages++;
+              missingData.noImage.push(asset.id);
+            } else {
+              assetsWithImages++;
+            }
+
+            if (!name || name === asset.id) {
+              missingData.noName.push(asset.id);
+            }
+
+            if (!metaAttrs || metaAttrs.length === 0) {
+              assetsWithoutAttributes++;
+              missingData.noAttributes.push(asset.id);
+            } else {
+              assetsWithAttributes++;
+            }
+
+            if (rank === null) {
+              missingData.noRank.push(asset.id);
+            }
+
             return {
               id: asset.id,
               image,
@@ -109,8 +239,10 @@ const NFTGallery: React.FC = () => {
             };
           })
         );
+        const metadataEndTime = performance.now();
 
         const filtered = pageNFTs.filter((nft) => nft.image);
+        const totalEndTime = performance.now();
 
         setNfts(filtered);
         setFloorPrice(stats?.floorPrice ?? null);
@@ -120,9 +252,39 @@ const NFTGallery: React.FC = () => {
           apiCallSuccess: true, 
           contractsLoaded: filtered.length,
           usersLoaded: 1,
-          lastError: null
+          lastError: null,
+          heliusCallDetails: {
+            ...prev.heliusCallDetails,
+            assetsRequested,
+            assetsReceived,
+            assetsWithImages,
+            assetsWithoutImages,
+            assetsWithMetadata,
+            assetsWithoutMetadata,
+            assetsWithAttributes,
+            assetsWithoutAttributes,
+            metadataCallsAttempted,
+            metadataCallsSuccessful,
+            metadataCallsFailed,
+            missingDataBreakdown: missingData,
+            performanceMetrics: {
+              totalFetchTime: Math.round(totalEndTime - startTime),
+              assetsFetchTime: Math.round(assetsEndTime - assetsStartTime),
+              metadataFetchTime: Math.round(metadataEndTime - metadataStartTime),
+              statsFetchTime: Math.round(statsEndTime - statsStartTime),
+              solPriceFetchTime: Math.round(solPriceEndTime - solPriceStartTime)
+            }
+          }
         }));
         console.log('[NFTGallery Debug] Successfully loaded:', filtered.length, 'NFTs');
+        console.log('[NFTGallery Debug] Missing data summary:', missingData);
+        console.log('[NFTGallery Debug] Performance metrics:', {
+          total: Math.round(totalEndTime - startTime),
+          assets: Math.round(assetsEndTime - assetsStartTime),
+          metadata: Math.round(metadataEndTime - metadataStartTime),
+          stats: Math.round(statsEndTime - statsStartTime),
+          solPrice: Math.round(solPriceEndTime - solPriceStartTime)
+        });
       } catch (e) {
         console.error("Failed to load NFTs", e);
         console.log('[NFTGallery Debug] Error details:', e);
@@ -365,6 +527,32 @@ const NFTGallery: React.FC = () => {
             primoCollection: !!PRIMO_COLLECTION,
             primoCollectionValue: PRIMO_COLLECTION,
             magicEdenSymbol: MAGICEDEN_SYMBOL
+          },
+          heliusDebugData: {
+            collectionId: PRIMO_COLLECTION,
+            walletAddress: publicKey?.toBase58(),
+            assetsRequested: debugInfo.heliusCallDetails.assetsRequested,
+            assetsReceived: debugInfo.heliusCallDetails.assetsReceived,
+            assetsFiltered: nfts.length,
+            assetsRejected: debugInfo.heliusCallDetails.assetsReceived - nfts.length,
+            dataCompleteness: {
+              withImages: `${debugInfo.heliusCallDetails.assetsWithImages}/${debugInfo.heliusCallDetails.assetsReceived}`,
+              withMetadata: `${debugInfo.heliusCallDetails.assetsWithMetadata}/${debugInfo.heliusCallDetails.assetsReceived}`,
+              withAttributes: `${debugInfo.heliusCallDetails.assetsWithAttributes}/${debugInfo.heliusCallDetails.assetsReceived}`,
+              metadataCallSuccess: `${debugInfo.heliusCallDetails.metadataCallsSuccessful}/${debugInfo.heliusCallDetails.metadataCallsAttempted}`
+            },
+            missingDataSummary: {
+              noImageCount: debugInfo.heliusCallDetails.missingDataBreakdown.noImage.length,
+              noMetadataCount: debugInfo.heliusCallDetails.missingDataBreakdown.noMetadata.length,
+              noAttributesCount: debugInfo.heliusCallDetails.missingDataBreakdown.noAttributes.length,
+              noNameCount: debugInfo.heliusCallDetails.missingDataBreakdown.noName.length,
+              noRankCount: debugInfo.heliusCallDetails.missingDataBreakdown.noRank.length,
+              noImageTokens: debugInfo.heliusCallDetails.missingDataBreakdown.noImage.slice(0, 5).map(id => id.slice(0, 8) + '...'),
+              noMetadataTokens: debugInfo.heliusCallDetails.missingDataBreakdown.noMetadata.slice(0, 5).map(id => id.slice(0, 8) + '...'),
+              noAttributesTokens: debugInfo.heliusCallDetails.missingDataBreakdown.noAttributes.slice(0, 5).map(id => id.slice(0, 8) + '...')
+            },
+            performanceMetrics: debugInfo.heliusCallDetails.performanceMetrics,
+            apiEndpoints: debugInfo.heliusCallDetails.apiEndpoints
           }
         }}
       />

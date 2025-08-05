@@ -24,7 +24,10 @@ import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Refresh as RefreshIcon,
-  Dashboard as DashboardIcon
+  Dashboard as DashboardIcon,
+  Storage as StorageIcon,
+  Speed as SpeedIcon,
+  Assignment as AssignmentIcon
 } from '@mui/icons-material';
 
 const ADMIN_WALLET = process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
@@ -60,7 +63,9 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
     api: true,
     component: true,
     environment: true,
-    errors: true
+    errors: true,
+    heliusDebug: true,
+    marketDebug: true
   });
 
   // Only show to admin wallet
@@ -341,6 +346,103 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
                   </Typography>
                 </Box>
               )}
+            </DebugSection>
+          )}
+
+          {/* Helius Debug Data for NFT Gallery */}
+          {additionalData.heliusDebugData && (
+            <DebugSection title="Helius API Debug" sectionKey="heliusDebug" icon={<StorageIcon sx={{ color: '#000000' }} />}>
+              <Typography variant="body2" sx={{ 
+                fontFamily: 'monospace', 
+                fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                lineHeight: { xs: 1.3, sm: 1.4 }
+              }}>
+                Collection: {additionalData.heliusDebugData.collectionId?.slice(0, 12)}...<br/>
+                Wallet: {additionalData.heliusDebugData.walletAddress?.slice(0, 8)}...{additionalData.heliusDebugData.walletAddress?.slice(-8)}<br/>
+                Assets Requested: {additionalData.heliusDebugData.assetsRequested}<br/>
+                Assets Received: {additionalData.heliusDebugData.assetsReceived}<br/>
+                Assets Filtered: {additionalData.heliusDebugData.assetsFiltered}<br/>
+                Assets Rejected: {additionalData.heliusDebugData.assetsRejected}<br/>
+                <br/>
+                <strong>Data Completeness:</strong><br/>
+                With Images: {additionalData.heliusDebugData.dataCompleteness?.withImages}<br/>
+                With Metadata: {additionalData.heliusDebugData.dataCompleteness?.withMetadata}<br/>
+                With Attributes: {additionalData.heliusDebugData.dataCompleteness?.withAttributes}<br/>
+                Metadata Calls: {additionalData.heliusDebugData.dataCompleteness?.metadataCallSuccess}<br/>
+                <br/>
+                <strong>Missing Data:</strong><br/>
+                No Images: {additionalData.heliusDebugData.missingDataSummary?.noImageCount} {additionalData.heliusDebugData.missingDataSummary?.noImageTokens?.length > 0 && `(${additionalData.heliusDebugData.missingDataSummary.noImageTokens.join(', ')})`}<br/>
+                No Metadata: {additionalData.heliusDebugData.missingDataSummary?.noMetadataCount} {additionalData.heliusDebugData.missingDataSummary?.noMetadataTokens?.length > 0 && `(${additionalData.heliusDebugData.missingDataSummary.noMetadataTokens.join(', ')})`}<br/>
+                No Attributes: {additionalData.heliusDebugData.missingDataSummary?.noAttributesCount} {additionalData.heliusDebugData.missingDataSummary?.noAttributesTokens?.length > 0 && `(${additionalData.heliusDebugData.missingDataSummary.noAttributesTokens.join(', ')})`}<br/>
+                No Names: {additionalData.heliusDebugData.missingDataSummary?.noNameCount}<br/>
+                No Ranks: {additionalData.heliusDebugData.missingDataSummary?.noRankCount}<br/>
+                <br/>
+                <strong>Performance:</strong><br/>
+                Total Time: {additionalData.heliusDebugData.performanceMetrics?.totalFetchTime}ms<br/>
+                Assets Fetch: {additionalData.heliusDebugData.performanceMetrics?.assetsFetchTime}ms<br/>
+                Metadata Fetch: {additionalData.heliusDebugData.performanceMetrics?.metadataFetchTime}ms<br/>
+                Stats Fetch: {additionalData.heliusDebugData.performanceMetrics?.statsFetchTime}ms<br/>
+                SOL Price: {additionalData.heliusDebugData.performanceMetrics?.solPriceFetchTime}ms<br/>
+                <br/>
+                <strong>API Endpoints:</strong><br/>
+                {additionalData.heliusDebugData.apiEndpoints?.join(', ')}
+              </Typography>
+            </DebugSection>
+          )}
+
+          {/* Market Debug Data for PrimosMarketGallery */}
+          {additionalData.marketDebugData && (
+            <DebugSection title="Market API Debug" sectionKey="marketDebug" icon={<AssignmentIcon sx={{ color: '#000000' }} />}>
+              <Typography variant="body2" sx={{ 
+                fontFamily: 'monospace', 
+                fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                lineHeight: { xs: 1.3, sm: 1.4 }
+              }}>
+                Symbol: {additionalData.marketDebugData.magicEdenSymbol}<br/>
+                Page: {additionalData.marketDebugData.currentPage} (Offset: {additionalData.marketDebugData.pageOffset})<br/>
+                Listings Requested: {additionalData.marketDebugData.listingsRequested}<br/>
+                Listings Received: {additionalData.marketDebugData.listingsReceived}<br/>
+                Listings Filtered: {additionalData.marketDebugData.listingsFiltered}<br/>
+                Listings Rejected: {additionalData.marketDebugData.listingsRejected}<br/>
+                <br/>
+                <strong>Data Completeness:</strong><br/>
+                With Images: {additionalData.marketDebugData.dataCompleteness?.withImages}<br/>
+                With Metadata: {additionalData.marketDebugData.dataCompleteness?.withMetadata}<br/>
+                With Attributes: {additionalData.marketDebugData.dataCompleteness?.withAttributes}<br/>
+                Metadata Calls: {additionalData.marketDebugData.dataCompleteness?.metadataCallSuccess}<br/>
+                <br/>
+                <strong>Missing Data:</strong><br/>
+                No Images: {additionalData.marketDebugData.missingDataSummary?.noImageCount} {additionalData.marketDebugData.missingDataSummary?.noImageTokens?.length > 0 && `(${additionalData.marketDebugData.missingDataSummary.noImageTokens.join(', ')})`}<br/>
+                No Metadata: {additionalData.marketDebugData.missingDataSummary?.noMetadataCount} {additionalData.marketDebugData.missingDataSummary?.noMetadataTokens?.length > 0 && `(${additionalData.marketDebugData.missingDataSummary.noMetadataTokens.join(', ')})`}<br/>
+                No Attributes: {additionalData.marketDebugData.missingDataSummary?.noAttributesCount} {additionalData.marketDebugData.missingDataSummary?.noAttributesTokens?.length > 0 && `(${additionalData.marketDebugData.missingDataSummary.noAttributesTokens.join(', ')})`}<br/>
+                No Names: {additionalData.marketDebugData.missingDataSummary?.noNameCount}<br/>
+                No Ranks: {additionalData.marketDebugData.missingDataSummary?.noRankCount}<br/>
+                No Prices: {additionalData.marketDebugData.missingDataSummary?.noPriceCount} {additionalData.marketDebugData.missingDataSummary?.noPriceTokens?.length > 0 && `(${additionalData.marketDebugData.missingDataSummary.noPriceTokens.join(', ')})`}<br/>
+                No Sellers: {additionalData.marketDebugData.missingDataSummary?.noSellerCount} {additionalData.marketDebugData.missingDataSummary?.noSellerTokens?.length > 0 && `(${additionalData.marketDebugData.missingDataSummary.noSellerTokens.join(', ')})`}<br/>
+                No Token ATA: {additionalData.marketDebugData.missingDataSummary?.noTokenAtaCount}<br/>
+                <br/>
+                <strong>Performance:</strong><br/>
+                Total Time: {additionalData.marketDebugData.performanceMetrics?.totalFetchTime}ms<br/>
+                Listings Fetch: {additionalData.marketDebugData.performanceMetrics?.listingsFetchTime}ms<br/>
+                Metadata Fetch: {additionalData.marketDebugData.performanceMetrics?.metadataFetchTime}ms<br/>
+                Stats Fetch: {additionalData.marketDebugData.performanceMetrics?.statsFetchTime}ms<br/>
+                SOL Price: {additionalData.marketDebugData.performanceMetrics?.solPriceFetchTime}ms<br/>
+                Attributes: {additionalData.marketDebugData.performanceMetrics?.attributesFetchTime}ms<br/>
+                <br/>
+                <strong>Market Stats:</strong><br/>
+                Floor Price: {additionalData.marketDebugData.marketStats?.floorPrice ? `${additionalData.marketDebugData.marketStats.floorPrice.toFixed(4)} SOL` : 'N/A'}<br/>
+                Listed Count: {additionalData.marketDebugData.marketStats?.listedCount ?? 'N/A'}<br/>
+                Unique Holders: {additionalData.marketDebugData.marketStats?.uniqueHolders ?? 'N/A'}<br/>
+                SOL Price: ${additionalData.marketDebugData.marketStats?.solPrice?.toFixed(2) ?? 'N/A'}<br/>
+                <br/>
+                <strong>Pagination Health:</strong><br/>
+                Expected vs Actual: {additionalData.marketDebugData.paginationHealth?.expectedVsActual}<br/>
+                Offset: {additionalData.marketDebugData.paginationHealth?.paginationOffset}<br/>
+                Total Pages: {additionalData.marketDebugData.paginationHealth?.totalPagesCalculated}<br/>
+                <br/>
+                <strong>API Endpoints:</strong><br/>
+                {additionalData.marketDebugData.apiEndpoints?.join(', ')}
+              </Typography>
             </DebugSection>
           )}
 

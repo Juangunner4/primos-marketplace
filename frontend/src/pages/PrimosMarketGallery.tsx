@@ -73,7 +73,56 @@ const PrimosMarketGallery: React.FC = () => {
     contractsLoaded: 0,
     usersLoaded: 0,
     renderAttempted: true,
-    lastError: null as Error | null
+    lastError: null as Error | null,
+    marketDebugDetails: {
+      magicEdenCallDetails: {
+        listingsRequested: 0,
+        listingsReceived: 0,
+        listingsWithImages: 0,
+        listingsWithoutImages: 0,
+        listingsWithMetadata: 0,
+        listingsWithoutMetadata: 0,
+        listingsWithAttributes: 0,
+        listingsWithoutAttributes: 0,
+        metadataCallsAttempted: 0,
+        metadataCallsSuccessful: 0,
+        metadataCallsFailed: 0,
+        missingDataBreakdown: {
+          noImage: [] as string[],
+          noMetadata: [] as string[],
+          noAttributes: [] as string[],
+          noName: [] as string[],
+          noRank: [] as string[],
+          noPrice: [] as string[],
+          noSeller: [] as string[],
+          noTokenAta: [] as string[]
+        }
+      },
+      paginationDetails: {
+        currentPage: 1,
+        totalPages: 1,
+        pageSize: PAGE_SIZE,
+        offset: 0,
+        expectedListings: PAGE_SIZE,
+        actualListings: 0,
+        filteredListings: 0
+      },
+      apiEndpoints: [] as string[],
+      performanceMetrics: {
+        totalFetchTime: 0,
+        listingsFetchTime: 0,
+        metadataFetchTime: 0,
+        statsFetchTime: 0,
+        solPriceFetchTime: 0,
+        attributesFetchTime: 0
+      },
+      marketStats: {
+        floorPrice: null as number | null,
+        listedCount: null as number | null,
+        uniqueHolders: null as number | null,
+        solPrice: null as number | null
+      }
+    }
   });
 
   const handleBuy = async (nft: MarketNFT) => {
@@ -122,12 +171,20 @@ const PrimosMarketGallery: React.FC = () => {
     async function fetchStats() {
       try {
         console.log('[PrimosMarketGallery Debug] Fetching initial stats...');
+        const statsStartTime = performance.now();
+        const solPriceStartTime = performance.now();
+        
         const [stats, solPriceVal, holderStats] = await Promise.all([
           getMagicEdenStats(MAGICEDEN_SYMBOL),
           getPythSolPrice(),
           getMagicEdenHolderStats(MAGICEDEN_SYMBOL),
         ]);
+        
+        const statsEndTime = performance.now();
+        const solPriceEndTime = performance.now();
+        
         console.log('[PrimosMarketGallery Debug] Initial stats loaded:', { stats, solPriceVal, holderStats });
+        
         if (isMounted) {
           setListedCount(stats?.listedCount ?? null);
           // Compute floor price including marketplace fees
@@ -146,9 +203,34 @@ const PrimosMarketGallery: React.FC = () => {
           } else {
             setTotalPages(1);
           }
+          
+          // Update debug info with market stats and performance
+          setDebugInfo(prev => ({
+            ...prev,
+            marketDebugDetails: {
+              ...prev.marketDebugDetails,
+              marketStats: {
+                floorPrice: stats?.floorPrice ? stats.floorPrice / 1e9 : null,
+                listedCount: stats?.listedCount ?? null,
+                uniqueHolders: holderStats?.uniqueHolders ?? null,
+                solPrice: solPriceVal ?? null
+              },
+              performanceMetrics: {
+                ...prev.marketDebugDetails.performanceMetrics,
+                statsFetchTime: Math.round(statsEndTime - statsStartTime),
+                solPriceFetchTime: Math.round(solPriceEndTime - solPriceStartTime)
+              },
+              apiEndpoints: ['getMagicEdenStats', 'getPythSolPrice', 'getMagicEdenHolderStats']
+            }
+          }));
         }
       } catch (e) {
         console.error('Failed to fetch stats:', e);
+        setDebugInfo(prev => ({
+          ...prev,
+          apiCallError: e instanceof Error ? e.message : 'Stats fetch failed',
+          lastError: e instanceof Error ? e : new Error('Stats fetch failed')
+        }));
       }
     }
     fetchStats();
@@ -158,16 +240,39 @@ const PrimosMarketGallery: React.FC = () => {
   useEffect(() => {
     async function fetchAttrs() {
       try {
+        console.log('[PrimosMarketGallery Debug] Fetching collection attributes...');
+        const attributesStartTime = performance.now();
         const data = await getCollectionAttributes(MAGICEDEN_SYMBOL);
+        const attributesEndTime = performance.now();
+        
         if (data?.attributes) {
           const groups: Record<string, string[]> = {};
           for (const [key, arr] of Object.entries<any>(data.attributes)) {
             groups[key] = Array.isArray(arr) ? arr.map((a: any) => a.value) : [];
           }
           setAttributeGroups(groups);
+          console.log('[PrimosMarketGallery Debug] Attributes loaded:', Object.keys(groups).length, 'groups');
+          
+          // Update debug info with attributes performance
+          setDebugInfo(prev => ({
+            ...prev,
+            marketDebugDetails: {
+              ...prev.marketDebugDetails,
+              performanceMetrics: {
+                ...prev.marketDebugDetails.performanceMetrics,
+                attributesFetchTime: Math.round(attributesEndTime - attributesStartTime)
+              },
+              apiEndpoints: [...prev.marketDebugDetails.apiEndpoints, 'getCollectionAttributes'].filter((v, i, a) => a.indexOf(v) === i)
+            }
+          }));
         }
       } catch (e) {
         console.error('Failed to fetch attributes', e);
+        setDebugInfo(prev => ({
+          ...prev,
+          apiCallError: e instanceof Error ? e.message : 'Attributes fetch failed',
+          lastError: e instanceof Error ? e : new Error('Attributes fetch failed')
+        }));
       }
     }
     fetchAttrs();
@@ -177,7 +282,20 @@ const PrimosMarketGallery: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    setDebugInfo(prev => ({ ...prev, apiCallAttempted: true, apiCallError: null }));
+    setDebugInfo(prev => ({ 
+      ...prev, 
+      apiCallAttempted: true, 
+      apiCallError: null,
+      marketDebugDetails: {
+        ...prev.marketDebugDetails,
+        paginationDetails: {
+          ...prev.marketDebugDetails.paginationDetails,
+          currentPage: page,
+          offset: (page - 1) * PAGE_SIZE,
+          expectedListings: PAGE_SIZE
+        }
+      }
+    }));
 
     fetchPage(page, setNfts, setLoading, setTotalPages, getNftRank).catch((e) => {
       console.error('Failed to fetch listings:', e);
@@ -204,10 +322,39 @@ const PrimosMarketGallery: React.FC = () => {
     getNftRank: (listing: any, metaAttrs: any) => number | null
   ) {
     try {
+      const startTime = performance.now();
       const offset = (page - 1) * PAGE_SIZE;
       console.log('[PrimosMarketGallery Debug] Fetching page:', page, 'offset:', offset);
+      
+      const listingsStartTime = performance.now();
       const listings = await fetchMagicEdenListings(MAGICEDEN_SYMBOL, offset, PAGE_SIZE);
+      const listingsEndTime = performance.now();
+      
       console.log('[PrimosMarketGallery Debug] Fetched listings:', listings?.length);
+
+      // Initialize tracking variables
+      const listingsRequested = PAGE_SIZE;
+      const listingsReceived = listings?.length || 0;
+      let listingsWithImages = 0;
+      let listingsWithoutImages = 0;
+      let listingsWithMetadata = 0;
+      let listingsWithoutMetadata = 0;
+      let listingsWithAttributes = 0;
+      let listingsWithoutAttributes = 0;
+      let metadataCallsAttempted = 0;
+      let metadataCallsSuccessful = 0;
+      let metadataCallsFailed = 0;
+
+      const missingData = {
+        noImage: [] as string[],
+        noMetadata: [] as string[],
+        noAttributes: [] as string[],
+        noName: [] as string[],
+        noRank: [] as string[],
+        noPrice: [] as string[],
+        noSeller: [] as string[],
+        noTokenAta: [] as string[]
+      };
 
       if (page === 1) {
         const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
@@ -217,13 +364,68 @@ const PrimosMarketGallery: React.FC = () => {
         }
       }
 
+      const metadataStartTime = performance.now();
       const pageNFTs: MarketNFT[] = await Promise.all(
         listings.map(async (listing: any) => {
-          const meta = await getNFTByTokenAddress(listing.tokenMint);
+          metadataCallsAttempted++;
+          let meta = null;
+          
+          try {
+            meta = await getNFTByTokenAddress(listing.tokenMint);
+            metadataCallsSuccessful++;
+            if (meta) {
+              listingsWithMetadata++;
+            } else {
+              listingsWithoutMetadata++;
+              missingData.noMetadata.push(listing.tokenMint);
+            }
+          } catch (e) {
+            metadataCallsFailed++;
+            listingsWithoutMetadata++;
+            missingData.noMetadata.push(listing.tokenMint);
+            console.warn(`[PrimosMarketGallery Debug] Failed to get metadata for ${listing.tokenMint}:`, e);
+          }
+
           const image = listing.img ?? listing.image ?? listing.extra?.img ?? meta?.image ?? '';
           const name = listing.name ?? listing.title ?? meta?.name ?? listing.tokenMint;
           const metaAttrs = meta?.attributes;
           const rank = getNftRank(listing, metaAttrs);
+
+          // Track missing data
+          if (!image) {
+            listingsWithoutImages++;
+            missingData.noImage.push(listing.tokenMint);
+          } else {
+            listingsWithImages++;
+          }
+
+          if (!name || name === listing.tokenMint) {
+            missingData.noName.push(listing.tokenMint);
+          }
+
+          if (!metaAttrs || metaAttrs.length === 0) {
+            listingsWithoutAttributes++;
+            missingData.noAttributes.push(listing.tokenMint);
+          } else {
+            listingsWithAttributes++;
+          }
+
+          if (rank === null) {
+            missingData.noRank.push(listing.tokenMint);
+          }
+
+          if (!listing.price || listing.price <= 0) {
+            missingData.noPrice.push(listing.tokenMint);
+          }
+
+          if (!listing.seller) {
+            missingData.noSeller.push(listing.tokenMint);
+          }
+
+          if (!listing.tokenAddress) {
+            missingData.noTokenAta.push(listing.tokenMint);
+          }
+
           return {
             id: listing.tokenMint,
             image,
@@ -240,17 +442,56 @@ const PrimosMarketGallery: React.FC = () => {
           } as MarketNFT;
         })
       );
+      const metadataEndTime = performance.now();
+      const totalEndTime = performance.now();
 
       const filtered = pageNFTs.filter((nft) => nft.image);
 
       setNfts(filtered);
       console.log('[PrimosMarketGallery Debug] Successfully loaded:', filtered.length, 'NFTs');
+      console.log('[PrimosMarketGallery Debug] Missing data summary:', missingData);
+      console.log('[PrimosMarketGallery Debug] Performance metrics:', {
+        total: Math.round(totalEndTime - startTime),
+        listings: Math.round(listingsEndTime - listingsStartTime),
+        metadata: Math.round(metadataEndTime - metadataStartTime)
+      });
+
       setDebugInfo(prev => ({ 
         ...prev, 
         apiCallSuccess: true, 
         contractsLoaded: filtered.length,
         usersLoaded: filtered.length,
-        lastError: null
+        lastError: null,
+        marketDebugDetails: {
+          ...prev.marketDebugDetails,
+          magicEdenCallDetails: {
+            listingsRequested,
+            listingsReceived,
+            listingsWithImages,
+            listingsWithoutImages,
+            listingsWithMetadata,
+            listingsWithoutMetadata,
+            listingsWithAttributes,
+            listingsWithoutAttributes,
+            metadataCallsAttempted,
+            metadataCallsSuccessful,
+            metadataCallsFailed,
+            missingDataBreakdown: missingData
+          },
+          paginationDetails: {
+            ...prev.marketDebugDetails.paginationDetails,
+            actualListings: listingsReceived,
+            filteredListings: filtered.length,
+            totalPages: Math.ceil((prev.marketDebugDetails.marketStats.listedCount || 0) / PAGE_SIZE)
+          },
+          performanceMetrics: {
+            ...prev.marketDebugDetails.performanceMetrics,
+            totalFetchTime: Math.round(totalEndTime - startTime),
+            listingsFetchTime: Math.round(listingsEndTime - listingsStartTime),
+            metadataFetchTime: Math.round(metadataEndTime - metadataStartTime)
+          },
+          apiEndpoints: [...prev.marketDebugDetails.apiEndpoints, 'fetchMagicEdenListings', 'getNFTByTokenAddress'].filter((v, i, a) => a.indexOf(v) === i)
+        }
       }));
     } catch (e) {
       console.error('Error fetching page:', e);
@@ -585,6 +826,44 @@ const PrimosMarketGallery: React.FC = () => {
         environmentVars: {
           magicEdenSymbol: MAGICEDEN_SYMBOL,
           defaultAuctionHouse: DEFAULT_AUCTION_HOUSE
+        },
+        marketDebugData: {
+          magicEdenSymbol: MAGICEDEN_SYMBOL,
+          currentPage: page,
+          pageOffset: (page - 1) * PAGE_SIZE,
+          listingsRequested: debugInfo.marketDebugDetails.magicEdenCallDetails.listingsRequested,
+          listingsReceived: debugInfo.marketDebugDetails.magicEdenCallDetails.listingsReceived,
+          listingsFiltered: nfts.length,
+          listingsRejected: debugInfo.marketDebugDetails.magicEdenCallDetails.listingsReceived - nfts.length,
+          dataCompleteness: {
+            withImages: `${debugInfo.marketDebugDetails.magicEdenCallDetails.listingsWithImages}/${debugInfo.marketDebugDetails.magicEdenCallDetails.listingsReceived}`,
+            withMetadata: `${debugInfo.marketDebugDetails.magicEdenCallDetails.listingsWithMetadata}/${debugInfo.marketDebugDetails.magicEdenCallDetails.listingsReceived}`,
+            withAttributes: `${debugInfo.marketDebugDetails.magicEdenCallDetails.listingsWithAttributes}/${debugInfo.marketDebugDetails.magicEdenCallDetails.listingsReceived}`,
+            metadataCallSuccess: `${debugInfo.marketDebugDetails.magicEdenCallDetails.metadataCallsSuccessful}/${debugInfo.marketDebugDetails.magicEdenCallDetails.metadataCallsAttempted}`
+          },
+          missingDataSummary: {
+            noImageCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noImage.length,
+            noMetadataCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noMetadata.length,
+            noAttributesCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noAttributes.length,
+            noNameCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noName.length,
+            noRankCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noRank.length,
+            noPriceCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noPrice.length,
+            noSellerCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noSeller.length,
+            noTokenAtaCount: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noTokenAta.length,
+            noImageTokens: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noImage.slice(0, 5).map(id => id.slice(0, 8) + '...'),
+            noMetadataTokens: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noMetadata.slice(0, 5).map(id => id.slice(0, 8) + '...'),
+            noAttributesTokens: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noAttributes.slice(0, 5).map(id => id.slice(0, 8) + '...'),
+            noPriceTokens: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noPrice.slice(0, 5).map(id => id.slice(0, 8) + '...'),
+            noSellerTokens: debugInfo.marketDebugDetails.magicEdenCallDetails.missingDataBreakdown.noSeller.slice(0, 5).map(id => id.slice(0, 8) + '...')
+          },
+          performanceMetrics: debugInfo.marketDebugDetails.performanceMetrics,
+          apiEndpoints: debugInfo.marketDebugDetails.apiEndpoints,
+          marketStats: debugInfo.marketDebugDetails.marketStats,
+          paginationHealth: {
+            expectedVsActual: `${debugInfo.marketDebugDetails.paginationDetails.actualListings}/${debugInfo.marketDebugDetails.paginationDetails.expectedListings}`,
+            paginationOffset: debugInfo.marketDebugDetails.paginationDetails.offset,
+            totalPagesCalculated: debugInfo.marketDebugDetails.paginationDetails.totalPages
+          }
         }
       }}
     />
