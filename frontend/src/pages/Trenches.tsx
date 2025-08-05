@@ -88,9 +88,13 @@ const Trenches: React.FC = () => {
       return;
     }
     
-    await submitTrenchContract(publicKey.toBase58(), input, 'model1', marketCap);
-    setInput('');
-    load();
+    try {
+      await submitTrenchContract(publicKey.toBase58(), input, 'model1', marketCap);
+      setInput('');
+      load();
+    } catch (e: any) {
+      setMessage({ text: t('contract_already_added'), type: 'error' });
+    }
   };
 
   const handleCopy = (contract: string) => {

@@ -214,6 +214,8 @@
  ,"experiment3_desc": "Enter contract addresses to grow the trenches. Bubbles expand as more users join."
  ,"enter_contract": "Enter contract address"
  ,"add_contract": "Add Contract"
+ ,"contract_not_onchain": "Contract not found on chain"
+ ,"contract_already_added": "You have already added this contract"
  ,"my_contracts": "My Contracts"
  ,"all_users": "All Users"
  ,"all_contracts": "All Contracts"

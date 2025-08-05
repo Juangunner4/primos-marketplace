@@ -25,6 +25,18 @@ public class TrenchService {
     public void add(String publicKey, String contract, String source, String model, String domain) {
         long now = System.currentTimeMillis();
 
+        TrenchUser tu = TrenchUser.find("publicKey", publicKey).firstResult();
+        if (tu != null) {
+            java.util.List<String> list = tu.getContracts();
+            if (list != null && list.contains(contract)) {
+                throw new BadRequestException("Contract already added");
+            }
+            long since = now - tu.getLastSubmittedAt();
+            if (since < MIN_SUBMIT_INTERVAL_MS) {
+                throw new BadRequestException();
+            }
+        }
+
         TrenchContract tc = TrenchContract.find("contract", contract).firstResult();
         if (tc == null) {
             tc = new TrenchContract();
@@ -43,7 +55,6 @@ public class TrenchService {
             tc.persistOrUpdate();
         }
 
-        TrenchUser tu = TrenchUser.find("publicKey", publicKey).firstResult();
         if (tu == null) {
             tu = new TrenchUser();
             tu.setPublicKey(publicKey);
@@ -54,17 +65,11 @@ public class TrenchService {
             tu.setLastSubmittedAt(now);
             tu.persist();
         } else {
-            long since = now - tu.getLastSubmittedAt();
-            if (since < MIN_SUBMIT_INTERVAL_MS) {
-                throw new BadRequestException();
-            }
             tu.setCount(tu.getCount() + 1);
             java.util.List<String> list = tu.getContracts();
             if (list == null)
                 list = new ArrayList<>();
-            if (!list.contains(contract)) {
-                list.add(contract);
-            }
+            list.add(contract);
             tu.setContracts(list);
             tu.setLastSubmittedAt(now);
             tu.persistOrUpdate();
