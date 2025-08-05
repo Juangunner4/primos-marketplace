@@ -336,19 +336,19 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
 
             {/* Data Columns */}
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }} className="first-caller-data-columns">
-              <Box sx={{ flex: 1, minWidth: '200px', p: 1, backgroundColor: '#f9f9f9', borderRadius: 1 }} className="first-caller-data-box">
-                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#666', mb: 0.5 }}>
+              <Box sx={{ flex: 1, minWidth: '200px', p: 1, backgroundColor: '#fafafa', borderRadius: 1 }} className="first-caller-data-box">
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#333', mb: 0.5 }}>
                   {t('called_at')}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ color: '#000' }}>
                   {callerInfo.at ? new Date(callerInfo.at).toLocaleString() : 'N/A'}
                 </Typography>
               </Box>
-              <Box sx={{ flex: 1, minWidth: '200px', p: 1, backgroundColor: '#f9f9f9', borderRadius: 1 }} className="first-caller-data-box">
-                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#666', mb: 0.5 }}>
+              <Box sx={{ flex: 1, minWidth: '200px', p: 1, backgroundColor: '#fafafa', borderRadius: 1 }} className="first-caller-data-box">
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#333', mb: 0.5 }}>
                   {t('market_cap_at_call')}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ color: '#000' }}>
                   {marketCapLoading
                     ? `${t('loading')}...`
                     : callerInfo.marketCap != null
