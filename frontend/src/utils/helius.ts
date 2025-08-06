@@ -376,8 +376,19 @@ export interface HeliusTokenInfo {
   change1hPercent?: number;
 }
 
+export interface TokenHolder {
+  address: string;
+  amount: string;
+  decimals: number;
+  uiAmount: number;
+  uiAmountString: string;
+  percentage: number;
+}
+
 /**
  * Fetches market and token info for a given token address using Helius RPC.
+ * Note: Helius doesn't provide market data directly, so this function
+ * uses getAsset to fetch basic token information.
  */
 export const getTokenInfo = async (
   tokenAddress: string
@@ -389,23 +400,100 @@ export const getTokenInfo = async (
   }
   try {
     const response = await heliusFetch(
-      `https://rpc.helius.io/?api-key=${apiKey}`,
+      `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jsonrpc: '2.0',
           id: '1',
-          method: 'getTokenInfo',
+          method: 'getAsset',
           params: { id: tokenAddress },
         }),
       }
     );
     if (!response.ok) return null;
     const data = await response.json();
-    return data.result || null;
+    const asset = data.result;
+    
+    if (!asset) return null;
+    
+    // Extract basic token info from the asset data
+    // Note: Market data like price, market cap, etc. is not available from Helius
+    const tokenInfo: HeliusTokenInfo = {};
+    
+    if (asset.content?.metadata?.symbol) {
+      tokenInfo.tickerBase = asset.content.metadata.symbol;
+    }
+    
+    // Helius doesn't provide market data, so most fields will be undefined
+    // The calling code should handle fallback to other APIs for market data
+    
+    return tokenInfo;
   } catch (e) {
     console.error('Failed to fetch token info', e);
     return null;
+  }
+};
+
+/**
+ * Fetches the top token holders for a given token address using Helius RPC.
+ * @param tokenAddress The mint address of the token.
+ * @param limit Maximum number of holders to return (default: 10).
+ * @returns Array of top token holders with percentages.
+ */
+export const getTokenLargestAccounts = async (
+  tokenAddress: string,
+  limit: number = 10
+): Promise<TokenHolder[]> => {
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+  if (!apiKey) {
+    console.error('Helius API key is not configured.');
+    return [];
+  }
+  
+  try {
+    const response = await heliusFetch(
+      `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getTokenLargestAccounts',
+          params: [tokenAddress],
+        }),
+      }
+    );
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    const accounts = data.result?.value || [];
+    
+    if (accounts.length === 0) return [];
+    
+    // Calculate total supply to determine percentages
+    const totalSupply = accounts.reduce((sum: number, account: any) => 
+      sum + (account.uiAmount || 0), 0
+    );
+    
+    // Map accounts to TokenHolder format with percentages
+    const holders: TokenHolder[] = accounts
+      .slice(0, limit)
+      .map((account: any) => ({
+        address: account.address,
+        amount: account.amount,
+        decimals: account.decimals,
+        uiAmount: account.uiAmount || 0,
+        uiAmountString: account.uiAmountString || '0',
+        percentage: totalSupply > 0 ? (account.uiAmount / totalSupply) * 100 : 0,
+      }));
+    
+    return holders;
+  } catch (e) {
+    console.error('Failed to fetch token largest accounts', e);
+    return [];
   }
 };

@@ -3,7 +3,7 @@ package com.primos.model;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 
-@MongoEntity(collection = "trench_contract_callers")
+@MongoEntity(collection = "trenchCallers")
 public class TrenchContractCaller extends PanacheMongoEntity {
     private String contract;
     private String caller;

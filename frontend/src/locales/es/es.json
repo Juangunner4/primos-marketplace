@@ -269,5 +269,7 @@
   "reload_page": "Recargar Página",
   "trenches_unavailable": "Trincheras Temporalmente No Disponibles",
   "trenches_error_message": "Estamos experimentando dificultades técnicas con la página de Trincheras. Por favor, inténtalo más tarde.",
-  "go_home": "Ir al Inicio"
+  "go_home": "Ir al Inicio",
+  "top_holders": "Principales Tenedores",
+  "no_holders_data": "No hay datos de tenedores disponibles"
 }

@@ -7,10 +7,18 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import PeopleIcon from '@mui/icons-material/People';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
+import Collapse from '@mui/material/Collapse';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
 import { GiSlingshot, GiAtom } from 'react-icons/gi';
 import { FaVectorSquare } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +31,7 @@ import {
 } from '../services/token';
 import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
 import { fetchCoinGeckoData, CoinGeckoEntry } from '../services/coingecko';
+import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
@@ -37,6 +46,9 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   const [token, setToken] = useState<TokenMetadata | null>(null);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [coinGeckoData, setCoinGeckoData] = useState<CoinGeckoEntry[]>([]);
+  const [tokenHolders, setTokenHolders] = useState<TokenHolder[]>([]);
+  const [holdersExpanded, setHoldersExpanded] = useState(false);
+  const [holdersLoading, setHoldersLoading] = useState(false);
   const [callerInfo, setCallerInfo] = useState<{
     publicKey: string;
     pfp: string;
@@ -135,6 +147,40 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     }
   };
 
+  const loadTokenHolders = async () => {
+    if (!contract) return;
+    setHoldersLoading(true);
+    try {
+      const holders = await getTokenLargestAccounts(contract, 10);
+      setTokenHolders(holders);
+    } catch (error) {
+      console.error('Failed to load token holders:', error);
+    } finally {
+      setHoldersLoading(false);
+    }
+  };
+
+  const handleHoldersToggle = () => {
+    setHoldersExpanded(!holdersExpanded);
+    if (!holdersExpanded && tokenHolders.length === 0) {
+      loadTokenHolders();
+    }
+  };
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  };
+
+  const formatTokenAmount = (amount: string) => {
+    const num = parseFloat(amount);
+    if (isNaN(num)) return amount;
+    return num.toFixed(2);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
   useEffect(() => {
     if (!open || !contract) return;
     setLoading(true);
@@ -174,6 +220,9 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     setToken(null);
     setTokenInfo(null);
     setCoinGeckoData([]);
+    setTokenHolders([]);
+    setHoldersExpanded(false);
+    setHoldersLoading(false);
     setCallerInfo(null);
     setLatestCallers([]);
     setError(null);
@@ -225,9 +274,17 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
               <Box sx={{ position: 'relative', display: 'inline-block' }} className="first-caller-avatar-container">
                 <Link to={`/user/${callerInfo.publicKey}`} style={{ textDecoration: 'none' }}>
                   <Avatar
-                    src={callerInfo.pfp}
-                    alt={callerInfo.publicKey}
-                    sx={{ width: 40, height: 40, cursor: 'pointer' }}
+                    src={callerInfo.pfp || undefined}
+                    alt={callerInfo.publicKey.slice(0, 2).toUpperCase()}
+                    sx={{ 
+                      width: 40, 
+                      height: 40, 
+                      cursor: 'pointer',
+                      backgroundColor: callerInfo.pfp ? 'transparent' : '#1976d2',
+                      color: '#fff',
+                      fontSize: '1rem',
+                      fontWeight: 'bold'
+                    }}
                   />
                 </Link>
                 {callerInfo.twitter && (
@@ -395,9 +452,17 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     <Box sx={{ position: 'relative', display: 'inline-block' }}>
                       <Link to={`/user/${caller.caller}`} style={{ textDecoration: 'none' }}>
                         <Avatar 
-                          src={caller.pfp} 
-                          alt={caller.caller} 
-                          sx={{ width: 32, height: 32, cursor: 'pointer' }} 
+                          src={caller.pfp || undefined} 
+                          alt={caller.caller.slice(0, 2).toUpperCase()}
+                          sx={{ 
+                            width: 32, 
+                            height: 32, 
+                            cursor: 'pointer',
+                            backgroundColor: caller.pfp ? 'transparent' : '#1976d2',
+                            color: '#fff',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold'
+                          }} 
                         />
                       </Link>
                       {caller.socials?.twitter && (
@@ -530,6 +595,99 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   </Box>
                 </Box>
               ))}
+              
+              {/* Token Holders Section */}
+              <Box sx={{ mt: 2 }}>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    p: 1, 
+                    backgroundColor: '#fafafa', 
+                    borderRadius: 0.5,
+                    cursor: 'pointer',
+                    '&:hover': { backgroundColor: '#f0f0f0' }
+                  }}
+                  onClick={handleHoldersToggle}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <PeopleIcon fontSize="small" />
+                    <Typography variant="body2" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
+                      {t('top_holders')} (Top 10)
+                    </Typography>
+                  </Box>
+                  <IconButton size="small">
+                    {holdersExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                  </IconButton>
+                </Box>
+                
+                <Collapse in={holdersExpanded}>
+                  <Box sx={{ mt: 1, border: '1px solid #ddd', borderRadius: 0.5, backgroundColor: '#fff' }}>
+                    {holdersLoading ? (
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="body2" sx={{ color: '#666' }}>
+                          {t('loading')}...
+                        </Typography>
+                      </Box>
+                    ) : tokenHolders.length > 0 ? (
+                      <List dense sx={{ py: 0 }}>
+                        {tokenHolders.map((holder, index) => (
+                          <React.Fragment key={holder.address}>
+                            <ListItem 
+                              sx={{ 
+                                py: 1, 
+                                px: 2,
+                                '&:hover': { backgroundColor: '#f9f9f9' }
+                              }}
+                            >
+                              <ListItemText
+                                primary={
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                      <Typography variant="body2" sx={{ fontWeight: 'bold', minWidth: '20px' }}>
+                                        #{index + 1}
+                                      </Typography>
+                                      <Typography 
+                                        variant="body2" 
+                                        sx={{ 
+                                          fontFamily: 'monospace', 
+                                          cursor: 'pointer',
+                                          '&:hover': { textDecoration: 'underline' }
+                                        }}
+                                        onClick={() => copyToClipboard(holder.address)}
+                                        title="Click to copy"
+                                      >
+                                        {formatAddress(holder.address)}
+                                      </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                        {holder.percentage.toFixed(2)}%
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ color: '#666' }}>
+                                        ({formatTokenAmount(holder.uiAmountString)})
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                }
+                              />
+                            </ListItem>
+                            {index < tokenHolders.length - 1 && <Divider />}
+                          </React.Fragment>
+                        ))}
+                      </List>
+                    ) : (
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
+                          {t('no_holders_data')}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Collapse>
+              </Box>
+              
               {coinGeckoData.length === 0 && (
                 <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
                   {loading ? `${t('loading')}...` : t('no_market_data')}
