@@ -104,7 +104,11 @@ const Trenches: React.FC = () => {
   const { counts, latestUsers } = useMemo(() => {
     const counts: Record<string, number> = {};
     const latestUsers: Record<string, TrenchUser | undefined> = {};
-    data.users.forEach((u) => {
+
+    // Safeguard against malformed API responses
+    const usersArray = Array.isArray(data.users) ? data.users : [];
+
+    usersArray.forEach((u) => {
       const lastAt = u.lastSubmittedAt || 0;
       u.contracts.forEach((c) => {
         counts[c] = (counts[c] || 0) + 1;
@@ -133,25 +137,32 @@ const Trenches: React.FC = () => {
       console.log('📡 Making API call to /api/trench...');
       const res = await api.get<TrenchData>('/api/trench');
       console.log('✅ API call successful:', res.data);
-      
+
+      const resData = (res.data || {}) as Partial<TrenchData>;
+      const contractsArr = Array.isArray(resData.contracts) ? resData.contracts : [];
+      const usersArr = Array.isArray(resData.users) ? resData.users : [];
+      const latestCallersObj =
+        resData.latestCallers && typeof resData.latestCallers === 'object'
+          ? resData.latestCallers
+          : {};
+
       setDebugInfo(prev => ({
         ...prev,
         apiCallSuccess: true,
-        contractsLoaded: res.data.contracts?.length || 0,
-        usersLoaded: res.data.users?.length || 0
+        contractsLoaded: contractsArr.length,
+        usersLoaded: usersArr.length
       }));
 
       // Preload users so counts render immediately
-      setData({ 
-        contracts: [], 
-        users: res.data.users || [], 
-        latestCallers: res.data.latestCallers || {} 
+      setData({
+        contracts: [],
+        users: usersArr,
+        latestCallers: latestCallersObj
       });
       if (showSpinner) setLoading(false);
 
       // Stream contracts one by one
-      const contracts = res.data.contracts || [];
-      contracts.forEach(async (c) => {
+      contractsArr.forEach(async (c) => {
         try {
           setData((prev) => ({ ...prev, contracts: [...prev.contracts, c] }));
           
@@ -196,8 +207,7 @@ const Trenches: React.FC = () => {
       });
 
       // Fetch user profile images gradually
-      const users = res.data.users || [];
-      users.forEach(async (u) => {
+      usersArr.forEach(async (u) => {
         let image = '';
         try {
           const pfpAddr = u.pfp?.replace(/"/g, '');
