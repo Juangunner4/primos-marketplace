@@ -3,7 +3,7 @@ package com.primos.model;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 
-@MongoEntity(collection = "token_reactions")
+@MongoEntity(collection = "tokenReactions")
 public class TokenReaction extends PanacheMongoEntity {
     private String tokenId;
     private String publicKey;
