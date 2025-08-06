@@ -197,6 +197,20 @@
     max-width: calc(100vw - 2rem);
     overflow-y: auto;
   }
+
+  .contract-panels {
+    flex-direction: column;
+  }
+
+  .token-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .token-image {
+    margin-bottom: 0.5rem;
+  }
 }
 
 @media (max-width: 500px) {

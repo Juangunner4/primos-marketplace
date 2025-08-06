@@ -915,13 +915,22 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                             >
                               <ListItemText
                                 primary={
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <Box
+                                    className="token-holder-row"
+                                    sx={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: { xs: 'flex-start', sm: 'center' },
+                                      flexDirection: { xs: 'column', sm: 'row' },
+                                      gap: { xs: 0.5, sm: 0 }
+                                    }}
+                                  >
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                       <Typography variant="body2" sx={{ fontWeight: 'bold', minWidth: '20px' }}>
                                         #{index + 1}
                                       </Typography>
-                                      <Typography 
-                                        variant="body2" 
+                                      <Typography
+                                        variant="body2"
                                         sx={{ 
                                           fontFamily: 'monospace', 
                                           cursor: 'pointer',
@@ -933,7 +942,16 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                                         {formatAddress(holder.address)}
                                       </Typography>
                                     </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box
+                                      className="holder-metrics"
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        mt: { xs: 0.5, sm: 0 },
+                                        alignSelf: { xs: 'stretch', sm: 'auto' }
+                                      }}
+                                    >
                                       <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                                         {holder.percentage.toFixed(2)}%
                                       </Typography>
