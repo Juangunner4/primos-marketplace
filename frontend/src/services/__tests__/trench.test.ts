@@ -24,6 +24,11 @@ describe('trench service', () => {
           { publicKey: 'u1', pfp: 'p1', count: 1, contracts: [] },
           { publicKey: 'u2', pfp: '', count: 1, contracts: [] },
         ],
+        latestCallers: {
+          c1: [
+            { caller: 'lc1', pfp: 'lp1' },
+          ],
+        },
       },
     });
     (helius.getNFTsByTokenAddresses as jest.Mock).mockResolvedValue({
@@ -37,6 +42,7 @@ describe('trench service', () => {
     expect(data.contracts[0].image).toBe('cimg');
     expect(data.users[0].pfp).toBe('pimg');
     expect(data.users[1].pfp).toBe('u2img');
+    expect(data.latestCallers.c1[0].pfp).toBe('lp1');
     expect(helius.getNFTsByTokenAddresses).toHaveBeenCalledWith(['c1', 'p1']);
     expect(api.get).toHaveBeenCalledWith('/api/trench');
   });
