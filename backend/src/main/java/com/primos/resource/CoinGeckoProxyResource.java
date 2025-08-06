@@ -21,6 +21,13 @@ import jakarta.ws.rs.core.Response;
 public class CoinGeckoProxyResource {
 
     private static final String COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3";
+    private static final String CORS_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    private static final String CORS_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    private static final String CORS_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String WILDCARD_ORIGIN = "*";
+    private static final String GET_METHOD = "GET";
+
     private static final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
@@ -84,16 +91,115 @@ public class CoinGeckoProxyResource {
 
             return Response.status(response.statusCode())
                     .entity(response.body())
-                    .header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET")
-                    .header("Access-Control-Allow-Headers", "Content-Type")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .header(CORS_ALLOW_METHODS, GET_METHOD)
+                    .header(CORS_ALLOW_HEADERS, CONTENT_TYPE)
                     .build();
 
-        } catch (java.io.IOException | java.lang.InterruptedException e) {
+        } catch (java.io.IOException e) {
             System.err.println("Error proxying CoinGecko request: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"Failed to fetch data from CoinGecko\"}")
-                    .header("Access-Control-Allow-Origin", "*")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .build();
+        } catch (java.lang.InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("CoinGecko request interrupted: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Request interrupted\"}")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/pools/{tokenAddress}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTokenPools(
+            @PathParam("tokenAddress") String tokenAddress,
+            @QueryParam("network") String network,
+            @QueryParam("limit") String limit,
+            @QueryParam("api_key") String apiKey) {
+
+        try {
+            // Note: This is a placeholder endpoint since CoinGecko doesn't have
+            // a direct pools API in their public API. This would need to be
+            // implemented with a different data source like DexScreener or Jupiter
+
+            String responseBody = "{\"pools\": [], \"message\": \"Liquidity pools data coming soon\"}";
+
+            return Response.status(200)
+                    .entity(responseBody)
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .header(CORS_ALLOW_METHODS, GET_METHOD)
+                    .header(CORS_ALLOW_HEADERS, CONTENT_TYPE)
+                    .build();
+
+        } catch (Exception e) {
+            System.err.println("Error in pools endpoint: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Failed to fetch pools data\"}")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/nfts/{collectionId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getNFTCollectionData(
+            @PathParam("collectionId") String collectionId,
+            @QueryParam("platform") String platform,
+            @QueryParam("api_key") String apiKey) {
+
+        try {
+            StringBuilder urlBuilder = new StringBuilder()
+                    .append(COINGECKO_BASE_URL)
+                    .append("/nfts/")
+                    .append(collectionId)
+                    .append("?");
+
+            if (platform != null) {
+                urlBuilder.append("platform=").append(platform).append("&");
+            }
+            if (apiKey != null) {
+                urlBuilder.append("x_cg_demo_api_key=").append(apiKey).append("&");
+            }
+
+            String url = urlBuilder.toString();
+            if (url.endsWith("&")) {
+                url = url.substring(0, url.length() - 1);
+            }
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(30))
+                    .header("Accept", "application/json")
+                    .header("User-Agent", "PrimosMarketplace/1.0")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return Response.status(response.statusCode())
+                    .entity(response.body())
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .header(CORS_ALLOW_METHODS, GET_METHOD)
+                    .header(CORS_ALLOW_HEADERS, CONTENT_TYPE)
+                    .build();
+
+        } catch (java.io.IOException e) {
+            System.err.println("Error proxying CoinGecko NFT request: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Failed to fetch NFT collection data from CoinGecko\"}")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .build();
+        } catch (java.lang.InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("CoinGecko NFT request interrupted: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"NFT request interrupted\"}")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
                     .build();
         }
     }

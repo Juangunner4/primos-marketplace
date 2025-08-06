@@ -1,5 +1,5 @@
 import { getNFTByTokenAddress, getTokenInfo as heliusGetTokenInfo } from './helius';
-import { getCurrentMarketCap } from './coingecko';
+import { getCurrentMarketCap, fetchNFTWithCoinGeckoBackup } from './coingecko';
 import type { HeliusTokenInfo } from './helius';
 
 export interface TokenMetadata {
@@ -10,6 +10,14 @@ export interface TokenMetadata {
   showName?: boolean;
   createdOn?: string;
   twitter?: string;
+  // Enhanced with CoinGecko data
+  collectionData?: {
+    floorPrice?: string;
+    marketCap?: string;
+    volume24h?: string;
+    totalSupply?: string;
+    uniqueHolders?: string;
+  };
 }
 
 export const fetchTokenMetadata = async (
@@ -31,6 +39,75 @@ export const fetchTokenMetadata = async (
   } catch (error) {
     console.error('fetchTokenMetadata error', error);
     return null;
+  }
+};
+
+/**
+ * Enhanced NFT metadata fetch with CoinGecko collection data as backup
+ * @param tokenAddress - NFT token address
+ * @param collectionAddress - Optional collection address for CoinGecko backup
+ * @param network - Network identifier (default: solana)
+ * @returns Enhanced NFT metadata with collection data
+ */
+export const fetchNFTMetadataWithBackup = async (
+  tokenAddress: string,
+  collectionAddress?: string,
+  network: string = 'solana'
+): Promise<TokenMetadata | null> => {
+  try {
+    // Try CoinGecko backup service first
+    const enhancedNFT = await fetchNFTWithCoinGeckoBackup(tokenAddress, collectionAddress, network);
+    
+    if (enhancedNFT) {
+      const metadata: TokenMetadata = {
+        name: enhancedNFT.name,
+        symbol: enhancedNFT.symbol,
+        description: enhancedNFT.description,
+        image: enhancedNFT.image,
+        showName: enhancedNFT.metadata?.showName as boolean,
+        createdOn: enhancedNFT.metadata?.createdOn as string,
+        twitter: enhancedNFT.metadata?.twitter as string,
+      };
+
+      // Add collection data if available from CoinGecko
+      if (enhancedNFT.coinGeckoData?.formatted_entries) {
+        const entries = enhancedNFT.coinGeckoData.formatted_entries;
+        const collectionData: TokenMetadata['collectionData'] = {};
+        
+        entries.forEach(entry => {
+          switch (entry.id) {
+            case 'floor_price':
+              collectionData.floorPrice = entry.value;
+              break;
+            case 'market_cap':
+              collectionData.marketCap = entry.value;
+              break;
+            case 'volume_24h':
+              collectionData.volume24h = entry.value;
+              break;
+            case 'total_supply':
+              collectionData.totalSupply = entry.value;
+              break;
+            case 'unique_holders':
+              collectionData.uniqueHolders = entry.value;
+              break;
+          }
+        });
+        
+        if (Object.keys(collectionData).length > 0) {
+          metadata.collectionData = collectionData;
+        }
+      }
+
+      return metadata;
+    }
+
+    // Fallback to original Helius-only method
+    return await fetchTokenMetadata(tokenAddress);
+  } catch (error) {
+    console.error('fetchNFTMetadataWithBackup error', error);
+    // Final fallback to original method
+    return await fetchTokenMetadata(tokenAddress);
   }
 };
 
@@ -71,7 +148,7 @@ export const fetchTokenInfo = async (
   try {
     // First attempt to use Helius getTokenInfo
     const info = await heliusGetTokenInfo(contract);
-    if (info && info.priceUsd != null && info.marketCap != null) {
+    if (info?.priceUsd != null && info?.marketCap != null) {
       return info;
     }
 

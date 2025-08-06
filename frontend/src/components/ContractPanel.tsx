@@ -10,6 +10,11 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import PeopleIcon from '@mui/icons-material/People';
+import PoolIcon from '@mui/icons-material/Pool';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -23,15 +28,19 @@ import { GiSlingshot, GiAtom } from 'react-icons/gi';
 import { FaVectorSquare } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
 import {
   fetchTokenMetadata,
+  fetchNFTMetadataWithBackup,
   fetchTokenInfo,
   TokenMetadata,
   TokenInfo,
 } from '../services/token';
 import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
-import { fetchCoinGeckoData, CoinGeckoEntry } from '../services/coingecko';
+import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool } from '../services/coingecko';
 import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
+import { getLikes, toggleLike } from '../utils/likes';
+import { getTokenReactions, toggleTokenLike, toggleTokenDislike, TokenReactionData } from '../utils/tokenReactions';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
@@ -43,12 +52,21 @@ interface ContractPanelProps {
 
 const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, userCount = 0 }) => {
   const { t } = useTranslation();
+  const { publicKey } = useWallet();
+  const wallet = publicKey?.toBase58();
+  
   const [token, setToken] = useState<TokenMetadata | null>(null);
+  const [enhancedToken, setEnhancedToken] = useState<TokenMetadata | null>(null);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [coinGeckoData, setCoinGeckoData] = useState<CoinGeckoEntry[]>([]);
   const [tokenHolders, setTokenHolders] = useState<TokenHolder[]>([]);
   const [holdersExpanded, setHoldersExpanded] = useState(false);
   const [holdersLoading, setHoldersLoading] = useState(false);
+  const [liquidityPools, setLiquidityPools] = useState<LiquidityPool[]>([]);
+  const [poolsExpanded, setPoolsExpanded] = useState(false);
+  const [poolsLoading, setPoolsLoading] = useState(false);
+  const [tokenLikes, setTokenLikes] = useState<{ count: number; liked: boolean }>({ count: 0, liked: false });
+  const [tokenReactions, setTokenReactions] = useState<TokenReactionData>({ likes: 0, dislikes: 0, userReaction: null });
   const [callerInfo, setCallerInfo] = useState<{
     publicKey: string;
     pfp: string;
@@ -167,6 +185,26 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     }
   };
 
+  const loadLiquidityPools = async () => {
+    if (!contract) return;
+    setPoolsLoading(true);
+    try {
+      const pools = await fetchTokenPools(contract, 'solana', 5);
+      setLiquidityPools(pools);
+    } catch (error) {
+      console.error('Failed to load liquidity pools:', error);
+    } finally {
+      setPoolsLoading(false);
+    }
+  };
+
+  const handlePoolsToggle = () => {
+    setPoolsExpanded(!poolsExpanded);
+    if (!poolsExpanded && liquidityPools.length === 0) {
+      loadLiquidityPools();
+    }
+  };
+
   const formatAddress = (address: string) => {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
@@ -181,6 +219,58 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     navigator.clipboard.writeText(text);
   };
 
+  const loadTokenLikes = async () => {
+    if (!contract) return;
+    try {
+      const likes = await getLikes(contract, wallet);
+      setTokenLikes(likes);
+    } catch (error) {
+      console.error('Failed to load token likes:', error);
+      setTokenLikes({ count: 0, liked: false });
+    }
+  };
+
+  const loadTokenReactions = async () => {
+    if (!contract) return;
+    try {
+      const reactions = await getTokenReactions(contract, wallet);
+      setTokenReactions(reactions);
+    } catch (error) {
+      console.error('Failed to load token reactions:', error);
+      setTokenReactions({ likes: 0, dislikes: 0, userReaction: null });
+    }
+  };
+
+  const handleToggleTokenLike = async () => {
+    if (!contract || !wallet) return;
+    try {
+      const result = await toggleLike(contract, wallet);
+      setTokenLikes(result);
+    } catch (error) {
+      console.error('Failed to toggle token like:', error);
+    }
+  };
+
+  const handleToggleTokenReactionLike = async () => {
+    if (!contract || !wallet) return;
+    try {
+      const result = await toggleTokenLike(contract, wallet);
+      setTokenReactions(result);
+    } catch (error) {
+      console.error('Failed to toggle token like:', error);
+    }
+  };
+
+  const handleToggleTokenReactionDislike = async () => {
+    if (!contract || !wallet) return;
+    try {
+      const result = await toggleTokenDislike(contract, wallet);
+      setTokenReactions(result);
+    } catch (error) {
+      console.error('Failed to toggle token dislike:', error);
+    }
+  };
+
   useEffect(() => {
     if (!open || !contract) return;
     setLoading(true);
@@ -188,8 +278,9 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     
     const loadData = async () => {
       try {
-        const [tok, info, geckoData] = await Promise.all([
+        const [tok, enhancedTok, info, geckoData] = await Promise.all([
           fetchTokenMetadata(contract).catch(() => null),
+          fetchNFTMetadataWithBackup(contract, process.env.REACT_APP_PRIMOS_COLLECTION).catch(() => null),
           fetchTokenInfo(contract).catch((err) => {
             console.error('fetchTokenInfo error', err);
             return null;
@@ -201,9 +292,12 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         ]);
         
         setToken(tok);
+        setEnhancedToken(enhancedTok);
         setTokenInfo(info);
         setCoinGeckoData(geckoData);
         await loadTrenchData();
+        await loadTokenLikes();
+        await loadTokenReactions();
       } catch (error) {
         console.error('Failed to load token data:', error);
         setError(t('token_error'));
@@ -223,11 +317,24 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     setTokenHolders([]);
     setHoldersExpanded(false);
     setHoldersLoading(false);
+    setLiquidityPools([]);
+    setPoolsExpanded(false);
+    setPoolsLoading(false);
+    setTokenLikes({ count: 0, liked: false });
+    setTokenReactions({ likes: 0, dislikes: 0, userReaction: null });
     setCallerInfo(null);
     setLatestCallers([]);
     setError(null);
     setLoading(false);
   }, [open]);
+
+  // Reload likes when wallet changes
+  useEffect(() => {
+    if (open && contract) {
+      loadTokenLikes();
+      loadTokenReactions();
+    }
+  }, [wallet, open, contract]);
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
@@ -280,7 +387,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                       width: 40, 
                       height: 40, 
                       cursor: 'pointer',
-                      backgroundColor: callerInfo.pfp ? 'transparent' : '#1976d2',
+                      backgroundColor: '#1976d2',
                       color: '#fff',
                       fontSize: '1rem',
                       fontWeight: 'bold'
@@ -458,11 +565,11 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                             width: 32, 
                             height: 32, 
                             cursor: 'pointer',
-                            backgroundColor: caller.pfp ? 'transparent' : '#1976d2',
+                            backgroundColor: '#1976d2',
                             color: '#fff',
                             fontSize: '0.75rem',
                             fontWeight: 'bold'
-                          }} 
+                          }}
                         />
                       </Link>
                       {caller.socials?.twitter && (
@@ -521,7 +628,70 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         
         <Box className="contract-panels">
           <Box className="token-panel">
-            <Typography className="dialog-title">{t('token_metadata')}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography className="dialog-title">{t('token_metadata')}</Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                padding: '4px 8px',
+                borderRadius: '8px',
+                backgroundColor: '#f5f5f5',
+                border: '1px solid #e0e0e0'
+              }}>
+                {/* Likes */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#333' }}>
+                    {tokenReactions.likes}
+                  </Typography>
+                  {wallet && (
+                    <IconButton 
+                      size="small" 
+                      onClick={handleToggleTokenReactionLike} 
+                      aria-label={tokenReactions.userReaction === 'LIKE' ? t('unlike_token') : t('like_token')}
+                      sx={{ 
+                        padding: '4px',
+                        '&:hover': { 
+                          backgroundColor: 'rgba(0,0,0,0.04)' 
+                        }
+                      }}
+                    >
+                      {tokenReactions.userReaction === 'LIKE' ? (
+                        <ThumbUpIcon fontSize="small" sx={{ color: '#4caf50' }} />
+                      ) : (
+                        <ThumbUpOutlinedIcon fontSize="small" sx={{ color: '#666' }} />
+                      )}
+                    </IconButton>
+                  )}
+                </Box>
+                
+                {/* Dislikes */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#333' }}>
+                    {tokenReactions.dislikes}
+                  </Typography>
+                  {wallet && (
+                    <IconButton 
+                      size="small" 
+                      onClick={handleToggleTokenReactionDislike} 
+                      aria-label={tokenReactions.userReaction === 'DISLIKE' ? t('undislike_token') : t('dislike_token')}
+                      sx={{ 
+                        padding: '4px',
+                        '&:hover': { 
+                          backgroundColor: 'rgba(0,0,0,0.04)' 
+                        }
+                      }}
+                    >
+                      {tokenReactions.userReaction === 'DISLIKE' ? (
+                        <ThumbDownIcon fontSize="small" sx={{ color: '#f44336' }} />
+                      ) : (
+                        <ThumbDownOutlinedIcon fontSize="small" sx={{ color: '#666' }} />
+                      )}
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
+            </Box>
             {contract && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Typography variant="body2" sx={{ wordBreak: 'break-all', flex: 1 }}>
@@ -561,6 +731,71 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
               <Typography variant="body2">{t('loading')}...</Typography>
             )}
           </Box>
+          
+          {/* Enhanced NFT Metadata with CoinGecko Backup */}
+          {enhancedToken?.collectionData && (
+            <Box className="collection-data-panel">
+              <Typography className="dialog-title">{t('nft_collection_data')}</Typography>
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="caption" sx={{ color: '#666', mb: 1, display: 'block' }}>
+                  {t('coingecko_backup')}
+                </Typography>
+                <Box className="collection-data-grid">
+                  {enhancedToken.collectionData.floorPrice && (
+                    <Box className="collection-data-item">
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
+                        {t('collection_floor_price')}:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
+                        {enhancedToken.collectionData.floorPrice}
+                      </Typography>
+                    </Box>
+                  )}
+                  {enhancedToken.collectionData.marketCap && (
+                    <Box className="collection-data-item">
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
+                        {t('collection_market_cap')}:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
+                        {enhancedToken.collectionData.marketCap}
+                      </Typography>
+                    </Box>
+                  )}
+                  {enhancedToken.collectionData.volume24h && (
+                    <Box className="collection-data-item">
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
+                        {t('collection_volume_24h')}:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
+                        {enhancedToken.collectionData.volume24h}
+                      </Typography>
+                    </Box>
+                  )}
+                  {enhancedToken.collectionData.totalSupply && (
+                    <Box className="collection-data-item">
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
+                        {t('collection_total_supply')}:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
+                        {enhancedToken.collectionData.totalSupply}
+                      </Typography>
+                    </Box>
+                  )}
+                  {enhancedToken.collectionData.uniqueHolders && (
+                    <Box className="collection-data-item">
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
+                        {t('collection_unique_holders')}:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
+                        {enhancedToken.collectionData.uniqueHolders}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          )}
+          
           <Box className="market-data-panel">
             <Typography className="dialog-title">{t('market_data')}</Typography>
             <Box className="market-data-list" sx={{ mt: 1 }}>
@@ -681,6 +916,117 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                       <Box sx={{ p: 2, textAlign: 'center' }}>
                         <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
                           {t('no_holders_data')}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Collapse>
+              </Box>
+              
+              {/* Liquidity Pools Section */}
+              <Box sx={{ mt: 2 }}>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    p: 1, 
+                    backgroundColor: '#fafafa', 
+                    borderRadius: 0.5,
+                    cursor: 'pointer',
+                    '&:hover': { backgroundColor: '#f0f0f0' }
+                  }}
+                  onClick={handlePoolsToggle}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <PoolIcon fontSize="small" />
+                    <Typography variant="body2" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
+                      {t('liquidity_pools')} (Top 5)
+                    </Typography>
+                  </Box>
+                  <IconButton size="small">
+                    {poolsExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                  </IconButton>
+                </Box>
+                
+                <Collapse in={poolsExpanded}>
+                  <Box sx={{ mt: 1, border: '1px solid #ddd', borderRadius: 0.5, backgroundColor: '#fff' }}>
+                    {poolsLoading ? (
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="body2" sx={{ color: '#666' }}>
+                          {t('loading')}...
+                        </Typography>
+                      </Box>
+                    ) : liquidityPools.length > 0 ? (
+                      <List dense sx={{ py: 0 }}>
+                        {liquidityPools.map((pool, index) => (
+                          <React.Fragment key={pool.id}>
+                            <ListItem 
+                              sx={{ 
+                                py: 1.5, 
+                                px: 2,
+                                '&:hover': { backgroundColor: '#f9f9f9' }
+                              }}
+                            >
+                              <ListItemText
+                                primary={
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                        {pool.name}
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ 
+                                        color: pool.priceChange24h.startsWith('-') ? '#f44336' : '#4caf50',
+                                        fontWeight: 'bold',
+                                        backgroundColor: pool.priceChange24h.startsWith('-') ? '#ffebee' : '#e8f5e8',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px'
+                                      }}>
+                                        {pool.priceChange24h}%
+                                      </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                                      <Typography variant="caption" sx={{ color: '#666' }}>
+                                        DEX: {pool.dex}
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ color: '#666' }}>
+                                        Txns: {pool.transactions24h}
+                                      </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                                      <Typography variant="caption" sx={{ color: '#666' }}>
+                                        Reserve: {pool.reserve}
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ color: '#666' }}>
+                                        Volume 24h: {pool.volume24h}
+                                      </Typography>
+                                    </Box>
+                                    <Typography 
+                                      variant="caption" 
+                                      sx={{ 
+                                        fontFamily: 'monospace', 
+                                        cursor: 'pointer',
+                                        '&:hover': { textDecoration: 'underline' },
+                                        color: '#999',
+                                        fontSize: '0.75rem'
+                                      }}
+                                      onClick={() => copyToClipboard(pool.address)}
+                                      title="Click to copy pool address"
+                                    >
+                                      {formatAddress(pool.address)}
+                                    </Typography>
+                                  </Box>
+                                }
+                              />
+                            </ListItem>
+                            {index < liquidityPools.length - 1 && <Divider />}
+                          </React.Fragment>
+                        ))}
+                      </List>
+                    ) : (
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
+                          {t('no_pools_data')}
                         </Typography>
                       </Box>
                     )}

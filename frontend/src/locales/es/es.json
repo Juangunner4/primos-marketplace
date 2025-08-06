@@ -125,6 +125,14 @@
   "market_cap": "Capitalización",
   "market_cap_usd": "Capitalización (USD)",
   "unique_holders": "Holders únicos",
+  "total_supply": "Suministro Total",
+  "collection_floor_price": "Precio Mínimo",
+  "collection_market_cap": "Capitalización",
+  "collection_volume_24h": "Volumen 24h",
+  "collection_total_supply": "Suministro Total",
+  "collection_unique_holders": "Holders Únicos",
+  "nft_collection_data": "Datos de Colección",
+  "coingecko_backup": "Datos de Respaldo CoinGecko",
   "volume_day": "Volumen 24h",
   "news": "Noticias",
   "labs_section_defi": "DeFi",
@@ -271,5 +279,12 @@
   "trenches_error_message": "Estamos experimentando dificultades técnicas con la página de Trincheras. Por favor, inténtalo más tarde.",
   "go_home": "Ir al Inicio",
   "top_holders": "Principales Tenedores",
-  "no_holders_data": "No hay datos de tenedores disponibles"
+  "no_holders_data": "No hay datos de tenedores disponibles",
+  "liquidity_pools": "Fondos de Liquidez",
+  "no_pools_data": "Datos de fondos de liquidez próximamente",
+  "like_token": "Me gusta este token",
+  "unlike_token": "Ya no me gusta este token",
+  "dislike_token": "No me gusta este token",
+  "undislike_token": "Quitar no me gusta de este token",
+  "token_likes": "Me gusta del Token"
 }

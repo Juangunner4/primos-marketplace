@@ -125,6 +125,14 @@
   "market_cap": "Market Cap",
   "market_cap_usd": "Market Cap (USD)",
   "unique_holders": "Unique Holders",
+  "total_supply": "Total Supply",
+  "collection_floor_price": "Floor Price",
+  "collection_market_cap": "Market Cap",
+  "collection_volume_24h": "24h Volume",
+  "collection_total_supply": "Total Supply",
+  "collection_unique_holders": "Unique Holders",
+  "nft_collection_data": "Collection Data",
+  "coingecko_backup": "CoinGecko Backup Data",
   "volume_day": "Volume 24h",
   "news": "News",
   "labs_section_defi": "DeFi",
@@ -271,5 +279,12 @@
   "trenches_error_message": "We are experiencing technical difficulties with the Trenches page. Please try again later.",
   "go_home": "Go Home",
   "top_holders": "Top Holders",
-  "no_holders_data": "No holders data available"
+  "no_holders_data": "No holders data available",
+  "liquidity_pools": "Liquidity Pools",
+  "no_pools_data": "Liquidity pools data coming soon",
+  "like_token": "Like this token",
+  "unlike_token": "Unlike this token",
+  "dislike_token": "Dislike this token",
+  "undislike_token": "Remove dislike from this token",
+  "token_likes": "Token Likes"
 }

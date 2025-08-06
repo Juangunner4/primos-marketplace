@@ -114,6 +114,7 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
       callers.map(async (caller) => {
         const pfpAddr = caller.pfp?.replace(/"/g, '');
         let image = '';
+        
         if (pfpAddr && nftMap[pfpAddr]) {
           image = nftMap[pfpAddr].image;
         } else {
@@ -123,6 +124,7 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
           );
           image = nfts[0]?.image || '';
         }
+        
         return { ...caller, pfp: image } as TrenchCallerInfo;
       })
     );

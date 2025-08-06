@@ -6,6 +6,8 @@ import { CARD_VARIANTS } from "../utils/cardVariants";
 import TransactionCard from "./TransactionCard";
 import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 
 export type MarketNFT = {
   id: string;
@@ -20,6 +22,14 @@ export type MarketNFT = {
   auctionHouse?: string;
   sellerReferral?: string;
   sellerExpiry?: number;
+  // Enhanced with CoinGecko backup data
+  collectionData?: {
+    floorPrice?: string;
+    marketCap?: string;
+    volume24h?: string;
+    totalSupply?: string;
+    uniqueHolders?: string;
+  };
 };
 
 interface NFTCardProps {
@@ -132,6 +142,51 @@ const NFTCard: React.FC<NFTCardProps> = ({
                   </li>
                 ))}
               </ul>
+            )}
+            
+            {/* CoinGecko Collection Data */}
+            {nft.collectionData && (
+              <Box sx={{ mt: 2, width: '100%' }}>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 700, mb: 1, color: '#4169e1' }}>
+                  {t('nft_collection_data')}
+                </Typography>
+                <div className="collection-data-grid">
+                  {nft.collectionData.floorPrice && (
+                    <div className="collection-data-item">
+                      <span className="collection-data-label">{t('collection_floor_price')}:</span>
+                      <span className="collection-data-value">{nft.collectionData.floorPrice}</span>
+                    </div>
+                  )}
+                  {nft.collectionData.marketCap && (
+                    <div className="collection-data-item">
+                      <span className="collection-data-label">{t('collection_market_cap')}:</span>
+                      <span className="collection-data-value">{nft.collectionData.marketCap}</span>
+                    </div>
+                  )}
+                  {nft.collectionData.volume24h && (
+                    <div className="collection-data-item">
+                      <span className="collection-data-label">{t('collection_volume_24h')}:</span>
+                      <span className="collection-data-value">{nft.collectionData.volume24h}</span>
+                    </div>
+                  )}
+                  {nft.collectionData.totalSupply && (
+                    <div className="collection-data-item">
+                      <span className="collection-data-label">{t('collection_total_supply')}:</span>
+                      <span className="collection-data-value">{nft.collectionData.totalSupply}</span>
+                    </div>
+                  )}
+                  {nft.collectionData.uniqueHolders && (
+                    <div className="collection-data-item">
+                      <span className="collection-data-label">{t('collection_unique_holders')}:</span>
+                      <span className="collection-data-value">{nft.collectionData.uniqueHolders}</span>
+                    </div>
+                  )}
+                </div>
+                <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#666', fontSize: '0.75rem' }}>
+                  {t('coingecko_backup')}
+                </Typography>
+              </Box>
             )}
           </Box>
           <Box
