@@ -79,8 +79,19 @@ const Trenches: React.FC = () => {
     contractsLoaded: 0,
     usersLoaded: 0,
     renderAttempted: false,
-    lastError: null as Error | null
+    lastError: null as Error | null,
+    networkErrors: [] as { url: string; status?: number; message: string }[]
   });
+
+  const logNetworkError = (url: string, err: any) => {
+    const status = err?.response?.status;
+    const message = err?.message || 'Unknown error';
+    console.error(`🌐 Network error for ${url}:`, { status, message });
+    setDebugInfo((prev) => ({
+      ...prev,
+      networkErrors: [...prev.networkErrors, { url, status, message }],
+    }));
+  };
 
   // Enhanced debugging console logs
   console.log('🔍 Trenches Debug - Component State:', { 
@@ -163,9 +174,10 @@ const Trenches: React.FC = () => {
 
       // Stream contracts one by one
       contractsArr.forEach(async (c) => {
+        // Always add contract bubble
+        setData((prev) => ({ ...prev, contracts: [...prev.contracts, c] }));
+
         try {
-          setData((prev) => ({ ...prev, contracts: [...prev.contracts, c] }));
-          
           const nft = await getNFTByTokenAddress(c.contract);
           if (nft?.image) {
             setData((prev) => ({
@@ -174,35 +186,47 @@ const Trenches: React.FC = () => {
                 cc.contract === c.contract ? { ...cc, image: nft.image } : cc
               ),
             }));
-          }
-          
-          // Fetch current market cap
-          let marketCap: number | undefined;
-          let priceChange: number | undefined;
-          try {
-            if (/^0x[0-9a-fA-F]{40}$/.test(c.contract)) {
-              const tokenData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
-              marketCap = tokenData?.usd_market_cap;
-              priceChange = tokenData?.usd_24h_change;
-            } else {
-              const tokenData = await fetchSimpleTokenPrice(c.contract, 'solana');
-              marketCap = tokenData?.usd_market_cap;
-              priceChange = tokenData?.usd_24h_change;
-            }
-            
-            if (marketCap || priceChange !== undefined) {
-              setData((prev) => ({
-                ...prev,
-                contracts: prev.contracts.map((cc) =>
-                  cc.contract === c.contract ? { ...cc, marketCap, priceChange24h: priceChange } : cc
-                ),
-              }));
-            }
-          } catch (err) {
-            console.warn('Failed to fetch market data for contract:', c.contract, err);
+          } else if (!nft) {
+            logNetworkError(`getNFTByTokenAddress(${c.contract})`, new Error('No NFT data'));
           }
         } catch (err) {
-          console.warn('Failed to process contract:', c.contract, err);
+          console.warn('Failed to fetch NFT for contract:', c.contract, err);
+          logNetworkError(`getNFTByTokenAddress(${c.contract})`, err);
+        }
+
+        // Fetch current market cap
+        let marketCap: number | undefined;
+        let priceChange: number | undefined;
+        try {
+          if (/^0x[0-9a-fA-F]{40}$/.test(c.contract)) {
+            const tokenData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
+            if (tokenData) {
+              marketCap = tokenData.usd_market_cap;
+              priceChange = tokenData.usd_24h_change;
+            } else {
+              logNetworkError(`fetchSimpleTokenPrice(${c.contract})`, new Error('No token data'));
+            }
+          } else {
+            const tokenData = await fetchSimpleTokenPrice(c.contract, 'solana');
+            if (tokenData) {
+              marketCap = tokenData.usd_market_cap;
+              priceChange = tokenData.usd_24h_change;
+            } else {
+              logNetworkError(`fetchSimpleTokenPrice(${c.contract})`, new Error('No token data'));
+            }
+          }
+
+          if (marketCap || priceChange !== undefined) {
+            setData((prev) => ({
+              ...prev,
+              contracts: prev.contracts.map((cc) =>
+                cc.contract === c.contract ? { ...cc, marketCap, priceChange24h: priceChange } : cc
+              ),
+            }));
+          }
+        } catch (err) {
+          console.warn('Failed to fetch market data for contract:', c.contract, err);
+          logNetworkError(`fetchSimpleTokenPrice(${c.contract})`, err);
         }
       });
 
@@ -213,16 +237,27 @@ const Trenches: React.FC = () => {
           const pfpAddr = u.pfp?.replace(/"/g, '');
           if (pfpAddr) {
             const nft = await getNFTByTokenAddress(pfpAddr);
-            image = nft?.image || '';
+            if (nft?.image) {
+              image = nft.image;
+            } else if (!nft) {
+              logNetworkError(`getNFTByTokenAddress(${pfpAddr})`, new Error('No NFT data'));
+            }
           } else if (PRIMO_COLLECTION) {
             const nfts = await fetchCollectionNFTsForOwner(
               u.publicKey,
               PRIMO_COLLECTION
             );
             image = nfts[0]?.image || '';
+            if (!image) {
+              logNetworkError(`fetchCollectionNFTsForOwner(${u.publicKey})`, new Error('No NFT image'));
+            }
           }
         } catch (err) {
           console.warn('Failed to fetch PFP for user:', u.publicKey, err);
+          logNetworkError(`userPfp(${u.publicKey})`, err);
+        }
+        if (!image) {
+          logNetworkError(`userPfp(${u.publicKey})`, new Error('No image found'));
         }
         setData((prev) => ({
           ...prev,
@@ -233,6 +268,7 @@ const Trenches: React.FC = () => {
       });
     } catch (err) {
       console.error('❌ Failed to load trench data:', err);
+      logNetworkError('/api/trench', err);
       
       // Enhanced error logging
       const errorDetails = {

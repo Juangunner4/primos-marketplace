@@ -40,6 +40,7 @@ interface DebugInfo {
   usersLoaded: number;
   renderAttempted: boolean;
   lastError: Error | null;
+  networkErrors: { url: string; status?: number; message: string }[];
   apiEndpoints?: string[];
   responseData?: Record<string, any>;
   performanceMetrics?: Record<string, number>;
@@ -300,8 +301,8 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
             </Typography>
           </DebugSection>
 
-          {(debugInfo.apiCallError || debugInfo.lastError) && (
-            <DebugSection title="Error Details" sectionKey="errors" icon={<ErrorIcon sx={{ color: '#000000' }} />}>
+          {(debugInfo.apiCallError || debugInfo.lastError || debugInfo.networkErrors.length > 0) && (
+            <DebugSection title="Error Details" sectionKey="errors" icon={<ErrorIcon sx={{ color: '#000000' }} />}> 
               {debugInfo.apiCallError && (
                 <Box sx={{ mb: 2, p: 1, backgroundColor: '#f8d7da', borderRadius: 1, border: '1px solid #f5c6cb' }}>
                   <Typography variant="subtitle2" sx={{ 
@@ -323,7 +324,7 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
                   </Typography>
                 </Box>
               )}
-              
+
               {debugInfo.lastError && (
                 <Box sx={{ p: 1, backgroundColor: '#fff3cd', borderRadius: 1, border: '1px solid #ffeaa7' }}>
                   <Typography variant="subtitle2" sx={{ 
@@ -344,6 +345,37 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
                     {debugInfo.lastError.message}<br/>
                     {debugInfo.lastError.stack?.split('\n').slice(0, 3).join('\n')}
                   </Typography>
+                </Box>
+              )}
+
+              {debugInfo.networkErrors.length > 0 && (
+                <Box sx={{ mt: 2, p: 1, backgroundColor: '#e2e3e5', borderRadius: 1, border: '1px solid #d6d8db' }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 'bold',
+                      color: '#383d41',
+                      fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5
+                    }}
+                  >
+                    Network Errors ({debugInfo.networkErrors.length}):
+                  </Typography>
+                  {debugInfo.networkErrors.map((e, idx) => (
+                    <Typography
+                      key={idx}
+                      variant="body2"
+                      sx={{
+                        fontFamily: 'monospace',
+                        fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                        color: '#383d41'
+                      }}
+                    >
+                      {e.status ? `${e.status}` : 'No Status'} - {e.url}: {e.message}
+                    </Typography>
+                  ))}
                 </Box>
               )}
             </DebugSection>
