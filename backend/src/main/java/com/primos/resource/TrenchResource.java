@@ -3,6 +3,7 @@ package com.primos.resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.primos.model.TrenchContract;
@@ -32,7 +33,7 @@ public class TrenchResource {
         public String publicKey;
         public String pfp;
         public int count;
-        public java.util.List<String> contracts;
+        public java.util.Set<String> contracts;
         public User.SocialLinks socials;
         public long lastSubmittedAt;
     }

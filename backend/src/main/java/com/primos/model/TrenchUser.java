@@ -8,7 +8,7 @@ public class TrenchUser extends PanacheMongoEntity {
     private String publicKey;
     private int count;
     private long lastSubmittedAt;
-    private java.util.List<String> contracts;
+    private java.util.Set<String> contracts;
 
     public String getPublicKey() {
         return publicKey;
@@ -34,11 +34,11 @@ public class TrenchUser extends PanacheMongoEntity {
         this.lastSubmittedAt = lastSubmittedAt;
     }
 
-    public java.util.List<String> getContracts() {
+    public java.util.Set<String> getContracts() {
         return contracts;
     }
 
-    public void setContracts(java.util.List<String> contracts) {
+    public void setContracts(java.util.Set<String> contracts) {
         this.contracts = contracts;
     }
 }

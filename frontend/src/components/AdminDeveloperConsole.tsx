@@ -148,7 +148,7 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
         sx={{
           position: 'fixed',
           top: { xs: 70, sm: 80 },
-          right: { xs: 15, sm: 20 },
+          left: { xs: 15, sm: 20 },
           zIndex: 9999,
           backgroundColor: '#000000',
           color: 'white',
@@ -174,9 +174,9 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
             sx: {
               position: 'fixed',
               top: { xs: 120, sm: 140 },
-              right: { xs: 10, sm: 20 },
+              left: { xs: 10, sm: 20 },
               bottom: 'auto',
-              left: { xs: 10, sm: 'auto' },
+              right: 'auto',
               margin: 0,
               maxWidth: { xs: 'calc(100vw - 20px)', sm: '600px' },
               maxHeight: { xs: '70vh', sm: '75vh' },
