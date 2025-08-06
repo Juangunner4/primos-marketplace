@@ -2,7 +2,8 @@ export type { HeliusNFT } from './helius';
 import api from '../utils/api';
 import { getNFTsByTokenAddresses, fetchCollectionNFTsForOwner } from './helius';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
+// Gracefully handle missing env variable to avoid runtime crashes.
+const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION ?? '';
 
 export interface TrenchContract {
   contract: string;
@@ -59,13 +60,21 @@ export interface TrenchData {
 export const fetchTrenchData = async (): Promise<TrenchData> => {
   const res = await api.get<TrenchData>('/api/trench');
 
-  const contractAddresses = res.data.contracts.map((c) => c.contract);
-  const userPfpAddresses = res.data.users
+  const resData = (res.data || {}) as Partial<TrenchData>;
+  const contractsArr = Array.isArray(resData.contracts) ? resData.contracts : [];
+  const usersArr = Array.isArray(resData.users) ? resData.users : [];
+  const latestCallersRaw =
+    resData.latestCallers && typeof resData.latestCallers === 'object'
+      ? resData.latestCallers
+      : {};
+
+  const contractAddresses = contractsArr.map((c) => c.contract);
+  const userPfpAddresses = usersArr
     .map((u) => u.pfp?.replace(/"/g, ''))
     .filter((a): a is string => !!a);
-  
+
   // Get all caller PFP addresses from latest callers
-  const latestCallerPfpAddresses = Object.values(res.data.latestCallers || {})
+  const latestCallerPfpAddresses = Object.values(latestCallersRaw)
     .flat()
     .map((caller) => caller.pfp?.replace(/"/g, ''))
     .filter((a): a is string => !!a);
@@ -76,13 +85,13 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
     ...latestCallerPfpAddresses,
   ]);
 
-  const contracts = res.data.contracts.map((c) => ({
+  const contracts = contractsArr.map((c) => ({
     ...c,
     image: nftMap[c.contract]?.image,
   }));
 
   const users = await Promise.all(
-    res.data.users.map(async (u) => {
+    usersArr.map(async (u) => {
       const pfpAddr = u.pfp?.replace(/"/g, '');
       let image = '';
       if (pfpAddr && nftMap[pfpAddr]) {
@@ -100,7 +109,7 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
 
   // Process latest callers data
   const latestCallers: Record<string, TrenchCallerInfo[]> = {};
-  for (const [contract, callers] of Object.entries(res.data.latestCallers || {})) {
+  for (const [contract, callers] of Object.entries(latestCallersRaw)) {
     latestCallers[contract] = await Promise.all(
       callers.map(async (caller) => {
         const pfpAddr = caller.pfp?.replace(/"/g, '');
