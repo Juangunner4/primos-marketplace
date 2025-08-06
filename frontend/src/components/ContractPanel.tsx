@@ -22,6 +22,7 @@ import {
   TokenInfo,
 } from '../services/token';
 import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
+import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
 import { fetchCoinGeckoData, CoinGeckoEntry } from '../services/coingecko';
 import './ContractPanel.css';
 
@@ -34,6 +35,7 @@ interface ContractPanelProps {
 
 const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, userCount = 0 }) => {
   const { t } = useTranslation();
+  const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION ?? '';
   const [token, setToken] = useState<TokenMetadata | null>(null);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [coinGeckoData, setCoinGeckoData] = useState<CoinGeckoEntry[]>([]);
@@ -124,9 +126,26 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         });
       }
       
-      // Set latest callers for this contract
+      // Set latest callers for this contract and load their images individually
       if (contract && d.latestCallers[contract]) {
-        setLatestCallers(d.latestCallers[contract]);
+        const callersWithImages = await Promise.all(
+          d.latestCallers[contract].map(async (c) => {
+            let image = '';
+            const pfpAddr = c.pfp?.replace(/"/g, '');
+            if (pfpAddr) {
+              const nft = await getNFTByTokenAddress(pfpAddr);
+              image = nft?.image || '';
+            } else if (PRIMO_COLLECTION) {
+              const nfts = await fetchCollectionNFTsForOwner(
+                c.caller,
+                PRIMO_COLLECTION
+              );
+              image = nfts[0]?.image || '';
+            }
+            return { ...c, pfp: image } as TrenchCallerInfo;
+          })
+        );
+        setLatestCallers(callersWithImages);
       }
     } catch (error) {
       console.error('Failed to load trench data:', error);
@@ -226,7 +245,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                 <Link to={`/user/${callerInfo.publicKey}`} style={{ textDecoration: 'none' }}>
                   <Avatar
                     src={callerInfo.pfp}
-                    alt={callerInfo.publicKey}
+                    alt={t('caller_pfp_alt')}
                     sx={{ width: 40, height: 40, cursor: 'pointer' }}
                   />
                 </Link>
@@ -394,10 +413,10 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                     <Box sx={{ position: 'relative', display: 'inline-block' }}>
                       <Link to={`/user/${caller.caller}`} style={{ textDecoration: 'none' }}>
-                        <Avatar 
-                          src={caller.pfp} 
-                          alt={caller.caller} 
-                          sx={{ width: 32, height: 32, cursor: 'pointer' }} 
+                        <Avatar
+                          src={caller.pfp}
+                          alt={t('caller_pfp_alt')}
+                          sx={{ width: 32, height: 32, cursor: 'pointer' }}
                         />
                       </Link>
                       {caller.socials?.twitter && (
