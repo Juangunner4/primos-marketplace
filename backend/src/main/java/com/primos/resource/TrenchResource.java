@@ -144,4 +144,42 @@ public class TrenchResource {
 
         return response;
     }
+
+    @POST
+    @Path("/contracts/{contract}/update-missing-market-caps")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> updateMissingMarketCaps(@PathParam("contract") String contract) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            int updatedCount = service.updateMissingMarketCapsForCallers(contract);
+            response.put("success", true);
+            response.put("message", "Updated market cap for " + updatedCount + " caller records");
+            response.put("updatedCount", updatedCount);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error updating market caps: " + e.getMessage());
+            response.put("updatedCount", 0);
+        }
+
+        return response;
+    }
+
+    @POST
+    @Path("/backfill-market-caps")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> backfillMissingMarketCaps() {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            service.backfillMissingMarketCaps();
+            response.put("success", true);
+            response.put("message", "Market cap backfill process completed successfully");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error during market cap backfill: " + e.getMessage());
+        }
+
+        return response;
+    }
 }

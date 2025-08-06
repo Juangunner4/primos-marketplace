@@ -3,6 +3,7 @@ package com.primos.service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.primos.model.TrenchContract;
 import com.primos.model.TrenchContractCaller;
@@ -16,6 +17,7 @@ import jakarta.ws.rs.BadRequestException;
 @ApplicationScoped
 public class TrenchService {
     private static final long MIN_SUBMIT_INTERVAL_MS = 60_000; // 1 minute cooldown
+    private static final Logger LOG = Logger.getLogger(TrenchService.class.getName());
 
     @Inject
     CoinGeckoService coinGeckoService;
@@ -52,7 +54,14 @@ public class TrenchService {
             tc.setModel(model);
             tc.setFirstCaller(publicKey);
             tc.setFirstCallerAt(now);
+            LOG.log(java.util.logging.Level.INFO, "Fetching market cap for new contract: {0}", contract);
             Double marketCap = coinGeckoService.fetchMarketCap(contract);
+            if (marketCap != null) {
+                LOG.log(java.util.logging.Level.INFO, "Successfully fetched market cap for new contract {0}: {1}",
+                        new Object[] { contract, marketCap });
+            } else {
+                LOG.log(java.util.logging.Level.WARNING, "Could not fetch market cap for new contract: {0}", contract);
+            }
             tc.setFirstCallerMarketCap(marketCap);
             tc.setFirstCallerDomain(domain);
             tc.persist();
@@ -65,6 +74,8 @@ public class TrenchService {
             caller.setMarketCapAtCall(marketCap);
             caller.setDomainAtCall(domain);
             caller.persist();
+            LOG.log(java.util.logging.Level.INFO, "Added first caller record for contract {0} with market cap: {1}",
+                    new Object[] { contract, marketCap });
         } else {
             tc.setCount(tc.getCount() + 1);
             tc.persistOrUpdate();
@@ -74,10 +85,20 @@ public class TrenchService {
             caller.setContract(contract);
             caller.setCaller(publicKey);
             caller.setCalledAt(now);
+            LOG.log(java.util.logging.Level.INFO, "Fetching market cap for existing contract: {0}", contract);
             Double marketCap = coinGeckoService.fetchMarketCap(contract);
+            if (marketCap != null) {
+                LOG.log(java.util.logging.Level.INFO, "Successfully fetched market cap for existing contract {0}: {1}",
+                        new Object[] { contract, marketCap });
+            } else {
+                LOG.log(java.util.logging.Level.WARNING, "Could not fetch market cap for existing contract: {0}",
+                        contract);
+            }
             caller.setMarketCapAtCall(marketCap);
             caller.setDomainAtCall(domain);
             caller.persist();
+            LOG.log(java.util.logging.Level.INFO, "Added caller record for existing contract {0} with market cap: {1}",
+                    new Object[] { contract, marketCap });
         }
 
         if (tu == null) {
@@ -128,5 +149,85 @@ public class TrenchService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Update missing market cap data for existing caller records
+     * 
+     * @param contract The contract address
+     * @return Number of records updated
+     */
+    public int updateMissingMarketCapsForCallers(String contract) {
+        // Get all callers for this contract that don't have market cap data
+        List<TrenchContractCaller> callersWithoutMarketCap = TrenchContractCaller
+                .find("contract = ?1 and marketCapAtCall is null", contract)
+                .list();
+
+        if (callersWithoutMarketCap.isEmpty()) {
+            return 0;
+        }
+
+        // Fetch current market cap
+        Double currentMarketCap = coinGeckoService.fetchMarketCap(contract);
+        if (currentMarketCap == null) {
+            LOG.log(java.util.logging.Level.WARNING, "Could not fetch market cap for contract: {0}", contract);
+            return 0;
+        }
+
+        int updatedCount = 0;
+        for (TrenchContractCaller caller : callersWithoutMarketCap) {
+            caller.setMarketCapAtCall(currentMarketCap);
+            caller.persistOrUpdate();
+            updatedCount++;
+            LOG.log(java.util.logging.Level.INFO, "Updated market cap for caller {0} on contract {1}: {2}",
+                    new Object[] { caller.getCaller(), contract, currentMarketCap });
+        }
+
+        LOG.log(java.util.logging.Level.INFO, "Updated market cap for {0} caller records for contract: {1}",
+                new Object[] { updatedCount, contract });
+        return updatedCount;
+    }
+
+    /**
+     * Backfill missing market cap data for all contracts and their callers
+     * This method can be called periodically to ensure data consistency
+     */
+    public void backfillMissingMarketCaps() {
+        LOG.log(java.util.logging.Level.INFO, "Starting backfill of missing market cap data");
+
+        // Get all contracts that don't have first caller market cap
+        List<TrenchContract> contractsWithoutMarketCap = TrenchContract
+                .find("firstCallerMarketCap is null")
+                .list();
+
+        int totalUpdatedContracts = 0;
+        int totalUpdatedCallers = 0;
+
+        for (TrenchContract contract : contractsWithoutMarketCap) {
+            String contractAddress = contract.getContract();
+
+            // Fetch market cap for the contract
+            Double marketCap = coinGeckoService.fetchMarketCap(contractAddress);
+            if (marketCap != null) {
+                // Update first caller market cap
+                contract.setFirstCallerMarketCap(marketCap);
+                contract.persistOrUpdate();
+                totalUpdatedContracts++;
+
+                // Update all callers for this contract
+                int updatedCallers = updateMissingMarketCapsForCallers(contractAddress);
+                totalUpdatedCallers += updatedCallers;
+
+                LOG.log(java.util.logging.Level.INFO,
+                        "Backfilled market cap for contract {0}: {1} (updated {2} caller records)",
+                        new Object[] { contractAddress, marketCap, updatedCallers });
+            } else {
+                LOG.log(java.util.logging.Level.WARNING, "Could not fetch market cap during backfill for contract: {0}",
+                        contractAddress);
+            }
+        }
+
+        LOG.log(java.util.logging.Level.INFO, "Completed backfill: updated {0} contracts and {1} caller records",
+                new Object[] { totalUpdatedContracts, totalUpdatedCallers });
     }
 }
