@@ -74,6 +74,7 @@ const PrimosMarketGallery: React.FC = () => {
     usersLoaded: 0,
     renderAttempted: true,
     lastError: null as Error | null,
+    networkErrors: [] as { url: string; status?: number; message: string }[],
     marketDebugDetails: {
       magicEdenCallDetails: {
         listingsRequested: 0,

@@ -54,6 +54,7 @@ const NFTGallery: React.FC = () => {
     usersLoaded: 0,
     renderAttempted: true,
     lastError: null as Error | null,
+    networkErrors: [] as { url: string; status?: number; message: string }[],
     heliusCallDetails: {
       assetsRequested: 0,
       assetsReceived: 0,
