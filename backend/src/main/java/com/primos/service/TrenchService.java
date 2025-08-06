@@ -1,7 +1,8 @@
 package com.primos.service;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.primos.model.TrenchContract;
 import com.primos.model.TrenchContractCaller;
@@ -32,8 +33,8 @@ public class TrenchService {
 
         TrenchUser tu = TrenchUser.find("publicKey", publicKey).firstResult();
         if (tu != null) {
-            java.util.List<String> list = tu.getContracts();
-            if (list != null && list.contains(contract)) {
+            Set<String> set = tu.getContracts();
+            if (set != null && set.contains(contract)) {
                 throw new BadRequestException("Contract already added");
             }
             long since = now - tu.getLastSubmittedAt();
@@ -83,18 +84,18 @@ public class TrenchService {
             tu = new TrenchUser();
             tu.setPublicKey(publicKey);
             tu.setCount(1);
-            java.util.List<String> list = new ArrayList<>();
-            list.add(contract);
-            tu.setContracts(list);
+            Set<String> set = new HashSet<>();
+            set.add(contract);
+            tu.setContracts(set);
             tu.setLastSubmittedAt(now);
             tu.persist();
         } else {
             tu.setCount(tu.getCount() + 1);
-            java.util.List<String> list = tu.getContracts();
-            if (list == null)
-                list = new ArrayList<>();
-            list.add(contract);
-            tu.setContracts(list);
+            Set<String> set = tu.getContracts();
+            if (set == null)
+                set = new HashSet<>();
+            set.add(contract);
+            tu.setContracts(set);
             tu.setLastSubmittedAt(now);
             tu.persistOrUpdate();
         }
