@@ -315,7 +315,8 @@ const GlobalAdminConsole = () => {
         contractsLoaded: 0,
         usersLoaded: 0,
         renderAttempted: true,
-        lastError: null
+        lastError: null,
+        networkErrors: []
       }}
       componentName={`Global - ${location?.pathname || 'Unknown'}`}
       additionalData={{
