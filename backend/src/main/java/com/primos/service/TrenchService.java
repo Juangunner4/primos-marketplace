@@ -119,4 +119,14 @@ public class TrenchService {
                 .page(0, limit)
                 .list();
     }
+
+    public boolean updateFirstCallerMarketCap(String contract, Double marketCap) {
+        TrenchContract tc = TrenchContract.find("contract", contract).firstResult();
+        if (tc != null && tc.getFirstCallerMarketCap() == null && marketCap != null) {
+            tc.setFirstCallerMarketCap(marketCap);
+            tc.persistOrUpdate();
+            return true;
+        }
+        return false;
+    }
 }

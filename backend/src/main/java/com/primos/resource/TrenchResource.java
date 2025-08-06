@@ -3,7 +3,6 @@ package com.primos.resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.primos.model.TrenchContract;
@@ -18,7 +17,9 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
@@ -107,5 +108,40 @@ public class TrenchResource {
         }
 
         return data;
+    }
+
+    @PUT
+    @Path("/{contract}/market-cap")
+    public Map<String, Object> updateMarketCap(@PathParam("contract") String contract, Map<String, Object> req) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (req == null || !req.containsKey("marketCap")) {
+            response.put("success", false);
+            response.put("message", "Market cap value is required");
+            return response;
+        }
+
+        Double marketCap = null;
+        Object marketCapValue = req.get("marketCap");
+        if (marketCapValue instanceof Number number) {
+            marketCap = number.doubleValue();
+        }
+
+        if (marketCap == null || marketCap <= 0) {
+            response.put("success", false);
+            response.put("message", "Invalid market cap value");
+            return response;
+        }
+
+        boolean updated = service.updateFirstCallerMarketCap(contract, marketCap);
+        if (updated) {
+            response.put("success", true);
+            response.put("message", "Market cap updated successfully");
+        } else {
+            response.put("success", false);
+            response.put("message", "Contract not found or market cap already exists");
+        }
+
+        return response;
     }
 }

@@ -151,3 +151,13 @@ export const submitTrenchContract = async (
     { headers: { 'X-Public-Key': publicKey } }
   );
 };
+
+export const updateContractMarketCap = async (
+  contract: string,
+  marketCap: number
+): Promise<{ success: boolean; message: string }> => {
+  const response = await api.put(`/api/trench/${contract}/market-cap`, {
+    marketCap
+  });
+  return response.data;
+};

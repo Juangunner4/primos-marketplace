@@ -36,7 +36,7 @@ import {
   TokenMetadata,
   TokenInfo,
 } from '../services/token';
-import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
+import { fetchTrenchData, TrenchData, TrenchCallerInfo, updateContractMarketCap } from '../services/trench';
 import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool, fetchSimpleTokenPrice } from '../services/coingecko';
 import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
 import { fetchUserPfpImage } from '../services/user';
@@ -180,8 +180,17 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                 prev ? { ...prev, marketCap: currentMarketCap } : prev
               );
               
-              // TODO: Consider updating the backend with the new market cap
-              // This could be done via an API call to update the contract record
+              // Update the backend with the new market cap
+              try {
+                const result = await updateContractMarketCap(contract, currentMarketCap);
+                if (result.success) {
+                  console.log('✅ Market cap persisted to backend:', result.message);
+                } else {
+                  console.log('⚠️ Backend update failed:', result.message);
+                }
+              } catch (error) {
+                console.error('❌ Failed to persist market cap to backend:', error);
+              }
             } else {
               console.log('⚠️ No market cap data available for contract:', contract);
             }
