@@ -231,12 +231,14 @@ const UserProfile: React.FC = () => {
       if (user?.pfp) {
         const nft = await getNFTByTokenAddress(user.pfp.replace(/"/g, ''));
         setPfpImage(nft?.image || null);
+      } else if (nfts[0]) {
+        setPfpImage(nfts[0].image || null);
       } else {
         setPfpImage(null);
       }
     }
     fetchPFP();
-  }, [user?.pfp]);
+  }, [user?.pfp, nfts]);
 
   const handleSetPFP = (tokenAddress: string) => {
     if (user && publicKey && isOwner) {

@@ -39,6 +39,7 @@ import {
 import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
 import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool } from '../services/coingecko';
 import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
+import { fetchUserPfpImage } from '../services/user';
 import { getLikes, toggleLike } from '../utils/likes';
 import { getTokenReactions, toggleTokenLike, toggleTokenDislike, TokenReactionData } from '../utils/tokenReactions';
 import './ContractPanel.css';
@@ -141,9 +142,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const rec = d.contracts.find((cc) => cc.contract === contract);
       if (rec?.firstCaller) {
         const user = d.users.find((u) => u.publicKey === rec.firstCaller);
+        let pfp = user?.pfp || '';
+        if (!pfp) {
+          pfp = await fetchUserPfpImage(rec.firstCaller);
+        }
         setCallerInfo({
           publicKey: rec.firstCaller,
-          pfp: user?.pfp || '',
+          pfp,
           at: rec.firstCallerAt,
           marketCap: rec.firstCallerMarketCap,
           domain: rec.firstCallerDomain,
