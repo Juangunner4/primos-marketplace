@@ -8,9 +8,8 @@ import com.primos.model.User;
 import com.primos.resource.AdminResource;
 import com.primos.resource.LoginRequest;
 
-import jakarta.inject.Inject;
-
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 
@@ -22,6 +21,9 @@ public class LoginService {
 
     @Inject
     HeliusService heliusService;
+
+    @Inject
+    HolderPointsJob holderPointsJob;
 
     public User login(LoginRequest req) {
         validateLoginRequest(req);
@@ -74,6 +76,9 @@ public class LoginService {
         int count = heliusService.getPrimoCount(user.getPublicKey());
         user.setNftCount(count);
         updateHolderStatus(user, count > 0);
+
+        // Trigger holder points job on login - it will only execute once per day
+        holderPointsJob.awardHolderPointsToAllUsers();
 
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
             if (user.isPrimoHolder()) {
