@@ -37,7 +37,7 @@ import {
   TokenInfo,
 } from '../services/token';
 import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
-import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool } from '../services/coingecko';
+import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool, fetchSimpleTokenPrice } from '../services/coingecko';
 import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
 import { fetchUserPfpImage } from '../services/user';
 import { getLikes, toggleLike } from '../utils/likes';
@@ -157,6 +157,38 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           axiom: user?.socials?.axiom || '',
           vector: user?.socials?.vector || '',
         });
+
+        // If market cap is missing, try to fetch current market cap
+        if (!rec.firstCallerMarketCap && contract) {
+          console.log('🔄 Market cap missing, fetching current market cap for contract:', contract);
+          try {
+            let currentMarketCap: number | undefined;
+            
+            // Check if it's an Ethereum contract (0x format)
+            if (/^0x[0-9a-fA-F]{40}$/i.test(contract)) {
+              const data = await fetchSimpleTokenPrice(contract, 'ethereum');
+              currentMarketCap = data?.usd_market_cap;
+            } else {
+              // Assume Solana contract
+              const data = await fetchSimpleTokenPrice(contract, 'solana');
+              currentMarketCap = data?.usd_market_cap;
+            }
+
+            if (currentMarketCap) {
+              console.log('✅ Updated market cap for contract:', contract, 'Market Cap:', currentMarketCap);
+              setCallerInfo((prev) =>
+                prev ? { ...prev, marketCap: currentMarketCap } : prev
+              );
+              
+              // TODO: Consider updating the backend with the new market cap
+              // This could be done via an API call to update the contract record
+            } else {
+              console.log('⚠️ No market cap data available for contract:', contract);
+            }
+          } catch (error) {
+            console.error('❌ Failed to fetch current market cap for contract:', contract, error);
+          }
+        }
       }
       
       // Set latest callers for this contract
