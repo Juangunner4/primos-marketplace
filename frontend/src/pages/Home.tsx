@@ -14,7 +14,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import { resolvePfpImage } from '../services/user';
 import useMediaQuery from '@mui/material/useMediaQuery';
 // Consolidated imports above
 import Loading from '../components/Loading';
@@ -44,7 +44,6 @@ interface TrenchContract {
 }
 
 const MAGICEDEN_SYMBOL = 'primos';
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
@@ -114,17 +113,10 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       try {
         const res = await api.get<DaoMember[]>('/api/user/primos');
         const enriched = await Promise.all(
-          res.data.slice(0, 24).map(async (m) => {
-            let image = '';
-            if (m.pfp) {
-              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-              image = nft?.image || '';
-            } else {
-              const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
-              image = nfts[0]?.image || '';
-            }
-            return { ...m, pfp: image };
-          })
+          res.data.slice(0, 24).map(async (m) => ({
+            ...m,
+            pfp: await resolvePfpImage(m.pfp, m.publicKey)
+          }))
         );
         setMembers(enriched);
       } catch {

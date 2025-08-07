@@ -229,17 +229,11 @@ const UserProfile: React.FC = () => {
 
   useEffect(() => {
     async function fetchPFP() {
-      if (user?.pfp) {
-        const image = await resolvePfpImage(user.pfp);
-        setPfpImage(image || null);
-      } else if (nfts[0]) {
-        setPfpImage(nfts[0].image || null);
-      } else {
-        setPfpImage(null);
-      }
+      const image = await resolvePfpImage(user?.pfp, profileKey);
+      setPfpImage(image || null);
     }
     fetchPFP();
-  }, [user?.pfp, nfts]);
+  }, [user?.pfp, profileKey]);
 
   const handleSetPFP = (tokenAddress: string) => {
     if (user && publicKey && isOwner) {

@@ -63,64 +63,39 @@ export const resolvePfpImage = async (pfp?: string, fallbackPublicKey?: string):
   return '';
 };
 
-// Enrich single user with PFP image
+// Enrich single user with a resolved PFP image. The backend-stored PFP is
+// preferred, falling back to the first Primo collection NFT owned by the
+// provided public key when necessary.
 export const enrichUserWithPfp = async <T extends { pfp?: string }>(
   user: T,
   fallbackPublicKey?: string
 ): Promise<T & { pfpImage: string }> => {
-  let pfpImage = await resolvePfpImage(user.pfp);
-  
-  // Fallback: fetch any owned NFT from collection if no PFP image found
-  if (!pfpImage && fallbackPublicKey) {
-    try {
-      const nfts = await fetchCollectionNFTsForOwner(fallbackPublicKey, PRIMO_COLLECTION);
-      pfpImage = nfts[0]?.image || '';
-    } catch {
-      // Ignore fallback errors
-    }
-  }
-  
+  const pfpImage = await resolvePfpImage(user.pfp, fallbackPublicKey);
   return { ...user, pfpImage };
 };
 
-// Batch enrich users with PFP images (with optional caching)
+// Batch enrich users with PFP images using a unified resolution path
 export const enrichUsersWithPfp = async <T extends { pfp?: string; publicKey?: string }>(
   users: T[],
-  options: { useCache?: boolean; useFallback?: boolean } = {}
+  options: { useCache?: boolean } = {}
 ): Promise<(T & { pfpImage: string })[]> => {
-  const { useCache = true, useFallback = true } = options;
+  const { useCache = true } = options;
   const nftCache = new Map<string, string>();
-  
+
   return Promise.all(
     users.map(async (user) => {
-      if (!user.pfp) {
-        // Try fallback if enabled
-        if (useFallback && user.publicKey) {
-          try {
-            const nfts = await fetchCollectionNFTsForOwner(user.publicKey, PRIMO_COLLECTION);
-            const fallbackImage = nfts[0]?.image || '';
-            return { ...user, pfpImage: fallbackImage };
-          } catch {
-            return { ...user, pfpImage: '' };
-          }
-        }
-        return { ...user, pfpImage: '' };
+      const cacheKey = user.pfp ? user.pfp.replace(/"/g, '') : user.publicKey || '';
+
+      if (useCache && nftCache.has(cacheKey)) {
+        return { ...user, pfpImage: nftCache.get(cacheKey)! };
       }
-      
-      const tokenAddress = user.pfp.replace(/"/g, '');
-      
-      // Check cache first if enabled
-      if (useCache && nftCache.has(tokenAddress)) {
-        return { ...user, pfpImage: nftCache.get(tokenAddress)! };
-      }
-      
-      const pfpImage = await resolvePfpImage(user.pfp);
-      
-      // Cache the result
+
+      const pfpImage = await resolvePfpImage(user.pfp, user.publicKey);
+
       if (useCache) {
-        nftCache.set(tokenAddress, pfpImage);
+        nftCache.set(cacheKey, pfpImage);
       }
-      
+
       return { ...user, pfpImage };
     })
   );

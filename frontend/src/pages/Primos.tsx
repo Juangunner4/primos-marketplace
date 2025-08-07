@@ -11,7 +11,6 @@ import { getPrimaryDomainName } from '../utils/sns';
 import './Primos.css';
 import Loading from '../components/Loading';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 interface Member {
   publicKey: string;
@@ -38,7 +37,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
         const sorted = res.data.slice().sort((a: Member, b: Member) => (b.pesos + b.points) - (a.pesos + a.points));
         const enriched = await enrichUsersWithPfp(
           sorted.map((m, index) => ({ ...m, rank: index + 1 })),
-          { useCache: true, useFallback: true }
+          { useCache: true }
         );
         
         // Fetch on-chain primary domain for each member

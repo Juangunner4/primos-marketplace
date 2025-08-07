@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import Loading from '../components/Loading';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 type Member = { publicKey: string; pfp: string };
 
 const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
@@ -40,7 +39,7 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         const membersRes = await api.get<Member[]>('/api/user/primos', {
           headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
         });
-        const enriched = await enrichUsersWithPfp(membersRes.data, { useCache: true, useFallback: true });
+        const enriched = await enrichUsersWithPfp(membersRes.data, { useCache: true });
         setMembers(enriched.map(m => ({ ...m, pfp: m.pfpImage })));
       } finally {
         setLoadingMembers(false);

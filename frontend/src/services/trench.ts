@@ -92,7 +92,7 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
   }));
 
   // Use enrichUsersWithPfp for users but with manual NFT mapping for efficiency
-  const enrichedUsers = await enrichUsersWithPfp(usersArr, { useCache: false, useFallback: true });
+  const enrichedUsers = await enrichUsersWithPfp(usersArr, { useCache: false });
   const users = enrichedUsers.map((u) => ({
     ...u,
     pfp: u.pfpImage || (u.pfp?.replace(/"/g, '') && nftMap[u.pfp.replace(/"/g, '')]?.image) || ''
@@ -102,8 +102,8 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
   const latestCallers: Record<string, TrenchCallerInfo[]> = {};
   for (const [contract, callers] of Object.entries(latestCallersRaw)) {
     const enrichedCallers = await enrichUsersWithPfp(
-      callers.map(caller => ({ ...caller, publicKey: caller.caller })), 
-      { useCache: false, useFallback: true }
+      callers.map(caller => ({ ...caller, publicKey: caller.caller })),
+      { useCache: false }
     );
     latestCallers[contract] = enrichedCallers.map((caller) => ({
       ...caller,

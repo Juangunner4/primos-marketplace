@@ -116,7 +116,7 @@ const Header: React.FC = () => {
           headers: { 'X-Public-Key': publicKey.toBase58() },
         });
         const token = res.data?.pfp;
-        const image = await resolvePfpImage(token);
+        const image = await resolvePfpImage(token, publicKey.toBase58());
         setPfpImage(image || null);
       } catch {
         setPfpImage(null);
