@@ -15,6 +15,7 @@ import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { resolvePfpImage } from '../services/user';
+import { getNFTByTokenAddress } from '../services/helius';
 import useMediaQuery from '@mui/material/useMediaQuery';
 // Consolidated imports above
 import Loading from '../components/Loading';
