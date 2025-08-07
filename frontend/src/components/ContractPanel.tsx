@@ -110,6 +110,25 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     }
   });
 
+  // Helper function to safely get PFP image URL
+  const getSafePfpUrl = (pfp: string | undefined | null): string | undefined => {
+    if (!pfp || pfp === 'undefined' || pfp === 'null') {
+      return undefined;
+    }
+    
+    // Check if it's already a valid image URL
+    if (pfp.startsWith('http://') || pfp.startsWith('https://') || pfp.startsWith('data:')) {
+      return pfp;
+    }
+    
+    // If it looks like a token address (not an image URL), don't use it
+    if (pfp.length > 30 && !pfp.includes('.') && !pfp.includes('/')) {
+      return undefined;
+    }
+    
+    return pfp;
+  };
+
   // Format large numbers into human-readable strings with suffixes
   const formatMarketCap = (cap: number): string => {
     if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
@@ -601,7 +620,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
               <Box sx={{ position: 'relative', display: 'inline-block' }} className="first-caller-avatar-container">
                 <Link to={`/user/${callerInfo.publicKey}`} style={{ textDecoration: 'none' }}>
                   <Avatar
-                    src={callerInfo.pfp || undefined}
+                    src={getSafePfpUrl(callerInfo.pfp)}
                     alt={callerInfo.publicKey.slice(0, 2).toUpperCase()}
                     sx={{ 
                       width: 40, 
@@ -779,7 +798,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     <Box sx={{ position: 'relative', display: 'inline-block' }}>
                       <Link to={`/user/${caller.caller}`} style={{ textDecoration: 'none' }}>
                         <Avatar 
-                          src={caller.pfp || undefined} 
+                          src={getSafePfpUrl(caller.pfp)} 
                           alt={caller.caller.slice(0, 2).toUpperCase()}
                           sx={{ 
                             width: 32, 

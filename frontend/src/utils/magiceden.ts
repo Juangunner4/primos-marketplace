@@ -153,7 +153,6 @@ export const fetchMagicEdenListings = async (
     setCached(key, data);
     return data;
   } catch (e) {
-    console.error('Failed to fetch Magic Eden listings', e);
     return [];
   }
 };
@@ -182,7 +181,6 @@ export const fetchMagicEdenActivity = async (
     setCached(key, data);
     return data;
   } catch (e) {
-    console.error('Failed to fetch Magic Eden activity', e);
     return [];
   }
 };

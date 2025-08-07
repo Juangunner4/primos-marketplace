@@ -54,6 +54,25 @@ const getPriceChangeClass = (change: number) => {
   return 'price-change-tag neutral';
 };
 
+// Helper function to safely get PFP image URL
+const getSafePfpUrl = (pfp: string | undefined | null): string | undefined => {
+  if (!pfp || pfp === 'undefined' || pfp === 'null') {
+    return undefined;
+  }
+  
+  // Check if it's already a valid image URL
+  if (pfp.startsWith('http://') || pfp.startsWith('https://') || pfp.startsWith('data:')) {
+    return pfp;
+  }
+  
+  // If it looks like a token address (not an image URL), don't use it
+  if (pfp.length > 30 && !pfp.includes('.') && !pfp.includes('/')) {
+    return undefined;
+  }
+  
+  return pfp;
+};
+
 const Trenches: React.FC = () => {
   // Always call hooks unconditionally
   const wallet = useWallet();
@@ -512,7 +531,7 @@ const Trenches: React.FC = () => {
                   )}
                   {lastUser && (
                     <Avatar
-                      src={lastUser.pfp || undefined}
+                      src={getSafePfpUrl(lastUser.pfp)}
                       alt={lastUser.publicKey}
                       className="caller-tag"
                     />

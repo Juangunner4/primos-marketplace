@@ -53,7 +53,6 @@ export const getPythSolPrice = async (): Promise<number | null> => {
     }
     return null;
   } catch (e) {
-    console.error("Failed to fetch SOL price from Pyth:", e);
     return null;
   }
 };

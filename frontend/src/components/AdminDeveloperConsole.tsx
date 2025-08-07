@@ -73,15 +73,6 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
   // Only show to admin wallet
   const isAdmin = publicKey && publicKey.toBase58() === ADMIN_WALLET;
   
-  // Debug logging
-  console.log('[AdminDeveloperConsole Debug]', {
-    connected,
-    publicKey: publicKey?.toBase58(),
-    adminWallet: ADMIN_WALLET,
-    isAdmin,
-    componentName
-  });
-  
   if (!isAdmin) {
     return null;
   }

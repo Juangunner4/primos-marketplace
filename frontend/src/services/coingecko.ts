@@ -348,9 +348,6 @@ export const fetchSimpleTokenPrice = async (
     }
 
     if (!response.ok) {
-      console.error(
-        `CoinGecko API error: ${response.status} ${response.statusText}`
-      );
       return null;
     }
     
@@ -365,14 +362,12 @@ export const fetchSimpleTokenPrice = async (
       data[contractAddress.toLowerCase()] || data[contractAddress];
     
     if (!tokenData) {
-      console.warn(`No price data found for contract ${contractAddress} on ${network}`);
       return null;
     }
     
     setCached(cacheKey, tokenData);
     return tokenData;
   } catch (error) {
-    console.error('Error fetching simple token price:', error);
     return null;
   }
 };
@@ -430,12 +425,11 @@ export const fetchCoinGeckoData = async (
     }
 
     if (entries.length === 0) {
-      console.warn(`No data available for contract ${contractAddress}`);
+      // No data available
     }
 
     return entries;
   } catch (error) {
-    console.error('Error fetching CoinGecko data:', error);
     return [];
   }
 };
@@ -454,7 +448,6 @@ export const getCurrentMarketCap = async (
     const priceData = await fetchSimpleTokenPrice(contractAddress, network);
     return priceData?.usd_market_cap || null;
   } catch (error) {
-    console.error('Error fetching current market cap:', error);
     return null;
   }
 };
@@ -480,7 +473,6 @@ export const fetchTrendingPools = async (
     setCached(cacheKey, pools);
     return pools;
   } catch (error) {
-    console.error('Error fetching trending pools:', error);
     return [];
   }
 };
@@ -524,7 +516,6 @@ export const fetchTokenPools = async (
     
     return [];
   } catch (error) {
-    console.error('Error fetching token pools:', error);
     return [];
   }
 };
@@ -612,7 +603,6 @@ const tryAlternativeNFTEndpoint = async (contractAddress: string, assetPlatformI
   const altResponse = await rateLimitedFetch(altUrl);
   
   if (!altResponse.ok) {
-    console.error(`Alternative CoinGecko NFT API also failed: ${altResponse.status} ${altResponse.statusText}`);
     return null;
   }
   
@@ -659,11 +649,6 @@ export const fetchNFTCollectionData = async (
     let data = null;
 
     if (!response.ok) {
-      console.error(`CoinGecko NFT collection API error: ${response.status} ${response.statusText}`, {
-        contractAddress,
-        network,
-        assetPlatformId
-      });
       
       // Try alternative endpoint format if the first one fails with 404
       if (response.status === 404) {
@@ -676,7 +661,6 @@ export const fetchNFTCollectionData = async (
     }
     
     if (!data?.id) {
-      console.warn(`No NFT collection data found for contract ${contractAddress} on ${network}`);
       return null;
     }
 
@@ -684,7 +668,6 @@ export const fetchNFTCollectionData = async (
     setCached(cacheKey, nftData);
     return nftData;
   } catch (error) {
-    console.error('Error fetching NFT collection data:', error);
     return null;
   }
 };
@@ -727,7 +710,6 @@ export const searchNFTCollections = async (
     setCached(cacheKey, filteredNfts);
     return filteredNfts;
   } catch (error) {
-    console.error('Error searching NFT collections:', error);
     return [];
   }
 };
@@ -752,14 +734,12 @@ export const fetchNFTCollectionById = async (
     const response = await rateLimitedFetch(url);
 
     if (!response.ok) {
-      console.error(`CoinGecko NFT by ID API error: ${response.status} ${response.statusText}`);
       return null;
     }
 
     const data = await response.json();
     
     if (!data?.id) {
-      console.warn(`No NFT collection data found for ID ${nftId}`);
       return null;
     }
 
@@ -767,7 +747,6 @@ export const fetchNFTCollectionById = async (
     setCached(cacheKey, nftData);
     return nftData;
   } catch (error) {
-    console.error('Error fetching NFT collection by ID:', error);
     return null;
   }
 };
@@ -802,7 +781,7 @@ export const fetchNFTWithCoinGeckoBackup = async (
       const { getNFTByTokenAddress } = await import('../utils/helius');
       heliusData = await getNFTByTokenAddress(tokenAddress);
     } catch (error) {
-      console.warn('Helius NFT fetch failed, using CoinGecko backup:', error);
+      // Helius fetch failed, fallback to CoinGecko
     }
 
     // Get CoinGecko collection data as backup/enhancement
@@ -839,7 +818,6 @@ export const fetchNFTWithCoinGeckoBackup = async (
 
     return null;
   } catch (error) {
-    console.error('Error fetching NFT with CoinGecko backup:', error);
     return null;
   }
 };

@@ -64,7 +64,6 @@ export const getAssetsByCollection = async (
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
-    console.error('Helius API key is not configured. Please set REACT_APP_HELIUS_API_KEY environment variable.');
     return [];
   }
 
@@ -113,7 +112,6 @@ export const getAssetsByCollection = async (
         await sleep(200);
       }
     } catch (e) {
-      console.error('Failed to fetch assets by collection', e);
       break;
     }
   }
@@ -151,7 +149,6 @@ export const getNFTByTokenAddress = async (
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
-    console.error('❌ Helius API key is missing for getNFTByTokenAddress!');
     return null;
   }
 
@@ -189,7 +186,6 @@ export const getNFTByTokenAddress = async (
     nftCache[tokenAddress] = nft;
     return nft;
   } catch (e) {
-    console.error('Failed to fetch NFT metadata', e);
     return null;
   }
 };
@@ -205,7 +201,6 @@ export const getNFTsByTokenAddresses = async (
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
-    console.error('❌ Helius API key is missing for getNFTsByTokenAddresses!');
     return {};
   }
 
@@ -246,7 +241,6 @@ export const getNFTsByTokenAddresses = async (
     }
     return result;
   } catch (e) {
-    console.error('Failed to fetch NFT metadata batch', e);
     return {};
   }
 };
@@ -264,9 +258,6 @@ export const checkPrimoHolder = async (
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
-    console.error(
-      'Helius API key is not configured. Please set REACT_APP_HELIUS_API_KEY environment variable.'
-    );
     return false;
   }
 
@@ -297,7 +288,6 @@ export const checkPrimoHolder = async (
     const items = data.result?.items || [];
     return items.length > 0;
   } catch (e) {
-    console.error('Failed to check Primo holder status', e);
     return false;
   }
 };
@@ -431,7 +421,6 @@ export const getTokenInfo = async (
     
     return tokenInfo;
   } catch (e) {
-    console.error('Failed to fetch token info', e);
     return null;
   }
 };
@@ -448,7 +437,6 @@ export const getTokenLargestAccounts = async (
 ): Promise<TokenHolder[]> => {
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
   if (!apiKey) {
-    console.error('Helius API key is not configured.');
     return [];
   }
   
@@ -493,7 +481,6 @@ export const getTokenLargestAccounts = async (
     
     return holders;
   } catch (e) {
-    console.error('Failed to fetch token largest accounts', e);
     return [];
   }
 };

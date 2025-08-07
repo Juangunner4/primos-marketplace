@@ -102,7 +102,6 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           marketCapUsd: mcap != null && solPrice != null ? mcap * solPrice : null,
         });
       } catch (e) {
-        console.error('Failed to fetch stats:', e);
         setStats(null);
       }
     }

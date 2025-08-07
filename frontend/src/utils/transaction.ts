@@ -22,7 +22,7 @@ export const recordTransaction = async (tx: TxRecord) => {
   try {
     await api.post('/api/transactions', tx);
   } catch (e) {
-    console.error('Failed to record transaction', e);
+    // Failed to record transaction
   }
 };
 
@@ -113,7 +113,6 @@ const tryFallbackSign = async (
       const sigAll = await connection.sendRawTransaction(signed.serialize());
       return sigAll;
     } catch (e) {
-      console.error('signAllTransactions failed', e);
       // ignore and fallback to single sign
     }
   }
@@ -123,7 +122,6 @@ const tryFallbackSign = async (
       const sigTx = await connection.sendRawTransaction(signedTx.serialize());
       return sigTx;
     } catch (signErr: any) {
-      console.error('signTransaction failed', signErr);
       throw new Error('Transaction too large to sign: ' + signErr.message);
     }
   }
@@ -152,7 +150,6 @@ const signAndSendTransaction = async (
     const sig = await wallet.sendTransaction(tx as any, connection);
     return sig;
   } catch (error: any) {
-    console.error('sendTransaction failed', error);
     if (!error.message.includes('Transaction too large')) throw error;
     return await tryFallbackSign(tx, connection, wallet);
   }

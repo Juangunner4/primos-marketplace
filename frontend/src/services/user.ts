@@ -18,7 +18,6 @@ export const fetchUserPfpImage = async (publicKey: string): Promise<string> => {
     const nfts = await fetchCollectionNFTsForOwner(publicKey, PRIMO_COLLECTION);
     return nfts[0]?.image || '';
   } catch (err) {
-    console.warn('Failed to fetch user pfp image', err);
     return '';
   }
 };

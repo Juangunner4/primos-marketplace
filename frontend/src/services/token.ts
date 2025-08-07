@@ -37,7 +37,6 @@ export const fetchTokenMetadata = async (
       twitter: meta.twitter,
     };
   } catch (error) {
-    console.error('fetchTokenMetadata error', error);
     return null;
   }
 };
