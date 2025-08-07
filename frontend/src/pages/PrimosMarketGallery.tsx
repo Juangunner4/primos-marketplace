@@ -171,7 +171,6 @@ const PrimosMarketGallery: React.FC = () => {
     let isMounted = true;
     async function fetchStats() {
       try {
-        console.log('[PrimosMarketGallery Debug] Fetching initial stats...');
         const statsStartTime = performance.now();
         const solPriceStartTime = performance.now();
         
@@ -183,8 +182,6 @@ const PrimosMarketGallery: React.FC = () => {
         
         const statsEndTime = performance.now();
         const solPriceEndTime = performance.now();
-        
-        console.log('[PrimosMarketGallery Debug] Initial stats loaded:', { stats, solPriceVal, holderStats });
         
         if (isMounted) {
           setListedCount(stats?.listedCount ?? null);
@@ -241,7 +238,6 @@ const PrimosMarketGallery: React.FC = () => {
   useEffect(() => {
     async function fetchAttrs() {
       try {
-        console.log('[PrimosMarketGallery Debug] Fetching collection attributes...');
         const attributesStartTime = performance.now();
         const data = await getCollectionAttributes(MAGICEDEN_SYMBOL);
         const attributesEndTime = performance.now();
@@ -252,7 +248,6 @@ const PrimosMarketGallery: React.FC = () => {
             groups[key] = Array.isArray(arr) ? arr.map((a: any) => a.value) : [];
           }
           setAttributeGroups(groups);
-          console.log('[PrimosMarketGallery Debug] Attributes loaded:', Object.keys(groups).length, 'groups');
           
           // Update debug info with attributes performance
           setDebugInfo(prev => ({
@@ -325,14 +320,11 @@ const PrimosMarketGallery: React.FC = () => {
     try {
       const startTime = performance.now();
       const offset = (page - 1) * PAGE_SIZE;
-      console.log('[PrimosMarketGallery Debug] Fetching page:', page, 'offset:', offset);
       
       const listingsStartTime = performance.now();
       const listings = await fetchMagicEdenListings(MAGICEDEN_SYMBOL, offset, PAGE_SIZE);
       const listingsEndTime = performance.now();
       
-      console.log('[PrimosMarketGallery Debug] Fetched listings:', listings?.length);
-
       // Initialize tracking variables
       const listingsRequested = PAGE_SIZE;
       const listingsReceived = listings?.length || 0;
@@ -359,7 +351,6 @@ const PrimosMarketGallery: React.FC = () => {
 
       if (page === 1) {
         const stats = await getMagicEdenStats(MAGICEDEN_SYMBOL);
-        console.log('[PrimosMarketGallery Debug] Market stats:', stats);
         if (stats?.listedCount) {
           setTotalPages(Math.ceil(stats.listedCount / PAGE_SIZE));
         }
@@ -449,13 +440,6 @@ const PrimosMarketGallery: React.FC = () => {
       const filtered = pageNFTs.filter((nft) => nft.image);
 
       setNfts(filtered);
-      console.log('[PrimosMarketGallery Debug] Successfully loaded:', filtered.length, 'NFTs');
-      console.log('[PrimosMarketGallery Debug] Missing data summary:', missingData);
-      console.log('[PrimosMarketGallery Debug] Performance metrics:', {
-        total: Math.round(totalEndTime - startTime),
-        listings: Math.round(listingsEndTime - listingsStartTime),
-        metadata: Math.round(metadataEndTime - metadataStartTime)
-      });
 
       setDebugInfo(prev => ({ 
         ...prev, 
@@ -496,7 +480,6 @@ const PrimosMarketGallery: React.FC = () => {
       }));
     } catch (e) {
       console.error('Error fetching page:', e);
-      console.log('[PrimosMarketGallery Debug] Error details:', e);
       throw e;
     } finally {
       setLoading(false);

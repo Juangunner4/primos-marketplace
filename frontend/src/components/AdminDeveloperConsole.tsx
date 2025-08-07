@@ -44,6 +44,7 @@ interface DebugInfo {
   apiEndpoints?: string[];
   responseData?: Record<string, any>;
   performanceMetrics?: Record<string, number>;
+  consoleLogs?: { timestamp: string; level: string; message: string; args?: any[] }[];
 }
 
 interface AdminDeveloperConsoleProps {
@@ -59,16 +60,60 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
 }) => {
   const { publicKey, connected } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
+  const [consoleLogs, setConsoleLogs] = useState<{ timestamp: string; level: string; message: string; args?: any[] }[]>([]);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     wallet: true,
     api: true,
     component: true,
     environment: true,
     errors: true,
+    consoleLogs: true,
     heliusDebug: true,
     marketDebug: true,
     contractPanelDebug: true
   });
+
+  // Console log capture system
+  React.useEffect(() => {
+    const originalConsole = {
+      log: console.log,
+      warn: console.warn,
+      error: console.error,
+      info: console.info
+    };
+
+    const captureConsole = (level: string, originalMethod: any) => {
+      return (...args: any[]) => {
+        // Call original method first
+        originalMethod.apply(console, args);
+        
+        // Capture the log for admin console
+        const timestamp = new Date().toISOString();
+        const message = args.map(arg => 
+          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        ).join(' ');
+        
+        setConsoleLogs(prev => [
+          ...prev.slice(-49), // Keep last 50 logs
+          { timestamp, level, message, args }
+        ]);
+      };
+    };
+
+    // Override console methods
+    console.log = captureConsole('log', originalConsole.log);
+    console.warn = captureConsole('warn', originalConsole.warn);
+    console.error = captureConsole('error', originalConsole.error);
+    console.info = captureConsole('info', originalConsole.info);
+
+    // Cleanup function to restore original console
+    return () => {
+      console.log = originalConsole.log;
+      console.warn = originalConsole.warn;
+      console.error = originalConsole.error;
+      console.info = originalConsole.info;
+    };
+  }, []);
 
   // Only show to admin wallet
   const isAdmin = publicKey && publicKey.toBase58() === ADMIN_WALLET;
@@ -161,6 +206,8 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
         onClose={() => setIsOpen(false)}
         maxWidth="lg"
         fullWidth
+        aria-labelledby="admin-console-title"
+        aria-describedby="admin-console-description"
         slotProps={{
           paper: {
             sx: {
@@ -179,7 +226,9 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
         }}
         sx={{ zIndex: 9998 }}
       >
-        <DialogTitle sx={{ 
+        <DialogTitle 
+          id="admin-console-title"
+          sx={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
@@ -209,6 +258,11 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
             <CloseIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
           </IconButton>
         </DialogTitle>
+        
+        {/* Hidden description for accessibility */}
+        <div id="admin-console-description" style={{ display: 'none' }}>
+          Admin Developer Console for debugging application state, API calls, and performance metrics
+        </div>
         
         <DialogContent sx={{ 
           p: { xs: 1, sm: 2 }, 
@@ -373,6 +427,82 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
             </DebugSection>
           )}
 
+          {/* Console Logs Section */}
+          <DebugSection title={`Console Logs (${consoleLogs.length}/50)`} sectionKey="consoleLogs" icon={<SpeedIcon sx={{ color: '#000000' }} />}>
+            <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="caption" sx={{ color: '#666', fontSize: { xs: '0.6rem', sm: '0.7rem' } }}>
+                Live console output (last 20 shown)
+              </Typography>
+              <IconButton 
+                size="small" 
+                onClick={() => setConsoleLogs([])}
+                sx={{ p: 0.5 }}
+                title="Clear logs"
+              >
+                <CloseIcon sx={{ fontSize: '0.8rem' }} />
+              </IconButton>
+            </Box>
+            <Box sx={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: 1, p: 1 }}>
+              {consoleLogs.length === 0 ? (
+                <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic', fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
+                  No console logs captured yet
+                </Typography>
+              ) : (
+                consoleLogs.slice(-20).reverse().map((log, idx) => {
+                  const getLogBackgroundColor = (level: string) => {
+                    if (level === 'error') return '#ffebee';
+                    if (level === 'warn') return '#fff3e0';
+                    return '#f5f5f5';
+                  };
+
+                  const getLogBorderColor = (level: string) => {
+                    if (level === 'error') return '#f44336';
+                    if (level === 'warn') return '#ff9800';
+                    return '#2196f3';
+                  };
+
+                  return (
+                    <Box 
+                      key={`log-${log.timestamp}-${idx}`} 
+                      sx={{ 
+                        mb: 1, 
+                        p: 0.5, 
+                        backgroundColor: getLogBackgroundColor(log.level),
+                        borderRadius: 0.5,
+                        borderLeft: `3px solid ${getLogBorderColor(log.level)}`
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ 
+                        fontSize: { xs: '0.6rem', sm: '0.7rem' }, 
+                        color: '#666',
+                        display: 'block'
+                      }}>
+                        {new Date(log.timestamp).toLocaleTimeString()} - {log.level.toUpperCase()}
+                      </Typography>
+                      <Typography variant="body2" sx={{ 
+                        fontFamily: 'monospace', 
+                        fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                        wordBreak: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        maxHeight: '100px',
+                        overflowY: 'auto'
+                      }}>
+                        {log.message}
+                      </Typography>
+                    </Box>
+                  );
+                })
+              )}
+              {consoleLogs.length > 0 && (
+                <Box sx={{ mt: 1, textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: '#666', fontSize: { xs: '0.6rem', sm: '0.7rem' } }}>
+                    Showing last 20 of {consoleLogs.length} logs (max 50 stored)
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </DebugSection>
+
           {/* Helius Debug Data for NFT Gallery */}
           {additionalData.heliusDebugData && (
             <DebugSection title="Helius API Debug" sectionKey="heliusDebug" icon={<StorageIcon sx={{ color: '#000000' }} />}>
@@ -482,12 +612,17 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
                 Network Detected: {additionalData.contractPanelDebugData.networkDetected}<br/>
                 Trench Data Loaded: {additionalData.contractPanelDebugData.trenchDataLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
                 First Caller Found: {additionalData.contractPanelDebugData.firstCallerFound ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
-                PFP Loaded: {additionalData.contractPanelDebugData.pfpLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                PFP Load Attempted: {additionalData.contractPanelDebugData.pfpLoadAttempted ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                PFP Load Success: {additionalData.contractPanelDebugData.pfpLoadSuccess ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                {additionalData.contractPanelDebugData.pfpLoadError && (
+                  <>PFP Load Error: {additionalData.contractPanelDebugData.pfpLoadError}<br/></>
+                )}
+                User Data Found: {additionalData.contractPanelDebugData.userDataFound ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                PFP Loaded (Legacy): {additionalData.contractPanelDebugData.pfpLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
                 Market Cap Fetched: {additionalData.contractPanelDebugData.marketCapFetched ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
                 CoinGecko Loaded: {additionalData.contractPanelDebugData.coinGeckoLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
                 Latest Callers Count: {additionalData.contractPanelDebugData.latestCallersCount}<br/>
                 Token Metadata Loaded: {additionalData.contractPanelDebugData.tokenMetadataLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
-                Enhanced Token Loaded: {additionalData.contractPanelDebugData.enhancedTokenLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
                 Token Info Loaded: {additionalData.contractPanelDebugData.tokenInfoLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
                 <br/>
                 <strong>Component State:</strong><br/>

@@ -142,8 +142,6 @@ const NFTGallery: React.FC = () => {
       }));
       
       try {
-        console.log('[NFTGallery Debug] Starting API calls for:', pub);
-        
         const assetsStartTime = performance.now();
         const assets = await getAssetsByCollection(PRIMO_COLLECTION, pub);
         const assetsEndTime = performance.now();
@@ -156,8 +154,6 @@ const NFTGallery: React.FC = () => {
         const solPriceVal = await getPythSolPrice();
         const solPriceEndTime = performance.now();
         
-        console.log('[NFTGallery Debug] API responses:', { assets: assets?.length, stats, solPriceVal });
-
         // Track initial asset data
         const assetsRequested = 1; // We request all assets for the collection
         const assetsReceived = assets?.length || 0;
@@ -198,7 +194,6 @@ const NFTGallery: React.FC = () => {
               metadataCallsFailed++;
               assetsWithoutMetadata++;
               missingData.noMetadata.push(asset.id);
-              console.warn(`[NFTGallery Debug] Failed to get metadata for ${asset.id}:`, e);
             }
 
             const image = asset.img ?? asset.image ?? asset.extra?.img ?? meta?.image ?? '';
@@ -277,18 +272,8 @@ const NFTGallery: React.FC = () => {
             }
           }
         }));
-        console.log('[NFTGallery Debug] Successfully loaded:', filtered.length, 'NFTs');
-        console.log('[NFTGallery Debug] Missing data summary:', missingData);
-        console.log('[NFTGallery Debug] Performance metrics:', {
-          total: Math.round(totalEndTime - startTime),
-          assets: Math.round(assetsEndTime - assetsStartTime),
-          metadata: Math.round(metadataEndTime - metadataStartTime),
-          stats: Math.round(statsEndTime - statsStartTime),
-          solPrice: Math.round(solPriceEndTime - solPriceStartTime)
-        });
       } catch (e) {
         console.error("Failed to load NFTs", e);
-        console.log('[NFTGallery Debug] Error details:', e);
         setDebugInfo(prev => ({ 
           ...prev, 
           apiCallSuccess: false, 

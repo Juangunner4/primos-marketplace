@@ -1,6 +1,6 @@
 export interface HeliusNFT {
   id: string;
-  image: string;
+  image: string | undefined;
   name: string;
   listed: boolean;
   attributes?: { trait_type: string; value: string }[];
@@ -112,6 +112,7 @@ export const getAssetsByCollection = async (
         await sleep(200);
       }
     } catch (e) {
+      console.error('Error fetching assets by collection:', e);
       break;
     }
   }
@@ -123,7 +124,7 @@ export const getAssetsByCollection = async (
       image:
         item.content?.links?.image ||
         item.content?.files?.[0]?.uri ||
-        '/fallback.png',
+        undefined,
       name: item.content?.metadata?.name || item.id,
       listed: !!item.listing || !!item.marketplace,
     }));
@@ -142,17 +143,22 @@ const nftCache: Record<string, HeliusNFT> = {};
 export const getNFTByTokenAddress = async (
   tokenAddress: string
 ): Promise<HeliusNFT | null> => {
+  console.log('Helius - getNFTByTokenAddress called for token:', tokenAddress);
+  
   if (nftCache[tokenAddress]) {
+    console.log('Helius - Found cached NFT for token:', tokenAddress, nftCache[tokenAddress]);
     return nftCache[tokenAddress];
   }
 
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
+    console.log('Helius - No API key available');
     return null;
   }
 
   try {
+    console.log('Helius - Making API call to Helius for token:', tokenAddress);
     const response = await heliusFetch(
       `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
       {
@@ -167,15 +173,28 @@ export const getNFTByTokenAddress = async (
       }
     );
 
-    if (!response.ok) return null;
+    console.log('Helius - API response status:', response.ok, response.status);
+    if (!response.ok) {
+      console.log('Helius - API call failed with status:', response.status);
+      return null;
+    }
 
     const data = await response.json();
+    console.log('Helius - Raw API response data:', data);
     const item = data.result;
-    if (!item) return null;
+    if (!item) {
+      console.log('Helius - No result item in API response');
+      return null;
+    }
     const metadata = item.content?.metadata || {};
+    console.log('Helius - Extracted metadata:', metadata);
+    console.log('Helius - Item content:', item.content);
+    console.log('Helius - Item content links:', item.content?.links);
+    console.log('Helius - Item content image:', item.content?.links?.image);
+    
     const nft = {
       id: item.id,
-      image: item.content?.links?.image || '/fallback.png',
+      image: item.content?.links?.image || undefined,
       name: metadata?.name || item.id,
       listed: !!item.listing || !!item.marketplace,
       attributes: metadata?.attributes || [],
@@ -183,9 +202,13 @@ export const getNFTByTokenAddress = async (
       description: metadata?.description,
       metadata,
     } as HeliusNFT;
+    console.log('Helius - Created NFT object:', nft);
+    console.log('Helius - NFT image specifically:', nft.image);
     nftCache[tokenAddress] = nft;
+    console.log('Helius - Cached NFT for token:', tokenAddress);
     return nft;
   } catch (e) {
+    console.error('Helius - Error fetching NFT by token address:', e);
     return null;
   }
 };
@@ -228,7 +251,7 @@ export const getNFTsByTokenAddresses = async (
       const metadata = item.content?.metadata || {};
       const nft = {
         id: item.id,
-        image: item.content?.links?.image || '/fallback.png',
+        image: item.content?.links?.image || undefined,
         name: metadata?.name || item.id,
         listed: !!item.listing || !!item.marketplace,
         attributes: metadata?.attributes || [],
@@ -241,6 +264,7 @@ export const getNFTsByTokenAddresses = async (
     }
     return result;
   } catch (e) {
+    console.error('Error fetching NFTs by token addresses:', e);
     return {};
   }
 };
@@ -288,6 +312,7 @@ export const checkPrimoHolder = async (
     const items = data.result?.items || [];
     return items.length > 0;
   } catch (e) {
+    console.error('Error checking Primo holder:', e);
     return false;
   }
 };
@@ -339,7 +364,7 @@ export async function fetchCollectionNFTsForOwner(
         image:
           item.content?.links?.image ||
           item.content?.files?.[0]?.uri ||
-          '/fallback.png',
+          undefined,
         name: item.content?.metadata?.name || item.id,
         listed: !!item.listing || !!item.marketplace,
         attributes: item.content?.metadata?.attributes ?? [],
@@ -421,6 +446,7 @@ export const getTokenInfo = async (
     
     return tokenInfo;
   } catch (e) {
+    console.error('Error fetching token info:', e);
     return null;
   }
 };
@@ -481,6 +507,7 @@ export const getTokenLargestAccounts = async (
     
     return holders;
   } catch (e) {
+    console.error('Error fetching token largest accounts:', e);
     return [];
   }
 };

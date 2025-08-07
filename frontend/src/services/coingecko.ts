@@ -368,6 +368,7 @@ export const fetchSimpleTokenPrice = async (
     setCached(cacheKey, tokenData);
     return tokenData;
   } catch (error) {
+    console.error('Error in fetchNFTWithCoinGeckoBackup:', error);
     return null;
   }
 };
@@ -430,6 +431,7 @@ export const fetchCoinGeckoData = async (
 
     return entries;
   } catch (error) {
+    console.error('Error in fetchTokenPools:', error);
     return [];
   }
 };
@@ -448,6 +450,7 @@ export const getCurrentMarketCap = async (
     const priceData = await fetchSimpleTokenPrice(contractAddress, network);
     return priceData?.usd_market_cap || null;
   } catch (error) {
+    console.error('Error in getCurrentMarketCap:', error);
     return null;
   }
 };
@@ -473,6 +476,7 @@ export const fetchTrendingPools = async (
     setCached(cacheKey, pools);
     return pools;
   } catch (error) {
+    console.error('Error in fetchTokenPools:', error);
     return [];
   }
 };
@@ -516,6 +520,7 @@ export const fetchTokenPools = async (
     
     return [];
   } catch (error) {
+    console.error('Error in fetchTokenPools:', error);
     return [];
   }
 };
@@ -668,6 +673,7 @@ export const fetchNFTCollectionData = async (
     setCached(cacheKey, nftData);
     return nftData;
   } catch (error) {
+    console.error('Error in fetchNFTWithCoinGeckoBackup:', error);
     return null;
   }
 };
@@ -710,6 +716,7 @@ export const searchNFTCollections = async (
     setCached(cacheKey, filteredNfts);
     return filteredNfts;
   } catch (error) {
+    console.error('Error in searchNFTCollections:', error);
     return [];
   }
 };
@@ -747,6 +754,7 @@ export const fetchNFTCollectionById = async (
     setCached(cacheKey, nftData);
     return nftData;
   } catch (error) {
+    console.error('Error in fetchNFTWithCoinGeckoBackup:', error);
     return null;
   }
 };
@@ -765,7 +773,7 @@ export const fetchNFTWithCoinGeckoBackup = async (
   network: string = 'solana'
 ): Promise<{
   id: string;
-  image: string;
+  image: string | undefined;
   name: string;
   listed: boolean;
   attributes?: { trait_type: string; value: string }[];
@@ -782,6 +790,7 @@ export const fetchNFTWithCoinGeckoBackup = async (
       heliusData = await getNFTByTokenAddress(tokenAddress);
     } catch (error) {
       // Helius fetch failed, fallback to CoinGecko
+      console.error('Failed to fetch NFT data from Helius:', error);
     }
 
     // Get CoinGecko collection data as backup/enhancement
@@ -802,7 +811,7 @@ export const fetchNFTWithCoinGeckoBackup = async (
     if (coinGeckoData) {
       return {
         id: tokenAddress,
-        image: coinGeckoData.fallback_image || '/fallback.png',
+        image: coinGeckoData.fallback_image || undefined,
         name: coinGeckoData.collection.name || 'Unknown NFT',
         listed: false,
         symbol: coinGeckoData.collection.symbol,
@@ -818,6 +827,7 @@ export const fetchNFTWithCoinGeckoBackup = async (
 
     return null;
   } catch (error) {
+    console.error('Error in fetchNFTWithCoinGeckoBackup:', error);
     return null;
   }
 };

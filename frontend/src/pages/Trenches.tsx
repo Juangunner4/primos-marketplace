@@ -106,29 +106,13 @@ const Trenches: React.FC = () => {
   const logNetworkError = (url: string, err: any) => {
     const status = err?.response?.status;
     const message = err?.message || 'Unknown error';
-    console.error(`🌐 Network error for ${url}:`, { status, message });
+    // console.error(`🌐 Network error for ${url}:`, { status, message });
     setDebugInfo((prev) => ({
       ...prev,
       networkErrors: [...prev.networkErrors, { url, status, message }],
     }));
   };
 
-  // Enhanced debugging console logs
-  console.log('🔍 Trenches Debug - Component State:', { 
-    publicKey: publicKey?.toBase58(), 
-    isHolder, 
-    dataContracts: data.contracts.length,
-    dataUsers: data.users.length,
-    loading,
-    adding,
-    connectionPresent: !!connection,
-    environmentVars: {
-      primoCollection: !!PRIMO_COLLECTION,
-      nodeEnv: process.env.NODE_ENV,
-      backendUrl: process.env.REACT_APP_BACKEND_URL
-    },
-    debugInfo
-  });
 
   const canSubmit = !!publicKey && isHolder;
 
@@ -153,7 +137,6 @@ const Trenches: React.FC = () => {
   }, [data]);
 
   const load = async (showSpinner = true) => {
-    console.log('🚀 Load function started', { showSpinner });
     if (showSpinner) setLoading(true);
     
     // Update debug info
@@ -165,10 +148,7 @@ const Trenches: React.FC = () => {
     }));
 
     try {
-      console.log('📡 Making API call to /api/trench...');
       const res = await api.get<TrenchData>('/api/trench');
-      console.log('✅ API call successful:', res.data);
-
       const resData = (res.data || {}) as Partial<TrenchData>;
       const contractsArr = Array.isArray(resData.contracts) ? resData.contracts : [];
       const usersArr = Array.isArray(resData.users) ? resData.users : [];
@@ -210,7 +190,6 @@ const Trenches: React.FC = () => {
             logNetworkError(`getNFTByTokenAddress(${c.contract})`, new Error('No NFT data'));
           }
         } catch (err) {
-          console.warn('Failed to fetch NFT for contract:', c.contract, err);
           logNetworkError(`getNFTByTokenAddress(${c.contract})`, err);
         }
 
@@ -245,7 +224,6 @@ const Trenches: React.FC = () => {
             }));
           }
         } catch (err) {
-          console.warn('Failed to fetch market data for contract:', c.contract, err);
           logNetworkError(`fetchSimpleTokenPrice(${c.contract})`, err);
         }
       });
@@ -267,7 +245,6 @@ const Trenches: React.FC = () => {
             }
           }
         } catch (err) {
-          console.warn('Failed to fetch PFP for user:', u.publicKey, err);
           logNetworkError(`userPfp(${u.publicKey})`, err);
         }
         if (!image) {
@@ -281,7 +258,6 @@ const Trenches: React.FC = () => {
         }));
       });
     } catch (err) {
-      console.error('❌ Failed to load trench data:', err);
       logNetworkError('/api/trench', err);
       
       // Enhanced error logging
@@ -296,7 +272,6 @@ const Trenches: React.FC = () => {
         )
       };
       
-      console.error('🔍 Error details:', errorDetails);
       
       setDebugInfo(prev => ({
         ...prev,
@@ -310,16 +285,12 @@ const Trenches: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('🎯 Trenches useEffect triggered');
     setDebugInfo(prev => ({ ...prev, renderAttempted: true }));
     
     const initializeComponent = async () => {
       try {
-        console.log('🔄 Initializing Trenches component...');
         await load();
-        console.log('✅ Component initialization completed successfully');
       } catch (error) {
-        console.error('❌ Error during component initialization:', error);
         setDebugInfo(prev => ({
           ...prev,
           lastError: error instanceof Error ? error : new Error(String(error))
@@ -362,7 +333,6 @@ const Trenches: React.FC = () => {
                 marketCap = tokenData.usd_market_cap;
               }
             } catch (e) {
-              console.warn('Failed to fetch market cap for token:', e);
             }
           }
         }
@@ -399,14 +369,6 @@ const Trenches: React.FC = () => {
     setMessage({ text: t('contract_copied'), type: 'success' });
   };
 
-  // Additional render tracking
-  console.log('🎨 Trenches render cycle:', {
-    timestamp: new Date().toISOString(),
-    hasData: data.contracts.length > 0,
-    isLoading: loading,
-    hasError: !!message && message.type === 'error',
-    debugInfo
-  });
 
   return (
     <Box className="experiment-container">

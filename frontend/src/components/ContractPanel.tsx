@@ -31,11 +31,11 @@ import { Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import {
   fetchTokenMetadata,
-  fetchNFTMetadataWithBackup,
   fetchTokenInfo,
   TokenMetadata,
   TokenInfo,
 } from '../services/token';
+import { resolvePfpImage } from '../services/user';
 import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
 import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool } from '../services/coingecko';
 import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
@@ -55,9 +55,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   const { t } = useTranslation();
   const { publicKey } = useWallet();
   const wallet = publicKey?.toBase58();
-  
+
   const [token, setToken] = useState<TokenMetadata | null>(null);
-  const [enhancedToken, setEnhancedToken] = useState<TokenMetadata | null>(null);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [coinGeckoData, setCoinGeckoData] = useState<CoinGeckoEntry[]>([]);
   const [tokenHolders, setTokenHolders] = useState<TokenHolder[]>([]);
@@ -83,7 +82,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   const [marketCapLoading, setMarketCapLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Debug info for AdminDeveloperConsole
   const [debugInfo, setDebugInfo] = useState({
     apiCallAttempted: false,
@@ -100,11 +99,14 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       trenchDataLoaded: false,
       firstCallerFound: false,
       pfpLoaded: false,
+      pfpLoadAttempted: false,
+      pfpLoadSuccess: false,
+      pfpLoadError: null as string | null,
+      userDataFound: false,
       marketCapFetched: false,
       coinGeckoLoaded: false,
       latestCallersCount: 0,
       tokenMetadataLoaded: false,
-      enhancedTokenLoaded: false,
       tokenInfoLoaded: false
     }
   });
@@ -151,9 +153,100 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     return `https://axiom.trade/@${trimmed.replace(/^@/, '')}`;
   };
 
+  // Helper function to safely get PFP image URL
+  const getSafePfpUrl = (pfp: string | undefined | null): string | undefined => {
+    if (!pfp || pfp === 'undefined' || pfp === 'null') {
+      return undefined;
+    }
+
+    // Check if it's already a valid image URL
+    if (pfp.startsWith('http://') || pfp.startsWith('https://') || pfp.startsWith('data:')) {
+      return pfp;
+    }
+
+    // If it looks like a token address (not an image URL), don't use it
+    if (pfp.length > 30 && !pfp.includes('.') && !pfp.includes('/')) {
+      return undefined;
+    }
+
+    return pfp;
+  };
+
   const handleCopyContract = () => {
     if (contract) {
       navigator.clipboard.writeText(contract);
+    }
+  };
+
+  // Add this separate function
+  const loadPfpData = async () => {
+    console.log('ContractPanel PFP Load - Starting PFP data load for contract:', contract);
+    if (!contract) return;
+    
+    try {
+      console.log('ContractPanel PFP Load - Fetching trench data for PFP resolution...');
+      const d: TrenchData = await fetchTrenchData();
+      const rec = d.contracts.find(cc => cc.contract === contract);
+      console.log('ContractPanel PFP Load - Found contract record:', rec ? 'Yes' : 'No', rec?.firstCaller ? `(First caller: ${rec.firstCaller})` : '');
+      
+      if (rec?.firstCaller) {
+        console.log('ContractPanel PFP Load - Processing first caller:', rec.firstCaller);
+        const user = d.users.find(u => u.publicKey === rec.firstCaller);
+        console.log('ContractPanel PFP Load - Found user data:', user ? 'Yes' : 'No', user?.pfp ? `(PFP: ${user.pfp})` : '(No PFP)');
+        
+        console.log('ContractPanel PFP Load - Calling resolvePfpImage...');
+        const pfpImage = await resolvePfpImage(user?.pfp, rec.firstCaller);
+        console.log('ContractPanel PFP Load - PFP image resolved:', pfpImage || 'Empty result');
+        
+        // Update PFP debug info for AdminDeveloperConsole
+        setDebugInfo(prev => ({
+          ...prev,
+          contractPanelData: {
+            ...prev.contractPanelData,
+            pfpLoadAttempted: true,
+            pfpLoadSuccess: !!pfpImage,
+            firstCallerFound: !!rec.firstCaller,
+            userDataFound: !!user
+          }
+        }));
+        
+        console.log('ContractPanel PFP Load - Updating caller info with PFP data...');
+        // Update only the PFP part of callerInfo
+        setCallerInfo(prev => prev ? { ...prev, pfp: pfpImage } : {
+          publicKey: rec.firstCaller!, // Use non-null assertion since we checked above
+          pfp: pfpImage,
+          at: rec.firstCallerAt,
+          marketCap: rec.firstCallerMarketCap,
+          domain: rec.firstCallerDomain,
+          twitter: user?.socials?.twitter || '',
+          slingshot: user?.socials?.slingshot || '',
+          axiom: user?.socials?.axiom || '',
+          vector: user?.socials?.vector || '',
+        });
+        console.log('ContractPanel PFP Load - Caller info updated successfully');
+      } else {
+        console.log('ContractPanel PFP Load - No first caller found for contract');
+        setDebugInfo(prev => ({
+          ...prev,
+          contractPanelData: {
+            ...prev.contractPanelData,
+            pfpLoadAttempted: true,
+            pfpLoadSuccess: false,
+            firstCallerFound: false
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('ContractPanel PFP Load - Failed to load PFP data:', error);
+      setDebugInfo(prev => ({
+        ...prev,
+        contractPanelData: {
+          ...prev.contractPanelData,
+          pfpLoadAttempted: true,
+          pfpLoadSuccess: false,
+          pfpLoadError: error instanceof Error ? error.message : 'Unknown error'
+        }
+      }));
     }
   };
 
@@ -185,9 +278,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           contractPanelData: { ...prev.contractPanelData, firstCallerFound: true }
         }));
         const user = d.users.find(u => u.publicKey === rec.firstCaller);
-        // Use raw pfp string from backend - resolvePfpImage commented out
-        const pfpImage = user?.pfp || '';
-        setDebugInfo(prev => ({
+        const pfpImage = await resolvePfpImage(user?.pfp, rec.firstCaller); setDebugInfo(prev => ({
           ...prev,
           contractPanelData: { ...prev.contractPanelData, pfpLoaded: !!pfpImage }
         }));
@@ -204,11 +295,12 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         });
       }
       if (contract && d.latestCallers[contract]) {
-        // Use raw pfp strings for latest callers - resolvePfpImage commented out
-        const callersWithPfp = d.latestCallers[contract].map(caller => ({
-          ...caller,
-          pfp: caller.pfp || ''
-        }));
+        const callersWithPfp = await Promise.all(
+          d.latestCallers[contract].map(async (caller) => {
+            const pfpImage = await resolvePfpImage(caller.pfp, caller.caller);
+            return { ...caller, pfp: pfpImage };
+          })
+        );
         setLatestCallers(callersWithPfp);
       } else {
         setLatestCallers([]);
@@ -233,8 +325,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const holders = await getTokenLargestAccounts(contract, 10);
       setTokenHolders(holders);
     } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         networkErrors: [...prev.networkErrors, {
           url: 'Helius token holders API',
           message: error instanceof Error ? error.message : 'Failed to load token holders'
@@ -259,8 +351,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const pools = await fetchTokenPools(contract, 'solana', 5);
       setLiquidityPools(pools);
     } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         networkErrors: [...prev.networkErrors, {
           url: 'CoinGecko pools API',
           message: error instanceof Error ? error.message : 'Failed to load liquidity pools'
@@ -298,8 +390,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const likes = await getLikes(contract, wallet);
       setTokenLikes(likes);
     } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         networkErrors: [...prev.networkErrors, {
           url: '/api/likes',
           message: error instanceof Error ? error.message : 'Failed to load token likes'
@@ -315,8 +407,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const reactions = await getTokenReactions(contract, wallet);
       setTokenReactions(reactions);
     } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         networkErrors: [...prev.networkErrors, {
           url: '/api/token-reactions',
           message: error instanceof Error ? error.message : 'Failed to load token reactions'
@@ -332,8 +424,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const result = await toggleLike(contract, wallet);
       setTokenLikes(result);
     } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         networkErrors: [...prev.networkErrors, {
           url: '/api/likes toggle',
           message: error instanceof Error ? error.message : 'Failed to toggle token like'
@@ -348,8 +440,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const result = await toggleTokenDislike(contract, wallet);
       setTokenReactions(result);
     } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         networkErrors: [...prev.networkErrors, {
           url: '/api/token-reactions dislike',
           message: error instanceof Error ? error.message : 'Failed to toggle token dislike'
@@ -364,8 +456,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const result = await toggleTokenLike(contract, wallet);
       setTokenReactions(result);
     } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         networkErrors: [...prev.networkErrors, {
           url: '/api/token-reactions like',
           message: error instanceof Error ? error.message : 'Failed to toggle token reaction like'
@@ -378,28 +470,27 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     if (!open || !contract) return;
     setLoading(true);
     setError(null);
-    
+
     const loadData = async () => {
       try {
         // Detect network based on contract format
         const network = /^0x[0-9a-fA-F]{40}$/i.test(contract) ? 'ethereum' : 'solana';
-        
-        setDebugInfo(prev => ({ 
-          ...prev, 
-          contractPanelData: { 
-            ...prev.contractPanelData, 
+
+        setDebugInfo(prev => ({
+          ...prev,
+          contractPanelData: {
+            ...prev.contractPanelData,
             networkDetected: network,
             contractAddress: contract
           }
         }));
-        
+
         // Load core data first (without CoinGecko to avoid interference)
-        const [tok, enhancedTok, info] = await Promise.all([
+        const [tok, info] = await Promise.all([
           fetchTokenMetadata(contract).catch(() => null),
-          fetchNFTMetadataWithBackup(contract, process.env.REACT_APP_PRIMOS_COLLECTION).catch(() => null),
           fetchTokenInfo(contract).catch((err) => {
-            setDebugInfo(prev => ({ 
-              ...prev, 
+            setDebugInfo(prev => ({
+              ...prev,
               networkErrors: [...prev.networkErrors, {
                 url: 'Helius token info API',
                 message: err instanceof Error ? err.message : 'fetchTokenInfo error'
@@ -408,37 +499,35 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             return null;
           }),
         ]);
-        
-        setDebugInfo(prev => ({ 
-          ...prev, 
-          contractPanelData: { 
+
+        setDebugInfo(prev => ({
+          ...prev,
+          contractPanelData: {
             ...prev.contractPanelData,
             tokenMetadataLoaded: !!tok,
-            enhancedTokenLoaded: !!enhancedTok,
             tokenInfoLoaded: !!info
           }
         }));
-        
+
         setToken(tok);
-        setEnhancedToken(enhancedTok);
         setTokenInfo(info);
-        
+
         // Load trench data (PFPs and caller info)
         await loadTrenchData();
         await loadTokenLikes();
         await loadTokenReactions();
-        
+
         // Load CoinGecko data separately to avoid interference with PFP loading
         try {
           const geckoData = await fetchCoinGeckoData(contract, network);
           setCoinGeckoData(geckoData);
-          setDebugInfo(prev => ({ 
-            ...prev, 
+          setDebugInfo(prev => ({
+            ...prev,
             contractPanelData: { ...prev.contractPanelData, coinGeckoLoaded: true }
           }));
         } catch (err) {
-          setDebugInfo(prev => ({ 
-            ...prev, 
+          setDebugInfo(prev => ({
+            ...prev,
             networkErrors: [...prev.networkErrors, {
               url: 'CoinGecko API',
               message: err instanceof Error ? err.message : 'fetchCoinGeckoData error'
@@ -449,8 +538,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         await loadTokenReactions();
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Failed to load token data';
-        setDebugInfo(prev => ({ 
-          ...prev, 
+        setDebugInfo(prev => ({
+          ...prev,
           lastError: error instanceof Error ? error : new Error(errorMsg)
         }));
         setError(t('token_error'));
@@ -458,9 +547,20 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, [open, contract, t]);
+
+  // Separate useEffect for PFP loading with timeout to avoid race conditions
+  useEffect(() => {
+    if (!open || !contract) return;
+    
+    const timeoutId = setTimeout(() => {
+      loadPfpData();
+    }, 500); // Load PFP data after initial data is loaded
+    
+    return () => clearTimeout(timeoutId);
+  }, [open, contract]);
 
   useEffect(() => {
     if (open) return;
@@ -528,17 +628,17 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                 }
               </Typography>
             </Box>
-            
+
             {/* User Info Row */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <Box sx={{ position: 'relative', display: 'inline-block' }} className="first-caller-avatar-container">
                 <Link to={`/user/${callerInfo.publicKey}`} style={{ textDecoration: 'none' }}>
                   <Avatar
-                    src={callerInfo.pfp}
+                    src={getSafePfpUrl(callerInfo.pfp)}
                     alt={callerInfo.publicKey.slice(0, 2).toUpperCase()}
-                    sx={{ 
-                      width: 40, 
-                      height: 40, 
+                    sx={{
+                      width: 40,
+                      height: 40,
                       cursor: 'pointer',
                       backgroundColor: '#1976d2',
                       color: '#fff',
@@ -690,7 +790,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             </Box>
           </Box>
         )}
-        
+
         {/* Latest Callers */}
         {latestCallers.length > 0 && (
           <Box sx={{ mb: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
@@ -699,24 +799,24 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2 }}>
               {latestCallers.map((caller, index) => (
-                <Box 
-                  key={`${caller.caller}-${index}`} 
-                  sx={{ 
-                    p: 1.5, 
-                    backgroundColor: '#f9f9f9', 
-                    borderRadius: 1, 
-                    border: '1px solid #ddd' 
+                <Box
+                  key={`${caller.caller}-${index}`}
+                  sx={{
+                    p: 1.5,
+                    backgroundColor: '#f9f9f9',
+                    borderRadius: 1,
+                    border: '1px solid #ddd'
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                     <Box sx={{ position: 'relative', display: 'inline-block' }}>
                       <Link to={`/user/${caller.caller}`} style={{ textDecoration: 'none' }}>
-                        <Avatar 
-                          src={caller.pfp} 
+                        <Avatar
+                          src={getSafePfpUrl(caller.pfp)}
                           alt={caller.caller.slice(0, 2).toUpperCase()}
-                          sx={{ 
-                            width: 32, 
-                            height: 32, 
+                          sx={{
+                            width: 32,
+                            height: 32,
                             cursor: 'pointer',
                             backgroundColor: '#1976d2',
                             color: '#fff',
@@ -747,8 +847,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                       )}
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography variant="body2" sx={{ 
-                        wordBreak: 'break-all', 
+                      <Typography variant="body2" sx={{
+                        wordBreak: 'break-all',
                         fontWeight: 'bold',
                         fontSize: '0.75rem',
                         overflow: 'hidden',
@@ -778,14 +878,14 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             </Box>
           </Box>
         )}
-        
+
         <Box className="contract-panels">
           <Box className="token-panel">
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography className="dialog-title">{t('token_metadata')}</Typography>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: 1,
                 padding: '4px 8px',
                 borderRadius: '8px',
@@ -798,14 +898,14 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     {tokenReactions.likes}
                   </Typography>
                   {wallet && (
-                    <IconButton 
-                      size="small" 
-                      onClick={handleToggleTokenReactionLike} 
+                    <IconButton
+                      size="small"
+                      onClick={handleToggleTokenReactionLike}
                       aria-label={tokenReactions.userReaction === 'LIKE' ? t('unlike_token') : t('like_token')}
-                      sx={{ 
+                      sx={{
                         padding: '4px',
-                        '&:hover': { 
-                          backgroundColor: 'rgba(0,0,0,0.04)' 
+                        '&:hover': {
+                          backgroundColor: 'rgba(0,0,0,0.04)'
                         }
                       }}
                     >
@@ -817,21 +917,21 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     </IconButton>
                   )}
                 </Box>
-                
+
                 {/* Dislikes */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <Typography variant="body2" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#333' }}>
                     {tokenReactions.dislikes}
                   </Typography>
                   {wallet && (
-                    <IconButton 
-                      size="small" 
-                      onClick={handleToggleTokenReactionDislike} 
+                    <IconButton
+                      size="small"
+                      onClick={handleToggleTokenReactionDislike}
                       aria-label={tokenReactions.userReaction === 'DISLIKE' ? t('undislike_token') : t('dislike_token')}
-                      sx={{ 
+                      sx={{
                         padding: '4px',
-                        '&:hover': { 
-                          backgroundColor: 'rgba(0,0,0,0.04)' 
+                        '&:hover': {
+                          backgroundColor: 'rgba(0,0,0,0.04)'
                         }
                       }}
                     >
@@ -884,71 +984,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
               <Typography variant="body2">{t('loading')}...</Typography>
             )}
           </Box>
-          
-          {/* Enhanced NFT Metadata with CoinGecko Backup */}
-          {enhancedToken?.collectionData && (
-            <Box className="collection-data-panel">
-              <Typography className="dialog-title">{t('nft_collection_data')}</Typography>
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="caption" sx={{ color: '#666', mb: 1, display: 'block' }}>
-                  {t('coingecko_backup')}
-                </Typography>
-                <Box className="collection-data-grid">
-                  {enhancedToken.collectionData.floorPrice && (
-                    <Box className="collection-data-item">
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
-                        {t('collection_floor_price')}:
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
-                        {enhancedToken.collectionData.floorPrice}
-                      </Typography>
-                    </Box>
-                  )}
-                  {enhancedToken.collectionData.marketCap && (
-                    <Box className="collection-data-item">
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
-                        {t('collection_market_cap')}:
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
-                        {enhancedToken.collectionData.marketCap}
-                      </Typography>
-                    </Box>
-                  )}
-                  {enhancedToken.collectionData.volume24h && (
-                    <Box className="collection-data-item">
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
-                        {t('collection_volume_24h')}:
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
-                        {enhancedToken.collectionData.volume24h}
-                      </Typography>
-                    </Box>
-                  )}
-                  {enhancedToken.collectionData.totalSupply && (
-                    <Box className="collection-data-item">
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
-                        {t('collection_total_supply')}:
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
-                        {enhancedToken.collectionData.totalSupply}
-                      </Typography>
-                    </Box>
-                  )}
-                  {enhancedToken.collectionData.uniqueHolders && (
-                    <Box className="collection-data-item">
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4169e1' }}>
-                        {t('collection_unique_holders')}:
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#2d3748' }}>
-                        {enhancedToken.collectionData.uniqueHolders}
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            </Box>
-          )}
-          
+
           <Box className="market-data-panel">
             <Typography className="dialog-title">{t('market_data')}</Typography>
             <Box className="market-data-list" sx={{ mt: 1 }}>
@@ -965,10 +1001,10 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                       {entry.value}
                     </Typography>
                     {entry.change && (
-                      <Typography 
-                        variant="body2" 
-                        component="div" 
-                        sx={{ 
+                      <Typography
+                        variant="body2"
+                        component="div"
+                        sx={{
                           color: entry.change.startsWith('-') ? '#f44336' : '#4caf50',
                           fontSize: '0.875rem',
                           fontWeight: 'bold',
@@ -983,16 +1019,16 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                   </Box>
                 </Box>
               ))}
-              
+
               {/* Token Holders Section */}
               <Box sx={{ mt: 2 }}>
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    p: 1, 
-                    backgroundColor: '#fafafa', 
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 1,
+                    backgroundColor: '#fafafa',
                     borderRadius: 0.5,
                     cursor: 'pointer',
                     '&:hover': { backgroundColor: '#f0f0f0' }
@@ -1009,22 +1045,26 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     {holdersExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
                   </IconButton>
                 </Box>
-                
-                <Collapse in={holdersExpanded}>
-                  <Box sx={{ mt: 1, border: '1px solid #ddd', borderRadius: 0.5, backgroundColor: '#fff' }}>
-                    {holdersLoading ? (
+
+                {/* Extracted token holders content into a variable to avoid nested ternary */}
+                {(() => {
+                  let holdersContent: React.ReactNode;
+                  if (holdersLoading) {
+                    holdersContent = (
                       <Box sx={{ p: 2, textAlign: 'center' }}>
                         <Typography variant="body2" sx={{ color: '#666' }}>
                           {t('loading')}...
                         </Typography>
                       </Box>
-                    ) : tokenHolders.length > 0 ? (
+                    );
+                  } else if (tokenHolders.length > 0) {
+                    holdersContent = (
                       <List dense sx={{ py: 0 }}>
                         {tokenHolders.map((holder, index) => (
                           <React.Fragment key={holder.address}>
-                            <ListItem 
-                              sx={{ 
-                                py: 1, 
+                            <ListItem
+                              sx={{
+                                py: 1,
                                 px: 2,
                                 '&:hover': { backgroundColor: '#f9f9f9' }
                               }}
@@ -1047,8 +1087,8 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                                       </Typography>
                                       <Typography
                                         variant="body2"
-                                        sx={{ 
-                                          fontFamily: 'monospace', 
+                                        sx={{
+                                          fontFamily: 'monospace',
                                           cursor: 'pointer',
                                           '&:hover': { textDecoration: 'underline' }
                                         }}
@@ -1083,26 +1123,35 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                           </React.Fragment>
                         ))}
                       </List>
-                    ) : (
+                    );
+                  } else {
+                    holdersContent = (
                       <Box sx={{ p: 2, textAlign: 'center' }}>
                         <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
                           {t('no_holders_data')}
                         </Typography>
                       </Box>
-                    )}
-                  </Box>
-                </Collapse>
+                    );
+                  }
+                  return (
+                    <Collapse in={holdersExpanded}>
+                      <Box sx={{ mt: 1, border: '1px solid #ddd', borderRadius: 0.5, backgroundColor: '#fff' }}>
+                        {holdersContent}
+                      </Box>
+                    </Collapse>
+                  );
+                })()}
               </Box>
-              
+
               {/* Liquidity Pools Section */}
               <Box sx={{ mt: 2 }}>
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    p: 1, 
-                    backgroundColor: '#fafafa', 
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 1,
+                    backgroundColor: '#fafafa',
                     borderRadius: 0.5,
                     cursor: 'pointer',
                     '&:hover': { backgroundColor: '#f0f0f0' }
@@ -1119,22 +1168,26 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     {poolsExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
                   </IconButton>
                 </Box>
-                
-                <Collapse in={poolsExpanded}>
-                  <Box sx={{ mt: 1, border: '1px solid #ddd', borderRadius: 0.5, backgroundColor: '#fff' }}>
-                    {poolsLoading ? (
+
+                {/* Extracted liquidity pools content into a variable to avoid nested ternary */}
+                {(() => {
+                  let poolsContent: React.ReactNode;
+                  if (poolsLoading) {
+                    poolsContent = (
                       <Box sx={{ p: 2, textAlign: 'center' }}>
                         <Typography variant="body2" sx={{ color: '#666' }}>
                           {t('loading')}...
                         </Typography>
                       </Box>
-                    ) : liquidityPools.length > 0 ? (
+                    );
+                  } else if (liquidityPools.length > 0) {
+                    poolsContent = (
                       <List dense sx={{ py: 0 }}>
                         {liquidityPools.map((pool, index) => (
                           <React.Fragment key={pool.id}>
-                            <ListItem 
-                              sx={{ 
-                                py: 1.5, 
+                            <ListItem
+                              sx={{
+                                py: 1.5,
                                 px: 2,
                                 '&:hover': { backgroundColor: '#f9f9f9' }
                               }}
@@ -1146,7 +1199,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                                       <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                                         {pool.name}
                                       </Typography>
-                                      <Typography variant="caption" sx={{ 
+                                      <Typography variant="caption" sx={{
                                         color: pool.priceChange24h.startsWith('-') ? '#f44336' : '#4caf50',
                                         fontWeight: 'bold',
                                         backgroundColor: pool.priceChange24h.startsWith('-') ? '#ffebee' : '#e8f5e8',
@@ -1172,10 +1225,10 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                                         Volume 24h: {pool.volume24h}
                                       </Typography>
                                     </Box>
-                                    <Typography 
-                                      variant="caption" 
-                                      sx={{ 
-                                        fontFamily: 'monospace', 
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        fontFamily: 'monospace',
                                         cursor: 'pointer',
                                         '&:hover': { textDecoration: 'underline' },
                                         color: '#999',
@@ -1194,17 +1247,26 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                           </React.Fragment>
                         ))}
                       </List>
-                    ) : (
+                    );
+                  } else {
+                    poolsContent = (
                       <Box sx={{ p: 2, textAlign: 'center' }}>
                         <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
                           {t('no_pools_data')}
                         </Typography>
                       </Box>
-                    )}
-                  </Box>
-                </Collapse>
+                    );
+                  }
+                  return (
+                    <Collapse in={poolsExpanded}>
+                      <Box sx={{ mt: 1, border: '1px solid #ddd', borderRadius: 0.5, backgroundColor: '#fff' }}>
+                        {poolsContent}
+                      </Box>
+                    </Collapse>
+                  );
+                })()}
               </Box>
-              
+
               {coinGeckoData.length === 0 && (
                 <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
                   {loading ? `${t('loading')}...` : t('no_market_data')}
@@ -1214,7 +1276,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           </Box>
         </Box>
       </Dialog.Content>
-      
+
       {/* Admin Developer Console */}
       <AdminDeveloperConsole
         debugInfo={debugInfo}
@@ -1224,7 +1286,6 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           contract,
           marketCapLoading,
           tokenLoaded: !!token,
-          enhancedTokenLoaded: !!enhancedToken,
           tokenInfoLoaded: !!tokenInfo,
           coinGeckoDataCount: coinGeckoData.length,
           tokenHoldersCount: tokenHolders.length,
