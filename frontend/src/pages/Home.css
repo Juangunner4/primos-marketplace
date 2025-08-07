@@ -52,6 +52,21 @@
   border-color: #666;
 }
 
+/* Desktop styles for larger bubbles (screens > 700px) */
+@media (min-width: 701px) {
+  .market-cap-tag {
+    left: -75px; /* Adjusted for larger bubbles */
+    font-size: 8px; /* Slightly larger text for bigger bubbles */
+    padding: 1px 4px;
+  }
+  
+  .price-change-tag {
+    left: -75px; /* Adjusted for larger bubbles */
+    font-size: 8px; /* Slightly larger text for bigger bubbles */
+    padding: 1px 4px;
+  }
+}
+
 @media (max-width: 600px) {
   .market-cap-tag {
     left: -45px;

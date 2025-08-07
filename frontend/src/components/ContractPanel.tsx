@@ -42,6 +42,7 @@ import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
 import { fetchUserPfpImage } from '../services/user';
 import { getLikes, toggleLike } from '../utils/likes';
 import { getTokenReactions, toggleTokenLike, toggleTokenDislike, TokenReactionData } from '../utils/tokenReactions';
+import AdminDeveloperConsole from './AdminDeveloperConsole';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
@@ -83,6 +84,31 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   const [marketCapLoading, setMarketCapLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Debug info for AdminDeveloperConsole
+  const [debugInfo, setDebugInfo] = useState({
+    apiCallAttempted: false,
+    apiCallSuccess: false,
+    apiCallError: null as string | null,
+    contractsLoaded: 0,
+    usersLoaded: 0,
+    renderAttempted: true,
+    lastError: null as Error | null,
+    networkErrors: [] as { url: string; status?: number; message: string }[],
+    contractPanelData: {
+      contractAddress: contract || '',
+      networkDetected: '',
+      trenchDataLoaded: false,
+      firstCallerFound: false,
+      pfpLoaded: false,
+      marketCapFetched: false,
+      coinGeckoLoaded: false,
+      latestCallersCount: 0,
+      tokenMetadataLoaded: false,
+      enhancedTokenLoaded: false,
+      tokenInfoLoaded: false
+    }
+  });
 
   // Format large numbers into human-readable strings with suffixes
   const formatMarketCap = (cap: number): string => {
@@ -138,14 +164,45 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       prev ? { ...prev, marketCap: undefined } : prev
     );
     try {
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        apiCallAttempted: true,
+        contractPanelData: { ...prev.contractPanelData, contractAddress: contract || '' }
+      }));
+      
       const d: TrenchData = await fetchTrenchData();
+      
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        apiCallSuccess: true,
+        contractsLoaded: d.contracts.length,
+        usersLoaded: d.users.length,
+        contractPanelData: { 
+          ...prev.contractPanelData, 
+          trenchDataLoaded: true,
+          latestCallersCount: d.latestCallers[contract || '']?.length || 0
+        }
+      }));
+      
       const rec = d.contracts.find((cc) => cc.contract === contract);
       if (rec?.firstCaller) {
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          contractPanelData: { ...prev.contractPanelData, firstCallerFound: true }
+        }));
+        
         const user = d.users.find((u) => u.publicKey === rec.firstCaller);
         let pfp = user?.pfp || '';
+        
         if (!pfp) {
           pfp = await fetchUserPfpImage(rec.firstCaller);
         }
+        
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          contractPanelData: { ...prev.contractPanelData, pfpLoaded: !!pfp }
+        }));
+        
         setCallerInfo({
           publicKey: rec.firstCaller,
           pfp,
@@ -160,7 +217,6 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
 
         // If market cap is missing, try to fetch current market cap
         if (!rec.firstCallerMarketCap && contract) {
-          console.log('🔄 Market cap missing, fetching current market cap for contract:', contract);
           try {
             let currentMarketCap: number | undefined;
             
@@ -175,7 +231,11 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             }
 
             if (currentMarketCap) {
-              console.log('✅ Updated market cap for contract:', contract, 'Market Cap:', currentMarketCap);
+              setDebugInfo(prev => ({ 
+                ...prev, 
+                contractPanelData: { ...prev.contractPanelData, marketCapFetched: true }
+              }));
+              
               setCallerInfo((prev) =>
                 prev ? { ...prev, marketCap: currentMarketCap } : prev
               );
@@ -183,19 +243,33 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
               // Update the backend with the new market cap
               try {
                 const result = await updateContractMarketCap(contract, currentMarketCap);
-                if (result.success) {
-                  console.log('✅ Market cap persisted to backend:', result.message);
-                } else {
-                  console.log('⚠️ Backend update failed:', result.message);
+                if (!result.success) {
+                  setDebugInfo(prev => ({ 
+                    ...prev, 
+                    networkErrors: [...prev.networkErrors, {
+                      url: `/api/trench/${contract}/market-cap`,
+                      message: result.message || 'Backend update failed'
+                    }]
+                  }));
                 }
               } catch (error) {
-                console.error('❌ Failed to persist market cap to backend:', error);
+                setDebugInfo(prev => ({ 
+                  ...prev, 
+                  networkErrors: [...prev.networkErrors, {
+                    url: `/api/trench/${contract}/market-cap`,
+                    message: error instanceof Error ? error.message : 'Failed to persist market cap to backend'
+                  }]
+                }));
               }
-            } else {
-              console.log('⚠️ No market cap data available for contract:', contract);
             }
           } catch (error) {
-            console.error('❌ Failed to fetch current market cap for contract:', contract, error);
+            setDebugInfo(prev => ({ 
+              ...prev, 
+              networkErrors: [...prev.networkErrors, {
+                url: 'CoinGecko API',
+                message: error instanceof Error ? error.message : 'Failed to fetch current market cap'
+              }]
+            }));
           }
         }
       }
@@ -203,9 +277,17 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       // Set latest callers for this contract
       if (contract && d.latestCallers[contract]) {
         setLatestCallers(d.latestCallers[contract]);
+      } else {
+        setLatestCallers([]);
       }
     } catch (error) {
-      console.error('Failed to load trench data:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load trench data';
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        apiCallSuccess: false,
+        apiCallError: errorMsg,
+        lastError: error instanceof Error ? error : new Error(errorMsg)
+      }));
     } finally {
       setMarketCapLoading(false);
     }
@@ -218,7 +300,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const holders = await getTokenLargestAccounts(contract, 10);
       setTokenHolders(holders);
     } catch (error) {
-      console.error('Failed to load token holders:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: 'Helius token holders API',
+          message: error instanceof Error ? error.message : 'Failed to load token holders'
+        }]
+      }));
     } finally {
       setHoldersLoading(false);
     }
@@ -238,7 +326,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const pools = await fetchTokenPools(contract, 'solana', 5);
       setLiquidityPools(pools);
     } catch (error) {
-      console.error('Failed to load liquidity pools:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: 'CoinGecko pools API',
+          message: error instanceof Error ? error.message : 'Failed to load liquidity pools'
+        }]
+      }));
     } finally {
       setPoolsLoading(false);
     }
@@ -271,7 +365,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const likes = await getLikes(contract, wallet);
       setTokenLikes(likes);
     } catch (error) {
-      console.error('Failed to load token likes:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: '/api/likes',
+          message: error instanceof Error ? error.message : 'Failed to load token likes'
+        }]
+      }));
       setTokenLikes({ count: 0, liked: false });
     }
   };
@@ -282,7 +382,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const reactions = await getTokenReactions(contract, wallet);
       setTokenReactions(reactions);
     } catch (error) {
-      console.error('Failed to load token reactions:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: '/api/token-reactions',
+          message: error instanceof Error ? error.message : 'Failed to load token reactions'
+        }]
+      }));
       setTokenReactions({ likes: 0, dislikes: 0, userReaction: null });
     }
   };
@@ -293,7 +399,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const result = await toggleLike(contract, wallet);
       setTokenLikes(result);
     } catch (error) {
-      console.error('Failed to toggle token like:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: '/api/likes toggle',
+          message: error instanceof Error ? error.message : 'Failed to toggle token like'
+        }]
+      }));
     }
   };
 
@@ -303,7 +415,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const result = await toggleTokenLike(contract, wallet);
       setTokenReactions(result);
     } catch (error) {
-      console.error('Failed to toggle token like:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: '/api/token-reactions like',
+          message: error instanceof Error ? error.message : 'Failed to toggle token like'
+        }]
+      }));
     }
   };
 
@@ -313,7 +431,13 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
       const result = await toggleTokenDislike(contract, wallet);
       setTokenReactions(result);
     } catch (error) {
-      console.error('Failed to toggle token dislike:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: '/api/token-reactions dislike',
+          message: error instanceof Error ? error.message : 'Failed to toggle token dislike'
+        }]
+      }));
     }
   };
 
@@ -324,28 +448,78 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     
     const loadData = async () => {
       try {
-        const [tok, enhancedTok, info, geckoData] = await Promise.all([
+        // Detect network based on contract format
+        const network = /^0x[0-9a-fA-F]{40}$/i.test(contract) ? 'ethereum' : 'solana';
+        
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          contractPanelData: { 
+            ...prev.contractPanelData, 
+            networkDetected: network,
+            contractAddress: contract
+          }
+        }));
+        
+        // Load core data first (without CoinGecko to avoid interference)
+        const [tok, enhancedTok, info] = await Promise.all([
           fetchTokenMetadata(contract).catch(() => null),
           fetchNFTMetadataWithBackup(contract, process.env.REACT_APP_PRIMOS_COLLECTION).catch(() => null),
           fetchTokenInfo(contract).catch((err) => {
-            console.error('fetchTokenInfo error', err);
+            setDebugInfo(prev => ({ 
+              ...prev, 
+              networkErrors: [...prev.networkErrors, {
+                url: 'Helius token info API',
+                message: err instanceof Error ? err.message : 'fetchTokenInfo error'
+              }]
+            }));
             return null;
           }),
-          fetchCoinGeckoData(contract).catch((err) => {
-            console.error('fetchCoinGeckoData error', err);
-            return [];
-          }),
         ]);
+        
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          contractPanelData: { 
+            ...prev.contractPanelData,
+            tokenMetadataLoaded: !!tok,
+            enhancedTokenLoaded: !!enhancedTok,
+            tokenInfoLoaded: !!info
+          }
+        }));
         
         setToken(tok);
         setEnhancedToken(enhancedTok);
         setTokenInfo(info);
-        setCoinGeckoData(geckoData);
+        
+        // Load trench data (PFPs and caller info)
         await loadTrenchData();
         await loadTokenLikes();
         await loadTokenReactions();
+        
+        // Load CoinGecko data separately to avoid interference with PFP loading
+        try {
+          const geckoData = await fetchCoinGeckoData(contract, network);
+          setCoinGeckoData(geckoData);
+          setDebugInfo(prev => ({ 
+            ...prev, 
+            contractPanelData: { ...prev.contractPanelData, coinGeckoLoaded: true }
+          }));
+        } catch (err) {
+          setDebugInfo(prev => ({ 
+            ...prev, 
+            networkErrors: [...prev.networkErrors, {
+              url: 'CoinGecko API',
+              message: err instanceof Error ? err.message : 'fetchCoinGeckoData error'
+            }]
+          }));
+          setCoinGeckoData([]);
+        }
+        await loadTokenReactions();
       } catch (error) {
-        console.error('Failed to load token data:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Failed to load token data';
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          lastError: error instanceof Error ? error : new Error(errorMsg)
+        }));
         setError(t('token_error'));
       } finally {
         setLoading(false);
@@ -1107,6 +1281,26 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           </Box>
         </Box>
       </Dialog.Content>
+      
+      {/* Admin Developer Console */}
+      <AdminDeveloperConsole
+        debugInfo={debugInfo}
+        componentName="ContractPanel"
+        additionalData={{
+          loading,
+          contract,
+          marketCapLoading,
+          tokenLoaded: !!token,
+          enhancedTokenLoaded: !!enhancedToken,
+          tokenInfoLoaded: !!tokenInfo,
+          coinGeckoDataCount: coinGeckoData.length,
+          tokenHoldersCount: tokenHolders.length,
+          liquidityPoolsCount: liquidityPools.length,
+          callerInfoLoaded: !!callerInfo,
+          latestCallersCount: latestCallers.length,
+          contractPanelDebugData: debugInfo.contractPanelData
+        }}
+      />
     </Dialog.Root>
   );
 };

@@ -66,7 +66,8 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
     environment: true,
     errors: true,
     heliusDebug: true,
-    marketDebug: true
+    marketDebug: true,
+    contractPanelDebug: true
   });
 
   // Only show to admin wallet
@@ -474,6 +475,40 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
                 <br/>
                 <strong>API Endpoints:</strong><br/>
                 {additionalData.marketDebugData.apiEndpoints?.join(', ')}
+              </Typography>
+            </DebugSection>
+          )}
+
+          {/* Contract Panel Debug Data */}
+          {additionalData.contractPanelDebugData && (
+            <DebugSection title="Contract Panel Debug" sectionKey="contractPanelDebug" icon={<ApiIcon sx={{ color: '#000000' }} />}>
+              <Typography variant="body2" sx={{ 
+                fontFamily: 'monospace', 
+                fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                lineHeight: { xs: 1.3, sm: 1.4 }
+              }}>
+                Contract Address: {additionalData.contractPanelDebugData.contractAddress?.slice(0, 8)}...{additionalData.contractPanelDebugData.contractAddress?.slice(-8)}<br/>
+                Network Detected: {additionalData.contractPanelDebugData.networkDetected}<br/>
+                Trench Data Loaded: {additionalData.contractPanelDebugData.trenchDataLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                First Caller Found: {additionalData.contractPanelDebugData.firstCallerFound ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                PFP Loaded: {additionalData.contractPanelDebugData.pfpLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                Market Cap Fetched: {additionalData.contractPanelDebugData.marketCapFetched ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                CoinGecko Loaded: {additionalData.contractPanelDebugData.coinGeckoLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                Latest Callers Count: {additionalData.contractPanelDebugData.latestCallersCount}<br/>
+                Token Metadata Loaded: {additionalData.contractPanelDebugData.tokenMetadataLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                Enhanced Token Loaded: {additionalData.contractPanelDebugData.enhancedTokenLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                Token Info Loaded: {additionalData.contractPanelDebugData.tokenInfoLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                <br/>
+                <strong>Component State:</strong><br/>
+                Loading: {additionalData.loading ? <RefreshIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'orange', verticalAlign: 'middle' }} /> : <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} />}<br/>
+                Market Cap Loading: {additionalData.marketCapLoading ? <RefreshIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'orange', verticalAlign: 'middle' }} /> : <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} />}<br/>
+                Caller Info Loaded: {additionalData.callerInfoLoaded ? <CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> : <CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} />}<br/>
+                <br/>
+                <strong>Data Counts:</strong><br/>
+                CoinGecko Data: {additionalData.coinGeckoDataCount}<br/>
+                Token Holders: {additionalData.tokenHoldersCount}<br/>
+                Liquidity Pools: {additionalData.liquidityPoolsCount}<br/>
+                Latest Callers: {additionalData.latestCallersCount}<br/>
               </Typography>
             </DebugSection>
           )}

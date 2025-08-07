@@ -475,7 +475,6 @@ export const fetchTrendingPools = async (
   try {
     // For now, return empty array since CoinGecko liquidity pools API 
     // requires additional backend proxy setup
-    console.log(`Trending pools requested (limit: ${limit})`);
     
     const pools: LiquidityPool[] = [];
     setCached(cacheKey, pools);
@@ -607,7 +606,6 @@ const processNFTCollectionData = (data: any, contractAddress: string): CoinGecko
 
 // Helper function to try alternative NFT endpoint
 const tryAlternativeNFTEndpoint = async (contractAddress: string, assetPlatformId: string, apiKey?: string): Promise<any> => {
-  console.log(`🔄 Trying alternative NFT endpoint format for ${contractAddress}...`);
   const altUrl = `/api/coingecko/nfts/contract/${contractAddress}?asset_platform_id=${assetPlatformId}` +
     (apiKey ? `&x_cg_demo_api_key=${apiKey}` : '');
   
@@ -619,7 +617,6 @@ const tryAlternativeNFTEndpoint = async (contractAddress: string, assetPlatformI
   }
   
   const altData = await altResponse.json();
-  console.log(`✅ Alternative NFT API successful for ${contractAddress}:`, altData);
   
   return altData?.id ? altData : null;
 };
@@ -657,13 +654,6 @@ export const fetchNFTCollectionData = async (
     const url = `/api/coingecko/nfts/${assetPlatformId}/contract/${contractAddress}` +
       (apiKey ? `?x_cg_demo_api_key=${apiKey}` : '');
 
-    console.log(`🔍 CoinGecko NFT API - Fetching collection data:`, {
-      contractAddress,
-      network,
-      assetPlatformId,
-      url: url.replace(apiKey || '', '[API_KEY]')
-    });
-
     const response = await rateLimitedFetch(url);
 
     let data = null;
@@ -683,13 +673,6 @@ export const fetchNFTCollectionData = async (
       if (!data) return null;
     } else {
       data = await response.json();
-      console.log(`✅ CoinGecko NFT API successful for ${contractAddress}:`, {
-        hasId: !!data?.id,
-        hasName: !!data?.name,
-        hasImage: !!data?.image,
-        hasFloorPrice: !!data?.floor_price,
-        dataKeys: Object.keys(data || {})
-      });
     }
     
     if (!data?.id) {
@@ -726,8 +709,6 @@ export const searchNFTCollections = async (
     const url = `/api/coingecko/search/nfts?query=${encodeURIComponent(query)}` +
       (apiKey ? `&x_cg_demo_api_key=${apiKey}` : '');
 
-    console.log(`🔍 CoinGecko NFT Search - Searching for: "${query}"`);
-
     const response = await rateLimitedFetch(url);
 
     if (!response.ok) {
@@ -743,8 +724,6 @@ export const searchNFTCollections = async (
       ? nfts.filter((nft: any) => nft.asset_platform_id === assetPlatformId)
       : nfts;
 
-    console.log(`✅ CoinGecko NFT Search found ${filteredNfts.length} results for "${query}"`);
-    
     setCached(cacheKey, filteredNfts);
     return filteredNfts;
   } catch (error) {
@@ -769,8 +748,6 @@ export const fetchNFTCollectionById = async (
     const apiKey = process.env.REACT_APP_COINGECKO_API_KEY;
     const url = `/api/coingecko/nfts/${nftId}` +
       (apiKey ? `?x_cg_demo_api_key=${apiKey}` : '');
-
-    console.log(`🔍 CoinGecko NFT API - Fetching by ID: ${nftId}`);
 
     const response = await rateLimitedFetch(url);
 

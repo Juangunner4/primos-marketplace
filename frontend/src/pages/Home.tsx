@@ -436,8 +436,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 <Box key={c.contract} title={c.contract} sx={{ position: 'relative' }}>
                   <Box
                     sx={{
-                      width: 40,
-                      height: 40,
+                      width: { xs: 40, sm: 80 }, // 100% bigger for desktop (screens > 700px)
+                      height: { xs: 40, sm: 80 }, // 100% bigger for desktop (screens > 700px)
                       borderRadius: '50%',
                       backgroundColor: '#000',
                       backgroundImage: c.image ? `url(${c.image})` : undefined,
