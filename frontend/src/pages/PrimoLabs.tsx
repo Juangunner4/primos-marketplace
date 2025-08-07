@@ -13,7 +13,7 @@ import BuildIcon from '@mui/icons-material/Build';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import { enrichUsersWithPfp } from '../services/user';
 import api from '../utils/api';
 import './PrimoLabs.css';
 import { useTranslation } from 'react-i18next';
@@ -40,20 +40,8 @@ const PrimoLabs: React.FC<{ connected?: boolean }> = ({ connected }) => {
         const membersRes = await api.get<Member[]>('/api/user/primos', {
           headers: { 'X-Public-Key': wallet.publicKey?.toBase58() },
         });
-        const enriched = await Promise.all(
-          membersRes.data.map(async (m) => {
-            let image = '';
-            if (m.pfp) {
-              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ''));
-              image = nft?.image ?? '';
-            } else {
-              const nfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
-              image = nfts[0]?.image ?? '';
-            }
-            return { ...m, pfp: image };
-          })
-        );
-        setMembers(enriched);
+        const enriched = await enrichUsersWithPfp(membersRes.data, { useCache: true, useFallback: true });
+        setMembers(enriched.map(m => ({ ...m, pfp: m.pfpImage })));
       } finally {
         setLoadingMembers(false);
       }

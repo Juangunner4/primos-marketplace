@@ -36,10 +36,9 @@ import {
   TokenMetadata,
   TokenInfo,
 } from '../services/token';
-import { fetchTrenchData, TrenchData, TrenchCallerInfo, updateContractMarketCap } from '../services/trench';
-import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool, fetchSimpleTokenPrice } from '../services/coingecko';
+import { fetchTrenchData, TrenchData, TrenchCallerInfo } from '../services/trench';
+import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool } from '../services/coingecko';
 import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
-import { fetchUserPfpImage } from '../services/user';
 import { getLikes, toggleLike } from '../utils/likes';
 import { getTokenReactions, toggleTokenLike, toggleTokenDislike, TokenReactionData } from '../utils/tokenReactions';
 import AdminDeveloperConsole from './AdminDeveloperConsole';
@@ -110,25 +109,6 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     }
   });
 
-  // Helper function to safely get PFP image URL
-  const getSafePfpUrl = (pfp: string | undefined | null): string | undefined => {
-    if (!pfp || pfp === 'undefined' || pfp === 'null') {
-      return undefined;
-    }
-    
-    // Check if it's already a valid image URL
-    if (pfp.startsWith('http://') || pfp.startsWith('https://') || pfp.startsWith('data:')) {
-      return pfp;
-    }
-    
-    // If it looks like a token address (not an image URL), don't use it
-    if (pfp.length > 30 && !pfp.includes('.') && !pfp.includes('/')) {
-      return undefined;
-    }
-    
-    return pfp;
-  };
-
   // Format large numbers into human-readable strings with suffixes
   const formatMarketCap = (cap: number): string => {
     if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
@@ -179,52 +159,41 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
 
   const loadTrenchData = async () => {
     setMarketCapLoading(true);
-    setCallerInfo((prev) =>
-      prev ? { ...prev, marketCap: undefined } : prev
-    );
+    setCallerInfo(prev => prev ? { ...prev, marketCap: undefined } : prev);
     try {
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         apiCallAttempted: true,
         contractPanelData: { ...prev.contractPanelData, contractAddress: contract || '' }
       }));
-      
       const d: TrenchData = await fetchTrenchData();
-      
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         apiCallSuccess: true,
         contractsLoaded: d.contracts.length,
         usersLoaded: d.users.length,
-        contractPanelData: { 
-          ...prev.contractPanelData, 
+        contractPanelData: {
+          ...prev.contractPanelData,
           trenchDataLoaded: true,
           latestCallersCount: d.latestCallers[contract || '']?.length || 0
         }
       }));
-      
-      const rec = d.contracts.find((cc) => cc.contract === contract);
+      const rec = d.contracts.find(cc => cc.contract === contract);
       if (rec?.firstCaller) {
-        setDebugInfo(prev => ({ 
-          ...prev, 
+        setDebugInfo(prev => ({
+          ...prev,
           contractPanelData: { ...prev.contractPanelData, firstCallerFound: true }
         }));
-        
-        const user = d.users.find((u) => u.publicKey === rec.firstCaller);
-        let pfp = user?.pfp || '';
-        
-        if (!pfp) {
-          pfp = await fetchUserPfpImage(rec.firstCaller);
-        }
-        
-        setDebugInfo(prev => ({ 
-          ...prev, 
-          contractPanelData: { ...prev.contractPanelData, pfpLoaded: !!pfp }
+        const user = d.users.find(u => u.publicKey === rec.firstCaller);
+        // Use raw pfp string from backend - resolvePfpImage commented out
+        const pfpImage = user?.pfp || '';
+        setDebugInfo(prev => ({
+          ...prev,
+          contractPanelData: { ...prev.contractPanelData, pfpLoaded: !!pfpImage }
         }));
-        
         setCallerInfo({
           publicKey: rec.firstCaller,
-          pfp,
+          pfp: pfpImage,
           at: rec.firstCallerAt,
           marketCap: rec.firstCallerMarketCap,
           domain: rec.firstCallerDomain,
@@ -233,76 +202,21 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           axiom: user?.socials?.axiom || '',
           vector: user?.socials?.vector || '',
         });
-
-        // If market cap is missing, try to fetch current market cap
-        if (!rec.firstCallerMarketCap && contract) {
-          try {
-            let currentMarketCap: number | undefined;
-            
-            // Check if it's an Ethereum contract (0x format)
-            if (/^0x[0-9a-fA-F]{40}$/i.test(contract)) {
-              const data = await fetchSimpleTokenPrice(contract, 'ethereum');
-              currentMarketCap = data?.usd_market_cap;
-            } else {
-              // Assume Solana contract
-              const data = await fetchSimpleTokenPrice(contract, 'solana');
-              currentMarketCap = data?.usd_market_cap;
-            }
-
-            if (currentMarketCap) {
-              setDebugInfo(prev => ({ 
-                ...prev, 
-                contractPanelData: { ...prev.contractPanelData, marketCapFetched: true }
-              }));
-              
-              setCallerInfo((prev) =>
-                prev ? { ...prev, marketCap: currentMarketCap } : prev
-              );
-              
-              // Update the backend with the new market cap
-              try {
-                const result = await updateContractMarketCap(contract, currentMarketCap);
-                if (!result.success) {
-                  setDebugInfo(prev => ({ 
-                    ...prev, 
-                    networkErrors: [...prev.networkErrors, {
-                      url: `/api/trench/${contract}/market-cap`,
-                      message: result.message || 'Backend update failed'
-                    }]
-                  }));
-                }
-              } catch (error) {
-                setDebugInfo(prev => ({ 
-                  ...prev, 
-                  networkErrors: [...prev.networkErrors, {
-                    url: `/api/trench/${contract}/market-cap`,
-                    message: error instanceof Error ? error.message : 'Failed to persist market cap to backend'
-                  }]
-                }));
-              }
-            }
-          } catch (error) {
-            setDebugInfo(prev => ({ 
-              ...prev, 
-              networkErrors: [...prev.networkErrors, {
-                url: 'CoinGecko API',
-                message: error instanceof Error ? error.message : 'Failed to fetch current market cap'
-              }]
-            }));
-          }
-        }
       }
-      
-      // Set latest callers for this contract
       if (contract && d.latestCallers[contract]) {
-        setLatestCallers(d.latestCallers[contract]);
+        // Use raw pfp strings for latest callers - resolvePfpImage commented out
+        const callersWithPfp = d.latestCallers[contract].map(caller => ({
+          ...caller,
+          pfp: caller.pfp || ''
+        }));
+        setLatestCallers(callersWithPfp);
       } else {
         setLatestCallers([]);
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load trench data';
-      setDebugInfo(prev => ({ 
-        ...prev, 
+      setDebugInfo(prev => ({
+        ...prev,
         apiCallSuccess: false,
         apiCallError: errorMsg,
         lastError: error instanceof Error ? error : new Error(errorMsg)
@@ -428,22 +342,6 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     }
   };
 
-  const handleToggleTokenReactionLike = async () => {
-    if (!contract || !wallet) return;
-    try {
-      const result = await toggleTokenLike(contract, wallet);
-      setTokenReactions(result);
-    } catch (error) {
-      setDebugInfo(prev => ({ 
-        ...prev, 
-        networkErrors: [...prev.networkErrors, {
-          url: '/api/token-reactions like',
-          message: error instanceof Error ? error.message : 'Failed to toggle token like'
-        }]
-      }));
-    }
-  };
-
   const handleToggleTokenReactionDislike = async () => {
     if (!contract || !wallet) return;
     try {
@@ -455,6 +353,22 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
         networkErrors: [...prev.networkErrors, {
           url: '/api/token-reactions dislike',
           message: error instanceof Error ? error.message : 'Failed to toggle token dislike'
+        }]
+      }));
+    }
+  };
+
+  const handleToggleTokenReactionLike = async () => {
+    if (!contract || !wallet) return;
+    try {
+      const result = await toggleTokenLike(contract, wallet);
+      setTokenReactions(result);
+    } catch (error) {
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        networkErrors: [...prev.networkErrors, {
+          url: '/api/token-reactions like',
+          message: error instanceof Error ? error.message : 'Failed to toggle token reaction like'
         }]
       }));
     }
@@ -620,7 +534,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
               <Box sx={{ position: 'relative', display: 'inline-block' }} className="first-caller-avatar-container">
                 <Link to={`/user/${callerInfo.publicKey}`} style={{ textDecoration: 'none' }}>
                   <Avatar
-                    src={getSafePfpUrl(callerInfo.pfp)}
+                    src={callerInfo.pfp}
                     alt={callerInfo.publicKey.slice(0, 2).toUpperCase()}
                     sx={{ 
                       width: 40, 
@@ -798,7 +712,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
                     <Box sx={{ position: 'relative', display: 'inline-block' }}>
                       <Link to={`/user/${caller.caller}`} style={{ textDecoration: 'none' }}>
                         <Avatar 
-                          src={getSafePfpUrl(caller.pfp)} 
+                          src={caller.pfp} 
                           alt={caller.caller.slice(0, 2).toUpperCase()}
                           sx={{ 
                             width: 32, 

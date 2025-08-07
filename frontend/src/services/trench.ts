@@ -1,6 +1,7 @@
 export type { HeliusNFT } from './helius';
 import api from '../utils/api';
-import { getNFTsByTokenAddresses, fetchCollectionNFTsForOwner } from './helius';
+import { getNFTsByTokenAddresses } from './helius';
+import { enrichUsersWithPfp } from './user';
 
 // Gracefully handle missing env variable to avoid runtime crashes.
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION ?? '';
@@ -90,44 +91,24 @@ export const fetchTrenchData = async (): Promise<TrenchData> => {
     image: nftMap[c.contract]?.image,
   }));
 
-  const users = await Promise.all(
-    usersArr.map(async (u) => {
-      const pfpAddr = u.pfp?.replace(/"/g, '');
-      let image = '';
-      if (pfpAddr && nftMap[pfpAddr]) {
-        image = nftMap[pfpAddr].image;
-      } else {
-        const nfts = await fetchCollectionNFTsForOwner(
-          u.publicKey,
-          PRIMO_COLLECTION
-        );
-        image = nfts[0]?.image || '';
-      }
-      return { ...u, pfp: image } as TrenchUser;
-    })
-  );
+  // Use enrichUsersWithPfp for users but with manual NFT mapping for efficiency
+  const enrichedUsers = await enrichUsersWithPfp(usersArr, { useCache: false, useFallback: true });
+  const users = enrichedUsers.map((u) => ({
+    ...u,
+    pfp: u.pfpImage || (u.pfp?.replace(/"/g, '') && nftMap[u.pfp.replace(/"/g, '')]?.image) || ''
+  })) as TrenchUser[];
 
   // Process latest callers data
   const latestCallers: Record<string, TrenchCallerInfo[]> = {};
   for (const [contract, callers] of Object.entries(latestCallersRaw)) {
-    latestCallers[contract] = await Promise.all(
-      callers.map(async (caller) => {
-        const pfpAddr = caller.pfp?.replace(/"/g, '');
-        let image = '';
-        
-        if (pfpAddr && nftMap[pfpAddr]) {
-          image = nftMap[pfpAddr].image;
-        } else {
-          const nfts = await fetchCollectionNFTsForOwner(
-            caller.caller,
-            PRIMO_COLLECTION
-          );
-          image = nfts[0]?.image || '';
-        }
-        
-        return { ...caller, pfp: image } as TrenchCallerInfo;
-      })
+    const enrichedCallers = await enrichUsersWithPfp(
+      callers.map(caller => ({ ...caller, publicKey: caller.caller })), 
+      { useCache: false, useFallback: true }
     );
+    latestCallers[contract] = enrichedCallers.map((caller) => ({
+      ...caller,
+      pfp: caller.pfpImage || (caller.pfp?.replace(/"/g, '') && nftMap[caller.pfp.replace(/"/g, '')]?.image) || ''
+    })) as TrenchCallerInfo[];
   }
 
   return { contracts, users, latestCallers };

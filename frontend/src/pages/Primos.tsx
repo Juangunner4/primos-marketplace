@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
@@ -7,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useTranslation } from 'react-i18next';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import { enrichUsersWithPfp } from '../services/user';
 import { getPrimaryDomainName } from '../utils/sns';
 import './Primos.css';
 import Loading from '../components/Loading';
@@ -17,6 +16,7 @@ const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 interface Member {
   publicKey: string;
   pfp: string;
+  pfpImage?: string;
   domain?: string;
   points: number;
   pesos: number;
@@ -24,7 +24,6 @@ interface Member {
 }
 
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
-  const wallet = useWallet();
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
@@ -37,40 +36,19 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
         const res = await api.get<Member[]>('/api/user/primos');
         // Sort by combined score (pesos + points) in descending order
         const sorted = res.data.slice().sort((a: Member, b: Member) => (b.pesos + b.points) - (a.pesos + a.points));
-        const enriched = await Promise.all(
-          sorted.map(async (m, index) => {
-            let image = '';
-            try {
-              if (m.pfp) {
-                // If pfp is already a URL, use directly
-                if (m.pfp.startsWith('http')) {
-                  image = m.pfp;
-                } else {
-                  // Otherwise treat as token address
-                const tokenAddress = m.pfp.replace(/"/g, '');
-                  const nft = await getNFTByTokenAddress(tokenAddress);
-                  image = nft?.image ?? '';
-                }
-              }
-              // Fallback: fetch any owned NFT from collection
-              if (!image) {
-                const ownedNfts = await fetchCollectionNFTsForOwner(m.publicKey, PRIMO_COLLECTION);
-                for (const nft of ownedNfts) {
-                  if (nft.image) {
-                    image = nft.image;
-                    break;
-                  }
-                }
-              }
-            } catch (err) {
-              console.warn('Failed to fetch pfp for user', m.publicKey, err);
-            }
-            // fetch on-chain primary domain for each member
+        const enriched = await enrichUsersWithPfp(
+          sorted.map((m, index) => ({ ...m, rank: index + 1 })),
+          { useCache: true, useFallback: true }
+        );
+        
+        // Fetch on-chain primary domain for each member
+        const enrichedWithDomains = await Promise.all(
+          enriched.map(async (m) => {
             const primary = await getPrimaryDomainName(m.publicKey);
-            return { ...m, pfp: image, domain: primary || m.domain, rank: index + 1 };
+            return { ...m, domain: primary || m.domain };
           })
         );
-        setMembers(enriched);
+        setMembers(enrichedWithDomains);
       } catch {
         setMembers([]);
       } finally {
@@ -113,7 +91,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
                     #{m.rank}
                   </Box>
                   <Avatar
-                    src={m.pfp || undefined}
+                    src={m.pfpImage || undefined}
                     sx={{ width: 56, height: 56 }}
                   />
                   <Box ml={1}>

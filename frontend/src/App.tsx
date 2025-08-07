@@ -38,7 +38,7 @@ import AdminDeveloperConsole from './components/AdminDeveloperConsole';
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
-import { getNFTByTokenAddress } from './utils/helius';
+import { resolvePfpImage } from './services/user';
 
 import './App.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -116,12 +116,8 @@ const Header: React.FC = () => {
           headers: { 'X-Public-Key': publicKey.toBase58() },
         });
         const token = res.data?.pfp;
-        if (token) {
-          const nft = await getNFTByTokenAddress(token.replace(/"/g, ''));
-          setPfpImage(nft?.image ?? null);
-        } else {
-          setPfpImage(null);
-        }
+        const image = await resolvePfpImage(token);
+        setPfpImage(image || null);
       } catch {
         setPfpImage(null);
       }

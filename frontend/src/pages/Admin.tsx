@@ -22,7 +22,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { useTranslation } from 'react-i18next';
 import * as Tabs from '@radix-ui/react-tabs';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import { enrichUsersWithPfp } from '../services/user';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import Loading from '../components/Loading';
@@ -110,21 +110,12 @@ const Admin: React.FC = () => {
           getMagicEdenStats(MAGICEDEN_SYMBOL),
         ]);
         const floor = meStats?.floorPrice ?? 0;
-        const enriched = await Promise.all(
-          sorted.map(async (m) => {
-            let image = "";
-            if (m.pfp) {
-              const nft = await getNFTByTokenAddress(m.pfp.replace(/"/g, ""));
-              image = nft?.image ?? "";
-            } else {
-              const nfts = await fetchCollectionNFTsForOwner(
-                m.publicKey,
-                PRIMO_COLLECTION
-              );
-              image = nfts[0]?.image || "";
-            }
+        const enriched = await enrichUsersWithPfp(sorted, { useCache: true, useFallback: true });
+        const enrichedWithStats = await Promise.all(
+          enriched.map(async (m) => {
             let owned = 0;
             try {
+              const { fetchCollectionNFTsForOwner } = await import('../utils/helius');
               const nfts = await fetchCollectionNFTsForOwner(
                 m.publicKey,
                 PRIMO_COLLECTION
@@ -133,7 +124,7 @@ const Admin: React.FC = () => {
             } catch {}
             return {
               ...m,
-              pfp: image,
+              pfp: m.pfpImage,
               owned,
               solPrice,
               totalValue: owned * floor,
@@ -142,7 +133,7 @@ const Admin: React.FC = () => {
             } as AdminMember;
           })
         );
-        setMembers(enriched);
+        setMembers(enrichedWithStats);
       } catch {
         setMembers([]);
       } finally {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import api from '../utils/api';
-import { getAssetsByCollection, HeliusNFT, getNFTByTokenAddress } from '../utils/helius';
+import { getAssetsByCollection, HeliusNFT } from '../utils/helius';
+import { resolvePfpImage } from '../services/user';
 import { getLikes, toggleLike } from '../utils/likes';
 import { keyframes } from '@emotion/react';
 
@@ -229,8 +230,8 @@ const UserProfile: React.FC = () => {
   useEffect(() => {
     async function fetchPFP() {
       if (user?.pfp) {
-        const nft = await getNFTByTokenAddress(user.pfp.replace(/"/g, ''));
-        setPfpImage(nft?.image || null);
+        const image = await resolvePfpImage(user.pfp);
+        setPfpImage(image || null);
       } else if (nfts[0]) {
         setPfpImage(nfts[0].image || null);
       } else {

@@ -10,7 +10,8 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import { resolvePfpImage } from '../services/user';
+import { fetchCollectionNFTsForOwner } from '../utils/helius';
 import api from '../utils/api';
 import Loading from '../components/Loading';
 
@@ -56,8 +57,7 @@ const Work: React.FC = () => {
       const u = res.data;
       let image = '';
       if (u.pfp) {
-        const nft = await getNFTByTokenAddress(u.pfp.replace(/"/g, ''));
-        image = nft?.image || '';
+        image = await resolvePfpImage(u.pfp);
       } else {
         const nfts = await fetchCollectionNFTsForOwner(key, PRIMO_COLLECTION);
         image = nfts[0]?.image || '';

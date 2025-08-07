@@ -19,6 +19,7 @@ import {
   getNFTByTokenAddress,
   fetchCollectionNFTsForOwner,
 } from '../services/helius';
+import { resolvePfpImage } from '../services/user';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
@@ -253,14 +254,8 @@ const Trenches: React.FC = () => {
       usersArr.forEach(async (u) => {
         let image = '';
         try {
-          const pfpAddr = u.pfp?.replace(/"/g, '');
-          if (pfpAddr) {
-            const nft = await getNFTByTokenAddress(pfpAddr);
-            if (nft?.image) {
-              image = nft.image;
-            } else if (!nft) {
-              logNetworkError(`getNFTByTokenAddress(${pfpAddr})`, new Error('No NFT data'));
-            }
+          if (u.pfp) {
+            image = await resolvePfpImage(u.pfp);
           } else if (PRIMO_COLLECTION) {
             const nfts = await fetchCollectionNFTsForOwner(
               u.publicKey,
