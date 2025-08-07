@@ -6,9 +6,16 @@ import { I18nextProvider } from 'react-i18next';
 import Home from '../Home';
 import i18n from '../../i18n';
 
-import api from '../../utils/api';
-import { getNFTByTokenAddress } from '../../utils/helius';
 // Mock modules
+jest.mock('axios', () => ({
+  __esModule: true,
+  default: {
+    create: () => ({
+      get: () => Promise.resolve(),
+      post: () => Promise.resolve(),
+    }),
+  },
+}));
 jest.mock('../../utils/api');
 jest.mock('../../utils/helius');
 jest.mock('../../services/coingecko');
@@ -22,7 +29,7 @@ describe('Home', () => {
         <Home />
       </I18nextProvider>
     );
-    expect(await screen.findByText(/Welcome/)).toBeTruthy();
+    expect(await screen.findByText(/Join Primos/i)).toBeTruthy();
   });
 
   test('hides join button when logged in', () => {
@@ -34,7 +41,7 @@ describe('Home', () => {
     expect(screen.queryByText(/Join Primos/i)).toBeNull();
   });
 
-  test('renders latest trenches contract bubbles up to 10', async () => {
+  test('renders latest trenches contract bubbles up to 8', async () => {
     const testContracts = Array.from({ length: 12 }, (_, i) => ({ contract: `0xaddr${i}`, image: '' }));
     // Override api.get mock for /api/trench endpoint
     (require('../../utils/api').default.get as jest.Mock).mockImplementation((url: string) => {
@@ -51,14 +58,14 @@ describe('Home', () => {
     );
 
     // Wait for latest trenches heading
-    expect(await screen.findByText(/Latest Trenches Contracts/)).toBeInTheDocument();
+    await screen.findByText(/Latest Trenches Contracts/);
 
     // Check contract bubbles (title attribute)
     const bubbles = await screen.findAllByTitle(/0xaddr/);
-    expect(bubbles).toHaveLength(10);
-    // newest first: 11 down to 2
-    expect(bubbles[0]).toHaveAttribute('title', '0xaddr11');
-    expect(bubbles[9]).toHaveAttribute('title', '0xaddr2');
+    expect(bubbles).toHaveLength(8);
+    // newest first: 11 down to 4
+    expect(bubbles[0].getAttribute('title')).toBe('0xaddr11');
+    expect(bubbles[7].getAttribute('title')).toBe('0xaddr4');
   });
 
   test('renders market cap tags on contract bubbles when available', async () => {
@@ -87,11 +94,11 @@ describe('Home', () => {
     });
 
     // Check for market cap tags
-    expect(screen.getByText('$1.5M')).toBeInTheDocument();
-    expect(screen.getByText('$2.5B')).toBeInTheDocument();
-    
+    expect(screen.getByText('$1.5M')).toBeTruthy();
+    expect(screen.getByText('$2.5B')).toBeTruthy();
+
     // Check for price change tags
-    expect(screen.getByText('+5.2%')).toBeInTheDocument();
-    expect(screen.getByText('-2.1%')).toBeInTheDocument();
+    expect(screen.getByText('+5.2%')).toBeTruthy();
+    expect(screen.getByText('-2.1%')).toBeTruthy();
   });
 });

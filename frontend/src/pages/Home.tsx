@@ -15,6 +15,7 @@ import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from '../utils/helius';
+import useMediaQuery from '@mui/material/useMediaQuery';
 // Consolidated imports above
 import Loading from '../components/Loading';
 import './Home.css';
@@ -54,6 +55,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [loadingContracts, setLoadingContracts] = useState(true);
   const wallet = useWallet();
   const isConnected = connected ?? wallet.connected;
+  const isMobile = useMediaQuery('(max-width:600px)');
   // format market cap into readable string
   const formatCap = (cap: number) => {
     if (cap >= 1e9) return `$${(cap / 1e9).toFixed(1)}B`;
@@ -141,26 +143,28 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       try {
         const res = await api.get<{ contracts: TrenchContract[] }>('/api/trench');
         const all = res.data.contracts;
-        const last10 = all.slice(-10).reverse();
+        const last8 = all.slice(-8).reverse();
         const enriched = await Promise.all(
-          last10.map(async (c) => {
+          last8.map(async (c) => {
             let img = c.image || '';
-            let cap: number | undefined;
-            let priceChange: number | undefined;
+            let cap: number | undefined = c.marketCap;
+            let priceChange: number | undefined = c.priceChange24h;
             try {
               if (!img) {
                 const nft = await getNFTByTokenAddress(c.contract);
                 img = nft?.image || '';
               }
-              // fetch market cap and price change
-              let priceData;
-              if (/^0x[0-9a-fA-F]{40}$/.test(c.contract)) {
-                priceData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
-              } else {
-                priceData = await fetchSimpleTokenPrice(c.contract, 'solana');
+              if (cap === undefined || priceChange === undefined) {
+                // fetch market cap and price change
+                let priceData;
+                if (/^0x[0-9a-fA-F]{40}$/.test(c.contract)) {
+                  priceData = await fetchSimpleTokenPrice(c.contract, 'ethereum');
+                } else {
+                  priceData = await fetchSimpleTokenPrice(c.contract, 'solana');
+                }
+                cap = cap ?? priceData?.usd_market_cap;
+                priceChange = priceChange ?? priceData?.usd_24h_change;
               }
-              cap = priceData?.usd_market_cap;
-              priceChange = priceData?.usd_24h_change;
             } catch {}
             return { contract: c.contract, image: img, marketCap: cap, priceChange24h: priceChange };
           })
@@ -333,15 +337,35 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                   {t('primos_title')}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', mt: 1 }}>
-                {members.map((m) => (
-                  <Avatar
-                    key={m.publicKey}
-                    src={m.pfp || undefined}
-                    sx={{ width: 24, height: 24 }}
-                  />
-                ))}
-              </Box>
+              {isMobile ? (
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 0.5,
+                    justifyItems: 'center',
+                    mt: 1,
+                  }}
+                >
+                  {members.slice(0, 16).map((m) => (
+                    <Avatar
+                      key={m.publicKey}
+                      src={m.pfp || undefined}
+                      sx={{ width: 24, height: 24 }}
+                    />
+                  ))}
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', mt: 1 }}>
+                  {members.map((m) => (
+                    <Avatar
+                      key={m.publicKey}
+                      src={m.pfp || undefined}
+                      sx={{ width: 24, height: 24 }}
+                    />
+                  ))}
+                </Box>
+              )}
             </Box>
           )
         )}
@@ -371,6 +395,41 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           </Box>
           {loadingContracts ? (
             <Loading message={t('loading_trenches')} />
+          ) : isMobile ? (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: 1,
+                justifyItems: 'center',
+              }}
+            >
+              {latestContracts.map((c) => (
+                <Box key={c.contract} title={c.contract} sx={{ position: 'relative' }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      backgroundColor: '#000',
+                      backgroundImage: c.image ? `url(${c.image})` : undefined,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  {c.marketCap && (
+                    <Box className="market-cap-tag">
+                      {formatCap(c.marketCap)}
+                    </Box>
+                  )}
+                  {c.priceChange24h !== undefined && (
+                    <Box className={getPriceChangeClass(c.priceChange24h)}>
+                      {formatPriceChange(c.priceChange24h)}
+                    </Box>
+                  )}
+                </Box>
+              ))}
+            </Box>
           ) : (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
               {latestContracts.map((c) => (
