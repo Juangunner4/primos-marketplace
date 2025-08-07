@@ -15,10 +15,7 @@ import {
   TrenchUser,
 } from '../services/trench';
 import api from '../utils/api';
-import {
-  getNFTByTokenAddress,
-  fetchCollectionNFTsForOwner,
-} from '../services/helius';
+import { getNFTByTokenAddress } from '../services/helius';
 import { resolvePfpImage } from '../services/user';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import ContractPanel from '../components/ContractPanel';
@@ -228,34 +225,22 @@ const Trenches: React.FC = () => {
         }
       });
 
-      // Fetch user profile images gradually
+      // Fetch user profile images gradually using unified resolver
       usersArr.forEach(async (u) => {
-        let image = '';
         try {
-          if (u.pfp) {
-            image = await resolvePfpImage(u.pfp);
-          } else if (PRIMO_COLLECTION) {
-            const nfts = await fetchCollectionNFTsForOwner(
-              u.publicKey,
-              PRIMO_COLLECTION
-            );
-            image = nfts[0]?.image || '';
-            if (!image) {
-              logNetworkError(`fetchCollectionNFTsForOwner(${u.publicKey})`, new Error('No NFT image'));
-            }
+          const image = await resolvePfpImage(u.pfp, u.publicKey);
+          if (!image) {
+            logNetworkError(`userPfp(${u.publicKey})`, new Error('No image found'));
           }
+          setData((prev) => ({
+            ...prev,
+            users: prev.users.map((uu) =>
+              uu.publicKey === u.publicKey ? { ...uu, pfp: image } : uu
+            ),
+          }));
         } catch (err) {
           logNetworkError(`userPfp(${u.publicKey})`, err);
         }
-        if (!image) {
-          logNetworkError(`userPfp(${u.publicKey})`, new Error('No image found'));
-        }
-        setData((prev) => ({
-          ...prev,
-          users: prev.users.map((uu) =>
-            uu.publicKey === u.publicKey ? { ...uu, pfp: image } : uu
-          ),
-        }));
       });
     } catch (err) {
       logNetworkError('/api/trench', err);

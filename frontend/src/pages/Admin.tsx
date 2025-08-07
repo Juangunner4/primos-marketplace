@@ -110,7 +110,7 @@ const Admin: React.FC = () => {
           getMagicEdenStats(MAGICEDEN_SYMBOL),
         ]);
         const floor = meStats?.floorPrice ?? 0;
-        const enriched = await enrichUsersWithPfp(sorted, { useCache: true, useFallback: true });
+        const enriched = await enrichUsersWithPfp(sorted, { useCache: true });
         const enrichedWithStats = await Promise.all(
           enriched.map(async (m) => {
             let owned = 0;

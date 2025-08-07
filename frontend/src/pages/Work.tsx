@@ -11,11 +11,9 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { resolvePfpImage } from '../services/user';
-import { fetchCollectionNFTsForOwner } from '../utils/helius';
 import api from '../utils/api';
 import Loading from '../components/Loading';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 interface WorkRequest {
   requester: string;
@@ -55,13 +53,7 @@ const Work: React.FC = () => {
     try {
       const res = await api.get(`/api/user/${key}`);
       const u = res.data;
-      let image = '';
-      if (u.pfp) {
-        image = await resolvePfpImage(u.pfp);
-      } else {
-        const nfts = await fetchCollectionNFTsForOwner(key, PRIMO_COLLECTION);
-        image = nfts[0]?.image || '';
-      }
+      const image = await resolvePfpImage(u.pfp, key);
       setUsers(prev => ({ ...prev, [key]: { pfp: image, domain: u.domain } }));
     } catch {
       setUsers(prev => ({ ...prev, [key]: { pfp: '', domain: undefined } }));
