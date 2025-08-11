@@ -44,6 +44,7 @@ public class TransactionService {
     }
 
     public Transaction recordTransaction(TransactionDTO dto) {
+        LOG.info(() -> "Recording transaction " + dto.txId + " for buyer " + dto.buyer);
         Transaction tx = new Transaction();
         tx.setTxId(dto.txId);
         tx.setBuyer(dto.buyer);
@@ -62,15 +63,18 @@ public class TransactionService {
         if (tx == null || "confirmed".equalsIgnoreCase(tx.getStatus())) {
             return;
         }
+        LOG.info(() -> "Updating status for transaction " + tx.getTxId());
         enrich(tx);
     }
 
     private void enrich(Transaction tx) {
+        LOG.info(() -> "Enriching transaction " + tx.getTxId());
         try {
             String url = String.format("%s/v2/collections/%s/activities?offset=0&limit=20", API_BASE, COLLECTION);
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
             HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
             if (resp.statusCode() != 200 || resp.body() == null || resp.body().isBlank()) {
+                LOG.info("No enrichment data available");
                 return;
             }
             try (JsonReader reader = Json.createReader(new StringReader(resp.body()))) {
@@ -90,6 +94,7 @@ public class TransactionService {
                         }
                         tx.setStatus("confirmed");
                         tx.persistOrUpdate();
+                        LOG.info(() -> "Transaction " + tx.getTxId() + " enriched and confirmed");
                         return;
                     }
                 }
