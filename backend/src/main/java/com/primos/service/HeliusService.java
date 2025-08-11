@@ -79,8 +79,9 @@ public class HeliusService {
                     page++;
                 }
             }
-            LOG.info(() -> "Helius returned count: " + total);
-            return total;
+            final int count = total;
+            LOG.info(() -> "Helius returned count: " + count);
+            return count;
         } catch (Exception e) {
             LOG.warning("Failed to fetch Primo count for wallet " + wallet + ": " + e.getMessage());
             return 0;
