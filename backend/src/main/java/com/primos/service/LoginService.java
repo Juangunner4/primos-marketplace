@@ -76,10 +76,21 @@ public class LoginService {
         }
         user.persistOrUpdate();
 
+        boolean wasHolder = user.isPrimoHolder();
+
         // Update NFT count from the blockchain on each login
         int count = heliusService.getPrimoCount(user.getPublicKey());
         user.setNftCount(count);
-        updateHolderStatus(user, count > 0);
+        boolean isHolder = count > 0;
+        updateHolderStatus(user, isHolder);
+
+        if (isHolder && !wasHolder) {
+            user.setPointsToday(0);
+            user.setIconPointsToday(0);
+            user.setHolderPointsToday(0);
+            user.setPointsDate(LocalDate.now().toString());
+            user.persistOrUpdate();
+        }
 
         // Trigger holder points job on login - it will only execute once per day
         holderPointsJob.awardHolderPointsToAllUsers();
