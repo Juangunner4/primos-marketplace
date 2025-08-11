@@ -12,9 +12,11 @@ import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class HeliusService {
+    private static final Logger LOG = Logger.getLogger(HeliusService.class.getName());
     private static final String API_KEY = System.getenv("REACT_APP_HELIUS_API_KEY");
     private static final String COLLECTION = System.getenv().getOrDefault("REACT_APP_PRIMOS_COLLECTION", "primos");
     private static final HttpClient CLIENT = createClient();
@@ -43,8 +45,10 @@ public class HeliusService {
      */
     public int getPrimoCount(String wallet) {
         if (API_KEY == null || API_KEY.isEmpty() || wallet == null || wallet.isEmpty()) {
+            LOG.info("Helius API key or wallet missing");
             return 0;
         }
+        LOG.info(() -> "Fetching Primo count for wallet: " + wallet);
         try {
             int page = 1;
             int limit = 100;
@@ -75,8 +79,10 @@ public class HeliusService {
                     page++;
                 }
             }
+            LOG.info(() -> "Helius returned count: " + total);
             return total;
         } catch (Exception e) {
+            LOG.warning("Failed to fetch Primo count for wallet " + wallet + ": " + e.getMessage());
             return 0;
         }
     }

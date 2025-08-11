@@ -81,4 +81,8 @@
       "last 1 safari version"
     ]
   }
+  ,
+  "jest": {
+    "testMatch": ["<rootDir>/src/__tests__/**/*.test.(ts|tsx)"]
+  }
 }

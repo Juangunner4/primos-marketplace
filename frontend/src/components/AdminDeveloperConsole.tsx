@@ -82,17 +82,14 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
       info: console.info
     };
 
-    const captureConsole = (level: string, originalMethod: any) => {
+    const captureConsole = (level: string) => {
       return (...args: any[]) => {
-        // Call original method first
-        originalMethod.apply(console, args);
-        
-        // Capture the log for admin console
+        // Capture the log for admin console without printing to dev tools
         const timestamp = new Date().toISOString();
-        const message = args.map(arg => 
-          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-        ).join(' ');
-        
+        const message = args
+          .map(arg => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)))
+          .join(' ');
+
         setConsoleLogs(prev => [
           ...prev.slice(-49), // Keep last 50 logs
           { timestamp, level, message, args }
@@ -101,10 +98,10 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
     };
 
     // Override console methods
-    console.log = captureConsole('log', originalConsole.log);
-    console.warn = captureConsole('warn', originalConsole.warn);
-    console.error = captureConsole('error', originalConsole.error);
-    console.info = captureConsole('info', originalConsole.info);
+    console.log = captureConsole('log');
+    console.warn = captureConsole('warn');
+    console.error = captureConsole('error');
+    console.info = captureConsole('info');
 
     // Cleanup function to restore original console
     return () => {
