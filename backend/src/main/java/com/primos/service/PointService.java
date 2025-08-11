@@ -37,13 +37,9 @@ public class PointService {
             LOGGER.info(String.format("[PointService] User %s, today: %s, user.pointsDate: %s, user.pointsToday: %d",
                     publicKey, today, user.getPointsDate(), user.getPointsToday()));
         }
-        if (!today.equals(user.getPointsDate())) {
-            user.setPointsDate(today);
-            user.setPointsToday(0);
-            user.setIconPointsToday(0);
-            user.setHolderPointsToday(0);
-            LOGGER.info("[PointService] Reset daily points for new day");
-        }
+        // Note: Daily points reset is now handled globally in LoginService when first
+        // user logs in
+        // Individual users no longer reset their own points here
         if (user.getPointsToday() >= MAX_POINTS_PER_DAY) {
             if (LOGGER.isLoggable(java.util.logging.Level.WARNING)) {
                 LOGGER.warning(String.format("[PointService] Daily limit reached for user: %s", publicKey));
