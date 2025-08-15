@@ -30,6 +30,7 @@ import TrenchesFallback from './components/TrenchesFallback';
 import Docs from './pages/Docs';
 import Admin from './pages/Admin';
 import Work from './pages/Work';
+import Merch from './pages/Merch';
 import BetaRedeem from './components/BetaRedeem';
 import LoadingOverlay from './components/LoadingOverlay';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -255,6 +256,7 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<PrimosMarketGallery />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/merch" element={<Merch />} />
 
           {publicKey && (isHolder || betaRedeemed) && userExists && (
             <>
