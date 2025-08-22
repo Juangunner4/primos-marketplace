@@ -177,7 +177,8 @@ export const executeBuyNow = async (
     params.sellerExpiry = listing.sellerExpiry.toString();
 
   const resp = await getBuyNowInstructions(params);
-  const data = resp.txSigned?.data;
+  // prefer the versioned transaction if provided to avoid size limits
+  const data = resp.v0?.txSigned?.data ?? resp.txSigned?.data;
   if (!data) throw new Error('Invalid response');
 
   const txBuy = decodeTransaction(data);
