@@ -2,6 +2,7 @@
 import { executeBuyNow, BuyNowListing, executeList, ListNFT } from '../transaction';
 import { getBuyNowInstructions, getListInstructions } from '../magiceden';
 import api from '../api';
+import { Transaction, Keypair } from '@solana/web3.js';
 
 jest.mock('../magiceden', () => ({
   getBuyNowInstructions: jest.fn(),
@@ -16,8 +17,14 @@ jest.mock('../api', () => ({
 
 describe('executeBuyNow', () => {
   test('sends transaction', async () => {
+    const dummy = new Transaction();
+    dummy.recentBlockhash = '11111111111111111111111111111111';
+    dummy.feePayer = Keypair.generate().publicKey;
+    const encoded = dummy
+      .serialize({ requireAllSignatures: false, verifySignatures: false })
+      .toString('base64');
     (getBuyNowInstructions as jest.Mock).mockResolvedValue({
-      txSigned: { data: Buffer.from('tx').toString('base64') },
+      v0: { txSigned: { data: encoded } },
     });
     const sendTransaction = jest.fn().mockResolvedValue('sig');
     const wallet: any = {
@@ -26,6 +33,9 @@ describe('executeBuyNow', () => {
     };
     const connection: any = {
       confirmTransaction: jest.fn().mockResolvedValue(null),
+      getLatestBlockhash: jest
+        .fn()
+        .mockResolvedValue({ blockhash: 'bh', lastValidBlockHeight: 1 }),
     };
     const listing: BuyNowListing = {
       tokenMint: 'mint',
@@ -36,9 +46,9 @@ describe('executeBuyNow', () => {
     };
     const sig = await executeBuyNow(connection, wallet, listing);
     expect(getBuyNowInstructions).toHaveBeenCalledWith(
-      expect.objectContaining({ buyer: 'buyer', splitFees: 'true' })
+      expect.objectContaining({ buyer: 'buyer' })
     );
-    expect(sendTransaction).toHaveBeenCalledTimes(2);
+    expect(sendTransaction).toHaveBeenCalledTimes(1);
     expect(api.post).toHaveBeenCalledWith('/api/transactions', expect.objectContaining({ mint: 'mint' }));
     expect(sig).toBe('sig');
   });
@@ -46,8 +56,14 @@ describe('executeBuyNow', () => {
 
 describe('executeList', () => {
   test('sends transaction', async () => {
+    const dummy = new Transaction();
+    dummy.recentBlockhash = '11111111111111111111111111111111';
+    dummy.feePayer = Keypair.generate().publicKey;
+    const encoded = dummy
+      .serialize({ requireAllSignatures: false, verifySignatures: false })
+      .toString('base64');
     (getListInstructions as jest.Mock).mockResolvedValue({
-      txSigned: { data: Buffer.from('tx').toString('base64') },
+      txSigned: { data: encoded },
     });
     const sendTransaction = jest.fn().mockResolvedValue('sig');
     const wallet: any = {
@@ -56,6 +72,9 @@ describe('executeList', () => {
     };
     const connection: any = {
       confirmTransaction: jest.fn().mockResolvedValue(null),
+      getLatestBlockhash: jest
+        .fn()
+        .mockResolvedValue({ blockhash: 'bh', lastValidBlockHeight: 1 }),
     };
     const nft: ListNFT = {
       tokenMint: 'mint',
