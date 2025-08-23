@@ -80,9 +80,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
-  ,
+  },
   "jest": {
     "testMatch": ["<rootDir>/src/__tests__/**/*.test.(ts|tsx)"]
+  },
+  "overrides": {
+    "sha.js": "2.4.12"
   }
 }
