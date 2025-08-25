@@ -12,6 +12,8 @@ import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -86,5 +88,52 @@ public class HeliusService {
             LOG.warning("Failed to fetch Primo count for wallet " + wallet + ": " + e.getMessage());
             return 0;
         }
+    }
+
+    /**
+     * Retrieves all wallet addresses holding NFTs from the Primos collection.
+     *
+     * @return map of wallet address to number of NFTs held
+     */
+    public Map<String, Integer> getPrimoHolders() {
+        Map<String, Integer> holders = new HashMap<>();
+        int limit = 1000;
+        int offset = 0;
+        try {
+            while (true) {
+                String url = String.format(
+                        "https://api-mainnet.magiceden.dev/v2/collections/%s/holders?offset=%d&limit=%d",
+                        COLLECTION, offset, limit);
+                HttpRequest req = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .GET()
+                        .build();
+                HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+                if (resp.statusCode() != 200) {
+                    break;
+                }
+                try (JsonReader reader = Json.createReader(new StringReader(resp.body()))) {
+                    JsonArray arr = reader.readArray();
+                    if (arr.isEmpty()) {
+                        break;
+                    }
+                    for (int i = 0; i < arr.size(); i++) {
+                        JsonObject obj = arr.getJsonObject(i);
+                        String address = obj.getString("address", null);
+                        int count = obj.getInt("count", 0);
+                        if (address != null) {
+                            holders.put(address, count);
+                        }
+                    }
+                    if (arr.size() < limit) {
+                        break;
+                    }
+                    offset += limit;
+                }
+            }
+        } catch (Exception e) {
+            LOG.warning("Failed to fetch Primo holders: " + e.getMessage());
+        }
+        return holders;
     }
 }
