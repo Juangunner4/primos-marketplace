@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
 import api from '../utils/api';
 import { useTranslation } from 'react-i18next';
 import { enrichUsersWithPfp } from '../services/user';
@@ -24,6 +25,7 @@ interface Member {
 
 const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
+  const wallet = useWallet();
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
   const [loadingMembers, setLoadingMembers] = useState(true);
@@ -32,7 +34,10 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
     async function fetchMembers() {
       setLoadingMembers(true);
       try {
-        const res = await api.get<Member[]>('/api/user/primos');
+        const headers = wallet.publicKey
+          ? { headers: { 'X-Public-Key': wallet.publicKey.toBase58() } }
+          : undefined;
+        const res = await api.get<Member[]>('/api/user/primos', headers);
         // Sort by combined score (pesos + points) in descending order
         const sorted = res.data.slice().sort((a: Member, b: Member) => (b.pesos + b.points) - (a.pesos + a.points));
         const enriched = await enrichUsersWithPfp(
@@ -55,7 +60,7 @@ const Primos: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }
     }
     fetchMembers();
-  }, []);
+  }, [wallet.publicKey]);
 
   const filtered = members.filter((m) =>
     m.publicKey.toLowerCase().includes(search.toLowerCase()) ||

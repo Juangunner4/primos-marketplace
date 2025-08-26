@@ -3,6 +3,10 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Primos from '../Primos';
 
+jest.mock('@solana/wallet-adapter-react', () => ({
+  useWallet: () => ({ publicKey: null }),
+}));
+
 jest.mock('../../utils/api', () => ({
   get: jest.fn(() =>
     Promise.resolve({

@@ -275,7 +275,10 @@ const Trenches: React.FC = () => {
   const loadPrimoTokens = async () => {
     setLoadingPrimoTokens(true);
     try {
-      const res = await api.get<{ publicKey: string }[]>('/api/user/primos');
+      const headers = wallet.publicKey
+        ? { headers: { 'X-Public-Key': wallet.publicKey.toBase58() } }
+        : undefined;
+      const res = await api.get<{ publicKey: string }[]>('/api/user/primos', headers);
       const members = Array.isArray(res.data) ? res.data : [];
       const tokenMap = new Map<string, HeliusFungibleToken>();
       await Promise.all(
