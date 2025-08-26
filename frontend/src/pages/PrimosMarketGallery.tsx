@@ -166,6 +166,7 @@ const PrimosMarketGallery: React.FC = () => {
   const goToPage = (num: number) => {
     const n = Math.max(1, Math.min(totalPages, num));
     setPage(n);
+    setPageInput(String(n));
   };
   useEffect(() => {
     let isMounted = true;
