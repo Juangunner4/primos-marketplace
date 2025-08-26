@@ -21,6 +21,10 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }));
 
+jest.mock('react-ts-tradingview-widgets', () => ({
+  AdvancedRealTimeChart: () => <div data-testid="tradingview-chart" />
+}));
+
 import * as trenchService from '../../services/trench';
 
 const mockContractData = {

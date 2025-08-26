@@ -42,6 +42,7 @@ import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
 import { getLikes, toggleLike } from '../utils/likes';
 import { getTokenReactions, toggleTokenLike, toggleTokenDislike, TokenReactionData } from '../utils/tokenReactions';
 import AdminDeveloperConsole from './AdminDeveloperConsole';
+import SolanaChart from './SolanaChart';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
@@ -58,6 +59,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
 
   const [token, setToken] = useState<TokenMetadata | null>(null);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
+  const [chartSymbol, setChartSymbol] = useState<string | null>(null);
   const [coinGeckoData, setCoinGeckoData] = useState<CoinGeckoEntry[]>([]);
   const [tokenHolders, setTokenHolders] = useState<TokenHolder[]>([]);
   const [holdersExpanded, setHoldersExpanded] = useState(false);
@@ -539,6 +541,21 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     loadData();
   }, [open, contract, t]);
 
+  useEffect(() => {
+    if (
+      tokenInfo?.tickerBase &&
+      tokenInfo?.tickerTarget &&
+      tokenInfo?.tickerMarketName
+    ) {
+      const market = tokenInfo.tickerMarketName.replace(/\s+/g, '').toUpperCase();
+      const base = tokenInfo.tickerBase.toUpperCase();
+      const target = tokenInfo.tickerTarget.toUpperCase();
+      setChartSymbol(`${market}:${base}${target}`);
+    } else {
+      setChartSymbol(null);
+    }
+  }, [tokenInfo]);
+
   // Separate useEffect for PFP loading with timeout to avoid race conditions
   useEffect(() => {
     if (!open || !contract) return;
@@ -973,11 +990,16 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             )}
           </Box>
 
-          <Box className="market-data-panel">
-            <Typography className="dialog-title">{t('market_data')}</Typography>
-            <Box className="market-data-list" sx={{ mt: 1 }}>
-              {coinGeckoData.map((entry) => (
-                <Box key={entry.id} sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, backgroundColor: '#fafafa', borderRadius: 0.5 }}>
+            <Box className="market-data-panel">
+              <Typography className="dialog-title">{t('market_data')}</Typography>
+              {chartSymbol && (
+                <Box sx={{ height: 300, mt: 2 }}>
+                  <SolanaChart symbol={chartSymbol} />
+                </Box>
+              )}
+              <Box className="market-data-list" sx={{ mt: 1 }}>
+                {coinGeckoData.map((entry) => (
+                  <Box key={entry.id} sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, backgroundColor: '#fafafa', borderRadius: 0.5 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     {geckoIcons[entry.id]}
                     <Typography variant="body2" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
