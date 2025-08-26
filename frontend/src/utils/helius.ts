@@ -150,22 +150,18 @@ const nftCache: Record<string, HeliusNFT> = {};
 export const getNFTByTokenAddress = async (
   tokenAddress: string
 ): Promise<HeliusNFT | null> => {
-  console.log('Helius - getNFTByTokenAddress called for token:', tokenAddress);
   
   if (nftCache[tokenAddress]) {
-    console.log('Helius - Found cached NFT for token:', tokenAddress, nftCache[tokenAddress]);
     return nftCache[tokenAddress];
   }
 
   const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
 
   if (!apiKey) {
-    console.log('Helius - No API key available');
     return null;
   }
 
   try {
-    console.log('Helius - Making API call to Helius for token:', tokenAddress);
     const response = await heliusFetch(
       `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
       {
@@ -179,25 +175,16 @@ export const getNFTByTokenAddress = async (
         }),
       }
     );
-
-    console.log('Helius - API response status:', response.ok, response.status);
     if (!response.ok) {
-      console.log('Helius - API call failed with status:', response.status);
       return null;
     }
 
     const data = await response.json();
-    console.log('Helius - Raw API response data:', data);
     const item = data.result;
     if (!item) {
-      console.log('Helius - No result item in API response');
       return null;
     }
     const metadata = item.content?.metadata || {};
-    console.log('Helius - Extracted metadata:', metadata);
-    console.log('Helius - Item content:', item.content);
-    console.log('Helius - Item content links:', item.content?.links);
-    console.log('Helius - Item content image:', item.content?.links?.image);
     
     const nft = {
       id: item.id,
@@ -209,10 +196,7 @@ export const getNFTByTokenAddress = async (
       description: metadata?.description,
       metadata,
     } as HeliusNFT;
-    console.log('Helius - Created NFT object:', nft);
-    console.log('Helius - NFT image specifically:', nft.image);
     nftCache[tokenAddress] = nft;
-    console.log('Helius - Cached NFT for token:', tokenAddress);
     return nft;
   } catch (e) {
     console.error('Helius - Error fetching NFT by token address:', e);

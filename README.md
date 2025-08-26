@@ -3,6 +3,10 @@ Solana NFT marketplace for the Primos collection. Recent updates add
 an "All Contracts" view for exploring commonly scanned addresses and
 optimize Primo holder checks via the Helius API.
 
+## Version
+
+v1.0.1
+
 ## Running the project
 
 The repository contains three applications:

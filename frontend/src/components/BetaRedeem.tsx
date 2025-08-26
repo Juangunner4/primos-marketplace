@@ -17,7 +17,7 @@ const BetaRedeem: React.FC<{ autoOpen?: boolean }> = ({ autoOpen = false }) => {
     showRedeemDialog,
     setShowRedeemDialog,
     redeemBetaCode,
-    isHolder, // <-- add this
+    isHolder,
   } = usePrimoHolder();
 
   const [open, setOpen] = useState(autoOpen);
