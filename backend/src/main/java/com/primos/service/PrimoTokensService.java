@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import com.primos.model.User;
+import com.primos.model.PrimoToken;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -151,5 +154,75 @@ public class PrimoTokensService {
      */
     private boolean isTokenAlreadyInTrenches(String tokenAddress) {
         return trenchService.findByContract(tokenAddress) != null;
+    }
+
+    /**
+     * Updates the Primo token collection with tokens currently held by Primo
+     * holders and returns the updated list.
+     * This method collects fungible tokens for a subset of Primo holders using the
+     * Helius API, stores the aggregated
+     * results in a MongoDB collection, and removes tokens that are no longer held
+     * by any Primo holder.
+     *
+     * @return List of PrimoToken entries sorted by holder count (descending)
+     */
+    public List<PrimoToken> updateAndGetPrimoTokens() {
+        LOG.info("Updating Primo token collection from database holders...");
+
+        Map<String, Integer> tokenHolderCount = new HashMap<>();
+        List<User> primoHolders = User.<User>list("daoMember", true);
+        final int[] processedHolders = { 0 };
+        int maxHoldersToProcess = Math.min(50, primoHolders.size());
+
+        for (User holder : primoHolders) {
+            if (processedHolders[0] >= maxHoldersToProcess) {
+                break;
+            }
+            String holderAddress = holder.getPublicKey();
+            if (holderAddress == null || holderAddress.isEmpty()) {
+                continue;
+            }
+            try {
+                List<String> holderTokens = fetchTokensForHolder(holderAddress);
+                for (String token : holderTokens) {
+                    tokenHolderCount.put(token, tokenHolderCount.getOrDefault(token, 0) + 1);
+                }
+                processedHolders[0]++;
+                if (processedHolders[0] % 10 == 0) {
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                LOG.warning("Token update interrupted: " + ie.getMessage());
+            } catch (Exception e) {
+                LOG.warning("Failed to fetch tokens for holder " + holderAddress + ": " + e.getMessage());
+            }
+        }
+
+        long now = System.currentTimeMillis();
+
+        // Update or insert current tokens
+        for (Map.Entry<String, Integer> entry : tokenHolderCount.entrySet()) {
+            PrimoToken token = PrimoToken.find("contract", entry.getKey()).firstResult();
+            if (token == null) {
+                token = new PrimoToken();
+                token.setContract(entry.getKey());
+            }
+            token.setHolderCount(entry.getValue());
+            token.setUpdatedAt(now);
+            token.persistOrUpdate();
+        }
+
+        // Remove tokens no longer held
+        List<PrimoToken> existing = PrimoToken.listAll();
+        for (PrimoToken token : existing) {
+            if (!tokenHolderCount.containsKey(token.getContract())) {
+                token.delete();
+            }
+        }
+
+        return PrimoToken.<PrimoToken>listAll().stream()
+                .sorted(Comparator.comparingInt(PrimoToken::getHolderCount).reversed())
+                .collect(Collectors.toList());
     }
 }

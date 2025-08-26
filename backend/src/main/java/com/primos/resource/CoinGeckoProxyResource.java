@@ -113,6 +113,53 @@ public class CoinGeckoProxyResource {
     }
 
     @GET
+    @Path("/coins/{network}/contract/{contractAddress}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTokenByContract(
+            @PathParam("network") String network,
+            @PathParam("contractAddress") String contractAddress,
+            @QueryParam("x_cg_demo_api_key") String demoApiKey) {
+
+        try {
+            String url = COINGECKO_BASE_URL + "/coins/" + network + "/contract/" + contractAddress;
+            if (demoApiKey != null) {
+                url += "?x_cg_demo_api_key=" + demoApiKey;
+            }
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(30))
+                    .header("Accept", "application/json")
+                    .header("User-Agent", "PrimosMarketplace/1.0")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return Response.status(response.statusCode())
+                    .entity(response.body())
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .header(CORS_ALLOW_METHODS, GET_METHOD)
+                    .header(CORS_ALLOW_HEADERS, CONTENT_TYPE)
+                    .build();
+
+        } catch (java.io.IOException e) {
+            System.err.println("Error proxying CoinGecko token request: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Failed to fetch data from CoinGecko\"}")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .build();
+        } catch (java.lang.InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("CoinGecko token request interrupted: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Request interrupted\"}")
+                    .header(CORS_ALLOW_ORIGIN, WILDCARD_ORIGIN)
+                    .build();
+        }
+    }
+
+    @GET
     @Path("/pools/{tokenAddress}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTokenPools(

@@ -6,6 +6,12 @@ export interface CoinGeckoTokenPrice {
   last_updated_at?: number;
 }
 
+export interface TokenContractData {
+  image?: string;
+  marketCap?: number;
+  priceChange24h?: number;
+}
+
 export interface CoinGeckoTokenInfo {
   id: string;
   symbol: string;
@@ -370,6 +376,52 @@ export const fetchSimpleTokenPrice = async (
   } catch (error) {
     console.error('Error in fetchNFTWithCoinGeckoBackup:', error);
     return null;
+  }
+};
+
+/**
+ * Fetch token metadata and market data using CoinGecko contract endpoint
+ * @param contractAddress - Token contract address
+ * @param network - Network identifier
+ * @returns Token image, market cap and 24h price change
+ */
+export const fetchTokenDataByContract = async (
+  contractAddress: string,
+  network: string = 'solana',
+  retries = 1
+): Promise<TokenContractData> => {
+  const cacheKey = `token-data-${network}-${contractAddress}`;
+  const cached = getCached<TokenContractData>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const apiKey = process.env.REACT_APP_COINGECKO_API_KEY;
+    const url = `/api/coingecko/coins/${network}/contract/${contractAddress}` +
+      (apiKey ? `?x_cg_demo_api_key=${apiKey}` : '');
+
+    const response = await rateLimitedFetch(url);
+
+    if (response.status === 429 && retries > 0) {
+      const retryAfter = parseInt(response.headers.get('retry-after') || '2', 10);
+      await new Promise((r) => setTimeout(r, retryAfter * 1000));
+      return fetchTokenDataByContract(contractAddress, network, retries - 1);
+    }
+
+    if (!response.ok) {
+      return {};
+    }
+
+    const data: CoinGeckoTokenInfo = await response.json();
+    const result: TokenContractData = {
+      image: data.image?.small || data.image?.thumb,
+      marketCap: data.market_data?.market_cap?.usd,
+      priceChange24h: data.market_data?.price_change_percentage_24h,
+    };
+    setCached(cacheKey, result);
+    return result;
+  } catch (error) {
+    console.error('Error in fetchTokenDataByContract:', error);
+    return {};
   }
 };
 

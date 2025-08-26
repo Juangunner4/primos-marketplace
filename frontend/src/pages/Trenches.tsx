@@ -15,7 +15,7 @@ import {
   TrenchUser,
 } from '../services/trench';
 import api from '../utils/api';
-import { getNFTByTokenAddress, getTokensForOwner } from '../services/helius';
+import { getNFTByTokenAddress } from '../services/helius';
 import type { HeliusFungibleToken } from '../services/helius';
 import { resolvePfpImage } from '../services/user';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
@@ -25,6 +25,11 @@ import AdminDeveloperConsole from '../components/AdminDeveloperConsole';
 import { AppMessage } from '../types';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './Trenches.css';
+
+interface PrimoToken {
+  contract: string;
+  holderCount: number;
+}
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION;
 
@@ -276,30 +281,27 @@ const Trenches: React.FC = () => {
   const loadPrimoTokens = async () => {
     setLoadingPrimoTokens(true);
     try {
-      const headers = wallet.publicKey
-        ? { headers: { 'X-Public-Key': wallet.publicKey.toBase58() } }
-        : undefined;
-      const res = await api.get<{ publicKey: string }[]>('/api/user/primos', headers);
-      const members = Array.isArray(res.data) ? res.data : [];
-      const tokenMap = new Map<string, HeliusFungibleToken>();
-      await Promise.all(
-        members.map(async (m) => {
-          if (!m.publicKey) return;
+      const res = await api.get<PrimoToken[]>('/api/primo-tokens');
+      const tokens = Array.isArray(res.data) ? res.data : [];
+      const enriched = await Promise.all(
+        tokens.map(async (t) => {
           try {
-            const tokens = await getTokensForOwner(m.publicKey);
-            tokens.forEach((token) => {
-              if (!tokenMap.has(token.id)) {
-                tokenMap.set(token.id, token);
-              }
-            });
+            const meta = await getNFTByTokenAddress(t.contract);
+            return {
+              id: t.contract,
+              name: meta?.name,
+              symbol: meta?.symbol,
+              image: meta?.image,
+            } as HeliusFungibleToken;
           } catch (err) {
-            logNetworkError('getTokensForOwner', err);
+            logNetworkError(`getNFTByTokenAddress(${t.contract})`, err);
+            return { id: t.contract } as HeliusFungibleToken;
           }
         })
       );
-      setPrimoTokens(Array.from(tokenMap.values()));
+      setPrimoTokens(enriched);
     } catch (err) {
-      logNetworkError('/api/user/primos', err);
+      logNetworkError('/api/primo-tokens', err);
     } finally {
       setLoadingPrimoTokens(false);
     }

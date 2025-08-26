@@ -143,8 +143,11 @@ public class HeliusService {
         }
         return holders;
     }
+
     /**
-     * Fetches fungible tokens held by a specific wallet address.
+     * Fetches fungible SPL tokens held by a specific wallet address using the
+     * Helius DAS endpoint. NFT-like assets are skipped by ensuring the token has
+     * decimals and a balance greater than one.
      *
      * @param walletAddress The wallet address to query
      * @return List of token mint addresses held by the wallet
@@ -158,15 +161,8 @@ public class HeliusService {
         }
 
         try {
-            String body = String.format(
-                    "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"getAssetsByOwner\",\"params\":{\"ownerAddress\":\"%s\",\"page\":1,\"limit\":1000,\"displayOptions\":{\"showFungibleTokens\":true,\"showNativeBalance\":false}}}",
-                    walletAddress);
-
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create("https://mainnet.helius-rpc.com/?api-key=" + API_KEY))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
-                    .build();
+            String url = String.format("https://api.helius.xyz/v0/addresses/%s/tokens?api-key=%s", walletAddress, API_KEY);
+            HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
 
             HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
 
@@ -176,22 +172,20 @@ public class HeliusService {
             }
 
             try (JsonReader reader = Json.createReader(new StringReader(resp.body()))) {
-                JsonObject obj = reader.readObject();
-                JsonObject result = obj.getJsonObject("result");
-                if (result == null)
-                    return tokens;
-
-                JsonArray items = result.getJsonArray("items");
-                if (items == null)
-                    return tokens;
-
+                JsonArray items = reader.readArray();
                 for (int i = 0; i < items.size(); i++) {
                     JsonObject item = items.getJsonObject(i);
-                    if (item.getString("interface", "").equals("FungibleToken")) {
-                        String mintAddress = item.getString("id", null);
-                        if (mintAddress != null && !mintAddress.isEmpty()) {
-                            tokens.add(mintAddress);
-                        }
+                    int decimals = item.getInt("decimals", 0);
+                    String amount = item.get("amount") != null ? item.get("amount").toString().replace("\"", "") : "0";
+
+                    // Skip NFT-like assets (no decimals or single supply)
+                    if (decimals == 0 || "1".equals(amount)) {
+                        continue;
+                    }
+
+                    String mint = item.getString("mint", null);
+                    if (mint != null && !mint.isEmpty()) {
+                        tokens.add(mint);
                     }
                 }
             }
