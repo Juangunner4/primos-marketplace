@@ -14,6 +14,10 @@ jest.mock('../../utils/magiceden', () => ({
   getCollectionAttributes: jest.fn(() => Promise.resolve({ attributes: {} }))
 }));
 
+jest.mock('../../utils/transaction', () => ({
+  executeBuyNow: jest.fn(),
+}));
+
 jest.mock('../../services/helius', () => ({
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null))
 }));
@@ -88,5 +92,28 @@ describe('PrimosMarketGallery', () => {
     fireEvent.click(screen.getByText('Apply'));
     expect(await screen.findByText('Primo2')).toBeTruthy();
     expect(screen.queryByText('Primo1')).toBeNull();
+  });
+
+  test('loads next page of listings when clicking next', async () => {
+    (magiceden.getMagicEdenStats as jest.Mock).mockResolvedValue({ listedCount: 20, floorPrice: null });
+    (magiceden.fetchMagicEdenListings as jest.Mock)
+      .mockResolvedValueOnce([
+        { tokenMint: 'mint1', price: 1, rarityRank: 1, img: 'img1', name: 'Primo1' },
+      ])
+      .mockResolvedValueOnce([
+        { tokenMint: 'mint2', price: 2, rarityRank: 2, img: 'img2', name: 'Primo2' },
+      ]);
+
+    render(
+      <I18nextProvider i18n={i18n}>
+        <PrimosMarketGallery />
+      </I18nextProvider>
+    );
+
+    expect(await screen.findByText('Primo1')).toBeTruthy();
+    fireEvent.click(screen.getByText('Next'));
+    expect(await screen.findByText('Primo2')).toBeTruthy();
+    expect(screen.queryByText('Primo1')).toBeNull();
+    expect((magiceden.fetchMagicEdenListings as jest.Mock).mock.calls[1][1]).toBe(10);
   });
 });
