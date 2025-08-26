@@ -12,7 +12,7 @@ import { fetchVolume24h } from '../utils/transaction';
 import Avatar from '@mui/material/Avatar';
 import PeopleIcon from '@mui/icons-material/People';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
-import { fetchSimpleTokenPrice } from '../services/coingecko';
+import { fetchSimpleTokenPrice, fetchTokenDataByContract } from '../services/coingecko';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { resolvePfpImage } from '../services/user';
 import { getNFTByTokenAddress } from '../services/helius';
@@ -44,6 +44,13 @@ interface TrenchContract {
   priceChange24h?: number;
 }
 
+interface PrimoToken {
+  contract: string;
+  image?: string;
+  marketCap?: number;
+  priceChange24h?: number;
+}
+
 const MAGICEDEN_SYMBOL = 'primos';
 
 const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
@@ -53,6 +60,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [latestContracts, setLatestContracts] = useState<TrenchContract[]>([]);
   const [loadingContracts, setLoadingContracts] = useState(true);
+  const [primoTokens, setPrimoTokens] = useState<PrimoToken[]>([]);
+  const [loadingPrimoTokens, setLoadingPrimoTokens] = useState(true);
   const wallet = useWallet();
   const isConnected = connected ?? wallet.connected;
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -169,6 +178,35 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
       }
     };
     fetchContracts();
+  }, []);
+
+  useEffect(() => {
+    const fetchPrimoTokens = async () => {
+      setLoadingPrimoTokens(true);
+      try {
+        const res = await api.get<PrimoToken[]>('/api/primo-tokens');
+        const all = Array.isArray(res.data) ? res.data : [];
+        const last8 = all.slice(-8).reverse();
+        const enriched = await Promise.all(
+          last8.map(async (t) => {
+            const network = /^0x[0-9a-fA-F]{40}$/.test(t.contract) ? 'ethereum' : 'solana';
+            const data = await fetchTokenDataByContract(t.contract, network);
+            return {
+              contract: t.contract,
+              image: data.image || '',
+              marketCap: data.marketCap,
+              priceChange24h: data.priceChange24h,
+            };
+          })
+        );
+        setPrimoTokens(enriched);
+      } catch {
+        setPrimoTokens([]);
+      } finally {
+        setLoadingPrimoTokens(false);
+      }
+    };
+    fetchPrimoTokens();
   }, []);
 
   return (
@@ -441,6 +479,94 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                     <Box className="market-cap-tag">
                       {formatCap(c.marketCap)}
                     </Box>
+                  )}
+                  {c.priceChange24h !== undefined && (
+                    <Box className={getPriceChangeClass(c.priceChange24h)}>
+                      {formatPriceChange(c.priceChange24h)}
+                    </Box>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          mt: 6,
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: 5,
+          background: 'linear-gradient(120deg, #23272f 60%, #111 100%)',
+          borderRadius: '1.5rem',
+          p: 4,
+          boxShadow: '0 2px 16px #0003',
+          maxWidth: 900,
+          mx: 'auto',
+          border: '2px solid #fff',
+          position: 'relative',
+        }}
+      >
+        <Box sx={{ mt: 6, textAlign: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, gap: 0.5 }}>
+            <MilitaryTechIcon sx={{ color: '#aaa' }} />
+            <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+              {t('tokens_held_by_primos')}
+            </Typography>
+          </Box>
+          {loadingPrimoTokens ? (
+            <Loading message={t('loading_primo_tokens')} />
+          ) : isMobile ? (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: 1,
+                justifyItems: 'center',
+              }}
+            >
+              {primoTokens.map((c) => (
+                <Box key={c.contract} title={c.contract} sx={{ position: 'relative' }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      backgroundColor: '#000',
+                      backgroundImage: c.image ? `url(${c.image})` : undefined,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  {c.marketCap && (
+                    <Box className="market-cap-tag">{formatCap(c.marketCap)}</Box>
+                  )}
+                  {c.priceChange24h !== undefined && (
+                    <Box className={getPriceChangeClass(c.priceChange24h)}>
+                      {formatPriceChange(c.priceChange24h)}
+                    </Box>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+              {primoTokens.map((c) => (
+                <Box key={c.contract} title={c.contract} sx={{ position: 'relative' }}>
+                  <Box
+                    sx={{
+                      width: { xs: 40, sm: 80 },
+                      height: { xs: 40, sm: 80 },
+                      borderRadius: '50%',
+                      backgroundColor: '#000',
+                      backgroundImage: c.image ? `url(${c.image})` : undefined,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  {c.marketCap && (
+                    <Box className="market-cap-tag">{formatCap(c.marketCap)}</Box>
                   )}
                   {c.priceChange24h !== undefined && (
                     <Box className={getPriceChangeClass(c.priceChange24h)}>
