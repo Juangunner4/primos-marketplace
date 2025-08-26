@@ -46,9 +46,13 @@ interface TrenchContract {
 
 interface PrimoToken {
   contract: string;
+  holderCount?: number;
+  holders?: string[];
   image?: string;
   marketCap?: number;
   priceChange24h?: number;
+  name?: string;
+  symbol?: string;
 }
 
 const MAGICEDEN_SYMBOL = 'primos';
@@ -66,7 +70,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const isConnected = connected ?? wallet.connected;
   const isMobile = useMediaQuery('(max-width:600px)');
   // format market cap into readable string
-  const formatCap = (cap: number) => {
+  const formatCap = (cap: number | null | undefined) => {
+    if (cap == null || isNaN(cap)) return 'N/A';
     if (cap >= 1e9) return `$${(cap / 1e9).toFixed(1)}B`;
     if (cap >= 1e6) return `$${(cap / 1e6).toFixed(1)}M`;
     if (cap >= 1e3) return `$${(cap / 1e3).toFixed(1)}k`;
@@ -74,13 +79,15 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   };
 
   // format price change percentage
-  const formatPriceChange = (change: number) => {
+  const formatPriceChange = (change: number | null | undefined) => {
+    if (change == null || isNaN(change)) return 'N/A';
     const sign = change >= 0 ? '+' : '';
     return `${sign}${change.toFixed(1)}%`;
   };
 
   // get price change CSS class
-  const getPriceChangeClass = (change: number) => {
+  const getPriceChangeClass = (change: number | null | undefined) => {
+    if (change == null || isNaN(change)) return 'price-change-tag neutral';
     if (change > 0) return 'price-change-tag positive';
     if (change < 0) return 'price-change-tag negative';
     return 'price-change-tag neutral';
@@ -184,23 +191,46 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
     const fetchPrimoTokens = async () => {
       setLoadingPrimoTokens(true);
       try {
-        const res = await api.get<PrimoToken[]>('/api/primo-tokens');
-        const all = Array.isArray(res.data) ? res.data : [];
-        const last8 = all.slice(-8).reverse();
+        // Fetch top tokens by 24h price change
+        const res = await api.get<PrimoToken[]>('/api/primo-tokens/top-by-change?limit=10');
+        const tokens = Array.isArray(res.data) ? res.data : [];
+        
+        // Enrich tokens with additional metadata if needed
         const enriched = await Promise.all(
-          last8.map(async (t) => {
-            const network = /^0x[0-9a-fA-F]{40}$/.test(t.contract) ? 'ethereum' : 'solana';
-            const data = await fetchTokenDataByContract(t.contract, network);
+          tokens.map(async (t) => {
+            let image = t.image || '';
+            let marketCap = t.marketCap;
+            let priceChange = t.priceChange24h;
+            
+            try {
+              // Only fetch additional data if we don't have it from backend
+              if (!image || marketCap === undefined || priceChange === undefined) {
+                const network = /^0x[0-9a-fA-F]{40}$/.test(t.contract) ? 'ethereum' : 'solana';
+                const data = await fetchTokenDataByContract(t.contract, network);
+                image = image || data.image || '';
+                marketCap = marketCap ?? data.marketCap;
+                priceChange = priceChange ?? data.priceChange24h;
+              }
+            } catch (error) {
+              console.warn('Failed to enrich token data:', error);
+            }
+            
             return {
               contract: t.contract,
-              image: data.image || '',
-              marketCap: data.marketCap,
-              priceChange24h: data.priceChange24h,
+              holderCount: t.holderCount,
+              holders: t.holders,
+              image,
+              marketCap,
+              priceChange24h: priceChange,
+              name: t.name,
+              symbol: t.symbol,
             };
           })
         );
+        
         setPrimoTokens(enriched);
-      } catch {
+      } catch (error) {
+        console.error('Failed to fetch primo tokens:', error);
         setPrimoTokens([]);
       } finally {
         setLoadingPrimoTokens(false);
@@ -452,7 +482,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                       {formatCap(c.marketCap)}
                     </Box>
                   )}
-                  {c.priceChange24h !== undefined && (
+                  {c.priceChange24h !== undefined && c.priceChange24h !== null && (
                     <Box className={getPriceChangeClass(c.priceChange24h)}>
                       {formatPriceChange(c.priceChange24h)}
                     </Box>
@@ -480,7 +510,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                       {formatCap(c.marketCap)}
                     </Box>
                   )}
-                  {c.priceChange24h !== undefined && (
+                  {c.priceChange24h !== undefined && c.priceChange24h !== null && (
                     <Box className={getPriceChangeClass(c.priceChange24h)}>
                       {formatPriceChange(c.priceChange24h)}
                     </Box>
@@ -512,7 +542,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, gap: 0.5 }}>
             <MilitaryTechIcon sx={{ color: '#aaa' }} />
             <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
-              {t('tokens_held_by_primos')}
+              Top Primo Tokens (24h % Change)
             </Typography>
           </Box>
           {loadingPrimoTokens ? (
@@ -526,25 +556,52 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 justifyItems: 'center',
               }}
             >
-              {primoTokens.map((c) => (
-                <Box key={c.contract} title={c.contract} sx={{ position: 'relative' }}>
+              {primoTokens.map((token) => (
+                <Box key={token.contract} title={`${token.name || token.symbol || token.contract}\nHolders: ${token.holderCount || 0}`} sx={{ position: 'relative' }}>
                   <Box
                     sx={{
                       width: 40,
                       height: 40,
                       borderRadius: '50%',
                       backgroundColor: '#000',
-                      backgroundImage: c.image ? `url(${c.image})` : undefined,
+                      backgroundImage: token.image ? `url(${token.image})` : undefined,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
                     }}
-                  />
-                  {c.marketCap && (
-                    <Box className="market-cap-tag">{formatCap(c.marketCap)}</Box>
+                  >
+                    {!token.image && (token.symbol || token.name?.substring(0, 4) || token.contract.substring(0, 4))}
+                  </Box>
+                  {token.holderCount && token.holderCount > 1 && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: -5,
+                      right: -5,
+                      backgroundColor: '#2196f3',
+                      color: '#fff',
+                      borderRadius: '50%',
+                      width: 16,
+                      height: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                    }}>
+                      {token.holderCount}
+                    </Box>
                   )}
-                  {c.priceChange24h !== undefined && (
-                    <Box className={getPriceChangeClass(c.priceChange24h)}>
-                      {formatPriceChange(c.priceChange24h)}
+                  {token.marketCap && (
+                    <Box className="market-cap-tag">{formatCap(token.marketCap)}</Box>
+                  )}
+                  {token.priceChange24h !== undefined && token.priceChange24h !== null && (
+                    <Box className={getPriceChangeClass(token.priceChange24h)}>
+                      {formatPriceChange(token.priceChange24h)}
                     </Box>
                   )}
                 </Box>
@@ -552,25 +609,52 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
-              {primoTokens.map((c) => (
-                <Box key={c.contract} title={c.contract} sx={{ position: 'relative' }}>
+              {primoTokens.map((token) => (
+                <Box key={token.contract} title={`${token.name || token.symbol || token.contract}\nHolders: ${token.holderCount || 0}`} sx={{ position: 'relative' }}>
                   <Box
                     sx={{
                       width: { xs: 40, sm: 80 },
                       height: { xs: 40, sm: 80 },
                       borderRadius: '50%',
                       backgroundColor: '#000',
-                      backgroundImage: c.image ? `url(${c.image})` : undefined,
+                      backgroundImage: token.image ? `url(${token.image})` : undefined,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
                     }}
-                  />
-                  {c.marketCap && (
-                    <Box className="market-cap-tag">{formatCap(c.marketCap)}</Box>
+                  >
+                    {!token.image && (token.symbol || token.name?.substring(0, 4) || token.contract.substring(0, 4))}
+                  </Box>
+                  {token.holderCount && token.holderCount > 1 && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: -5,
+                      right: -5,
+                      backgroundColor: '#2196f3',
+                      color: '#fff',
+                      borderRadius: '50%',
+                      width: 20,
+                      height: 20,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                    }}>
+                      {token.holderCount}
+                    </Box>
                   )}
-                  {c.priceChange24h !== undefined && (
-                    <Box className={getPriceChangeClass(c.priceChange24h)}>
-                      {formatPriceChange(c.priceChange24h)}
+                  {token.marketCap && (
+                    <Box className="market-cap-tag">{formatCap(token.marketCap)}</Box>
+                  )}
+                  {token.priceChange24h !== undefined && token.priceChange24h !== null && (
+                    <Box className={getPriceChangeClass(token.priceChange24h)}>
+                      {formatPriceChange(token.priceChange24h)}
                     </Box>
                   )}
                 </Box>

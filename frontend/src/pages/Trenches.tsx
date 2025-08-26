@@ -7,8 +7,10 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import CircularProgress from '@mui/material/CircularProgress';
+import Tooltip from '@mui/material/Tooltip';
 import { useTranslation } from 'react-i18next';
 import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   submitTrenchContract,
   TrenchData,
@@ -29,6 +31,28 @@ import './Trenches.css';
 interface PrimoToken {
   contract: string;
   holderCount: number;
+  holders?: string[]; // Array of holder wallet addresses
+  holderDetails?: HolderInfo[]; // Detailed holder information with PFP
+  tradingViewCharts?: TradingViewChart[]; // TradingView chart data for CEX listings
+  name?: string;
+  symbol?: string;
+  image?: string;
+  marketCap?: number;
+  priceChange24h?: number;
+}
+
+interface HolderInfo {
+  publicKey: string;
+  pfp?: string;
+  domain?: string;
+  isPrimo: boolean;
+}
+
+interface TradingViewChart {
+  exchange: string;
+  pair: string;
+  tradingViewSymbol: string;
+  chartUrl: string;
 }
 
 const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION;
@@ -38,7 +62,8 @@ if (!PRIMO_COLLECTION) {
 }
 
 // Format market cap into readable string
-const formatCap = (cap: number) => {
+const formatCap = (cap: number | null | undefined) => {
+  if (cap == null || isNaN(cap)) return 'N/A';
   if (cap >= 1e9) return `$${(cap / 1e9).toFixed(1)}B`;
   if (cap >= 1e6) return `$${(cap / 1e6).toFixed(1)}M`;
   if (cap >= 1e3) return `$${(cap / 1e3).toFixed(1)}k`;
@@ -46,13 +71,15 @@ const formatCap = (cap: number) => {
 };
 
 // Format price change percentage
-const formatPriceChange = (change: number) => {
+const formatPriceChange = (change: number | null | undefined) => {
+  if (change == null || isNaN(change)) return 'N/A';
   const sign = change >= 0 ? '+' : '';
   return `${sign}${change.toFixed(1)}%`;
 };
 
 // Get price change CSS class
-const getPriceChangeClass = (change: number) => {
+const getPriceChangeClass = (change: number | null | undefined) => {
+  if (change == null || isNaN(change)) return 'price-change-tag neutral';
   if (change > 0) return 'price-change-tag positive';
   if (change < 0) return 'price-change-tag negative';
   return 'price-change-tag neutral';
@@ -92,6 +119,7 @@ const Trenches: React.FC = () => {
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [], latestCallers: {} });
   const [openContract, setOpenContract] = useState<string | null>(null);
   const [openContractUserCount, setOpenContractUserCount] = useState<number>(0);
+  const [openPrimoToken, setOpenPrimoToken] = useState<string | null>(null);
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -280,27 +308,68 @@ const Trenches: React.FC = () => {
 
   const loadPrimoTokens = async () => {
     setLoadingPrimoTokens(true);
+    console.log('Starting Primo token discovery (separate from Trenches AI contracts)...');
+    
     try {
       const res = await api.get<PrimoToken[]>('/api/primo-tokens');
       const tokens = Array.isArray(res.data) ? res.data : [];
+      
+      console.log(`Loaded ${tokens.length} Primo tokens, enriching with metadata...`);
+      
+      // Enrich tokens with metadata if not already present
       const enriched = await Promise.all(
-        tokens.map(async (t) => {
+        tokens.map(async (t, index) => {
           try {
-            const meta = await getNFTByTokenAddress(t.contract);
+            console.log(`Enriching token ${index + 1}/${tokens.length}: ${t.contract}`);
+            
+            let image = t.image;
+            let name = t.name;
+            let symbol = t.symbol;
+            
+            // Only fetch metadata if not present
+            if (!image || !name || !symbol) {
+              const meta = await getNFTByTokenAddress(t.contract);
+              image = image || meta?.image;
+              name = name || meta?.name;
+              symbol = symbol || meta?.symbol;
+            }
+            
             return {
               id: t.contract,
-              name: meta?.name,
-              symbol: meta?.symbol,
-              image: meta?.image,
-            } as HeliusFungibleToken;
+              contract: t.contract,
+              holderCount: t.holderCount,
+              holders: t.holders,
+              holderDetails: t.holderDetails,
+              tradingViewCharts: t.tradingViewCharts,
+              name,
+              symbol,
+              image,
+              marketCap: t.marketCap,
+              priceChange24h: t.priceChange24h,
+            } as HeliusFungibleToken & PrimoToken;
           } catch (err) {
             logNetworkError(`getNFTByTokenAddress(${t.contract})`, err);
-            return { id: t.contract } as HeliusFungibleToken;
+            return {
+              id: t.contract,
+              contract: t.contract,
+              holderCount: t.holderCount,
+              holders: t.holders,
+              holderDetails: t.holderDetails,
+              tradingViewCharts: t.tradingViewCharts,
+              name: t.name,
+              symbol: t.symbol,
+              image: t.image,
+              marketCap: t.marketCap,
+              priceChange24h: t.priceChange24h,
+            } as HeliusFungibleToken & PrimoToken;
           }
         })
       );
+      
+      console.log(`Successfully enriched ${enriched.length} Primo tokens with metadata`);
       setPrimoTokens(enriched);
     } catch (err) {
+      console.error('Failed to load Primo tokens:', err);
       logNetworkError('/api/primo-tokens', err);
     } finally {
       setLoadingPrimoTokens(false);
@@ -332,6 +401,7 @@ const Trenches: React.FC = () => {
     setAdding(true);
     let valid = false;
     let marketCap: number | undefined;
+    let tokenMetadata: any = null;
 
     if (/^0x[0-9a-fA-F]{40}$/.test(contract)) {
       try {
@@ -350,6 +420,22 @@ const Trenches: React.FC = () => {
           const info = await connection.getAccountInfo(addr);
           if (info) {
             valid = true;
+            
+            // Fetch token metadata from Helius
+            try {
+              const nft = await getNFTByTokenAddress(contract);
+              if (nft) {
+                tokenMetadata = {
+                  name: nft.name,
+                  symbol: nft.symbol,
+                  image: nft.image,
+                  description: nft.description
+                };
+              }
+            } catch (e) {
+              console.warn('Failed to fetch token metadata:', e);
+            }
+            
             // Try to get Solana token market cap from CoinGecko via backend proxy
             try {
               const tokenData = await fetchSimpleTokenPrice(contract, 'solana');
@@ -357,6 +443,7 @@ const Trenches: React.FC = () => {
                 marketCap = tokenData.usd_market_cap;
               }
             } catch (e) {
+              console.warn('Failed to fetch market cap:', e);
             }
           }
         }
@@ -370,7 +457,14 @@ const Trenches: React.FC = () => {
     }
 
     try {
-      await submitTrenchContract(publicKey.toBase58(), contract, 'model1', marketCap);
+      await submitTrenchContract(
+        publicKey.toBase58(), 
+        contract, 
+        'model1', 
+        marketCap,
+        undefined, // domain
+        tokenMetadata // Pass metadata
+      );
       setInput('');
       await load(false);
     } catch (e: any) {
@@ -498,23 +592,44 @@ const Trenches: React.FC = () => {
       
       {/* Token Discovery Section - Public Access */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-        <Button
-          variant="outlined"
-          onClick={handleDiscoverTokens}
-          disabled={discoveringTokens}
-          sx={{
-            borderColor: '#000',
-            color: '#000',
-            '&:hover': { borderColor: '#333', backgroundColor: '#f5f5f5' },
-            '&:disabled': { borderColor: '#ccc', color: '#666' },
-          }}
+        <Tooltip
+          title={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Discover Primo Tokens
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', mb: 0.5 }}>
+                • Scans wallets of all Primo holders
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', mb: 0.5 }}>
+                • Finds tokens held by multiple Primos
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', mb: 0.5 }}>
+                • Enriches with Jupiter & CoinGecko data
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                • Automatically adds high-value tokens to Trenches
+              </Typography>
+            </Box>
+          }
+          arrow
+          placement="top"
         >
-          {discoveringTokens ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            'Discover Primo Tokens'
-          )}
-        </Button>
+          <Button
+            variant="outlined"
+            onClick={handleDiscoverTokens}
+            disabled={discoveringTokens}
+            startIcon={discoveringTokens ? <CircularProgress size={20} /> : <RefreshIcon />}
+            sx={{
+              borderColor: '#000',
+              color: '#000',
+              '&:hover': { borderColor: '#333', backgroundColor: '#f5f5f5' },
+              '&:disabled': { borderColor: '#ccc', color: '#666' },
+            }}
+          >
+            {discoveringTokens ? 'Discovering...' : 'Discover Primo Tokens'}
+          </Button>
+        </Tooltip>
       </Box>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -565,7 +680,7 @@ const Trenches: React.FC = () => {
                       {formatCap(c.marketCap)}
                     </Box>
                   )}
-                  {c.priceChange24h !== undefined && (
+                  {c.priceChange24h !== undefined && c.priceChange24h !== null && (
                     <Box className={getPriceChangeClass(c.priceChange24h)}>
                       {formatPriceChange(c.priceChange24h)}
                     </Box>
@@ -578,33 +693,275 @@ const Trenches: React.FC = () => {
         </Box>
       )}
       {loadingPrimoTokens ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4, p: 3 }}>
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
+            Discovering Primo Tokens
+          </Typography>
+          <Typography variant="body2" sx={{ 
+            textAlign: 'center', 
+            color: 'text.secondary',
+            maxWidth: 400,
+            lineHeight: 1.4 
+          }}>
+            Scanning Primo wallets for tokens with enhanced metadata from Jupiter, CoinGecko, and Helius APIs.
+            Loading holder profile pictures and discovering TradingView charts for CEX-listed tokens.
+            This may take a moment as we fetch comprehensive token and holder data...
+          </Typography>
         </Box>
       ) : primoTokens.length > 0 && (
         <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" sx={{ mb: 2 }}>
-            {t('tokens_held_by_primos')}
-          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h5" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+              {t('tokens_held_by_primos')}
+              <Box sx={{ 
+                px: 1.5, 
+                py: 0.5, 
+                backgroundColor: 'primary.main', 
+                color: 'white', 
+                borderRadius: 1, 
+                fontSize: '0.75rem' 
+              }}>
+                {primoTokens.length} tokens
+              </Box>
+            </Typography>
+            <Typography variant="body2" sx={{ 
+              color: 'text.secondary', 
+              mb: 2,
+              lineHeight: 1.5 
+            }}>
+              Tokens currently held by Primo members with enhanced market data. 
+              Size indicates holder count, badges show performance metrics.
+              This is separate from Trenches AI contracts.
+            </Typography>
+          </Box>
           <Box className="bubble-map">
-            {primoTokens.map((token) => (
-              <div
-                key={token.id}
-                className="bubble"
-                aria-label={token.name || token.id}
-                title={token.name || token.id}
-                style={{
-                  width: 60,
-                  height: 60,
-                  backgroundImage: token.image
-                    ? `url(${token.image})`
-                    : undefined,
-                }}
-              >
-                {!token.image &&
-                  (token.symbol || token.name || token.id.substring(0, 4))}
-              </div>
-            ))}
+            {primoTokens.filter(token => token && typeof token === 'object' && (token as any).contract).map((token) => {
+              const tokenData = token as HeliusFungibleToken & PrimoToken;
+              const holderCount = tokenData.holderCount || 1;
+              const size = Math.max(80, Math.min(140, 80 + holderCount * 10));
+              const hasMultipleHolders = holderCount > 1;
+              
+              return (
+                <div
+                  key={tokenData.id}
+                  className="bubble"
+                  aria-label={`${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : 'Unknown token')} - ${holderCount} holder${holderCount === 1 ? '' : 's'}`}
+                  title={`Token: ${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : 'Unknown token')}
+Contract: ${tokenData.contract}
+Holders: ${holderCount} Primo${holderCount === 1 ? '' : 's'}
+${tokenData.holderDetails && tokenData.holderDetails.length > 0 ? 
+  `Primo Holders: ${tokenData.holderDetails.slice(0, 3).map(h => {
+    if (h && typeof h === 'object') {
+      const safeHolder = h as any;
+      const domain = safeHolder.domain && typeof safeHolder.domain === 'string' ? safeHolder.domain : '';
+      const publicKey = safeHolder.publicKey && typeof safeHolder.publicKey === 'string' ? safeHolder.publicKey : '';
+      return domain || publicKey.substring(0, 8) || 'Unknown';
+    }
+    return 'Unknown';
+  }).join(', ')}${tokenData.holderDetails.length > 3 ? '...' : ''}` : 
+  ''}
+${tokenData.tradingViewCharts && tokenData.tradingViewCharts.length > 0 ?
+  `Trading Charts: ${tokenData.tradingViewCharts.map(chart => `${chart.exchange}:${chart.pair}`).join(', ')}` :
+  ''}
+${tokenData.priceChange24h !== undefined && tokenData.priceChange24h !== null ? `24h Change: ${formatPriceChange(tokenData.priceChange24h)}` : ''}
+${tokenData.marketCap ? `Market Cap: ${formatCap(tokenData.marketCap)}` : ''}
+
+Click: View details | Right-click: Open TradingView chart | Double-click: Copy contract`}
+                  style={{
+                    width: size,
+                    height: size,
+                    backgroundImage: tokenData.image ? `url(${tokenData.image})` : undefined,
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onClick={() => {
+                    // If the token has TradingView charts, show them in addition to the contract panel
+                    if (tokenData.tradingViewCharts && tokenData.tradingViewCharts.length > 0) {
+                      // Log the available charts
+                      console.log('TradingView charts available for', tokenData.symbol || tokenData.name, tokenData.tradingViewCharts);
+                    }
+                    setOpenPrimoToken(tokenData.contract);
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    if (tokenData.tradingViewCharts && tokenData.tradingViewCharts.length > 0) {
+                      // Open the first available TradingView chart
+                      window.open(tokenData.tradingViewCharts[0].chartUrl, '_blank');
+                      setMessage({ 
+                        text: `Opening TradingView chart for ${tokenData.symbol || tokenData.name} on ${tokenData.tradingViewCharts[0].exchange}`, 
+                        type: 'success' 
+                      });
+                    } else {
+                      setMessage({ 
+                        text: `No TradingView charts available for ${tokenData.symbol || tokenData.name}`, 
+                        type: 'info' 
+                      });
+                    }
+                  }}
+                  onDoubleClick={(e) => {
+                    e.preventDefault();
+                    navigator.clipboard.writeText(tokenData.contract);
+                    setMessage({ text: t('contract_copied'), type: 'success' });
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  {!tokenData.image && (
+                    <Box sx={{ 
+                      color: '#fff', 
+                      fontSize: size > 100 ? '14px' : '12px', 
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                      wordBreak: 'break-word',
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                    }}>
+                      <span>{tokenData.symbol || tokenData.name || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id.substring(0, 6) : 'Unknown')}</span>
+                      {tokenData.name && tokenData.symbol && (
+                        <span style={{ fontSize: '10px', opacity: 0.8, marginTop: '2px' }}>
+                          {tokenData.name && typeof tokenData.name === 'string' && tokenData.name.length > 10 ? tokenData.name.substring(0, 10) + '...' : tokenData.name}
+                        </span>
+                      )}
+                    </Box>
+                  )}
+                  
+                  {/* TradingView chart indicator */}
+                  {tokenData.tradingViewCharts && tokenData.tradingViewCharts.length > 0 && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: -5,
+                      left: -5,
+                      backgroundColor: '#1976d2',
+                      color: '#fff',
+                      borderRadius: '50%',
+                      width: 20,
+                      height: 20,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      border: '2px solid #fff',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                      title: `${tokenData.tradingViewCharts.length} TradingView chart${tokenData.tradingViewCharts.length === 1 ? '' : 's'} available`
+                    }}>
+                      TV
+                    </Box>
+                  )}
+                  
+                  {/* Multi-holder indicator */}
+                  {hasMultipleHolders && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -8,
+                      backgroundColor: '#2196f3',
+                      color: '#fff',
+                      borderRadius: '50%',
+                      width: 28,
+                      height: 28,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      border: '2px solid #fff',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                    }}>
+                      {holderCount}
+                    </Box>
+                  )}
+                  
+                  {/* Market cap tag */}
+                  {tokenData.marketCap && (
+                    <Box className="market-cap-tag" sx={{
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    }}>
+                      {formatCap(tokenData.marketCap)}
+                    </Box>
+                  )}
+                  
+                  {/* Price change tag */}
+                  {tokenData.priceChange24h !== undefined && tokenData.priceChange24h !== null && (
+                    <Box className={getPriceChangeClass(tokenData.priceChange24h)} sx={{
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    }}>
+                      {formatPriceChange(tokenData.priceChange24h)}
+                    </Box>
+                  )}
+                  
+                  {/* Holder avatars - show first few holders as small avatars */}
+                  {tokenData.holderDetails && tokenData.holderDetails.length > 1 && (
+                    <Box sx={{
+                      position: 'absolute',
+                      bottom: -12,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      display: 'flex',
+                      gap: 0.5,
+                      maxWidth: size,
+                      flexWrap: 'wrap',
+                      justifyContent: 'center',
+                    }}>
+                      {tokenData.holderDetails.slice(0, Math.min(5, tokenData.holderDetails.length)).map((holderInfo, index) => {
+                        // Safely extract holder information
+                        const safeHolderInfo = holderInfo && typeof holderInfo === 'object' ? holderInfo as any : {};
+                        const publicKey = safeHolderInfo.publicKey && typeof safeHolderInfo.publicKey === 'string' 
+                          ? safeHolderInfo.publicKey : `holder-${index}`;
+                        const domain = safeHolderInfo.domain && typeof safeHolderInfo.domain === 'string' 
+                          ? safeHolderInfo.domain : '';
+                        const pfp = safeHolderInfo.pfp && typeof safeHolderInfo.pfp === 'string' 
+                          ? safeHolderInfo.pfp : '';
+                        
+                        return (
+                          <Avatar
+                            key={`${publicKey}-${index}`}
+                            src={getSafePfpUrl(pfp)}
+                            alt={domain || publicKey}
+                            sx={{ 
+                              width: 20, 
+                              height: 20,
+                              border: '2px solid #fff',
+                              fontSize: '10px',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                            }}
+                          />
+                        );
+                      })}
+                      {tokenData.holderDetails.length > 5 && (
+                        <Box sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: '50%',
+                          backgroundColor: '#666',
+                          color: '#fff',
+                          fontSize: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          border: '2px solid #fff',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        }}>
+                          +{tokenData.holderDetails.length - 5}
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+                </div>
+              );
+            })}
           </Box>
         </Box>
       )}
@@ -616,6 +973,12 @@ const Trenches: React.FC = () => {
           setOpenContractUserCount(0);
         }}
         userCount={openContractUserCount}
+      />
+      <ContractPanel
+        contract={openPrimoToken}
+        open={openPrimoToken !== null}
+        onClose={() => setOpenPrimoToken(null)}
+        userCount={0} // Primo tokens don't need user count from Trenches
       />
       <MessageModal open={message !== null} message={message} onClose={() => setMessage(null)} />
     </Box>

@@ -50,4 +50,22 @@ describe('trench service', () => {
       { headers: { 'X-Public-Key': 'w1' } }
     );
   });
+
+  test('submitTrenchContract posts to api with metadata', async () => {
+    (api.post as jest.Mock).mockResolvedValue({});
+    const metadata = { name: 'Test Token', symbol: 'TEST' };
+    await submitTrenchContract('w1', 'c1', 'm1', 1000, 'test.com', metadata);
+    expect(api.post).toHaveBeenCalledWith(
+      '/api/trench',
+      { 
+        contract: 'c1', 
+        source: 'website', 
+        model: 'm1', 
+        marketCap: '1000',
+        domain: 'test.com',
+        metadata: metadata
+      },
+      { headers: { 'X-Public-Key': 'w1' } }
+    );
+  });
 });

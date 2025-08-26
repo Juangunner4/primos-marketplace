@@ -639,7 +639,7 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
           {/* Additional Debug Data */}
           {Object.keys(additionalData).length > 0 && (
             <DebugSection title="Additional Data" sectionKey="additional" icon={<DashboardIcon sx={{ color: '#000000' }} />}>
-              <Typography variant="body2" sx={{ 
+              <Box sx={{ 
                 fontFamily: 'monospace', 
                 fontSize: { xs: '0.65rem', sm: '0.75rem' }
               }}>
@@ -651,7 +651,7 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
                 }}>
                   {JSON.stringify(additionalData, null, 2)}
                 </pre>
-              </Typography>
+              </Box>
             </DebugSection>
           )}
         </DialogContent>

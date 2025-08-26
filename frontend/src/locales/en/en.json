@@ -290,5 +290,9 @@
   "unlike_token": "Unlike this token",
   "dislike_token": "Dislike this token",
   "undislike_token": "Remove dislike from this token",
-  "token_likes": "Token Likes"
+  "token_likes": "Token Likes",
+  "contract_details": "Contract Details",
+  "detailed_information_about_token": "Detailed information about token contract",
+  "price_chart": "Price Chart",
+  "chart_not_available": "Chart not available for this token"
 }

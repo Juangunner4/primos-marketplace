@@ -41,8 +41,10 @@ import { fetchCoinGeckoData, CoinGeckoEntry, fetchTokenPools, LiquidityPool } fr
 import { getTokenLargestAccounts, TokenHolder } from '../services/helius';
 import { getLikes, toggleLike } from '../utils/likes';
 import { getTokenReactions, toggleTokenLike, toggleTokenDislike, TokenReactionData } from '../utils/tokenReactions';
+import { getChartSymbol } from '../services/jupiter';
 import AdminDeveloperConsole from './AdminDeveloperConsole';
 import SolanaChart from './SolanaChart';
+import TradingPanel from './TradingPanel';
 import './ContractPanel.css';
 
 interface ContractPanelProps {
@@ -542,19 +544,28 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
   }, [open, contract, t]);
 
   useEffect(() => {
-    if (
-      tokenInfo?.tickerBase &&
-      tokenInfo?.tickerTarget &&
-      tokenInfo?.tickerMarketName
-    ) {
-      const market = tokenInfo.tickerMarketName.replace(/\s+/g, '').toUpperCase();
-      const base = tokenInfo.tickerBase.toUpperCase();
-      const target = tokenInfo.tickerTarget.toUpperCase();
-      setChartSymbol(`${market}:${base}${target}`);
-    } else {
-      setChartSymbol(null);
-    }
-  }, [tokenInfo]);
+    const generateChartSymbol = async () => {
+      if (
+        tokenInfo?.tickerBase &&
+        tokenInfo?.tickerTarget &&
+        tokenInfo?.tickerMarketName
+      ) {
+        const market = tokenInfo.tickerMarketName.replace(/\s+/g, '').toUpperCase();
+        const base = tokenInfo.tickerBase.toUpperCase();
+        const target = tokenInfo.tickerTarget.toUpperCase();
+        const symbol = `${market}:${base}${target}`;
+        setChartSymbol(symbol);
+      } else if (contract) {
+        // Use Jupiter service to get better chart symbol
+        const symbol = await getChartSymbol(contract, token?.symbol);
+        setChartSymbol(symbol);
+      } else {
+        setChartSymbol(null);
+      }
+    };
+
+    generateChartSymbol();
+  }, [tokenInfo, token, contract]);
 
   // Separate useEffect for PFP loading with timeout to avoid race conditions
   useEffect(() => {
@@ -598,6 +609,14 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <Dialog.Overlay className="contract-overlay" />
       <Dialog.Content className="contract-content">
+        {/* Hidden title for accessibility */}
+        <Dialog.Title style={{ position: 'absolute', left: '-10000px' }}>
+          {t('contract_details')} {contract}
+        </Dialog.Title>
+        {/* Hidden description for accessibility */}
+        <Dialog.Description style={{ position: 'absolute', left: '-10000px' }}>
+          {t('detailed_information_about_token')} {contract}
+        </Dialog.Description>
         <Dialog.Close asChild>
           <button
             className="contract-close"
@@ -992,11 +1011,6 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
 
             <Box className="market-data-panel">
               <Typography className="dialog-title">{t('market_data')}</Typography>
-              {chartSymbol && (
-                <Box sx={{ height: 300, mt: 2 }}>
-                  <SolanaChart symbol={chartSymbol} />
-                </Box>
-              )}
               <Box className="market-data-list" sx={{ mt: 1 }}>
                 {coinGeckoData.map((entry) => (
                   <Box key={entry.id} sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, backgroundColor: '#fafafa', borderRadius: 0.5 }}>
@@ -1285,6 +1299,48 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             </Box>
           </Box>
         </Box>
+
+        {/* Chart Section - Separate from other panels */}
+        <Box className="chart-panel">
+          <Typography className="dialog-title">{t('price_chart')}</Typography>
+          {/* Debug info for chart symbol */}
+          {process.env.NODE_ENV === 'development' && (
+            <Typography variant="caption" sx={{ display: 'block', mb: 1, color: '#666' }}>
+              Chart Symbol: {chartSymbol || 'None'} | Token Symbol: {token?.symbol || 'None'}
+            </Typography>
+          )}
+          {chartSymbol ? (
+            <Box sx={{ height: 400, mt: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+              <SolanaChart symbol={chartSymbol} />
+            </Box>
+          ) : (
+            <Box sx={{ 
+              height: 200, 
+              mt: 2, 
+              border: '1px dashed #ccc', 
+              borderRadius: 1, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              backgroundColor: '#f9f9f9'
+            }}>
+              <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
+                {t('chart_not_available')}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        {/* Trading Panel - Jupiter Integration */}
+        {contract && token?.symbol && (
+          <Box className="trading-panel" sx={{ mt: 3 }}>
+            <TradingPanel 
+              tokenContract={contract}
+              tokenSymbol={token.symbol}
+              tokenName={token.name || token.symbol}
+            />
+          </Box>
+        )}
       </Dialog.Content>
 
       {/* Admin Developer Console */}

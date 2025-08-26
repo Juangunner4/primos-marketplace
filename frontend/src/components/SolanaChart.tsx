@@ -7,19 +7,27 @@ interface SolanaChartProps {
 
 const SolanaChart: React.FC<SolanaChartProps> = ({ symbol }) => {
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div style={{ 
+      height: '100%', 
+      width: '100%',
+      overflow: 'hidden',
+      position: 'relative'
+    }}>
       <AdvancedRealTimeChart
         theme="dark"
         symbol={symbol}
         width="100%"
         height="100%"
-        interval="1D"
+        interval="D"
         timezone="Etc/UTC"
         style="1"
         locale="en"
         withdateranges
         allow_symbol_change={false}
         hide_side_toolbar={false}
+        hide_legend={false}
+        save_image={false}
+        container_id="tradingview_chart"
       />
     </div>
   );

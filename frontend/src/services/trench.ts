@@ -119,12 +119,19 @@ export const submitTrenchContract = async (
   contract: string,
   model?: string,
   marketCap?: number,
-  domain?: string
+  domain?: string,
+  metadata?: {
+    name?: string;
+    symbol?: string;
+    image?: string;
+    description?: string;
+  }
 ): Promise<void> => {
   const payload: any = { contract, source: 'website' };
   if (model) payload.model = model;
   if (marketCap) payload.marketCap = marketCap.toString();
   if (domain) payload.domain = domain;
+  if (metadata) payload.metadata = metadata;
 
   await api.post(
     '/api/trench',
