@@ -29,6 +29,7 @@ jest.mock('../../services/helius', () => ({
   __esModule: true,
   getNFTByTokenAddress: jest.fn(() => Promise.resolve(null)),
   fetchCollectionNFTsForOwner: jest.fn(() => Promise.resolve([])),
+  getTokensForOwner: jest.fn(() => Promise.resolve([])),
 }));
 
 jest.mock('../../services/token', () => ({
@@ -37,13 +38,19 @@ jest.mock('../../services/token', () => ({
 }));
 
 describe('Trenches page', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('renders without add button for guests', async () => {
-    (api.get as jest.Mock).mockResolvedValueOnce({
-      data: {
-        contracts: [],
-        users: [],
-      },
-    });
+    (api.get as jest.Mock)
+      .mockResolvedValueOnce({
+        data: {
+          contracts: [],
+          users: [],
+        },
+      })
+      .mockResolvedValueOnce({ data: [] });
 
     render(
       <MemoryRouter>
@@ -57,20 +64,22 @@ describe('Trenches page', () => {
   });
 
   test('displays contract bubble and opens panel', async () => {
-    (api.get as jest.Mock).mockResolvedValueOnce({
-      data: {
-        contracts: [{ contract: 'c1', count: 1, firstCaller: 'u1' }],
-        users: [
-          {
-            publicKey: 'u1',
-            pfp: '',
-            count: 1,
-            contracts: ['c1'],
-            lastSubmittedAt: 1,
-          },
-        ],
-      },
-    });
+    (api.get as jest.Mock)
+      .mockResolvedValueOnce({
+        data: {
+          contracts: [{ contract: 'c1', count: 1, firstCaller: 'u1' }],
+          users: [
+            {
+              publicKey: 'u1',
+              pfp: '',
+              count: 1,
+              contracts: ['c1'],
+              lastSubmittedAt: 1,
+            },
+          ],
+        },
+      })
+      .mockResolvedValueOnce({ data: [] });
 
     render(
       <MemoryRouter>

@@ -22,7 +22,6 @@ services:
       args:
         BACKEND_URL: ${BACKEND_URL}
         PRIMOS_COLLECTION: ${REACT_APP_PRIMOS_COLLECTION}
-        REACT_APP_FEE_WALLET: ${REACT_APP_FEE_WALLET}
     ports:
       - '3000:3000'
     depends_on:
