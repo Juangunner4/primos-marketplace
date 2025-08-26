@@ -102,6 +102,7 @@ const Trenches: React.FC = () => {
     lastError: null as Error | null,
     networkErrors: [] as { url: string; status?: number; message: string }[]
   });
+  const [discoveringTokens, setDiscoveringTokens] = useState(false);
 
   const logNetworkError = (url: string, err: any) => {
     const status = err?.response?.status;
@@ -390,6 +391,26 @@ const Trenches: React.FC = () => {
     setMessage({ text: t('contract_copied'), type: 'success' });
   };
 
+  const handleDiscoverTokens = async () => {
+    setDiscoveringTokens(true);
+    try {
+      const response = await api.post('/api/trench/discover-primo-tokens');
+      
+      setMessage({ 
+        text: `Token discovery complete: ${response.data.message}`, 
+        type: response.data.success ? 'success' : 'error'
+      });
+      
+      // Reload trenches data to show new tokens
+      await load(false);
+    } catch (e: any) {
+      const errorMsg = e?.response?.data?.message || e?.response?.data || 'Failed to discover tokens';
+      setMessage({ text: errorMsg, type: 'error' });
+    } finally {
+      setDiscoveringTokens(false);
+    }
+  };
+
 
   return (
     <Box className="experiment-container">
@@ -443,6 +464,8 @@ const Trenches: React.FC = () => {
           • {t('sentiment_first_caller')}
         </Typography>
       </Box>
+      
+      {/* Add Contract Section - Only for Primo Holders */}
       {canSubmit && (
         <Box className="input-row" sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
           <TextField
@@ -470,6 +493,27 @@ const Trenches: React.FC = () => {
           </Button>
         </Box>
       )}
+      
+      {/* Token Discovery Section - Public Access */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={handleDiscoverTokens}
+          disabled={discoveringTokens}
+          sx={{
+            borderColor: '#000',
+            color: '#000',
+            '&:hover': { borderColor: '#333', backgroundColor: '#f5f5f5' },
+            '&:disabled': { borderColor: '#ccc', color: '#666' },
+          }}
+        >
+          {discoveringTokens ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            'Discover Primo Tokens'
+          )}
+        </Button>
+      </Box>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />

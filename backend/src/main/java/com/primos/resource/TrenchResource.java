@@ -9,6 +9,7 @@ import com.primos.model.TrenchContract;
 import com.primos.model.TrenchContractCaller;
 import com.primos.model.TrenchUser;
 import com.primos.model.User;
+import com.primos.service.PrimoTokensService;
 import com.primos.service.TrenchService;
 
 import jakarta.inject.Inject;
@@ -29,6 +30,9 @@ import jakarta.ws.rs.core.MediaType;
 public class TrenchResource {
     @Inject
     TrenchService service;
+
+    @Inject
+    PrimoTokensService primoTokensService;
 
     public static class TrenchUserInfo {
         public String publicKey;
@@ -178,6 +182,31 @@ public class TrenchResource {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error during market cap backfill: " + e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Discovers tokens held by Primo holders and adds them to Trenches.
+     * This endpoint is publicly accessible and fetches all tokens held by Primo
+     * community members
+     * from the database, then automatically adds popular tokens to the Trenches for
+     * community tracking.
+     */
+    @POST
+    @Path("/discover-primo-tokens")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> discoverPrimoTokens() {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String result = primoTokensService.discoverAndAddPrimoTokens();
+            response.put("success", true);
+            response.put("message", result);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error during token discovery: " + e.getMessage());
         }
 
         return response;

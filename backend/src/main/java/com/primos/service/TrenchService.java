@@ -230,4 +230,14 @@ public class TrenchService {
         LOG.log(java.util.logging.Level.INFO, "Completed backfill: updated {0} contracts and {1} caller records",
                 new Object[] { totalUpdatedContracts, totalUpdatedCallers });
     }
+
+    /**
+     * Finds a trench contract by its address.
+     *
+     * @param contractAddress The contract address to search for
+     * @return The TrenchContract if found, null otherwise
+     */
+    public TrenchContract findByContract(String contractAddress) {
+        return TrenchContract.find("contract", contractAddress).firstResult();
+    }
 }

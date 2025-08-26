@@ -1,21 +1,23 @@
 package com.primos.resource;
 
-import java.util.List;
-import java.util.UUID;
 import java.io.StringReader;
-import java.net.URI;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.UUID;
 
 import com.primos.model.BetaCode;
 import com.primos.model.User;
+import com.primos.service.HeliusService;
+import com.primos.service.PrimoTokensService;
 
+import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonReader;
-
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
@@ -32,6 +34,12 @@ public class AdminResource {
 
     public static final String ADMIN_WALLET = System.getenv().getOrDefault("ADMIN_WALLET",
             "EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6");
+
+    @Inject
+    HeliusService heliusService;
+
+    @Inject
+    PrimoTokensService primoTokensService;
 
     private static final HttpClient CLIENT = createClient();
 
@@ -140,9 +148,11 @@ public class AdminResource {
                 try (JsonReader reader = Json.createReader(new StringReader(resp.body()))) {
                     var obj = reader.readObject();
                     var result = obj.getJsonObject("result");
-                    if (result == null) break;
+                    if (result == null)
+                        break;
                     var items = result.getJsonArray("items");
-                    if (items == null) break;
+                    if (items == null)
+                        break;
                     total += items.size();
                     if (items.size() < limit) {
                         break;
@@ -188,5 +198,17 @@ public class AdminResource {
         code.setCode("BETA-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         code.persist();
         return code;
+    }
+
+    /**
+     * Discovers tokens held by Primo holders and adds them to Trenches.
+     * This endpoint fetches all tokens held by Primo community members
+     * and automatically adds popular tokens to the Trenches for community tracking.
+     */
+    @POST
+    @Path("/discover-primo-tokens")
+    public String discoverPrimoTokens(@HeaderParam("X-Public-Key") String wallet) {
+        ensureAdmin(wallet);
+        return primoTokensService.discoverAndAddPrimoTokens();
     }
 }
