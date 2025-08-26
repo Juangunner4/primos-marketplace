@@ -226,6 +226,8 @@
   "add_contract": "Agregar Contrato",
   "contract_not_onchain": "Contrato no encontrado en la blockchain",
   "contract_already_added": "Ya has agregado este contrato",
+  "error_adding_contract": "Error al agregar contrato",
+  "rate_limit_error": "Por favor espera al menos 1 minuto entre agregar contratos",
   "my_contracts": "Mis Contratos",
   "all_users": "Todos los Usuarios",
   "all_contracts": "Todos los Contratos",

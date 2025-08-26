@@ -2,15 +2,15 @@ package com.primos.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
-import com.primos.model.User;
 import com.primos.model.PrimoToken;
+import com.primos.model.User;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -237,5 +237,22 @@ public class PrimoTokensService {
             return !str.isEmpty() && !"null".equals(str) && !"undefined".equals(str);
         }
         return true;
+    }
+
+    /**
+     * Discovers and adds Primo tokens, returning a summary message.
+     * This method wraps updateAndGetPrimoTokens() to provide a string result
+     * suitable for API responses.
+     *
+     * @return A summary message of the discovery operation
+     */
+    public String discoverAndAddPrimoTokens() {
+        try {
+            List<PrimoToken> tokens = updateAndGetPrimoTokens();
+            return String.format("Successfully discovered and updated %d Primo tokens", tokens.size());
+        } catch (Exception e) {
+            LOG.severe("Error during Primo token discovery: " + e.getMessage());
+            throw new RuntimeException("Failed to discover Primo tokens: " + e.getMessage(), e);
+        }
     }
 }

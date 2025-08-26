@@ -398,28 +398,38 @@ const Trenches: React.FC = () => {
   const handleAdd = async () => {
     const contract = input.trim();
     if (!contract || !publicKey) return;
+    
+    console.log('Adding contract:', contract, 'for publicKey:', publicKey.toBase58());
     setAdding(true);
     let valid = false;
     let marketCap: number | undefined;
     let tokenMetadata: any = null;
 
+    // Check if it's an Ethereum contract
     if (/^0x[0-9a-fA-F]{40}$/.test(contract)) {
+      console.log('Detected Ethereum contract format');
       try {
         const data = await fetchSimpleTokenPrice(contract, 'ethereum');
         if (data) {
           valid = true;
           marketCap = data.usd_market_cap;
+          console.log('Ethereum contract validated, market cap:', marketCap);
         }
-      } catch {}
+      } catch (e) {
+        console.warn('Failed to validate Ethereum contract:', e);
+      }
     }
 
+    // Check if it's a Solana contract
     if (!valid) {
+      console.log('Checking Solana contract format');
       try {
         const addr = new PublicKey(contract);
         if (connection) {
           const info = await connection.getAccountInfo(addr);
           if (info) {
             valid = true;
+            console.log('Solana contract validated');
             
             // Fetch token metadata from Helius
             try {
@@ -431,6 +441,7 @@ const Trenches: React.FC = () => {
                   image: nft.image,
                   description: nft.description
                 };
+                console.log('Token metadata fetched:', tokenMetadata);
               }
             } catch (e) {
               console.warn('Failed to fetch token metadata:', e);
@@ -441,21 +452,28 @@ const Trenches: React.FC = () => {
               const tokenData = await fetchSimpleTokenPrice(contract, 'solana');
               if (tokenData?.usd_market_cap) {
                 marketCap = tokenData.usd_market_cap;
+                console.log('Solana market cap fetched:', marketCap);
               }
             } catch (e) {
               console.warn('Failed to fetch market cap:', e);
             }
           }
+        } else {
+          console.warn('No Solana connection available');
         }
-      } catch {}
+      } catch (e) {
+        console.warn('Invalid Solana contract address:', e);
+      }
     }
 
     if (!valid) {
+      console.log('Contract validation failed');
       setMessage({ text: t('contract_not_onchain'), type: 'error' });
       setAdding(false);
       return;
     }
 
+    console.log('Submitting contract to backend...');
     try {
       await submitTrenchContract(
         publicKey.toBase58(), 
@@ -465,17 +483,41 @@ const Trenches: React.FC = () => {
         undefined, // domain
         tokenMetadata // Pass metadata
       );
+      console.log('Contract submitted successfully');
       setInput('');
       await load(false);
     } catch (e: any) {
+      console.error('Error adding contract:', e);
       const errorMsg = e?.response?.data;
+      
       if (typeof errorMsg === 'string' && errorMsg.includes('Contract already added')) {
         setInput('');
         const userCount = counts[contract] || 0;
         setOpenContract(contract);
         setOpenContractUserCount(userCount);
       } else {
-        setMessage({ text: t('contract_already_added'), type: 'error' });
+        // Handle other types of errors - show more detailed error information
+        let errorText = t('error_adding_contract');
+        
+        if (typeof errorMsg === 'string') {
+          errorText = errorMsg;
+        } else if (e?.response?.data?.message) {
+          errorText = e.response.data.message;
+        } else if (e?.message) {
+          errorText = e.message;
+        } else if (e?.response?.status === 400) {
+          // Check for specific 400 error cases
+          if (!errorMsg || errorMsg === '') {
+            // Empty 400 response usually indicates rate limiting
+            errorText = t('rate_limit_error');
+          } else {
+            errorText = 'Bad request: Please check that the contract address is valid.';
+          }
+        } else if (e?.response?.status) {
+          errorText = `HTTP ${e.response.status}: ${e.response.statusText || 'Unknown error'}`;
+        }
+        
+        setMessage({ text: errorText, type: 'error' });
       }
     } finally {
       setAdding(false);

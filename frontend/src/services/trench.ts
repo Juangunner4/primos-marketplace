@@ -127,17 +127,43 @@ export const submitTrenchContract = async (
     description?: string;
   }
 ): Promise<void> => {
-  const payload: any = { contract, source: 'website' };
-  if (model) payload.model = model;
-  if (marketCap) payload.marketCap = marketCap.toString();
-  if (domain) payload.domain = domain;
-  if (metadata) payload.metadata = metadata;
+  // Validate required parameters
+  if (!publicKey) {
+    throw new Error('Public key is required');
+  }
+  if (!contract || contract.trim() === '') {
+    throw new Error('Contract address is required');
+  }
 
-  await api.post(
-    '/api/trench',
-    payload,
-    { headers: { 'X-Public-Key': publicKey } }
-  );
+  // Only send fields that the backend expects
+  const payload: any = { 
+    contract: contract.trim(), 
+    source: 'website' 
+  };
+  
+  if (model) payload.model = model;
+  if (domain) payload.domain = domain;
+  
+  // Note: marketCap and metadata are not currently supported by the backend
+  // but are collected for potential future use
+
+  console.log('Submitting trench contract request:', {
+    url: '/api/trench',
+    headers: { 'X-Public-Key': publicKey },
+    payload
+  });
+
+  try {
+    const response = await api.post(
+      '/api/trench',
+      payload,
+      { headers: { 'X-Public-Key': publicKey } }
+    );
+    console.log('Trench contract submission successful:', response);
+  } catch (error) {
+    console.error('Trench contract submission failed:', error);
+    throw error;
+  }
 };
 
 export const updateContractMarketCap = async (

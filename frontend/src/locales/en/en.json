@@ -226,6 +226,8 @@
   "add_contract": "Add Contract",
   "contract_not_onchain": "Contract not found on chain",
   "contract_already_added": "You have already added this contract",
+  "error_adding_contract": "Error adding contract",
+  "rate_limit_error": "Please wait at least 1 minute between adding contracts",
   "my_contracts": "My Contracts",
   "all_users": "All Users",
   "all_contracts": "All Contracts",
