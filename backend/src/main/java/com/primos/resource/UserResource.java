@@ -42,9 +42,8 @@ public class UserResource {
 
     @GET
     @Path("/{publicKey}")
-    public User getUser(@PathParam("publicKey") String publicKey,
-            @HeaderParam("X-Public-Key") String walletKey) {
-        return userService.getUser(publicKey, walletKey);
+    public User getUser(@PathParam("publicKey") String publicKey) {
+        return userService.getUser(publicKey);
     }
 
     @PUT
@@ -74,8 +73,14 @@ public class UserResource {
 
     @GET
     @Path("/primos")
-    public java.util.List<User> getDaoMembers(@HeaderParam("X-Public-Key") String walletKey) {
-        return userService.getDaoMembers(walletKey);
+    public java.util.List<User> getDaoMembers() {
+        return userService.getDaoMembers();
+    }
+
+    @GET
+    @Path("/holders")
+    public java.util.List<User> getPrimoHolders() {
+        return userService.getPrimoHolders();
     }
 
     @GET
