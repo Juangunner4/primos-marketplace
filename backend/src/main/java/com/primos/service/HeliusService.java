@@ -143,7 +143,6 @@ public class HeliusService {
         }
         return holders;
     }
-
     /**
      * Fetches fungible tokens held by a specific wallet address.
      *

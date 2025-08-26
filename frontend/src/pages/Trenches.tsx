@@ -15,7 +15,8 @@ import {
   TrenchUser,
 } from '../services/trench';
 import api from '../utils/api';
-import { getNFTByTokenAddress } from '../services/helius';
+import { getNFTByTokenAddress, getTokensForOwner } from '../services/helius';
+import type { HeliusFungibleToken } from '../services/helius';
 import { resolvePfpImage } from '../services/user';
 import { fetchSimpleTokenPrice } from '../services/coingecko';
 import ContractPanel from '../components/ContractPanel';
@@ -89,6 +90,8 @@ const Trenches: React.FC = () => {
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [primoTokens, setPrimoTokens] = useState<HeliusFungibleToken[]>([]);
+  const [loadingPrimoTokens, setLoadingPrimoTokens] = useState(false);
   const [debugInfo, setDebugInfo] = useState({
     apiCallAttempted: false,
     apiCallSuccess: false,
@@ -270,12 +273,45 @@ const Trenches: React.FC = () => {
     }
   };
 
+  const loadPrimoTokens = async () => {
+    setLoadingPrimoTokens(true);
+    try {
+      const headers = wallet.publicKey
+        ? { headers: { 'X-Public-Key': wallet.publicKey.toBase58() } }
+        : undefined;
+      const res = await api.get<{ publicKey: string }[]>('/api/user/primos', headers);
+      const members = Array.isArray(res.data) ? res.data : [];
+      const tokenMap = new Map<string, HeliusFungibleToken>();
+      await Promise.all(
+        members.map(async (m) => {
+          if (!m.publicKey) return;
+          try {
+            const tokens = await getTokensForOwner(m.publicKey);
+            tokens.forEach((token) => {
+              if (!tokenMap.has(token.id)) {
+                tokenMap.set(token.id, token);
+              }
+            });
+          } catch (err) {
+            logNetworkError('getTokensForOwner', err);
+          }
+        })
+      );
+      setPrimoTokens(Array.from(tokenMap.values()));
+    } catch (err) {
+      logNetworkError('/api/user/primos', err);
+    } finally {
+      setLoadingPrimoTokens(false);
+    }
+  };
+
   useEffect(() => {
     setDebugInfo(prev => ({ ...prev, renderAttempted: true }));
     
     const initializeComponent = async () => {
       try {
         await load();
+        await loadPrimoTokens();
       } catch (error) {
         setDebugInfo(prev => ({
           ...prev,
@@ -539,13 +575,44 @@ const Trenches: React.FC = () => {
           )}
         </Box>
       )}
-      <ContractPanel 
-        contract={openContract} 
-        open={openContract !== null} 
+      {loadingPrimoTokens ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : primoTokens.length > 0 && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            {t('tokens_held_by_primos')}
+          </Typography>
+          <Box className="bubble-map">
+            {primoTokens.map((token) => (
+              <div
+                key={token.id}
+                className="bubble"
+                aria-label={token.name || token.id}
+                title={token.name || token.id}
+                style={{
+                  width: 60,
+                  height: 60,
+                  backgroundImage: token.image
+                    ? `url(${token.image})`
+                    : undefined,
+                }}
+              >
+                {!token.image &&
+                  (token.symbol || token.name || token.id.substring(0, 4))}
+              </div>
+            ))}
+          </Box>
+        </Box>
+      )}
+      <ContractPanel
+        contract={openContract}
+        open={openContract !== null}
         onClose={() => {
           setOpenContract(null);
           setOpenContractUserCount(0);
-        }} 
+        }}
         userCount={openContractUserCount}
       />
       <MessageModal open={message !== null} message={message} onClose={() => setMessage(null)} />

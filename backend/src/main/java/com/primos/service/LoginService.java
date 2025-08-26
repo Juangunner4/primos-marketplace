@@ -22,15 +22,8 @@ public class LoginService {
     @Inject
     HeliusService heliusService;
 
-    @Inject
-    HolderPointsJob holderPointsJob;
-
     public User login(LoginRequest req) {
         validateLoginRequest(req);
-
-        // Check if this is the first login of the day and reset all users if needed
-        // This must be done BEFORE any user updates to avoid interference
-        resetDailyPointsForAllUsersIfFirstLogin();
 
         boolean holder = req.primoHolder;
         boolean isAdminWallet = ADMIN_WALLET.equals(req.publicKey);
@@ -92,9 +85,6 @@ public class LoginService {
             user.persistOrUpdate();
         }
 
-        // Trigger holder points job on login - it will only execute once per day
-        holderPointsJob.awardHolderPointsToAllUsers();
-
         if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
             if (user.isPrimoHolder()) {
                 LOGGER.info(String.format("[LoginService] Primo holder login for publicKey: %s", req.publicKey));
@@ -116,8 +106,7 @@ public class LoginService {
             }
         }
 
-        // Ensure current user's date is updated (will be current after reset if first
-        // login)
+        // Ensure current user's date is current
         String today = LocalDate.now().toString();
         if (!today.equals(user.getPointsDate())) {
             user.setPointsDate(today);
@@ -184,115 +173,4 @@ public class LoginService {
         user.persistOrUpdate();
     }
 
-    /**
-     * Checks if this is the first login of the day and resets daily points for all
-     * users if needed.
-     * This ensures that when the first user logs in for a new day, all users' daily
-     * points are reset to 0.
-     */
-    private void resetDailyPointsForAllUsersIfFirstLogin() {
-        String today = LocalDate.now().toString();
-
-        // Always log this regardless of log level to debug the issue
-        System.out.println("[LoginService] DEBUGGING: Checking for first login of the day: " + today);
-
-        // Check if any user already has today's date (meaning someone already logged in
-        // today)
-        User existingTodayUser = User.find("pointsDate", today).firstResult();
-
-        // Always log this regardless of log level
-        System.out.println("[LoginService] DEBUGGING: Found existing user with today's date: " +
-                (existingTodayUser != null ? existingTodayUser.getPublicKey() : "NONE"));
-
-        if (existingTodayUser == null) {
-            // This is the first login of the day - reset all users' daily points
-            System.out.println("[LoginService] DEBUGGING: FIRST LOGIN OF THE DAY (" + today
-                    + ") - resetting daily points for all users");
-
-            java.util.List<User> allUsers = User.listAll();
-            System.out.println("[LoginService] DEBUGGING: Found " + allUsers.size() + " total users to reset");
-
-            int resetCount = 0;
-            for (User user : allUsers) {
-                String oldDate = user.getPointsDate();
-                int oldPointsToday = user.getPointsToday();
-                int oldIconPointsToday = user.getIconPointsToday();
-                int oldHolderPointsToday = user.getHolderPointsToday();
-
-                user.setPointsDate(today);
-                user.setPointsToday(0);
-                user.setIconPointsToday(0);
-                user.setHolderPointsToday(0);
-                user.persistOrUpdate();
-                resetCount++;
-
-                System.out.println("[LoginService] DEBUGGING: Reset user " + user.getPublicKey() +
-                        ": date " + oldDate + "->" + today +
-                        ", points " + oldPointsToday + "->0" +
-                        ", icon " + oldIconPointsToday + "->0" +
-                        ", holder " + oldHolderPointsToday + "->0");
-            }
-
-            System.out.println(
-                    "[LoginService] DEBUGGING: *** COMPLETED: Reset daily points for " + resetCount + " users ***");
-        } else {
-            System.out.println("[LoginService] DEBUGGING: Not first login of the day (" + today +
-                    ") - user " + existingTodayUser.getPublicKey() + " already has today's date");
-        }
-
-        if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-            LOGGER.info(String.format("[LoginService] Checking for first login of the day: %s", today));
-        }
-
-        if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-            LOGGER.info(String.format("[LoginService] Found existing user with today's date: %s",
-                    existingTodayUser != null ? existingTodayUser.getPublicKey() : "NONE"));
-        }
-
-        if (existingTodayUser == null) {
-            // This is the first login of the day - reset all users' daily points
-            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-                LOGGER.info(String.format(
-                        "[LoginService] FIRST LOGIN OF THE DAY (%s) - resetting daily points for all users", today));
-            }
-
-            java.util.List<User> allUsers = User.listAll();
-            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-                LOGGER.info(String.format("[LoginService] Found %d total users to reset", allUsers.size()));
-            }
-
-            int resetCount = 0;
-            for (User user : allUsers) {
-                String oldDate = user.getPointsDate();
-                int oldPointsToday = user.getPointsToday();
-                int oldIconPointsToday = user.getIconPointsToday();
-                int oldHolderPointsToday = user.getHolderPointsToday();
-
-                user.setPointsDate(today);
-                user.setPointsToday(0);
-                user.setIconPointsToday(0);
-                user.setHolderPointsToday(0);
-                user.persistOrUpdate();
-                resetCount++;
-
-                if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-                    LOGGER.info(String.format(
-                            "[LoginService] Reset user %s: date %s->%s, points %d->0, icon %d->0, holder %d->0",
-                            user.getPublicKey(), oldDate, today, oldPointsToday, oldIconPointsToday,
-                            oldHolderPointsToday));
-                }
-            }
-
-            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-                LOGGER.info(
-                        String.format("[LoginService] *** COMPLETED: Reset daily points for %d users ***", resetCount));
-            }
-        } else {
-            if (LOGGER.isLoggable(java.util.logging.Level.INFO)) {
-                LOGGER.info(String.format(
-                        "[LoginService] Not first login of the day (%s) - user %s already has today's date",
-                        today, existingTodayUser.getPublicKey()));
-            }
-        }
-    }
 }

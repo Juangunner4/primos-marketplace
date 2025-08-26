@@ -48,7 +48,7 @@ public class UserResourceTest {
     }
 
     @Test
-    public void testGetUserWithoutHeader() {
+    public void testGetUser() {
         UserResource resource = new UserResource();
         LoginRequest req = new LoginRequest();
         req.publicKey = "dummy1";
@@ -57,21 +57,7 @@ public class UserResourceTest {
         code.persist();
         req.betaCode = "B2";
         resource.login(req);
-        com.primos.model.User user = resource.getUser("dummy1", null);
-        assertNotNull(user);
-    }
-
-    @Test
-    public void testGetUserWithHeader() {
-        UserResource resource = new UserResource();
-        LoginRequest req = new LoginRequest();
-        req.publicKey = "dummy2";
-        com.primos.model.BetaCode code = new com.primos.model.BetaCode();
-        code.setCode("B3");
-        code.persist();
-        req.betaCode = "B3";
-        resource.login(req);
-        com.primos.model.User user = resource.getUser("dummy2", "dummy2");
+        com.primos.model.User user = resource.getUser("dummy1");
         assertNotNull(user);
     }
 
@@ -86,23 +72,23 @@ public class UserResourceTest {
         code.persist();
         req.betaCode = "B4";
         resource.login(req);
-        java.util.List<com.primos.model.User> members = resource.getDaoMembers("member");
+        java.util.List<com.primos.model.User> members = resource.getDaoMembers();
         assertFalse(members.isEmpty());
     }
 
     @Test
-    public void testGetDaoMembersWithoutHeader() {
+    public void testGetPrimoHolders() {
         UserResource resource = new UserResource();
         LoginRequest req = new LoginRequest();
-        req.publicKey = "member2";
+        req.publicKey = "holder";
         req.primoHolder = true;
         com.primos.model.BetaCode code = new com.primos.model.BetaCode();
-        code.setCode("B4a");
+        code.setCode("B4b");
         code.persist();
-        req.betaCode = "B4a";
+        req.betaCode = "B4b";
         resource.login(req);
-        java.util.List<com.primos.model.User> members = resource.getDaoMembers(null);
-        assertFalse(members.isEmpty());
+        java.util.List<com.primos.model.User> holders = resource.getPrimoHolders();
+        assertFalse(holders.isEmpty());
     }
 
     @Test
