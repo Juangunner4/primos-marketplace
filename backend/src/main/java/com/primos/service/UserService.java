@@ -25,7 +25,16 @@ public class UserService {
 
     public List<User> getDaoMembers(String walletKey) {
         LOG.info("Retrieving DAO members");
-        List<User> users = User.list("primoHolder", true);
+        // "Primos" page should list every DAO member stored in the database.
+        //
+        // The previous implementation queried users by the `primoHolder` flag,
+        // which reflects whether the user currently holds a Primo NFT on-chain.
+        // This field may be `false` even for members who have previously joined
+        // the DAO (for example after selling their NFT) which caused the API to
+        // return an empty list for valid members.  The frontend relies on this
+        // endpoint to populate the Primos page, so we instead filter by the
+        // `daoMember` field that represents membership status.
+        List<User> users = User.list("daoMember", true);
         LOG.info(() -> "DAO members found: " + users.size());
         return users;
     }
