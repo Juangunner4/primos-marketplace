@@ -1,18 +1,23 @@
 package com.primos.service;
 
+import java.io.StringReader;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.logging.Logger;
 
 @ApplicationScoped
 public class HeliusService {
@@ -32,13 +37,15 @@ public class HeliusService {
                 return HttpClient.newBuilder()
                         .proxy(ProxySelector.of(new InetSocketAddress(uri.getHost(), uri.getPort())))
                         .build();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return HttpClient.newHttpClient();
     }
 
     /**
-     * Retrieves the number of NFTs from the Primos collection owned by the given wallet.
+     * Retrieves the number of NFTs from the Primos collection owned by the given
+     * wallet.
      *
      * @param wallet the wallet address to query
      * @return the count of NFTs or 0 on failure
@@ -69,9 +76,11 @@ public class HeliusService {
                 try (JsonReader reader = Json.createReader(new StringReader(resp.body()))) {
                     JsonObject obj = reader.readObject();
                     JsonObject result = obj.getJsonObject("result");
-                    if (result == null) break;
+                    if (result == null)
+                        break;
                     JsonArray items = result.getJsonArray("items");
-                    if (items == null) break;
+                    if (items == null)
+                        break;
                     total += items.size();
                     if (items.size() < limit) {
                         break;
@@ -85,6 +94,115 @@ public class HeliusService {
         } catch (Exception e) {
             LOG.warning("Failed to fetch Primo count for wallet " + wallet + ": " + e.getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Retrieves all wallet addresses holding NFTs from the Primos collection.
+     *
+     * @return map of wallet address to number of NFTs held
+     */
+    public Map<String, Integer> getPrimoHolders() {
+        Map<String, Integer> holders = new HashMap<>();
+        int limit = 1000;
+        int offset = 0;
+        try {
+            while (true) {
+                String url = String.format(
+                        "https://api-mainnet.magiceden.dev/v2/collections/%s/holders?offset=%d&limit=%d",
+                        COLLECTION, offset, limit);
+                HttpRequest req = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .GET()
+                        .build();
+                HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+                if (resp.statusCode() != 200) {
+                    break;
+                }
+                try (JsonReader reader = Json.createReader(new StringReader(resp.body()))) {
+                    JsonArray arr = reader.readArray();
+                    if (arr.isEmpty()) {
+                        break;
+                    }
+                    for (int i = 0; i < arr.size(); i++) {
+                        JsonObject obj = arr.getJsonObject(i);
+                        String address = obj.getString("address", null);
+                        int count = obj.getInt("count", 0);
+                        if (address != null) {
+                            holders.put(address, count);
+                        }
+                    }
+                    if (arr.size() < limit) {
+                        break;
+                    }
+                    offset += limit;
+                }
+            }
+        } catch (Exception e) {
+            LOG.warning("Failed to fetch Primo holders: " + e.getMessage());
+        }
+        return holders;
+    }
+
+    /**
+     * Fetches fungible tokens held by a specific wallet address.
+     *
+     * @param walletAddress The wallet address to query
+     * @return List of token mint addresses held by the wallet
+     */
+    public List<String> getTokensForWallet(String walletAddress) {
+        List<String> tokens = new ArrayList<>();
+
+        if (API_KEY == null || API_KEY.isEmpty() || walletAddress == null || walletAddress.isEmpty()) {
+            LOG.info("Helius API key or wallet address missing");
+            return tokens;
+        }
+
+        try {
+            String body = String.format(
+                    "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"getAssetsByOwner\",\"params\":{\"ownerAddress\":\"%s\",\"page\":1,\"limit\":1000,\"displayOptions\":{\"showFungibleTokens\":true,\"showNativeBalance\":false}}}",
+                    walletAddress);
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create("https://mainnet.helius-rpc.com/?api-key=" + API_KEY))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+
+            HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+
+            if (resp.statusCode() != 200) {
+                LOG.warning("Failed to fetch tokens for wallet " + walletAddress + ": HTTP " + resp.statusCode());
+                return tokens;
+            }
+
+            try (JsonReader reader = Json.createReader(new StringReader(resp.body()))) {
+                JsonObject obj = reader.readObject();
+                JsonObject result = obj.getJsonObject("result");
+                if (result == null)
+                    return tokens;
+
+                JsonArray items = result.getJsonArray("items");
+                if (items == null)
+                    return tokens;
+
+                for (int i = 0; i < items.size(); i++) {
+                    JsonObject item = items.getJsonObject(i);
+                    if (item.getString("interface", "").equals("FungibleToken")) {
+                        String mintAddress = item.getString("id", null);
+                        if (mintAddress != null && !mintAddress.isEmpty()) {
+                            tokens.add(mintAddress);
+                        }
+                    }
+                }
+            }
+
+            LOG.info(() -> "Found " + tokens.size() + " tokens for wallet: " + walletAddress);
+            return tokens;
+
+        } catch (Exception e) {
+            LOG.warning("Failed to fetch tokens for wallet " + walletAddress + ": " + e.getMessage());
+            return tokens;
         }
     }
 }
