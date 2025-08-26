@@ -269,6 +269,8 @@
   "latest_4_callers": "Latest 4 Callers",
   "latest_trenches_contracts": "Latest Trenches Contracts",
   "loading_trenches": "Loading trenches...",
+  "tokens_held_by_primos": "Tokens held by Primos",
+  "loading_primo_tokens": "Loading Primo tokens...",
   "failed_to_load_data": "Failed to load trenches data. Please try again.",
   "initialization_error": "Failed to initialize the page. Please refresh and try again.",
   "no_contracts_yet": "No contracts to display yet.",

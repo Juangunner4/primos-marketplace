@@ -9,6 +9,13 @@ export interface HeliusNFT {
   metadata?: Record<string, unknown>;
 }
 
+export interface HeliusFungibleToken {
+  id: string;
+  name?: string;
+  symbol?: string;
+  image?: string;
+}
+
 const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 let heliusChain: Promise<unknown> = Promise.resolve();
@@ -510,4 +517,70 @@ export const getTokenLargestAccounts = async (
     console.error('Error fetching token largest accounts:', e);
     return [];
   }
+};
+
+/**
+ * Fetches all fungible tokens held by a specific wallet using Helius RPC.
+ * @param ownerAddress The wallet public key.
+ * @returns Array of tokens with basic metadata.
+ */
+export const getTokensForOwner = async (
+  ownerAddress: string
+): Promise<HeliusFungibleToken[]> => {
+  const apiKey = process.env.REACT_APP_HELIUS_API_KEY;
+  if (!apiKey) {
+    return [];
+  }
+
+  const tokens: HeliusFungibleToken[] = [];
+  let page = 1;
+  const limit = 100;
+  let hasMore = true;
+
+  while (hasMore) {
+    try {
+      const response = await heliusFetch(
+        `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: '1',
+            method: 'searchAssets',
+            params: {
+              ownerAddress,
+              tokenType: 'fungibleToken',
+              page,
+              limit,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) break;
+
+      const data = await response.json();
+      const items = data.result?.items || [];
+      items.forEach((item: any) => {
+        tokens.push({
+          id: item.id,
+          name: item.content?.metadata?.name,
+          symbol: item.content?.metadata?.symbol,
+          image:
+            item.content?.links?.image ||
+            item.content?.files?.[0]?.uri ||
+            undefined,
+        });
+      });
+
+      hasMore = items.length === limit;
+      page += 1;
+    } catch (e) {
+      console.error('Error fetching tokens for owner:', e);
+      break;
+    }
+  }
+
+  return tokens;
 };

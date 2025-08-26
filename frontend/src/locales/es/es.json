@@ -269,6 +269,8 @@
   "latest_4_callers": "Últimos 4 Llamadores",
   "latest_trenches_contracts": "Últimos Contratos de Trenches",
   "loading_trenches": "Cargando trenches...",
+  "tokens_held_by_primos": "Tokens en manos de Primos",
+  "loading_primo_tokens": "Cargando tokens de Primos...",
   "failed_to_load_data": "Error al cargar datos de trincheras. Por favor, inténtalo de nuevo.",
   "initialization_error": "Error al inicializar la página. Por favor, actualiza e inténtalo de nuevo.",
   "no_contracts_yet": "Aún no hay contratos para mostrar.",
