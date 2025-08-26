@@ -180,23 +180,15 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
 
   // Add this separate function
   const loadPfpData = async () => {
-    console.log('ContractPanel PFP Load - Starting PFP data load for contract:', contract);
     if (!contract) return;
     
     try {
-      console.log('ContractPanel PFP Load - Fetching trench data for PFP resolution...');
       const d: TrenchData = await fetchTrenchData();
       const rec = d.contracts.find(cc => cc.contract === contract);
-      console.log('ContractPanel PFP Load - Found contract record:', rec ? 'Yes' : 'No', rec?.firstCaller ? `(First caller: ${rec.firstCaller})` : '');
       
       if (rec?.firstCaller) {
-        console.log('ContractPanel PFP Load - Processing first caller:', rec.firstCaller);
         const user = d.users.find(u => u.publicKey === rec.firstCaller);
-        console.log('ContractPanel PFP Load - Found user data:', user ? 'Yes' : 'No', user?.pfp ? `(PFP: ${user.pfp})` : '(No PFP)');
-        
-        console.log('ContractPanel PFP Load - Calling resolvePfpImage...');
         const pfpImage = await resolvePfpImage(user?.pfp, rec.firstCaller);
-        console.log('ContractPanel PFP Load - PFP image resolved:', pfpImage || 'Empty result');
         
         // Update PFP debug info for AdminDeveloperConsole
         setDebugInfo(prev => ({
@@ -209,8 +201,6 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
             userDataFound: !!user
           }
         }));
-        
-        console.log('ContractPanel PFP Load - Updating caller info with PFP data...');
         // Update only the PFP part of callerInfo
         setCallerInfo(prev => prev ? { ...prev, pfp: pfpImage } : {
           publicKey: rec.firstCaller!, // Use non-null assertion since we checked above
@@ -223,9 +213,7 @@ const ContractPanel: React.FC<ContractPanelProps> = ({ contract, open, onClose, 
           axiom: user?.socials?.axiom || '',
           vector: user?.socials?.vector || '',
         });
-        console.log('ContractPanel PFP Load - Caller info updated successfully');
       } else {
-        console.log('ContractPanel PFP Load - No first caller found for contract');
         setDebugInfo(prev => ({
           ...prev,
           contractPanelData: {
