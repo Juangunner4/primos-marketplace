@@ -150,6 +150,13 @@ export const fetchMagicEdenListings = async (
     );
     if (!res.ok) return [];
     const data = await res.json();
+    // Ensure listings are consistently ordered by price so pagination
+    // yields deterministic results and displays NFTs by floor price.
+    data.sort((a: any, b: any) => {
+      const pa = typeof a.price === 'number' ? a.price : Number.POSITIVE_INFINITY;
+      const pb = typeof b.price === 'number' ? b.price : Number.POSITIVE_INFINITY;
+      return pa - pb;
+    });
     setCached(key, data);
     return data;
   } catch (e) {

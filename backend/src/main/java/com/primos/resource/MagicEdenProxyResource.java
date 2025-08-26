@@ -4,8 +4,10 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -45,11 +47,18 @@ public class MagicEdenProxyResource {
 
     @GET
     @Path("{path: .+}")
-    public Response proxy(@PathParam("path") String path) throws IOException, InterruptedException {
+    public Response proxy(@PathParam("path") String path, @Context UriInfo uriInfo)
+            throws IOException, InterruptedException {
+        // Reconstruct the target URI including any query parameters so that
+        // pagination and other Magic Eden features function correctly.
+        String query = uriInfo.getRequestUri().getQuery();
+        String target = API_BASE + "/" + path + (query != null ? "?" + query : "");
+
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(API_BASE + "/" + path))
+                .uri(URI.create(target))
                 .GET()
                 .build();
+
         HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
 
         // Some platforms strip CORS headers from 304 responses, so return 200 instead
