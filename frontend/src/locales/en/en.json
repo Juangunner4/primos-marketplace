@@ -296,5 +296,9 @@
   "contract_details": "Contract Details",
   "detailed_information_about_token": "Detailed information about token contract",
   "price_chart": "Price Chart",
-  "chart_not_available": "Chart not available for this token"
+  "chart_not_available": "Chart not available for this token",
+  "discover_primo_tokens": "Discover Primo Tokens",
+  "discover_primo_tokens_scan": "Scans wallets of all Primo holders",
+  "discover_primo_tokens_find": "Finds tokens held by multiple Primos",
+  "discover_primo_tokens_cta": "DISCOVER PRIMO TOKENS."
 }

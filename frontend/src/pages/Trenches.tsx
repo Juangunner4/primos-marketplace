@@ -638,19 +638,13 @@ const Trenches: React.FC = () => {
           title={
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                Discover Primo Tokens
+                {t('discover_primo_tokens')}
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem', mb: 0.5 }}>
-                • Scans wallets of all Primo holders
-              </Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem', mb: 0.5 }}>
-                • Finds tokens held by multiple Primos
-              </Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem', mb: 0.5 }}>
-                • Enriches with Jupiter & CoinGecko data
+                • {t('discover_primo_tokens_scan')}
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                • Automatically adds high-value tokens to Trenches
+                • {t('discover_primo_tokens_find')}
               </Typography>
             </Box>
           }
@@ -669,7 +663,7 @@ const Trenches: React.FC = () => {
               '&:disabled': { borderColor: '#ccc', color: '#666' },
             }}
           >
-            {discoveringTokens ? 'Discovering...' : 'Discover Primo Tokens'}
+            {discoveringTokens ? 'Discovering...' : t('discover_primo_tokens')}
           </Button>
         </Tooltip>
       </Box>
