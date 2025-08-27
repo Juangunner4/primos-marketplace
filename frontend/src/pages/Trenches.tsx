@@ -27,19 +27,7 @@ import AdminDeveloperConsole from '../components/AdminDeveloperConsole';
 import { AppMessage } from '../types';
 import { usePrimoHolder } from '../contexts/PrimoHolderContext';
 import './Trenches.css';
-
-interface PrimoToken {
-  contract: string;
-  holderCount: number;
-  holders?: string[]; // Array of holder wallet addresses
-  holderDetails?: HolderInfo[]; // Detailed holder information with PFP
-  tradingViewCharts?: TradingViewChart[]; // TradingView chart data for CEX listings
-  name?: string;
-  symbol?: string;
-  image?: string;
-  marketCap?: number;
-  priceChange24h?: number;
-}
+import { PrimoToken, fetchPrimoTokensOnChain } from '../services/primoTokens';
 
 interface HolderInfo {
   publicKey: string;
@@ -123,7 +111,7 @@ const Trenches: React.FC = () => {
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
-  const [primoTokens, setPrimoTokens] = useState<HeliusFungibleToken[]>([]);
+  const [primoTokens, setPrimoTokens] = useState<PrimoToken[]>([]);
   const [loadingPrimoTokens, setLoadingPrimoTokens] = useState(false);
   const [debugInfo, setDebugInfo] = useState({
     apiCallAttempted: false,
@@ -371,6 +359,15 @@ const Trenches: React.FC = () => {
     } catch (err) {
       console.error('Failed to load Primo tokens:', err);
       logNetworkError('/api/primo-tokens', err);
+
+      // Fallback to on-chain discovery via the frontend
+      try {
+        const onChainTokens = await fetchPrimoTokensOnChain();
+        setPrimoTokens(onChainTokens);
+      } catch (chainErr) {
+        console.error('On-chain Primo token discovery failed:', chainErr);
+        logNetworkError('fetchPrimoTokensOnChain', chainErr);
+      }
     } finally {
       setLoadingPrimoTokens(false);
     }
@@ -532,17 +529,13 @@ const Trenches: React.FC = () => {
   const handleDiscoverTokens = async () => {
     setDiscoveringTokens(true);
     try {
-      const response = await api.post('/api/trench/discover-primo-tokens');
-      
-      setMessage({ 
-        text: `Token discovery complete: ${response.data.message}`, 
-        type: response.data.success ? 'success' : 'error'
-      });
-      
+      const tokens = await fetchPrimoTokensOnChain();
+      setPrimoTokens(tokens);
+      setMessage({ text: 'Token discovery complete', type: 'success' });
       // Reload trenches data to show new tokens
       await load(false);
     } catch (e: any) {
-      const errorMsg = e?.response?.data?.message || e?.response?.data || 'Failed to discover tokens';
+      const errorMsg = e?.message || 'Failed to discover tokens';
       setMessage({ text: errorMsg, type: 'error' });
     } finally {
       setDiscoveringTokens(false);
@@ -777,16 +770,16 @@ const Trenches: React.FC = () => {
               const holderCount = tokenData.holderCount || 1;
               const size = Math.max(80, Math.min(140, 80 + holderCount * 10));
               const hasMultipleHolders = holderCount > 1;
-              
+
               return (
                 <div
-                  key={tokenData.id}
+                  key={tokenData.id || tokenData.contract}
                   className="bubble"
-                  aria-label={`${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : 'Unknown token')} - ${holderCount} holder${holderCount === 1 ? '' : 's'}`}
-                  title={`Token: ${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : 'Unknown token')}
+                  aria-label={`${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : tokenData.contract)} - ${holderCount} holder${holderCount === 1 ? '' : 's'}`}
+                  title={`Token: ${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : tokenData.contract)}
 Contract: ${tokenData.contract}
 Holders: ${holderCount} Primo${holderCount === 1 ? '' : 's'}
-${tokenData.holderDetails && tokenData.holderDetails.length > 0 ? 
+${tokenData.holderDetails && tokenData.holderDetails.length > 0 ?
   `Primo Holders: ${tokenData.holderDetails.slice(0, 3).map(h => {
     if (h && typeof h === 'object') {
       const safeHolder = h as any;
