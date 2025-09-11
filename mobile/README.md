@@ -7,7 +7,7 @@ React Native application built with Expo. It shares translations and core logic 
 Install dependencies and launch Expo:
 
 ```bash
-npm install
+npm ci
 npx expo start
 ```
 
