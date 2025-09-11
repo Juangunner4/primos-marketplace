@@ -5,7 +5,7 @@ The web interface is a React application bootstrapped with Create React App and 
 ## Development
 
 ```bash
-npm install
+npm ci
 npm start
 ```
 

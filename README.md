@@ -65,7 +65,7 @@ consume.
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm start
 ```
 
@@ -73,7 +73,7 @@ npm start
 
 ```bash
 cd mobile
-npm install
+npm ci
 npx expo start
 ```
 
