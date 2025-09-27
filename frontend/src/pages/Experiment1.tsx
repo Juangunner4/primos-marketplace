@@ -11,9 +11,9 @@ import { AppMessage } from '../types';
 import './Experiment1.css';
 import Loading from '../components/Loading';
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
+const WEY_COLLECTION = process.env.REACT_APP_WEYS_COLLECTION!;
 
-interface Primo3D {
+interface Wey3D {
   tokenAddress: string;
   name: string;
   image: string;
@@ -45,7 +45,7 @@ const Experiment1: React.FC = () => {
       try {
         const items = await fetchCollectionNFTsForOwner(
           wallet.publicKey.toBase58(),
-          PRIMO_COLLECTION
+          WEY_COLLECTION
         );
         setNfts(items);
       } finally {
@@ -60,7 +60,7 @@ const Experiment1: React.FC = () => {
       const map: Record<string, StatusInfo> = {};
       for (const nft of nfts) {
         try {
-          const res = await api.get<Primo3D>(`/api/primo3d/${nft.id}`);
+          const res = await api.get<Wey3D>(`/api/wey3d/${nft.id}`);
           if (res.data) {
             map[nft.id] = { status: res.data.status, stlUrl: res.data.stlUrl };
           }
@@ -83,8 +83,8 @@ const Experiment1: React.FC = () => {
     setConfirmOpen(false);
     setRendering(true);
     try {
-      const res = await api.post<Primo3D>(
-        '/api/primo3d',
+      const res = await api.post<Wey3D>(
+        '/api/wey3d',
         {
           tokenAddress: selected.id,
           name: selected.name,

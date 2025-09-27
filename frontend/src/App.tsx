@@ -12,17 +12,17 @@ import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import api from './utils/api';
 
-import logo from './images/primosheadlogo.png';
+import logo from './images/weysheadlogo.png';
 import NFTGallery from './pages/NFTGallery';
 import WalletLogin from './components/WalletLogin';
 import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import UserProfile from './pages/UserProfile';
 import SidebarNav from './components/SidebarNav';
-import PrimosMarketGallery from './pages/PrimosMarketGallery';
+import WeysMarketGallery from './pages/WeysMarketGallery';
 import Home from './pages/Home';
-import PrimoLabs from './pages/PrimoLabs';
-import Primos from './pages/Primos';
+import WeyLabs from './pages/WeyLabs';
+import Weys from './pages/Weys';
 import Experiment1 from './pages/Experiment1';
 import Stickers from './pages/Stickers';
 import Trenches from './pages/Trenches';
@@ -38,7 +38,7 @@ import AdminDeveloperConsole from './components/AdminDeveloperConsole';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
-import { PrimoHolderProvider, usePrimoHolder } from './contexts/PrimoHolderContext';
+import { WeyHolderProvider, useWeyHolder } from './contexts/WeyHolderContext';
 import { resolvePfpImage } from './services/user';
 
 import './App.css';
@@ -208,7 +208,7 @@ const Header: React.FC = () => {
 
 const AppRoutes = () => {
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists } = useWeyHolder();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -254,14 +254,14 @@ const AppRoutes = () => {
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/market" element={<PrimosMarketGallery />} />
+          <Route path="/market" element={<WeysMarketGallery />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/merch" element={<Merch />} />
 
           {publicKey && (isHolder || betaRedeemed) && userExists && (
             <>
               <Route path="/collected" element={<NFTGallery />} />
-              <Route path="/labs" element={<PrimoLabs />} />
+              <Route path="/labs" element={<WeyLabs />} />
               <Route path="/experiment1" element={<Experiment1 />} />
               <Route path="/stickers" element={<Stickers />} />
               <Route path="/work" element={<Work />} />
@@ -274,7 +274,7 @@ const AppRoutes = () => {
             </ErrorBoundary>
           } />
           <Route path="/user/:publicKey" element={<UserProfile />} />
-          <Route path="/primos" element={<Primos />} />
+          <Route path="/weys" element={<Weys />} />
 
           {publicKey?.toBase58() === ADMIN_WALLET && (
             <Route path="/admin" element={<Admin />} />
@@ -286,7 +286,7 @@ const AppRoutes = () => {
 };
 
 const AppContent = () => {
-  const { loading } = usePrimoHolder();
+  const { loading } = useWeyHolder();
   const { t } = useTranslation();
   
   return (
@@ -342,9 +342,9 @@ const App = () => {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets}>
         <WalletModalProvider>
-          <PrimoHolderProvider>
+          <WeyHolderProvider>
             <AppContent />
-          </PrimoHolderProvider>
+          </WeyHolderProvider>
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

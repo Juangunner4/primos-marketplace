@@ -3,8 +3,9 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
-import hero from '../images/primoslogo.png';
+import hero from '../images/weyslogo.png';
 import { getMagicEdenStats, getMagicEdenHolderStats } from '../utils/magiceden';
+import { WEYS_COLLECTION_SYMBOL } from '../constants/collection';
 import { calculateFees } from '../utils/fees';
 import { getPythSolPrice } from '../utils/pyth';
 import api from '../utils/api';
@@ -44,7 +45,7 @@ interface TrenchContract {
   priceChange24h?: number;
 }
 
-interface PrimoToken {
+interface WeyToken {
   contract: string;
   holderCount?: number;
   holders?: string[];
@@ -55,7 +56,7 @@ interface PrimoToken {
   symbol?: string;
 }
 
-const MAGICEDEN_SYMBOL = 'primos';
+const MAGICEDEN_SYMBOL = WEYS_COLLECTION_SYMBOL;
 
 const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const { t } = useTranslation();
@@ -64,8 +65,8 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [latestContracts, setLatestContracts] = useState<TrenchContract[]>([]);
   const [loadingContracts, setLoadingContracts] = useState(true);
-  const [primoTokens, setPrimoTokens] = useState<PrimoToken[]>([]);
-  const [loadingPrimoTokens, setLoadingPrimoTokens] = useState(true);
+  const [weyTokens, setWeyTokens] = useState<WeyToken[]>([]);
+  const [loadingWeyTokens, setLoadingWeyTokens] = useState(true);
   const wallet = useWallet();
   const isConnected = connected ?? wallet.connected;
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -128,7 +129,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
     const fetchMembers = async () => {
       setLoadingMembers(true);
       try {
-        const res = await api.get<DaoMember[]>('/api/user/primos');
+        const res = await api.get<DaoMember[]>('/api/user/weys');
         const enriched = await Promise.all(
           res.data.slice(0, 24).map(async (m) => ({
             ...m,
@@ -188,11 +189,11 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
   }, []);
 
   useEffect(() => {
-    const fetchPrimoTokens = async () => {
-      setLoadingPrimoTokens(true);
+    const fetchWeyTokens = async () => {
+      setLoadingWeyTokens(true);
       try {
         // Fetch top tokens by 24h price change
-        const res = await api.get<PrimoToken[]>('/api/primo-tokens/top-by-change?limit=10');
+        const res = await api.get<WeyToken[]>('/api/wey-tokens/top-by-change?limit=10');
         const tokens = Array.isArray(res.data) ? res.data : [];
         
         // Enrich tokens with additional metadata if needed
@@ -228,15 +229,15 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           })
         );
         
-        setPrimoTokens(enriched);
+        setWeyTokens(enriched);
       } catch (error) {
-        console.error('Failed to fetch primo tokens:', error);
-        setPrimoTokens([]);
+        console.error('Failed to fetch wey tokens:', error);
+        setWeyTokens([]);
       } finally {
-        setLoadingPrimoTokens(false);
+        setLoadingWeyTokens(false);
       }
     };
-    fetchPrimoTokens();
+    fetchWeyTokens();
   }, []);
 
   return (
@@ -276,7 +277,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
             }}
             href="/market"
           >
-            {t('join_primos')}
+            {t('join_weys')}
           </Button>
         )}
       </Box>
@@ -387,14 +388,14 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
         position: 'relative',
       }}>
         {loadingMembers ? (
-          <Loading message={t('primos_loading')} />
+          <Loading message={t('weys_loading')} />
         ) : (
           members.length > 0 && (
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>  
                 <PeopleIcon fontSize="small" sx={{ color: '#aaa' }} />
                 <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
-                  {t('primos_title')}
+                  {t('weys_title')}
                 </Typography>
               </Box>
               {isMobile ? (
@@ -542,11 +543,11 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, gap: 0.5 }}>
             <MilitaryTechIcon sx={{ color: '#aaa' }} />
             <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
-              Top Primo Tokens (24h % Change)
+              Top Wey Tokens (24h % Change)
             </Typography>
           </Box>
-          {loadingPrimoTokens ? (
-            <Loading message={t('loading_primo_tokens')} />
+          {loadingWeyTokens ? (
+            <Loading message={t('loading_wey_tokens')} />
           ) : isMobile ? (
             <Box
               sx={{
@@ -556,7 +557,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
                 justifyItems: 'center',
               }}
             >
-              {primoTokens.map((token) => (
+              {weyTokens.map((token) => (
                 <Box key={token.contract} title={`${token.name || token.symbol || token.contract}\nHolders: ${token.holderCount || 0}`} sx={{ position: 'relative' }}>
                   <Box
                     sx={{
@@ -609,7 +610,7 @@ const Home: React.FC<{ connected?: boolean }> = ({ connected }) => {
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
-              {primoTokens.map((token) => (
+              {weyTokens.map((token) => (
                 <Box key={token.contract} title={`${token.name || token.symbol || token.contract}\nHolders: ${token.holderCount || 0}`} sx={{ position: 'relative' }}>
                   <Box
                     sx={{

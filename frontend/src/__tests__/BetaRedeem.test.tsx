@@ -9,8 +9,8 @@ jest.mock('@solana/wallet-adapter-react', () => ({
   useWallet: () => ({ publicKey: { toBase58: () => 'test-wallet' } })
 }));
 
-jest.mock('../contexts/PrimoHolderContext', () => ({
-  usePrimoHolder: () => ({
+jest.mock('../contexts/WeyHolderContext', () => ({
+  useWeyHolder: () => ({
     betaRedeemed: false,
     userExists: false,
     showRedeemDialog: false,

@@ -30,7 +30,7 @@ const TrenchesFallback: React.FC = () => {
           Wallet Connected: {connected ? 'Yes' : 'No'}<br/>
           Public Key: {publicKey ? publicKey.toBase58().slice(0, 8) + '...' : 'None'}<br/>
           Environment: {process.env.NODE_ENV}<br/>
-          Primo Collection: {process.env.REACT_APP_PRIMOS_COLLECTION ? 'Set' : 'Missing'}
+          Wey Collection: {process.env.REACT_APP_WEYS_COLLECTION ? 'Set' : 'Missing'}
         </Typography>
       </Box>
 

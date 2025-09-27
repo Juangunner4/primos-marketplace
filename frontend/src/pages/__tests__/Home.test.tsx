@@ -29,7 +29,7 @@ describe('Home', () => {
         <Home />
       </I18nextProvider>
     );
-    expect(await screen.findByText(/Join Primos/i)).toBeTruthy();
+    expect(await screen.findByText(/Join Weys/i)).toBeTruthy();
   });
 
   test('hides join button when logged in', () => {
@@ -38,7 +38,7 @@ describe('Home', () => {
         <Home connected={true} />
       </I18nextProvider>
     );
-    expect(screen.queryByText(/Join Primos/i)).toBeNull();
+    expect(screen.queryByText(/Join Weys/i)).toBeNull();
   });
 
   test('renders latest trenches contract bubbles up to 8', async () => {

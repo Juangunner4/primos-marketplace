@@ -1,4 +1,4 @@
-# Primos Marketplace Backend
+# Weys Marketplace Backend
 
 This service is built with [Quarkus](https://quarkus.io/) and exposes the REST APIs consumed by the web and mobile clients. It persists data to MongoDB and handles scheduled jobs such as daily point accrual.
 
