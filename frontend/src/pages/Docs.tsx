@@ -121,10 +121,10 @@ const Docs: React.FC = () => {
             <img src={img802} alt={t('docs_image_alt')} className="docs-img" />
             <div className="docs-img-overlay">
               <Typography variant="h6" className="overlay-title">
-                {t('primo_labs_floating_title')}
+                {t('wey_labs_floating_title')}
               </Typography>
               <Typography variant="body2" className="overlay-body">
-                {t('primo_labs_floating_body')}
+                {t('wey_labs_floating_body')}
               </Typography>
             </div>
           </div>

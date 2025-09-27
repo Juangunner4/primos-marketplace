@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import { useWeyHolder } from '../contexts/WeyHolderContext';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -24,7 +24,7 @@ const SidebarNav: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { publicKey } = useWallet();
-  const { isHolder, betaRedeemed, userExists } = usePrimoHolder();
+  const { isHolder, betaRedeemed, userExists } = useWeyHolder();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
@@ -38,19 +38,19 @@ const SidebarNav: React.FC = () => {
     {
       to: '/collected',
       icon: <WorkIcon />,
-      label: t('your_primos_nfts'),
+      label: t('your_weys_nfts'),
       show: publicKey && (isHolder || betaRedeemed) && userExists,
     },
     {
       to: '/labs',
       icon: <ScienceIcon />,
-      label: t('primo_labs'),
+      label: t('wey_labs'),
       show: publicKey && (isHolder || betaRedeemed) && userExists,
     },
     {
-      to: '/primos',
+      to: '/weys',
       icon: <PeopleIcon />,
-      label: t('primos_title'),
+      label: t('weys_title'),
       show: true,
     },
   ];

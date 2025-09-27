@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Primos Mobile",
-    "slug": "primos-mobile",
+    "name": "Weys Mobile",
+    "slug": "weys-mobile",
     "version": "1.0.0",
     "sdkVersion": "49.0.0",
     "platforms": ["ios", "android", "web"],

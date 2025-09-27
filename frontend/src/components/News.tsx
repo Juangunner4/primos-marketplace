@@ -11,7 +11,7 @@ export interface NewsItem {
 }
 
 const sampleNews: NewsItem[] = [
-  { id: '1', title: 'Marketplace Live', body: 'Primos marketplace is now live with trading and DAO tooling.' },
+  { id: '1', title: 'Marketplace Live', body: 'Weys marketplace is now live with trading and DAO tooling.' },
   { id: '2', title: 'DAO Update', body: 'Community votes on new treasury management strategies.' },
 ];
 

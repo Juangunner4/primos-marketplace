@@ -43,17 +43,17 @@ describe('Activity component', () => {
     (getNFTByTokenAddress as jest.Mock).mockResolvedValueOnce({
       id: 'mint1',
       image: 'img',
-      name: 'Primo 1',
+      name: 'Wey 1',
     });
     render(
       <I18nextProvider i18n={i18n}>
         <Activity />
       </I18nextProvider>
     );
-    const img = await screen.findByAltText('Primo 1');
+    const img = await screen.findByAltText('Wey 1');
     fireEvent.click(img);
     await waitFor(() => {
-      expect(screen.getByText('Primo 1')).toBeTruthy();
+      expect(screen.getByText('Wey 1')).toBeTruthy();
     });
   });
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Card, CardMedia, CardActions, Button, Typography, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import './PrimosMarketGallery.css';
+import './WeysMarketGallery.css';
 
 const merchItems = [
-  { id: 1, name: 'Primos T-Shirt', image: 'https://placehold.co/400x400?text=T-Shirt', price: '$25' },
-  { id: 2, name: 'Primos Cap', image: 'https://placehold.co/400x400?text=Cap', price: '$20' },
-  { id: 3, name: 'Primos Mug', image: 'https://placehold.co/400x400?text=Mug', price: '$15' },
-  { id: 4, name: 'Primos Sticker', image: 'https://placehold.co/400x400?text=Sticker', price: '$5' },
+  { id: 1, name: 'Weys T-Shirt', image: 'https://placehold.co/400x400?text=T-Shirt', price: '$25' },
+  { id: 2, name: 'Weys Cap', image: 'https://placehold.co/400x400?text=Cap', price: '$20' },
+  { id: 3, name: 'Weys Mug', image: 'https://placehold.co/400x400?text=Mug', price: '$15' },
+  { id: 4, name: 'Weys Sticker', image: 'https://placehold.co/400x400?text=Sticker', price: '$5' },
 ];
 
 const Merch: React.FC = () => {

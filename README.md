@@ -1,7 +1,7 @@
-# primos-marketplace
-Solana NFT marketplace for the Primos collection. Recent updates add
+# weys-marketplace
+Solana NFT marketplace for the Weys community. Recent updates add
 an "All Contracts" view for exploring commonly scanned addresses and
-optimize Primo holder checks via the Helius API.
+optimize Wey holder checks via the Helius API.
 
 ## Version
 
@@ -98,7 +98,7 @@ The repository includes a `docker-compose.yml` file that builds images for the
 frontend and backend and also starts a MongoDB instance. Copy
 `frontend/.env.example` to `frontend/.env` and adjust the values for development.
 This file uses the connection
-string `mongodb://mongodb:27017/primos-db` and sets `BACKEND_URL` to
+string `mongodb://mongodb:27017/weys-db` and sets `BACKEND_URL` to
 `http://localhost:8080` so the browser can reach the backend when running the
 containers locally. A `frontend/.env.test` file contains placeholders for the
 Vercel test deployment and sets `QUARKUS_PROFILE=test` so the backend loads the
@@ -109,9 +109,10 @@ that setup.
 
 The environment files also specify a `CORS_ORIGINS` variable so the backend can
 respond to requests from the frontend in both local and hosted environments.
-Both files include a `REACT_APP_PRIMOS_COLLECTION` setting which the
-frontend uses to identify the Primos NFT collection. The value defaults to
-`primos` and generally does not need to be changed.
+Both files include a `REACT_APP_WEYS_COLLECTION` setting which the
+frontend uses to identify the Weys NFT collection. The default value remains
+`primos` so the marketplace can still interact with the original Primos
+collection for on-chain testing.
 
 Run the following command from the repository root to start the entire stack:
 
@@ -155,13 +156,13 @@ docker compose --env-file frontend/.env.test up
 Build a single container that serves both the backend and frontend:
 
 ```bash
-docker build -t primos-app .
+docker build -t weys-app .
 ```
 
 Run it with:
 
 ```bash
-docker run -p 8080:8080 -p 3000:3000 -e CORS_ORIGINS=http://localhost:3000 primos-app
+docker run -p 8080:8080 -p 3000:3000 -e CORS_ORIGINS=http://localhost:3000 weys-app
 ```
 
 ### Separate Repositories for Hosting
@@ -169,8 +170,8 @@ docker run -p 8080:8080 -p 3000:3000 -e CORS_ORIGINS=http://localhost:3000 primo
 For deployment, push the `frontend` directory to its own GitHub repository for
 Vercel. Render should use this entire repository so it can build a combined
 container with both the backend and frontend. The backend API will be reachable
-at `https://primos-marketplace.onrender.com` while the Vercel frontend is served
-from `https://primos-marketplace.vercel.app`.
+at `https://weys-marketplace.onrender.com` while the Vercel frontend is served
+from `https://weys-marketplace.vercel.app`.
 
 ### Deploying to Render
 
@@ -184,7 +185,7 @@ be set so the marketplace can query NFT metadata from Helius. Additionally, defi
 `MAGICEDEN_API_KEY` so the backend can request transaction instructions from
 Magic&nbsp;Eden's private API. When you connect the repository,
 Render will automatically build the container. After deployment the site and API
-will be available at `https://primos-marketplace.onrender.com`.
+will be available at `https://weys-marketplace.onrender.com`.
 
 ### Deploying to Vercel
 
@@ -199,7 +200,7 @@ environment values inside `vercel.json` as recommended in the
 The `frontend/api/proxy.js` file provides a serverless function that forwards
 requests to Magic&nbsp;Eden, so make sure it is present in your frontend
 repository and set `REACT_APP_MAGICEDEN_BASE` to `/api/proxy`. Once deployed the
-site will be accessible at `https://primos-marketplace.vercel.app`.
+site will be accessible at `https://weys-marketplace.vercel.app`.
 
 ### Troubleshooting Vercel Deploys
 
@@ -216,12 +217,12 @@ and proxy functions. When these values are absent the client falls back to
 Provide your MongoDB Atlas connection string as the value of
 `QUARKUS_MONGODB_CONNECTION_STRING` in your hosting provider or a dedicated
 `.env.production` file so the backend uses the correct database. The
-`application.properties` file already specifies `primos-db` as the default
+`application.properties` file already specifies `weys-db` as the default
 database name, so you only need the cluster connection string here. The
-`frontend/.env` example keeps the local `mongodb://localhost:27017/primos-db`
+`frontend/.env` example keeps the local `mongodb://localhost:27017/weys-db`
 connection for development.
 
 ## Production Status
 
-Primos Marketplace is now production ready. Historical planning notes remain in
+Weys Marketplace is now production ready. Historical planning notes remain in
 [FUTURE_STATE.md](./FUTURE_STATE.md) for reference.

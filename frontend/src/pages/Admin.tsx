@@ -26,12 +26,13 @@ import { enrichUsersWithPfp } from '../services/user';
 import { getMagicEdenStats } from '../utils/magiceden';
 import { getPythSolPrice } from '../utils/pyth';
 import Loading from '../components/Loading';
-import './Primos.css';
+import { WEYS_COLLECTION_SYMBOL } from '../constants/collection';
+import './Weys.css';
 
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
-const MAGICEDEN_SYMBOL = 'primos';
+const WEY_COLLECTION = WEYS_COLLECTION_SYMBOL;
+const MAGICEDEN_SYMBOL = WEYS_COLLECTION_SYMBOL;
 
 interface BetaCode {
   code: string;
@@ -41,11 +42,11 @@ interface BetaCode {
 interface AdminStats {
   totalWallets: number;
   totalPoints: number;
-  primoHolders: number;
+  weyHolders: number;
   betaCodes: number;
   betaCodesRedeemed: number;
-  primosHeld: number;
-  walletsWithPrimos: number;
+  weysHeld: number;
+  walletsWithWeys: number;
   dbMarketCap: number;
   floorPrice: number;
 }
@@ -99,7 +100,7 @@ const Admin: React.FC = () => {
       setLoadingMembers(true);
       try {
         if (!publicKey) return;
-        const res = await api.get<Member[]>("/api/user/primos", {
+        const res = await api.get<Member[]>("/api/user/weys", {
           headers: { "X-Public-Key": publicKey.toBase58() },
         });
         const sorted = res.data
@@ -118,7 +119,7 @@ const Admin: React.FC = () => {
               const { fetchCollectionNFTsForOwner } = await import('../utils/helius');
               const nfts = await fetchCollectionNFTsForOwner(
                 m.publicKey,
-                PRIMO_COLLECTION
+                WEY_COLLECTION
               );
               owned = nfts.length;
             } catch {}
@@ -158,7 +159,7 @@ const Admin: React.FC = () => {
   }
 
   if (loadingMembers) {
-    return <Loading message={t('primos_loading')} />;
+    return <Loading message={t('weys_loading')} />;
   }
 
   const filtered = members.filter((m) =>
@@ -210,7 +211,7 @@ const Admin: React.FC = () => {
             borderRadius: 4,
           }}
         >
-          {t('primos_title')}
+          {t('weys_title')}
         </Tabs.Trigger>
       </Tabs.List>
 
@@ -279,8 +280,8 @@ const Admin: React.FC = () => {
                 <TableCell sx={{ border: '1px solid #000' }}>{stats.totalPoints}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('primo_holders')}</TableCell>
-                <TableCell sx={{ border: '1px solid #000' }}>{stats.primoHolders}</TableCell>
+                <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('wey_holders')}</TableCell>
+                <TableCell sx={{ border: '1px solid #000' }}>{stats.weyHolders}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('total_beta')}</TableCell>
@@ -292,11 +293,11 @@ const Admin: React.FC = () => {
               </TableRow>
               <TableRow>
                 <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('nfts_held')}</TableCell>
-                <TableCell sx={{ border: '1px solid #000' }}>{stats.primosHeld}</TableCell>
+                <TableCell sx={{ border: '1px solid #000' }}>{stats.weysHeld}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('wallets_with_nfts')}</TableCell>
-                <TableCell sx={{ border: '1px solid #000' }}>{stats.walletsWithPrimos}</TableCell>
+                <TableCell sx={{ border: '1px solid #000' }}>{stats.walletsWithWeys}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ border: '1px solid #000', fontWeight: 'bold' }}>{t('db_market_cap')}</TableCell>
@@ -313,37 +314,37 @@ const Admin: React.FC = () => {
 
       <Tabs.Content value="members">
         <TextField
-          placeholder={t('primos_search')}
+          placeholder={t('weys_search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           fullWidth
           margin="normal"
         />
-        <Box className="primos-list">
+        <Box className="weys-list">
           {filtered.map((m) => (
             <Link
               key={m.publicKey}
               to={`/user/${m.publicKey}`}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
-              <Box className="primos-card">
+              <Box className="weys-card">
                 <Avatar src={m.pfp || undefined} sx={{ width: 56, height: 56 }} />
                 <Box ml={1}>
                   <Typography>
                     {m.publicKey.slice(0, 4)}...{m.publicKey.slice(-3)}
                   </Typography>
-                  <Box className="primos-pills">
-                    <span className="primos-pill">{t('points')}: {m.points}</span>
-                    <span className="primos-pill">{t('pesos')}: {m.pesos}</span>
-                    <span className="primos-pill">{t('owned')}: {m.owned}</span>
-                    <span className="primos-pill">
+                  <Box className="weys-pills">
+                    <span className="weys-pill">{t('points')}: {m.points}</span>
+                    <span className="weys-pill">{t('pesos')}: {m.pesos}</span>
+                    <span className="weys-pill">{t('owned')}: {m.owned}</span>
+                    <span className="weys-pill">
                       {t('sol_price')}: {m.solPrice ? `$${m.solPrice.toFixed(2)}` : 'N/A'}
                     </span>
-                    <span className="primos-pill">
+                    <span className="weys-pill">
                       {t('total_value')}: {m.solPrice ? `$${((m.totalValue / 1e9) * m.solPrice).toFixed(2)}` : 'N/A'}
                     </span>
-                    <span className="primos-pill">{t('sold')}: {m.sold}</span>
-                    <span className="primos-pill">
+                    <span className="weys-pill">{t('sold')}: {m.sold}</span>
+                    <span className="weys-pill">
                       {t('pnl')}: {m.pnl !== null ? m.pnl.toFixed(2) : 'N/A'}
                     </span>
                   </Box>
@@ -353,7 +354,7 @@ const Admin: React.FC = () => {
           ))}
           {filtered.length === 0 && (
             <Typography className="no-members">
-              {t('primos_no_members')}
+              {t('weys_no_members')}
             </Typography>
           )}
         </Box>

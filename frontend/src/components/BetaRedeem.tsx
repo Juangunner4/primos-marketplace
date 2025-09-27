@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Button, TextField, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Snackbar from '@mui/material/Snackbar';
-import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import { useWeyHolder } from '../contexts/WeyHolderContext';
 import './BetaRedeem.css';
 
 const CODE_REGEX = /^BETA-[A-Za-z0-9]{8}$/;
@@ -18,7 +18,7 @@ const BetaRedeem: React.FC<{ autoOpen?: boolean }> = ({ autoOpen = false }) => {
     setShowRedeemDialog,
     redeemBetaCode,
     isHolder,
-  } = usePrimoHolder();
+  } = useWeyHolder();
 
   const [open, setOpen] = useState(autoOpen);
   const [code, setCode] = useState('');
@@ -109,7 +109,7 @@ const BetaRedeem: React.FC<{ autoOpen?: boolean }> = ({ autoOpen = false }) => {
 
       <Snackbar
         open={showWelcome}
-        message={t('welcome_message') || 'Welcome to Primos Marketplace!'}
+        message={t('welcome_message') || 'Welcome to Weys Marketplace!'}
         action={
           <Button color="inherit" size="small" onClick={() => { setShowWelcome(false); window.location.reload(); }}>
             {t('ok') || 'OK'}

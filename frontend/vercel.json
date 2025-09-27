@@ -10,7 +10,7 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://primos-marketplace.onrender.com/api/:path*"
+      "destination": "https://weys-marketplace.onrender.com/api/:path*"
     }
   ],
   "headers": [

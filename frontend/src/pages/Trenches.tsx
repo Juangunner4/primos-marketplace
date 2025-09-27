@@ -25,15 +25,15 @@ import ContractPanel from '../components/ContractPanel';
 import MessageModal from '../components/MessageModal';
 import AdminDeveloperConsole from '../components/AdminDeveloperConsole';
 import { AppMessage } from '../types';
-import { usePrimoHolder } from '../contexts/PrimoHolderContext';
+import { useWeyHolder } from '../contexts/WeyHolderContext';
 import './Trenches.css';
-import { PrimoToken, fetchPrimoTokensOnChain } from '../services/primoTokens';
+import { WeyToken, fetchWeyTokensOnChain } from '../services/weyTokens';
 
 interface HolderInfo {
   publicKey: string;
   pfp?: string;
   domain?: string;
-  isPrimo: boolean;
+  isWey: boolean;
 }
 
 interface TradingViewChart {
@@ -43,10 +43,10 @@ interface TradingViewChart {
   chartUrl: string;
 }
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION;
+const WEY_COLLECTION = process.env.REACT_APP_WEYS_COLLECTION;
 
-if (!PRIMO_COLLECTION) {
-  console.error('REACT_APP_PRIMOS_COLLECTION environment variable is not set');
+if (!WEY_COLLECTION) {
+  console.error('REACT_APP_WEYS_COLLECTION environment variable is not set');
 }
 
 // Format market cap into readable string
@@ -96,23 +96,23 @@ const Trenches: React.FC = () => {
   // Always call hooks unconditionally
   const wallet = useWallet();
   const { connection } = useConnection();
-  const primoContext = usePrimoHolder();
+  const weyContext = useWeyHolder();
   const { t } = useTranslation();
 
   // Extract values with fallbacks
   const publicKey = wallet.publicKey;
-  const isHolder = primoContext?.isHolder || false;
+  const isHolder = weyContext?.isHolder || false;
 
   const [input, setInput] = useState('');
   const [data, setData] = useState<TrenchData>({ contracts: [], users: [], latestCallers: {} });
   const [openContract, setOpenContract] = useState<string | null>(null);
   const [openContractUserCount, setOpenContractUserCount] = useState<number>(0);
-  const [openPrimoToken, setOpenPrimoToken] = useState<string | null>(null);
+  const [openWeyToken, setOpenWeyToken] = useState<string | null>(null);
   const [message, setMessage] = useState<AppMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
-  const [primoTokens, setPrimoTokens] = useState<PrimoToken[]>([]);
-  const [loadingPrimoTokens, setLoadingPrimoTokens] = useState(false);
+  const [weyTokens, setWeyTokens] = useState<WeyToken[]>([]);
+  const [loadingWeyTokens, setLoadingWeyTokens] = useState(false);
   const [debugInfo, setDebugInfo] = useState({
     apiCallAttempted: false,
     apiCallSuccess: false,
@@ -294,15 +294,15 @@ const Trenches: React.FC = () => {
     }
   };
 
-  const loadPrimoTokens = async () => {
-    setLoadingPrimoTokens(true);
-    console.log('Starting Primo token discovery (separate from Trenches AI contracts)...');
+  const loadWeyTokens = async () => {
+    setLoadingWeyTokens(true);
+    console.log('Starting Wey token discovery (separate from Trenches AI contracts)...');
     
     try {
-      const res = await api.get<PrimoToken[]>('/api/primo-tokens');
+      const res = await api.get<WeyToken[]>('/api/wey-tokens');
       const tokens = Array.isArray(res.data) ? res.data : [];
       
-      console.log(`Loaded ${tokens.length} Primo tokens, enriching with metadata...`);
+      console.log(`Loaded ${tokens.length} Wey tokens, enriching with metadata...`);
       
       // Enrich tokens with metadata if not already present
       const enriched = await Promise.all(
@@ -334,7 +334,7 @@ const Trenches: React.FC = () => {
               image,
               marketCap: t.marketCap,
               priceChange24h: t.priceChange24h,
-            } as HeliusFungibleToken & PrimoToken;
+            } as HeliusFungibleToken & WeyToken;
           } catch (err) {
             logNetworkError(`getNFTByTokenAddress(${t.contract})`, err);
             return {
@@ -349,27 +349,27 @@ const Trenches: React.FC = () => {
               image: t.image,
               marketCap: t.marketCap,
               priceChange24h: t.priceChange24h,
-            } as HeliusFungibleToken & PrimoToken;
+            } as HeliusFungibleToken & WeyToken;
           }
         })
       );
       
-      console.log(`Successfully enriched ${enriched.length} Primo tokens with metadata`);
-      setPrimoTokens(enriched);
+      console.log(`Successfully enriched ${enriched.length} Wey tokens with metadata`);
+      setWeyTokens(enriched);
     } catch (err) {
-      console.error('Failed to load Primo tokens:', err);
-      logNetworkError('/api/primo-tokens', err);
+      console.error('Failed to load Wey tokens:', err);
+      logNetworkError('/api/wey-tokens', err);
 
       // Fallback to on-chain discovery via the frontend
       try {
-        const onChainTokens = await fetchPrimoTokensOnChain();
-        setPrimoTokens(onChainTokens);
+        const onChainTokens = await fetchWeyTokensOnChain();
+        setWeyTokens(onChainTokens);
       } catch (chainErr) {
-        console.error('On-chain Primo token discovery failed:', chainErr);
-        logNetworkError('fetchPrimoTokensOnChain', chainErr);
+        console.error('On-chain Wey token discovery failed:', chainErr);
+        logNetworkError('fetchWeyTokensOnChain', chainErr);
       }
     } finally {
-      setLoadingPrimoTokens(false);
+      setLoadingWeyTokens(false);
     }
   };
 
@@ -379,7 +379,7 @@ const Trenches: React.FC = () => {
     const initializeComponent = async () => {
       try {
         await load();
-        await loadPrimoTokens();
+        await loadWeyTokens();
       } catch (error) {
         setDebugInfo(prev => ({
           ...prev,
@@ -529,8 +529,8 @@ const Trenches: React.FC = () => {
   const handleDiscoverTokens = async () => {
     setDiscoveringTokens(true);
     try {
-      const tokens = await fetchPrimoTokensOnChain();
-      setPrimoTokens(tokens);
+      const tokens = await fetchWeyTokensOnChain();
+      setWeyTokens(tokens);
       setMessage({ text: 'Token discovery complete', type: 'success' });
       // Reload trenches data to show new tokens
       await load(false);
@@ -565,7 +565,7 @@ const Trenches: React.FC = () => {
           canSubmit,
           connectionPresent: !!connection,
           environmentVars: {
-            primoCollection: !!PRIMO_COLLECTION,
+            weyCollection: !!WEY_COLLECTION,
             nodeEnv: process.env.NODE_ENV,
             backendUrl: process.env.REACT_APP_BACKEND_URL
           }
@@ -596,7 +596,7 @@ const Trenches: React.FC = () => {
         </Typography>
       </Box>
       
-      {/* Add Contract Section - Only for Primo Holders */}
+      {/* Add Contract Section - Only for Wey Holders */}
       {canSubmit && (
         <Box className="input-row" sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
           <TextField
@@ -631,13 +631,13 @@ const Trenches: React.FC = () => {
           title={
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                {t('discover_primo_tokens')}
+                {t('discover_wey_tokens')}
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem', mb: 0.5 }}>
-                • {t('discover_primo_tokens_scan')}
+                • {t('discover_wey_tokens_scan')}
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                • {t('discover_primo_tokens_find')}
+                • {t('discover_wey_tokens_find')}
               </Typography>
             </Box>
           }
@@ -656,7 +656,7 @@ const Trenches: React.FC = () => {
               '&:disabled': { borderColor: '#ccc', color: '#666' },
             }}
           >
-            {discoveringTokens ? 'Discovering...' : t('discover_primo_tokens')}
+            {discoveringTokens ? 'Discovering...' : t('discover_wey_tokens')}
           </Button>
         </Tooltip>
       </Box>
@@ -721,11 +721,11 @@ const Trenches: React.FC = () => {
           )}
         </Box>
       )}
-      {loadingPrimoTokens ? (
+      {loadingWeyTokens ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4, p: 3 }}>
           <CircularProgress sx={{ mb: 2 }} />
           <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
-            Discovering Primo Tokens
+            Discovering Wey Tokens
           </Typography>
           <Typography variant="body2" sx={{ 
             textAlign: 'center', 
@@ -733,16 +733,16 @@ const Trenches: React.FC = () => {
             maxWidth: 400,
             lineHeight: 1.4 
           }}>
-            Scanning Primo wallets for tokens with enhanced metadata from Jupiter, CoinGecko, and Helius APIs.
+            Scanning Wey wallets for tokens with enhanced metadata from Jupiter, CoinGecko, and Helius APIs.
             Loading holder profile pictures and discovering TradingView charts for CEX-listed tokens.
             This may take a moment as we fetch comprehensive token and holder data...
           </Typography>
         </Box>
-      ) : primoTokens.length > 0 && (
+      ) : weyTokens.length > 0 && (
         <Box sx={{ mt: 4 }}>
           <Box sx={{ mb: 3 }}>
             <Typography variant="h5" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-              {t('tokens_held_by_primos')}
+              {t('tokens_held_by_weys')}
               <Box sx={{ 
                 px: 1.5, 
                 py: 0.5, 
@@ -751,7 +751,7 @@ const Trenches: React.FC = () => {
                 borderRadius: 1, 
                 fontSize: '0.75rem' 
               }}>
-                {primoTokens.length} tokens
+                {weyTokens.length} tokens
               </Box>
             </Typography>
             <Typography variant="body2" sx={{ 
@@ -759,14 +759,14 @@ const Trenches: React.FC = () => {
               mb: 2,
               lineHeight: 1.5 
             }}>
-              Tokens currently held by Primo members with enhanced market data. 
+              Tokens currently held by Wey members with enhanced market data. 
               Size indicates holder count, badges show performance metrics.
               This is separate from Trenches AI contracts.
             </Typography>
           </Box>
           <Box className="bubble-map">
-            {primoTokens.filter(token => token && typeof token === 'object' && (token as any).contract).map((token) => {
-              const tokenData = token as HeliusFungibleToken & PrimoToken;
+            {weyTokens.filter(token => token && typeof token === 'object' && (token as any).contract).map((token) => {
+              const tokenData = token as HeliusFungibleToken & WeyToken;
               const holderCount = tokenData.holderCount || 1;
               const size = Math.max(80, Math.min(140, 80 + holderCount * 10));
               const hasMultipleHolders = holderCount > 1;
@@ -778,9 +778,9 @@ const Trenches: React.FC = () => {
                   aria-label={`${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : tokenData.contract)} - ${holderCount} holder${holderCount === 1 ? '' : 's'}`}
                   title={`Token: ${tokenData.name || tokenData.symbol || (tokenData.id && typeof tokenData.id === 'string' ? tokenData.id : tokenData.contract)}
 Contract: ${tokenData.contract}
-Holders: ${holderCount} Primo${holderCount === 1 ? '' : 's'}
+Holders: ${holderCount} Wey${holderCount === 1 ? '' : 's'}
 ${tokenData.holderDetails && tokenData.holderDetails.length > 0 ?
-  `Primo Holders: ${tokenData.holderDetails.slice(0, 3).map(h => {
+  `Wey Holders: ${tokenData.holderDetails.slice(0, 3).map(h => {
     if (h && typeof h === 'object') {
       const safeHolder = h as any;
       const domain = safeHolder.domain && typeof safeHolder.domain === 'string' ? safeHolder.domain : '';
@@ -811,7 +811,7 @@ Click: View details | Right-click: Open TradingView chart | Double-click: Copy c
                       // Log the available charts
                       console.log('TradingView charts available for', tokenData.symbol || tokenData.name, tokenData.tradingViewCharts);
                     }
-                    setOpenPrimoToken(tokenData.contract);
+                    setOpenWeyToken(tokenData.contract);
                   }}
                   onContextMenu={(e) => {
                     e.preventDefault();
@@ -1004,10 +1004,10 @@ Click: View details | Right-click: Open TradingView chart | Double-click: Copy c
         userCount={openContractUserCount}
       />
       <ContractPanel
-        contract={openPrimoToken}
-        open={openPrimoToken !== null}
-        onClose={() => setOpenPrimoToken(null)}
-        userCount={0} // Primo tokens don't need user count from Trenches
+        contract={openWeyToken}
+        open={openWeyToken !== null}
+        onClose={() => setOpenWeyToken(null)}
+        userCount={0} // Wey tokens don't need user count from Trenches
       />
       <MessageModal open={message !== null} message={message} onClose={() => setMessage(null)} />
     </Box>

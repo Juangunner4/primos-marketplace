@@ -218,7 +218,7 @@ export const getCollectionAttributes = async (
 
 /**
  * Fetches the floor price for a specific trait from Magic Eden.
- * @param collectionSymbol The collection symbol (e.g., "primos")
+ * @param collectionSymbol The collection symbol (e.g., "weys")
  * @param traitType The trait type (e.g., "Clothing")
  * @param traitValue The trait value (e.g., "Event Staff")
  * @returns The floor price in SOL, or null if not found.

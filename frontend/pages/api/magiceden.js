@@ -1,8 +1,10 @@
 import fetch from 'node-fetch';
 
+const defaultSymbol = process.env.REACT_APP_WEYS_COLLECTION || 'primos';
+
 export default async function handler(req, res) {
   // Extract or default query params
-  const { symbol = 'primos', offset = 0, limit = 20 } = req.query;
+  const { symbol = defaultSymbol, offset = 0, limit = 20 } = req.query;
   const apiUrl = `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/activities?offset=${offset}&limit=${limit}`;
 
   try {

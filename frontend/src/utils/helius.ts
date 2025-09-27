@@ -266,7 +266,7 @@ export const getNFTsByTokenAddresses = async (
  * @param ownerPubkey The wallet public key to check.
  * @returns True if the wallet owns any NFTs from the collection.
  */
-export const checkPrimoHolder = async (
+export const checkWeyHolder = async (
   collectionAddress: string,
   ownerPubkey: string
 ): Promise<boolean> => {
@@ -303,7 +303,7 @@ export const checkPrimoHolder = async (
     const items = data.result?.items || [];
     return items.length > 0;
   } catch (e) {
-    console.error('Error checking Primo holder:', e);
+    console.error('Error checking Wey holder:', e);
     return false;
   }
 };

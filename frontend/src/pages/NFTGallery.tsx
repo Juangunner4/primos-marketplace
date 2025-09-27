@@ -4,7 +4,7 @@ import { getAssetsByCollection, getNFTByTokenAddress } from "../utils/helius";
 import { getMagicEdenStats } from "../utils/magiceden";
 import { getPythSolPrice } from "../utils/pyth";
 import { getNftRank } from "../utils/nft";
-import logo from "../images/primoslogo.png";
+import logo from "../images/weyslogo.png";
 import { useTranslation } from "react-i18next";
 import { CARD_VARIANTS, getRandomCardVariantName } from "../utils/cardVariants";
 import TraitStats from "../components/TraitStats";
@@ -14,10 +14,11 @@ import MessageModal from '../components/MessageModal';
 import ListItemModal from '../components/ListItemModal';
 import AdminDeveloperConsole from '../components/AdminDeveloperConsole';
 import { AppMessage } from '../types';
-import "./PrimosMarketGallery.css";
+import "./WeysMarketGallery.css";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Card, CardActionArea, CardMedia, CardActions, Button, Typography, Box, Tooltip, IconButton } from "@mui/material";
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
+import { WEYS_COLLECTION_SYMBOL } from '../constants/collection';
 
 type GalleryNFT = {
   id: string;
@@ -29,8 +30,8 @@ type GalleryNFT = {
   attributes?: { trait_type: string; value: string }[];
 };
 
-const PRIMO_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
-const MAGICEDEN_SYMBOL = "primos";
+const WEY_COLLECTION = process.env.REACT_APP_WEYS_COLLECTION!;
+const MAGICEDEN_SYMBOL = WEYS_COLLECTION_SYMBOL;
 const NFTGallery: React.FC = () => {
   const wallet = useWallet();
   const { publicKey } = wallet;
@@ -143,7 +144,7 @@ const NFTGallery: React.FC = () => {
       
       try {
         const assetsStartTime = performance.now();
-        const assets = await getAssetsByCollection(PRIMO_COLLECTION, pub);
+        const assets = await getAssetsByCollection(WEY_COLLECTION, pub);
         const assetsEndTime = performance.now();
         
         const statsStartTime = performance.now();
@@ -292,7 +293,7 @@ const NFTGallery: React.FC = () => {
       const map: Record<string, { stlUrl?: string }> = {};
       for (const nft of nfts) {
         try {
-          const res = await api.get(`/api/primo3d/${nft.id}`);
+          const res = await api.get(`/api/wey3d/${nft.id}`);
           if (res.data?.stlUrl) map[nft.id] = { stlUrl: res.data.stlUrl };
         } catch {}
       }
@@ -510,12 +511,12 @@ const NFTGallery: React.FC = () => {
           listOpen,
           selectedNftId: selectedNft?.id,
           environmentVars: {
-            primoCollection: !!PRIMO_COLLECTION,
-            primoCollectionValue: PRIMO_COLLECTION,
+            weyCollection: !!WEY_COLLECTION,
+            weyCollectionValue: WEY_COLLECTION,
             magicEdenSymbol: MAGICEDEN_SYMBOL
           },
           heliusDebugData: {
-            collectionId: PRIMO_COLLECTION,
+            collectionId: WEY_COLLECTION,
             walletAddress: publicKey?.toBase58(),
             assetsRequested: debugInfo.heliusCallDetails.assetsRequested,
             assetsReceived: debugInfo.heliusCallDetails.assetsReceived,
@@ -571,7 +572,7 @@ const NFTGallery: React.FC = () => {
         
         <div className="market-gallery" style={{ flex: 1 }}>
           <div className="market-header-row">
-            <h2 className="market-title">{t("your_primos_nfts")}</h2>
+            <h2 className="market-title">{t("your_weys_nfts")}</h2>
             <div className="nft-gallery-stats market-stats-pills">
               <span className="market-pill">
                 {`${t("floor_price")} (USD)`}:{" "}
