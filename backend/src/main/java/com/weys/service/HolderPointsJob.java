@@ -72,9 +72,7 @@ public class HolderPointsJob {
                 user.setHolderPointsToday(0);
 
                 if (isHolder) {
-                    int multiplier = 1 + count / 5;
-                    int add = 18 * multiplier;
-                    int toAdd = Math.clamp(add, 0, PointService.MAX_POINTS_PER_DAY);
+                    int toAdd = PointCalculator.holderAward(count);
 
                     user.setPoints(user.getPoints() + toAdd);
                     user.setPointsToday(toAdd);
