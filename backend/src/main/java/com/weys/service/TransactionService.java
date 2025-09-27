@@ -106,17 +106,7 @@ public class TransactionService {
 
     public double volumeLast24h() {
         Instant cutoff = Instant.now().minus(24, ChronoUnit.HOURS);
-        return Transaction.<Transaction>streamAll()
-                .filter(t -> "confirmed".equalsIgnoreCase(t.getStatus()))
-                .filter(t -> {
-                    try {
-                        return t.getTimestamp() != null && Instant.parse(t.getTimestamp()).isAfter(cutoff);
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
-                .mapToDouble(t -> t.getSolSpent() != null ? t.getSolSpent() : (t.getPrice() != null ? t.getPrice() : 0.0))
-                .sum();
+        return TransactionAnalytics.volumeLast24h(Transaction.<Transaction>streamAll(), cutoff);
     }
 
     public List<Transaction> recentTransactions(int hours) {
