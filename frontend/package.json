@@ -28,7 +28,7 @@
     "@solana/wallet-adapter-solflare": "^0.6.32",
     "@solana/web3.js": "^1.98.2",
     "assert": "^2.1.0",
-    "axios": "^1.12.2",
+    "axios": "^1.13.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
     "framer-motion": "^12.12.1",
@@ -65,6 +65,17 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^4.9.5"
   },
+  "overrides": {
+    "sha.js": "2.4.12",
+    "chalk@^2": "2.4.2",
+    "chalk@^4": "4.1.2",
+    "chalk@^5": "5.6.2",
+    "strip-ansi@^6": "6.0.1",
+    "strip-ansi@^7": "7.1.2",
+    "debug@^2": "2.6.9",
+    "debug@^3": "3.2.7",
+    "debug@^4": "4.4.1"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -81,16 +92,5 @@
     "testMatch": [
       "<rootDir>/src/__tests__/**/*.test.(ts|tsx)"
     ]
-  },
-  "overrides": {
-    "sha.js": "2.4.12",
-    "chalk@^2": "2.4.2",
-    "chalk@^4": "4.1.2",
-    "chalk@^5": "5.6.2",
-    "strip-ansi@^6": "6.0.1",
-    "strip-ansi@^7": "7.1.2",
-    "debug@^2": "2.6.9",
-    "debug@^3": "3.2.7",
-    "debug@^4": "4.4.1"
   }
 }
