@@ -4,7 +4,7 @@ import { getNFTsByTokenAddresses } from './helius';
 import { enrichUsersWithPfp } from './user';
 
 // Gracefully handle missing env variable to avoid runtime crashes.
-const WEY_COLLECTION = process.env.REACT_APP_WEYS_COLLECTION ?? '';
+const PRIMOS_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION ?? '';
 
 export interface TrenchContract {
   contract: string;

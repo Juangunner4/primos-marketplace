@@ -12,8 +12,8 @@ jest.mock('@solana/wallet-adapter-react', () => ({
   useConnection: () => ({ connection: {} }),
 }));
 
-jest.mock('../../contexts/WeyHolderContext', () => ({
-  useWeyHolder: () => ({ isHolder: false }),
+jest.mock('../../contexts/PrimoHolderContext', () => ({
+  usePrimoHolder: () => ({ isHolder: false }),
 }));
 
 jest.mock('../../services/trench', () => ({

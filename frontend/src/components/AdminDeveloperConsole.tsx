@@ -336,8 +336,8 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
             }}>
               Node Env: {process.env.NODE_ENV}<br/>
               Backend URL: {process.env.REACT_APP_BACKEND_URL || <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/>
-              {additionalData.environmentVars?.weyCollection !== undefined && (
-                <>Wey Collection: {additionalData.environmentVars.weyCollection ? <><CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/></>
+              {additionalData.environmentVars?.primoCollection !== undefined && (
+                <>Primo Collection: {additionalData.environmentVars.primoCollection ? <><CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/></>
               )}
               Helius Key: {process.env.REACT_APP_HELIUS_API_KEY ? <><CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}<br/>
               Admin Wallet: {ADMIN_WALLET ? <><CheckCircleIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'green', verticalAlign: 'middle' }} /> Set</> : <><CancelIcon sx={{ fontSize: { xs: 12, sm: 14 }, color: 'red', verticalAlign: 'middle' }} /> Missing</>}
@@ -541,7 +541,7 @@ const AdminDeveloperConsole: React.FC<AdminDeveloperConsoleProps> = ({
             </DebugSection>
           )}
 
-          {/* Market Debug Data for WeysMarketGallery */}
+          {/* Market Debug Data for PrimosMarketGallery */}
           {additionalData.marketDebugData && (
             <DebugSection title="Market API Debug" sectionKey="marketDebug" icon={<AssignmentIcon sx={{ color: '#000000' }} />}>
               <Typography variant="body2" sx={{ 

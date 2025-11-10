@@ -1,7 +1,7 @@
 import {
   getAssetsByCollection,
   getNFTByTokenAddress,
-  checkWeyHolder,
+  checkPrimoHolder,
   fetchCollectionNFTsForOwner,
 } from '../helius';
 
@@ -65,13 +65,13 @@ describe('helius utilities', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  test('checkWeyHolder returns true when collection has NFTs', async () => {
+  test('checkPrimoHolder returns true when collection has NFTs', async () => {
     const response = {
       ok: true,
       json: async () => ({ result: { items: [{ id: '1' }] } }),
     };
     (global as any).fetch = jest.fn().mockResolvedValue(response);
-    const result = await checkWeyHolder('col', 'owner');
+    const result = await checkPrimoHolder('col', 'owner');
     expect(result).toBe(true);
   });
 

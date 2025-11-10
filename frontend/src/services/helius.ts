@@ -10,7 +10,7 @@ export {
   getAssetsByCollection,
   getNFTByTokenAddress,
   getNFTsByTokenAddresses,
-  checkWeyHolder,
+  checkPrimoHolder,
   fetchCollectionNFTsForOwner,
   getTokenInfo,
   getTokenLargestAccounts,

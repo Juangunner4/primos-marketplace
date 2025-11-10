@@ -65,7 +65,7 @@ const statusIcons: Record<string, JSX.Element> = {
   shrimp: <GiShrimp size={20} />,
 };
 
-const WEY_COLLECTION = process.env.REACT_APP_WEYS_COLLECTION!;
+const PRIMOS_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 const ADMIN_WALLET =
   process.env.REACT_APP_ADMIN_WALLET ?? 'EB5uzfZZrWQ8BPEmMNrgrNMNCHR1qprrsspHNNgVEZa6';
 
@@ -199,7 +199,7 @@ const UserProfile: React.FC = () => {
   useEffect(() => {
     if (profileKey) {
       setLoadingNfts(true);
-      const prom = getAssetsByCollection(WEY_COLLECTION, profileKey);
+      const prom = getAssetsByCollection(PRIMOS_COLLECTION, profileKey);
       if (prom && typeof (prom as any).then === 'function') {
         prom
           .then(setNfts)
@@ -794,10 +794,10 @@ const fadeOut = keyframes`
         </Box>
         <Box className="nfts-section">
           <Typography className="nfts-title" variant="h6">
-            Wey NFTs
+            Primo NFTs
           </Typography>
           {loadingNfts ? (
-            <Loading message={isOwner ? t('loading_nfts') : t('loading_weys_nfts')} />
+            <Loading message={isOwner ? t('loading_nfts') : t('loading_primos_nfts')} />
           ) : (
             <Box className="profile-nft-grid">
               {nfts.map((nft) => (

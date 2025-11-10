@@ -197,7 +197,7 @@ export const executeBuyNow = async (
   await recordTransaction({
     txId: sigBuy,
     mint: listing.tokenMint,
-    collection: process.env.REACT_APP_WEYS_COLLECTION || 'primos',
+    collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
     source: 'magiceden',
     timestamp: new Date().toISOString(),
   });
@@ -240,7 +240,7 @@ export const executeList = async (
   await recordTransaction({
     txId: sig,
     mint: nft.tokenMint,
-    collection: process.env.REACT_APP_WEYS_COLLECTION || 'primos',
+    collection: process.env.REACT_APP_PRIMOS_COLLECTION || 'primos',
     source: 'magiceden',
     timestamp: new Date().toISOString(),
   });

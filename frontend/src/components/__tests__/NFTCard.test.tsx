@@ -7,7 +7,7 @@ import i18n from "../../i18n";
 const sampleNFT: MarketNFT = {
   id: "1",
   image: "img",
-  name: "Wey 1",
+  name: "Primo 1",
   price: 1,
   variant: "pink",
   rank: 5,
@@ -20,7 +20,7 @@ describe("NFTCard", () => {
         <NFTCard nft={sampleNFT} open={true} onClose={() => {}} />
       </I18nextProvider>,
     );
-    expect(screen.getByText("Wey 1")).toBeTruthy();
+    expect(screen.getByText("Primo 1")).toBeTruthy();
     expect(screen.getByText("#5")).toBeTruthy();
     expect(screen.getByText("1")).toBeTruthy();
   });

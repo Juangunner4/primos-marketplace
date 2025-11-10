@@ -1,7 +1,7 @@
 import api from '../utils/api';
 import { getNFTByTokenAddress, fetchCollectionNFTsForOwner } from './helius';
 
-const WEY_COLLECTION = process.env.REACT_APP_WEYS_COLLECTION ?? '';
+const PRIMOS_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION ?? '';
 
 export interface UserWithPfpImage {
   pfp?: string;
@@ -20,7 +20,7 @@ export const resolvePfpImage = async (pfp?: string, fallbackPublicKey?: string):
         return pfp;
       }
       
-      // Otherwise treat as token address for Wey NFT stored in backend
+      // Otherwise treat as token address for Primo NFT stored in backend
       const tokenAddress = pfp.replace(/"/g, '');
       const nft = await getNFTByTokenAddress(tokenAddress);
       const resolvedImage = nft?.image ?? '';
@@ -33,24 +33,24 @@ export const resolvePfpImage = async (pfp?: string, fallbackPublicKey?: string):
     }
   }
   
-  // PRIORITY 2: If no valid backend PFP, fall back to first Wey collection NFT in wallet
+  // PRIORITY 2: If no valid backend PFP, fall back to first Primo collection NFT in wallet
   if (fallbackPublicKey) {
     try {
-      const nfts = await fetchCollectionNFTsForOwner(fallbackPublicKey, WEY_COLLECTION);
-      const weyImage = nfts[0]?.image || '';
+      const nfts = await fetchCollectionNFTsForOwner(fallbackPublicKey, PRIMOS_COLLECTION);
+      const primoImage = nfts[0]?.image || '';
       
-      if (weyImage) {
-        return weyImage;
+      if (primoImage) {
+        return primoImage;
       }
     } catch (error) {
-      console.warn('PFP Resolution - Failed to fetch Wey collection NFTs for user:', fallbackPublicKey, error);
+      console.warn('PFP Resolution - Failed to fetch Primo collection NFTs for user:', fallbackPublicKey, error);
     }
   }
   return '';
 };
 
 // Enrich single user with a resolved PFP image. The backend-stored PFP is
-// preferred, falling back to the first Wey collection NFT owned by the
+// preferred, falling back to the first Primo collection NFT owned by the
 // provided public key when necessary.
 export const enrichUserWithPfp = async <T extends { pfp?: string }>(
   user: T,
@@ -109,16 +109,16 @@ export const fetchUserPfpImage = async (publicKey: string): Promise<string> => {
     console.warn('User Service - Failed to fetch user data:', err);
   }
   
-  // PRIORITY 2: If no valid backend PFP, fall back to first Wey collection NFT in wallet
+  // PRIORITY 2: If no valid backend PFP, fall back to first Primo collection NFT in wallet
   try {
-    const nfts = await fetchCollectionNFTsForOwner(publicKey, WEY_COLLECTION);
-    const weyImage = nfts[0]?.image || '';
+    const nfts = await fetchCollectionNFTsForOwner(publicKey, PRIMOS_COLLECTION);
+    const primoImage = nfts[0]?.image || '';
     
-    if (weyImage) {
-      return weyImage;
+    if (primoImage) {
+      return primoImage;
     }
   } catch (error) {
-    console.warn('User Service - Failed to fetch Wey collection NFTs:', error);
+    console.warn('User Service - Failed to fetch Primo collection NFTs:', error);
   }
   return '';
 };

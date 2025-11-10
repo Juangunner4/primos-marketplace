@@ -1,5 +1,5 @@
 {
-  "name": "weys-marketplace-frontend",
+  "name": "primos-marketplace-frontend",
   "version": "1.0.0",
   "private": true,
   "proxy": "http://localhost:8080",

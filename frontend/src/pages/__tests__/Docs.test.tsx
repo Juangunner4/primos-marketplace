@@ -12,8 +12,8 @@ describe('Docs', () => {
       </I18nextProvider>
     );
     expect(screen.getByText(/Docs/i)).toBeTruthy();
-    expect(screen.getByAltText(/Weys Community Visual/i)).toBeTruthy();
+    expect(screen.getByAltText(/Primos Community Visual/i)).toBeTruthy();
     expect(screen.getByText(/Overview/i)).toBeTruthy();
-    expect(screen.getByText(i18n.t('wey_labs_floating_body'))).toBeTruthy();
+    expect(screen.getByText(i18n.t('primo_labs_floating_body'))).toBeTruthy();
   });
 });

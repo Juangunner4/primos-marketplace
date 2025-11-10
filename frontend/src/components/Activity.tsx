@@ -13,7 +13,7 @@ import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import './Activity.css';
 import { fetchMagicEdenActivity } from '../utils/magiceden';
-import { WEYS_COLLECTION_SYMBOL } from '../constants/collection';
+import { PRIMOS_COLLECTION_SYMBOL } from '../constants/collection';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { getPythSolPrice } from '../utils/pyth';
 import NFTCard, { MarketNFT } from './NFTCard';
@@ -27,7 +27,7 @@ type ActivityItem = {
   image?: string;
 };
 
-const MAGICEDEN_SYMBOL = WEYS_COLLECTION_SYMBOL;
+const MAGICEDEN_SYMBOL = PRIMOS_COLLECTION_SYMBOL;
 
 const Activity: React.FC = () => {
   const [activity, setActivity] = useState<ActivityItem[]>([]);

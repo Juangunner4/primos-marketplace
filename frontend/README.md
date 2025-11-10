@@ -1,4 +1,4 @@
-# Weys Marketplace Frontend
+# Primos Marketplace Frontend
 
 The web interface is a React application bootstrapped with Create React App and configured with CRACO. It communicates with the backend and directly with the Solana blockchain.
 
