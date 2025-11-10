@@ -21,7 +21,7 @@ services:
       context: ./frontend
       args:
         BACKEND_URL: ${BACKEND_URL}
-        WEYS_COLLECTION: ${REACT_APP_WEYS_COLLECTION}
+        PRIMOS_COLLECTION: ${REACT_APP_PRIMOS_COLLECTION}
     ports:
       - '3000:3000'
     depends_on:

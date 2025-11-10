@@ -1,4 +1,4 @@
-# Weys Marketplace Mobile
+# Primos Marketplace Mobile
 
 React Native application built with Expo. It shares translations and core logic with the web frontend.
 

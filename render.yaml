@@ -1,5 +1,5 @@
 envVarGroups:
-  - name: weys-env
+  - name: primos-env
     envVars:
       - key: BACKEND_URL
         value: ${BACKEND_URL}
@@ -7,8 +7,8 @@ envVarGroups:
         value: ${REACT_APP_BACKEND_URL}
       - key: CORS_ORIGINS
         value: ${CORS_ORIGINS}
-      - key: REACT_APP_WEYS_COLLECTION
-        value: ${REACT_APP_WEYS_COLLECTION}
+      - key: REACT_APP_PRIMOS_COLLECTION
+        value: ${REACT_APP_PRIMOS_COLLECTION}
       - key: REACT_APP_MAGICEDEN_BASE
         value: ${REACT_APP_MAGICEDEN_BASE}
       - key: REACT_APP_HELIUS_API_KEY
@@ -24,11 +24,11 @@ envVarGroups:
 
 services:
   - type: web
-    name: weys-marketplace
+    name: primos-marketplace
     runtime: docker
     plan: free
     dockerfilePath: Dockerfile
     envVars:
-      - fromGroup: weys-env
+      - fromGroup: primos-env
       - key: PORT
         value: "8080"

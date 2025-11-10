@@ -11,14 +11,14 @@ import { useTranslation } from 'react-i18next';
 import Drawer from '@mui/material/Drawer';
 import { getNFTByTokenAddress } from '../utils/helius';
 import { getTraitFloorPrice } from '../utils/magiceden';
-import { WEYS_COLLECTION_SYMBOL } from '../constants/collection';
+import { PRIMOS_COLLECTION_SYMBOL } from '../constants/collection';
 import './TraitStats.css';
 
 interface Props {
   nftIds: string[];
 }
 
-const MAGICEDEN_SYMBOL = WEYS_COLLECTION_SYMBOL;
+const MAGICEDEN_SYMBOL = PRIMOS_COLLECTION_SYMBOL;
 
 type Attribute = { trait_type: string; value: string };
 

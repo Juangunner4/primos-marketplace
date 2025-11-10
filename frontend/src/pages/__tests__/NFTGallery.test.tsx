@@ -11,7 +11,7 @@ jest.mock("@solana/wallet-adapter-react", () => ({
 jest.mock("../../utils/helius", () => ({
   getAssetsByCollection: jest.fn(() =>
     Promise.resolve([
-      { id: "1", image: "img", name: "Wey", listed: false, attributes: [] },
+      { id: "1", image: "img", name: "Primo", listed: false, attributes: [] },
     ]),
   ),
 }));
@@ -53,7 +53,7 @@ describe("NFTGallery", () => {
     const item = await screen.findByRole("button");
     fireEvent.click(item);
     await waitFor(() => {
-      expect(screen.getByText("Wey")).toBeTruthy();
+      expect(screen.getByText("Primo")).toBeTruthy();
     });
   });
 

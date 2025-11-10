@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const defaultSymbol = process.env.REACT_APP_WEYS_COLLECTION || 'primos';
+const defaultSymbol = process.env.REACT_APP_PRIMOS_COLLECTION || 'primos';
 
 export default async function handler(req, res) {
   // Extract or default query params

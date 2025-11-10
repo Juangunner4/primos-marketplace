@@ -10,7 +10,7 @@ import { AppMessage } from '../types';
 import './Stickers.css';
 import Loading from '../components/Loading';
 
-const WEY_COLLECTION = process.env.REACT_APP_WEYS_COLLECTION!;
+const PRIMOS_COLLECTION = process.env.REACT_APP_PRIMOS_COLLECTION!;
 
 const Stickers: React.FC = () => {
   const wallet = useWallet();
@@ -27,7 +27,7 @@ const Stickers: React.FC = () => {
       try {
         const items = await fetchCollectionNFTsForOwner(
           wallet.publicKey.toBase58(),
-          WEY_COLLECTION
+          PRIMOS_COLLECTION
         );
         setNfts(items);
       } finally {
